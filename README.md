@@ -1,7 +1,8 @@
-# Inferno Template
+# Da Vinci Documentation Templates and Rules (DTR) Test Kit
 
-This is a template repository for an
-[Inferno](https://github.com/inferno-community/inferno-core) test kit.
+This is an [Inferno](https://github.com/inferno-community/inferno-core) 
+test kit for the [Da Vinci Documentation Templates and Rules (DTR) FHIR
+Implementation Guide](https://hl7.org/fhir/us/davinci-dtr/).
 
 ## Documentation
 - [Inferno documentation](https://inferno-framework.github.io/inferno-core/)
