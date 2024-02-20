@@ -4,6 +4,17 @@ This is an [Inferno](https://github.com/inferno-community/inferno-core)
 test kit for the [Da Vinci Documentation Templates and Rules (DTR) FHIR
 Implementation Guide](https://hl7.org/fhir/us/davinci-dtr/).
 
+It contains test kits to test the four actors defined by the DTR specification:
+- Payer Server: responsible for serving up questionnaires.
+- Full DTR EMR: responsible for retriving questionnaires from a payer server, 
+  filling them out based on local data and user input, and storing them
+  locally.
+- Light DTR EMR: responsible for serving data that a DTR Smart App can use to
+  populate questionnaires.
+- DTR Smart App: responsible for retrieving questionnaires from a payer server,
+  completing them using data retrieved from a Light DTR EMR and user input, and
+  storing the results back to the Light DTR EMR.
+
 ## Documentation
 - [Inferno documentation](https://inferno-framework.github.io/inferno-core/)
 - [Ruby API documentation](https://inferno-framework.github.io/inferno-core/docs)
