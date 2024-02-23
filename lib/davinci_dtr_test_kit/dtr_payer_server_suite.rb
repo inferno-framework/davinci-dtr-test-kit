@@ -1,3 +1,5 @@
+require_relative 'payer_server_workflow/payer_server_workflow_group'
+
 module DaVinciDTRTestKit
     class DTRPayerServerSuite < Inferno::TestSuite
       id :dtr_payer_server
