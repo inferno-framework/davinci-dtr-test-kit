@@ -32,6 +32,7 @@ module DaVinciDTRTestKit
       validator do
         url ENV.fetch('VALIDATOR_URL')
       end
+      group from: :dtr_payer_server_workflow
     end
   end
   

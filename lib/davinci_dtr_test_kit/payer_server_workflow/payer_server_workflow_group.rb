@@ -31,6 +31,13 @@ module DaVinciDTRTestKit
     ## Profile Validation
           )
     id :dtr_payer_server_workflow
+
+    input :questionnaire_parameters,
+    title: 'Questionnaire Parameters',
+    description: 'Comma separated list of Location IDs that in sum contain all MUST SUPPORT elements'
+
     run_as_group
+
+    test from: :dtr_v201_payer_static_form_test
   end
 end
