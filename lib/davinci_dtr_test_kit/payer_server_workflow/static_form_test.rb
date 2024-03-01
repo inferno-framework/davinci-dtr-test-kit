@@ -7,53 +7,8 @@ module DaVinciDTRTestKit
     output :questionnaire_bundle
 
     run do
-      request_params = FHIR::Parameters.new(
-        parameter: [
-          {
-            name: 'order',
-            resource: {
-              resourceType: "ServiceRequest",
-              id: "ServiceRequestExample",
-              meta: {
-                profile: [
-                  "http://hl7.org/fhir/us/davinci-crd/StructureDefinition/profile-servicerequest"
-                ]
-              },
-              status: "draft",
-              intent: "original-order",
-              code: {
-                coding: [
-                  {
-                    system: "http://loinc.org",
-                    code: "24338-6"
-                  }
-                ],
-                text: "Gas panel - Blood"
-              },
-              subject: {
-                reference: "Patient/examplepatient"
-              },
-              occurrenceDateTime: "2019-05-08T09:33:27+07:00",
-              authoredOn: "2019-09-18T07:53:21+07:00",
-              requester: {
-                reference: "Practitioner/PractitionerExample"
-              },
-              reasonCode: [
-                {
-                  coding: [
-                    {
-                      system: "http://snomed.info/sct",
-                      code: "4565000"
-                    }
-                  ],
-                  text: "Decreased oxygen affinity"
-                }
-              ]
-            }
-          }
-        ]
-      )
-      fhir_operation("#{url}/Questionnaire/$questionnaire-package", body: request_params)
+      assert_valid_resource(resource: questionnaire_parameters, profile_url: "http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/dtr-qpackage-input-parameters")
+      fhir_operation("#{url}/Questionnaire/$questionnaire-package", body: questionnaire_parameters)
 
       assert_response_status(200)
       assert_resource_type(:questionnaire_bundle)
