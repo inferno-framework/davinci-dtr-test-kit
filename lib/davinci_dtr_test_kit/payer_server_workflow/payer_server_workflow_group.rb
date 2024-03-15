@@ -34,7 +34,8 @@ module DaVinciDTRTestKit
 
     input :questionnaire_parameters,
     title: 'Questionnaire Parameters',
-    description: 'Comma separated list of Location IDs that in sum contain all MUST SUPPORT elements'
+    description: 'Input Questionnaire Parameters',
+    type: 'textarea'
 
     run_as_group
 

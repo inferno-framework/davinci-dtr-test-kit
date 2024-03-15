@@ -7,7 +7,9 @@ module DaVinciDTRTestKit
     output :questionnaire_bundle
 
     run do
-      assert_valid_resource(resource: questionnaire_parameters, profile_url: "http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/dtr-qpackage-input-parameters")
+
+      resource_instance = FHIR.from_contents(questionnaire_parameters)
+      assert_valid_resource(resource: resource_instance, profile_url: "http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/dtr-qpackage-input-parameters")
       fhir_operation("#{url}/Questionnaire/HomeOxygenTherapyAdditional/$questionnaire-package/", body: JSON.parse(questionnaire_parameters), headers: {"Content-Type": "application/json"})
 
       assert_response_status(200)

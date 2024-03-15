@@ -5,43 +5,24 @@
   "inputs": [
     {
       "name": "questionnaire_parameters",
-      "value": {
-        "resourceType": "Parameters",
-        "id": "param1",
-        "parameter": [
-            {
-                "name": "coverage",
-                "resource": {
-                    "resourceType": "Coverage",
-                    "id": "cov1"
-                }
-            },
-            {
-                "name": "order",
-                "resource": {
-                    "resourceType": "DeviceRequest",
-                    "id": "dr1"
-                }
-            }
-        ]
-      },
-      "_title": "Questionnaire Parameters Parameters",
-      "_description": "Questionnaire Input Parameters",
-      "_type": "json"
+      "title": "Questionnaire Parameters Parameters",
+      "description": "Questionnaire Input Parameters",
+      "type": "textarea",
+      "value": "{\n        \"resourceType\": \"Parameters\",\n        \"id\": \"param1\",\n        \"parameter\": [\n            {\n                \"name\": \"coverage\",\n                \"resource\": {\n                    \"resourceType\": \"Coverage\",\n                    \"id\": \"cov1\"\n                }\n            },\n            {\n                \"name\": \"order\",\n                \"resource\": {\n                    \"resourceType\": \"DeviceRequest\",\n                    \"id\": \"dr1\"\n                }\n            }\n        ]\n      }"
     },
     {
       "name": "smart_credentials",
       "value": null,
-      "_title": "OAuth Credentials",
-      "_type": "oauth_credentials",
-      "_optional": true
+      "title": "OAuth Credentials",
+      "type": "oauth_credentials",
+      "optional": true
     },
     {
       "name": "url",
       "value": "http://localhost:8090/fhir/R4",
-      "_title": "FHIR Server Base URL",
-      "_description": "FHIR Server Base URL",
-      "_type": "text"
+      "title": "FHIR Server Base URL",
+      "description": "FHIR Server Base URL",
+      "type": "text"
     }
   ]
 }
