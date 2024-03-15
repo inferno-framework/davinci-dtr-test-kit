@@ -1,7 +1,7 @@
 require_relative 'static_form_test'
 
 module DaVinciDTRTestKit
-  class BasicGroup < Inferno::TestGroup
+  class DTRPayerServerQuestionnairePackageGroup < Inferno::TestGroup
     title 'Payer Server Tests'
     short_description 'Verify support for the payer server capabilities required to provide appropriate questionnaire packages upon request.'
     description %(
