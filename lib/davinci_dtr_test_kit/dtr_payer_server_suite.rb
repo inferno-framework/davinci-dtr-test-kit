@@ -1,3 +1,5 @@
+require_relative 'payer_server_workflow/payer_server_workflow_group'
+
 module DaVinciDTRTestKit
     class DTRPayerServerSuite < Inferno::TestSuite
       id :dtr_payer_server
@@ -30,6 +32,7 @@ module DaVinciDTRTestKit
       validator do
         url ENV.fetch('VALIDATOR_URL')
       end
+      group from: :dtr_payer_server_workflow
     end
   end
   

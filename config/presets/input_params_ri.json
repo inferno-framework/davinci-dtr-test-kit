@@ -1,0 +1,30 @@
+{
+  "title": "DTR Reference Implementation",
+  "id": "dtr-ri",
+  "test_suite_id": "dtr_payer_server",
+  "inputs": [
+    {
+      "name": "questionnaire_parameters",
+      "title": "Questionnaire Parameters Parameters",
+      "description": "Questionnaire Input Parameters",
+      "type": "textarea",
+      "value": "{\n        \"resourceType\": \"Parameters\",\n        \"id\": \"param1\",\n        \"parameter\": [\n            {\n                \"name\": \"coverage\",\n                \"resource\": {\n                    \"resourceType\": \"Coverage\",\n                    \"id\": \"cov1\"\n                }\n            },\n            {\n                \"name\": \"order\",\n                \"resource\": {\n                    \"resourceType\": \"DeviceRequest\",\n                    \"id\": \"dr1\"\n                }\n            }\n        ]\n      }"
+    },
+    {
+      "name": "smart_credentials",
+      "value": null,
+      "title": "OAuth Credentials",
+      "type": "oauth_credentials",
+      "optional": true
+    },
+    {
+      "name": "url",
+      "value": "http://localhost:8090/fhir/R4",
+      "title": "FHIR Server Base URL",
+      "description": "FHIR Server Base URL",
+      "type": "text"
+    }
+  ]
+}
+
+

@@ -1,0 +1,20 @@
+{
+  "resourceType": "Parameters",
+  "id": "param1",
+  "parameter": [
+    {
+      "name": "coverage",
+      "resource": {
+        "resourceType": "Coverage",
+        "id": "cov1"
+      }
+    },
+    {
+      "name": "order",
+      "resource": {
+        "resourceType": "DeviceRequest",
+        "id": "dr1"
+      }
+    }
+  ]
+}
