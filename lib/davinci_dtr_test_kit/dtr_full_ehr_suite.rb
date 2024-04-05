@@ -27,6 +27,19 @@ module DaVinciDTRTestKit
       url ENV.fetch('VALIDATOR_URL')
     end
 
+    # Handle pre-flight request to establish CORS
+    pre_flight_handler = proc do
+      [
+        200,
+        {
+          'Access-Control-Allow-Origin' => '*',
+          'Access-Control-Allow-Headers' => 'Content-Type, Authorization'
+        },
+        ['']
+      ]
+    end
+    route(:options, '/fhir/Questionnaire/$questionnaire-package', pre_flight_handler)
+
     record_response_route :post, TOKEN_PATH, 'dtr_auth', method(:token_response) do |request|
       DTRFullEHRSuite.extract_client_id(request)
     end
@@ -34,6 +47,14 @@ module DaVinciDTRTestKit
     record_response_route :post, '/fhir/Questionnaire/$questionnaire-package', 'dtr_full_ehr_questionnaire_package',
                           method(:questionnaire_package_response) do |request|
       DTRFullEHRSuite.extract_bearer_token(request)
+    end
+
+    resume_test_route :get, RESUME_PASS_PATH do |request|
+      DTRFullEHRSuite.extract_token_from_query_params(request)
+    end
+
+    resume_test_route :get, RESUME_FAIL_PATH, result: 'fail' do |request|
+      DTRFullEHRSuite.extract_token_from_query_params(request)
     end
 
     group from: :oauth2_authentication

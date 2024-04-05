@@ -1,5 +1,6 @@
 require_relative 'dtr_full_ehr_questionnaire_package_request_test'
 require_relative 'dtr_full_ehr_questionnaire_package_request_validation_test'
+require_relative 'dtr_full_ehr_questionnaire_rendering_test'
 
 module DaVinciDTRTestKit
   class DTRFullEHRQuestionnairePackageGroup < Inferno::TestGroup
@@ -14,6 +15,9 @@ module DaVinciDTRTestKit
          receives_request: :questionnaire_package
 
     test from: :dtr_full_ehr_questionnaire_package_request_validation,
+         uses_request: :questionnaire_package
+
+    test from: :dtr_full_ehr_questionnaire_rendering,
          uses_request: :questionnaire_package
   end
 end

@@ -15,22 +15,26 @@ It contains test kits to test the four actors defined by the DTR specification:
   completing them using data retrieved from a Light DTR EMR and user input, and
   storing the results back to the Light DTR EMR.
 
-## Documentation
-- [Inferno documentation](https://inferno-framework.github.io/inferno-core/)
-- [Ruby API documentation](https://inferno-framework.github.io/inferno-core/docs)
-- [JSON API documentation](https://inferno-framework.github.io/inferno-core/api-docs)
+## Exercising the test kit
 
-## Instructions for Developing tests
+To exercise the test kit for the purposes of demoing or debugging, one option is to use the HL7 Da Vinci Documentation
+Requirements Lookup Service (DRLS) reference implementation. Instructions to set up the reference implementation can be
+found [here](https://github.com/HL7-DaVinci/CRD/blob/master/SetupGuideForMacOS.md). This setup includes downloading five
+different git repositories. The repository for DTR has been forked to make it usable with this test kit here:
+https://gitlab.mitre.org/inferno/dtr. That fork should be used instead of the upstream version.
 
-To get started writing tests, clone this repo/Click "Use this template" on
-github. Refer to the Inferno documentation for information about [setting up
-your development environment and running
-Inferno](https://inferno-framework.github.io/inferno-core/getting-started.html#getting-started-for-inferno-test-writers).
+If you get an SSL error when starting DTR or crd-request-generator, start them with the following command:
+```sh
+NODE_OPTIONS=--openssl-legacy-provider npm start
+```
 
-## Example Inferno test kits
+**IMPORTANT:** the DTR reference implementation does not perform token exchange before making requests to the payer
+server. Therefore, the DTR fork has a bearer token hard-coded into requests. When running the test kit This specific
+value must be used as the payer server access token:
+```
+d06d1d119a191d974d55fde1cdc55ee0
+```
 
-- https://github.com/inferno-community/ips-test-kit
-- https://github.com/inferno-community/shc-vaccination-test-kit
 
 ## License
 Copyright 2022 The MITRE Corporation
