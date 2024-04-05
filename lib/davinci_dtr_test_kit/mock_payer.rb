@@ -7,6 +7,15 @@ module DaVinciDTRTestKit
     end
 
     def questionnaire_package_response(request, _test = nil, _test_result = nil)
+      # make outgoing request to payer here, using incoming request, prior to send a response to the client
+      # need to wait for response from payer server
+      # use that response to give the client a questionnaire
+
+      client = FHIR::Client.new(JSON.parse(_test_result.input_json)[1]["value"]).default_json
+      payer_response = client.post('/Questionnaire/$questionnaire-package', JSON.parse(request.request_body), { 'Content-Type': 'application/json' })
+      
+      # TODO: once payer_response works properly, request.body should draw from it
+      # TODO: add $next-question operation in a loop until all adaptive questions are answered
       request.status = 200
       request.response_headers = { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': 'http://localhost:3005' }
       request.response_body = response_body
