@@ -30,14 +30,13 @@ module DaVinciDTRTestKit
 
     ## Profile Validation
           )
-    id :dtr_payer_server_workflow
+    id :payer_server_static_package
+    run_as_group
 
     input :questionnaire_parameters,
     title: 'Questionnaire Parameters',
     description: 'Input Questionnaire Parameters',
     type: 'textarea'
-
-    run_as_group
 
     test from: :dtr_v201_payer_static_form_test
   end
