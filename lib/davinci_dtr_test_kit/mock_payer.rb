@@ -21,8 +21,7 @@ module DaVinciDTRTestKit
     def questionnaire_next_response(request, _test = nil, _test_result = nil)
       client = FHIR::Client.new(JSON.parse(_test_result.input_json)[1]["value"])
       client.default_json
-      payer_response = client.send(:post, '/Questionnaire/$next-question', JSON.parse(request.request_body), { 'Content-Type' => 'application/json', 'Access-Control-Allow-Origin' => 'http://localhost:3005' })
-
+      payer_response = client.send(:post, '/Questionnaire/$next-question', JSON.parse(request.request_body), { 'Content-Type' => 'application/json' })
 
       request.status = 200
       request.response_headers = { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': 'http://localhost:3005' }
@@ -41,6 +40,10 @@ module DaVinciDTRTestKit
 
     def extract_token_from_query_params(request)
       request.query_parameters['token']
+    end
+
+    def test_resumes?(test)
+      false
     end
 
     def response_body

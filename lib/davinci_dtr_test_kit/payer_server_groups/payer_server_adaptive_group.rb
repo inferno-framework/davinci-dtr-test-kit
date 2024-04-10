@@ -1,6 +1,8 @@
 require_relative 'payer_server_adaptive_request_test'
 require_relative 'payer_server_adaptive_request_validation_test'
 require_relative 'payer_server_adaptive_response_validation_test'
+require_relative 'payer_server_next_request_validation_test'
+require_relative 'payer_server_next_response_validation_test'
 
 module DaVinciDTRTestKit
   class DTRPayerServerAdaptiveQuestionnairePackageGroup < Inferno::TestGroup
@@ -16,12 +18,16 @@ module DaVinciDTRTestKit
          receives_request: :client_questionnaire_package
 
     # optionally validate client request
-    test from: :payer_server_adaptive_questionnaire_package_request_validation,
-         uses_request: :client_questionnaire_package
+    test from: :payer_server_adaptive_questionnaire_package_request_validation
     
     # pass request to payer server, validate questionnaire response
-    test from: :payer_server_adaptive_response_validation_test,
-         uses_request: :client_questionnaire_package  
+    test from: :payer_server_adaptive_response_validation_test 
+
+    # optionally validate the client request
+    test from: :payer_server_next_request_validation
+
+    # pass request to payer server, validate adaptive questionnaire response
+    test from: :payer_server_next_response_validation_test
 
   end
 end
