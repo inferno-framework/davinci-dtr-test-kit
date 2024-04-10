@@ -3,6 +3,7 @@ require_relative 'ext/inferno_core/record_response_route'
 require_relative 'ext/inferno_core/request'
 require_relative 'payer_server_groups/payer_server_static_group'
 require_relative 'payer_server_groups/payer_server_adaptive_group'
+require_relative 'payer_server_groups/payer_server_adaptive_next_group'
 
 require_relative 'mock_payer'
 
@@ -53,6 +54,7 @@ module DaVinciDTRTestKit
       ]
     end
     route(:options, '/fhir/Questionnaire/$questionnaire-package', pre_flight_handler)
+    route(:options, '/fhir/$next-question', pre_flight_handler)
 
     record_response_route :post, TOKEN_PATH, 'dtr_auth', method(:token_response) do |request|
       DTRPayerServerSuite.extract_client_id(request)
@@ -63,7 +65,13 @@ module DaVinciDTRTestKit
       DTRPayerServerSuite.extract_bearer_token(request)
     end
 
+    record_response_route :post, '/fhir/$next-question', 'payer_server_adaptive_questionnaire_package',
+                          method(:questionnaire_next_response) do |request|
+      DTRPayerServerSuite.extract_bearer_token(request)
+    end
+
     group from: :payer_server_static_package
     group from: :payer_server_adaptive_package
+    group from: :payer_server_adaptive_next_package
   end
 end

@@ -7,16 +7,23 @@ module DaVinciDTRTestKit
     end
 
     def questionnaire_package_response(request, _test = nil, _test_result = nil)
-      # make outgoing request to payer here, using incoming request, prior to send a response to the client
-      # need to wait for response from payer server
-      # use that response to give the client a questionnaire
 
       client = FHIR::Client.new(JSON.parse(_test_result.input_json)[1]["value"])
       client.default_json
-      payer_response = client.send(:post, '/Questionnaire/$questionnaire-package', JSON.parse(request.request_body), { 'Content-Type' => 'application/json' })
+      payer_response = client.send(:post, '/Questionnaire/HomeOxygenTherapyAdditional/$questionnaire-package', JSON.parse(request.request_body), { 'Content-Type' => 'application/json' })
 
-      # TODO: once payer_response works properly, request.body should draw from it
-      # TODO: add $next-question operation in a loop until all adaptive questions are answered
+      request.status = 200
+      request.response_headers = { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': 'http://localhost:3005' }
+
+      request.response_body = payer_response.response[:body].to_s
+    end
+
+    def questionnaire_next_response(request, _test = nil, _test_result = nil)
+      client = FHIR::Client.new(JSON.parse(_test_result.input_json)[1]["value"])
+      client.default_json
+      payer_response = client.send(:post, '/Questionnaire/$next-question', JSON.parse(request.request_body), { 'Content-Type' => 'application/json', 'Access-Control-Allow-Origin' => 'http://localhost:3005' })
+
+
       request.status = 200
       request.response_headers = { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': 'http://localhost:3005' }
 
