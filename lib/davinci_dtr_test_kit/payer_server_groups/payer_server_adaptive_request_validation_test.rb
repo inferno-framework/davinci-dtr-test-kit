@@ -16,15 +16,17 @@ module DaVinciDTRTestKit
     optional
 
     run do
-      assert request.url == questionnaire_package_url,
-             "Request made to wrong URL: #{request.url}. Should instead be to #{questionnaire_package_url}"
-
-      assert_valid_json(request.request_body)
-      input_params = FHIR.from_contents(request.request_body)
-      assert input_params.present?, 'Request does not contain a recognized FHIR object'
-      assert_resource_type(:parameters, resource: input_params)
-      assert_valid_resource(resource: input_params,
-                            profile_url: 'http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/dtr-qpackage-input-parameters')
+      resources = load_tagged_requests(QUESTIONNAIRE_TAG)
+      resources.each do |resource|
+        assert resource.url == questionnaire_package_url,
+          "Request made to wrong URL: #{request.url}. Should instead be to #{questionnaire_package_url}"
+        assert_valid_json(resource.request[:body])
+        input_params = FHIR.from_contents(resource.request[:body])
+        assert input_params.present?, 'Request does not contain a recognized FHIR object'
+        assert_resource_type(:parameters, resource: input_params)
+        assert_valid_resource(resource: input_params,
+                              profile_url: 'http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/dtr-qpackage-input-parameters')
+      end
     end
   end
 end

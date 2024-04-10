@@ -1,7 +1,7 @@
 module DaVinciDTRTestKit
   class AdaptiveNextQuestionnairePackageValidationTest < Inferno::Test
     include URLs
-    title 'Questionnaire Package request is valid'
+    title 'Next Questionnaire Package request is valid'
     description %(
       This test validates the conformance of the client's request to the
       [DTR Questionnaire Package Input Parameters](http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/dtr-qpackage-input-parameters)
@@ -16,15 +16,17 @@ module DaVinciDTRTestKit
     optional
 
     run do
-      assert request.url == next_url,
-             "Request made to wrong URL: #{request.url}. Should instead be to #{next_url}"
-
-      assert_valid_json(request.request_body)
-      input_params = FHIR.from_contents(request.request_body)
-      assert input_params.present?, 'Request does not contain a recognized FHIR object'
-      assert_resource_type(:parameters, resource: input_params)
-      assert_valid_resource(resource: input_params,
-                            profile_url: 'http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/dtr-qpackage-input-parameters')
+      resources = load_tagged_requests(NEXT_TAG)
+      resources.each do |resource|
+        assert resource.url == next_url,
+             "Request made to wrong URL: #{resource.url}. Should instead be to #{next_url}"
+        assert_valid_json(resource.request[:body])
+        input_params = FHIR.from_contents(resource.request[:body])
+        assert input_params.present?, 'Request does not contain a recognized FHIR object'
+        assert_resource_type(:parameters, resource: input_params)
+        assert_valid_resource(resource: input_params,
+                              profile_url: 'http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/dtr-qpackage-input-parameters')
+      end
     end
   end
 end

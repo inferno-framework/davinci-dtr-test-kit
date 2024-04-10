@@ -3,8 +3,8 @@ require_relative 'ext/inferno_core/record_response_route'
 require_relative 'ext/inferno_core/request'
 require_relative 'payer_server_groups/payer_server_static_group'
 require_relative 'payer_server_groups/payer_server_adaptive_group'
-require_relative 'payer_server_groups/payer_server_adaptive_next_group'
 
+require_relative 'tags'
 require_relative 'mock_payer'
 
 module DaVinciDTRTestKit
@@ -60,18 +60,23 @@ module DaVinciDTRTestKit
       DTRPayerServerSuite.extract_client_id(request)
     end
 
-    record_response_route :post, '/fhir/Questionnaire/$questionnaire-package', 'payer_server_questionnaire_package',
-                          method(:questionnaire_package_response) do |request|
+    record_response_route :post, '/fhir/Questionnaire/$questionnaire-package', QUESTIONNAIRE_TAG,
+                          method(:questionnaire_package_response), resumes: method(:test_resumes?) do |request|
       DTRPayerServerSuite.extract_bearer_token(request)
     end
 
-    record_response_route :post, '/fhir/$next-question', 'payer_server_adaptive_questionnaire_package',
-                          method(:questionnaire_next_response) do |request|
+    record_response_route :post, '/fhir/$next-question', NEXT_TAG,
+                          method(:questionnaire_next_response), resumes: method(:test_resumes?) do |request|
       DTRPayerServerSuite.extract_bearer_token(request)
     end
+
+    resume_test_route :get, RESUME_PASS_PATH do |request|
+      DTRFullEHRSuite.extract_token_from_query_params(request)
+    end
+
 
     group from: :payer_server_static_package
     group from: :payer_server_adaptive_package
-    group from: :payer_server_adaptive_next_package
+    # group from: :payer_server_adaptive_next_package
   end
 end
