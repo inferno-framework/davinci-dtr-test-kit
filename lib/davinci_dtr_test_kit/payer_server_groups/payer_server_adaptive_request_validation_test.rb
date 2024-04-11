@@ -1,6 +1,8 @@
+require_relative '../validation_test'
 module DaVinciDTRTestKit
   class AdaptiveQuestionnairePackageValidationTest < Inferno::Test
     include URLs
+    include DaVinciDTRTestKit::ValidationTest
     title 'Questionnaire Package request is valid'
     description %(
       This test validates the conformance of the client's request to the
@@ -16,17 +18,11 @@ module DaVinciDTRTestKit
     optional
 
     run do
-      resources = load_tagged_requests(QUESTIONNAIRE_TAG)
-      resources.each do |resource|
-        assert resource.url == questionnaire_package_url,
-          "Request made to wrong URL: #{request.url}. Should instead be to #{questionnaire_package_url}"
-        assert_valid_json(resource.request[:body])
-        input_params = FHIR.from_contents(resource.request[:body])
-        assert input_params.present?, 'Request does not contain a recognized FHIR object'
-        assert_resource_type(:parameters, resource: input_params)
-        assert_valid_resource(resource: input_params,
-                              profile_url: 'http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/dtr-qpackage-input-parameters')
-      end
+      perform_request_validation_test(
+      QUESTIONNAIRE_TAG,
+      :parameter,
+      'http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/dtr-qpackage-input-parameters',
+      questionnaire_package_url)
     end
   end
 end
