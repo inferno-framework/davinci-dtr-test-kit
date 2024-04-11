@@ -20,7 +20,7 @@ module DaVinciDTRTestKit
     run do
       perform_request_validation_test(
       NEXT_TAG,
-      :parameter,
+      :parameters,
       'http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/dtr-qpackage-input-parameters',
       next_url)
     end
