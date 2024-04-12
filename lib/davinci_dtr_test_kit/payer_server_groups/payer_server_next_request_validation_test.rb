@@ -19,7 +19,6 @@ module DaVinciDTRTestKit
 
     run do
       resources = load_tagged_requests(NEXT_TAG)
-      puts res.class
       perform_request_validation_test(
       resources,
       :questionnaireResponse,
