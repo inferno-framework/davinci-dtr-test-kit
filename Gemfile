@@ -7,5 +7,6 @@ gemspec
 group :development, :test do
   gem 'rubocop', '~> 1.9'
   gem 'rubocop-rspec', require: false
+  gem "rubocop-rake", "~> 0.6.0"
   gem 'debug'
 end

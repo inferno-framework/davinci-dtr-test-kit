@@ -1,11 +1,11 @@
 require_relative '../urls'
 
 module DaVinciDTRTestKit
-  class QuestionnairePackageRequestTest < Inferno::Test
+  class DTRQuestionnairePackageRequestTest < Inferno::Test
     include URLs
 
-    id :dtr_full_ehr_questionnaire_package_request
-    title 'EHR invokes the DTR Questionnaire Package operation'
+    id :dtr_questionnaire_package_request
+    title 'Invoke the DTR Questionnaire Package operation'
     description %(
       Inferno will wait for a DTR questionnarie package request from the client. Upon receipt, Inferno will generate and
       send a response.
