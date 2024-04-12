@@ -7,13 +7,11 @@ module DaVinciDTRTestKit
     output :questionnaire_bundle
 
     run do
-
+      resources = load_tagged_requests(QUESTIONNAIRE_TAG)
       perform_response_validation_test(
-        QUESTIONNAIRE_TAG,
+        resources,
         :parameters,
         'http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/dtr-qpackage-output-parameters')
-
-      output questionnaire_bundle: questionnaire_bundle
     end
   end
 end

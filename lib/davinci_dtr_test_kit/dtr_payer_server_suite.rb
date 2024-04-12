@@ -61,7 +61,7 @@ module DaVinciDTRTestKit
     end
 
     record_response_route :post, '/fhir/Questionnaire/$questionnaire-package', QUESTIONNAIRE_TAG,
-                          method(:questionnaire_package_response), resumes: method(:test_resumes?) do |request|
+                          method(:payer_adaptive_questionnaire_response), resumes: method(:test_resumes?) do |request|
       DTRPayerServerSuite.extract_bearer_token(request)
     end
 
@@ -76,7 +76,6 @@ module DaVinciDTRTestKit
 
 
     group from: :payer_server_static_package
-    group from: :payer_server_adaptive_package
-    # group from: :payer_server_adaptive_next_package
+    group from: :payer_server_adaptive_questionnaire
   end
 end

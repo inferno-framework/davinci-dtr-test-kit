@@ -8,7 +8,7 @@ module DaVinciDTRTestKit
       Inferno will wait for a DTR questionnaire package request from the client. Upon receipt, Inferno will generate and
       send a response.
     )
-    id :payer_server_questionnaire_package_request
+    id :payer_server_questionnaire_request
     input :access_token
 
     run do

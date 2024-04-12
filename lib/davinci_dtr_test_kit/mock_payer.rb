@@ -7,6 +7,12 @@ module DaVinciDTRTestKit
     end
 
     def questionnaire_package_response(request, _test = nil, _test_result = nil)
+      request.status = 200
+      request.response_headers = { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': 'http://localhost:3005' }
+      request.response_body = response_body
+    end
+
+    def payer_adaptive_questionnaire_response(request, _test = nil, _test_result = nil)
 
       client = FHIR::Client.new(JSON.parse(_test_result.input_json)[1]["value"])
       client.default_json

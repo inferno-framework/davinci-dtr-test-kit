@@ -18,10 +18,12 @@ module DaVinciDTRTestKit
     optional
 
     run do
+      resources = load_tagged_requests(NEXT_TAG)
+      puts res.class
       perform_request_validation_test(
-      NEXT_TAG,
-      :parameters,
-      'http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/dtr-qpackage-input-parameters',
+      resources,
+      :questionnaireResponse,
+      'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaireresponse',
       next_url)
     end
   end
