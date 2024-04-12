@@ -14,12 +14,13 @@ module DaVinciDTRTestKit
       to the bound ValueSet. Quantity, Coding, and code element bindings will fail if their code/system are not found in
       the valueset.
     )
-    id :payer_server_adaptive_questionnaire_package_request_validation
+    id :payer_server_adaptive_questionnaire_request_validation
     optional
 
     run do
+      resources = load_tagged_requests(QUESTIONNAIRE_TAG)
       perform_request_validation_test(
-      QUESTIONNAIRE_TAG,
+      resources,
       :parameters,
       'http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/dtr-qpackage-input-parameters',
       questionnaire_package_url)

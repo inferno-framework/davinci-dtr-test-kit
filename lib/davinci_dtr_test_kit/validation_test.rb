@@ -8,19 +8,13 @@ module DaVinciDTRTestKit
                             profile_url: profile_url)
     end
 
-    def load_resources(tag, resource_type, profile_url)
-      resources = load_tagged_requests(tag)
-      omit_if resources.blank?,
-            "No #{resource_type.to_s} resources provided so the #{profile_url} profile does not apply"
-      resources
-    end
-
     def perform_request_validation_test(
-      tag,
+      resources,
       resource_type,
       profile_url,
       resource_url)
-      resources = load_resources(tag, resource_type, profile_url)
+      omit_if resources.blank?,
+            "No #{resource_type.to_s} resources provided so the #{profile_url} profile does not apply"
       resources.each do |resource|
         assert resource.url == resource_url,
           "Request made to wrong URL: #{resource.request[:url]}. Should instead be to #{resource_url}"
@@ -28,17 +22,18 @@ module DaVinciDTRTestKit
         fhir_resource = FHIR.from_contents(resource.request[:body])
         validate_resource(fhir_resource, resource_type, profile_url)
       end
+    end
 
-      def perform_response_validation_test(
-        tag,
-        resource_type,
-        profile_url)
-        resources = load_resources(tag, resource_type, profile_url)
-        resources.each do |resource|
-          fhir_resource = FHIR.from_contents(resource.response[:body])
-          assert_response_status(200, request: resource, response: resource.response)
-          validate_resource(fhir_resource, resource_type, profile_url)
-        end
+    def perform_response_validation_test(
+      resources,
+      resource_type,
+      profile_url)
+      omit_if resources.blank?,
+          "No #{resource_type.to_s} resources provided so the #{profile_url} profile does not apply"
+      resources.each do |resource|
+        fhir_resource = FHIR.from_contents(resource.response[:body])
+        assert_response_status(200, request: resource, response: resource.response)
+        validate_resource(fhir_resource, resource_type, profile_url)
       end
     end
   end
