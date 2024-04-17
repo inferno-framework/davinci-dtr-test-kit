@@ -3,7 +3,7 @@ module DaVinciDTRTestKit
   class AdaptiveQuestionnairePackageValidationTest < Inferno::Test
     include URLs
     include DaVinciDTRTestKit::ValidationTest
-    title 'Questionnaire Package request is valid'
+    title '[USER INPUT VALIDATION] Questionnaire Package request is valid'
     description %(
       This test validates the conformance of the client's request to the
       [DTR Questionnaire Package Input Parameters](http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/dtr-qpackage-input-parameters)
@@ -15,7 +15,6 @@ module DaVinciDTRTestKit
       the valueset.
     )
     id :payer_server_adaptive_questionnaire_request_validation
-    optional
 
     run do
       resources = load_tagged_requests(QUESTIONNAIRE_TAG)
@@ -24,6 +23,13 @@ module DaVinciDTRTestKit
       :parameters,
       'http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/dtr-qpackage-input-parameters',
       questionnaire_package_url)
+
+      validation_error_messages.each do |msg|
+        messages << { type: 'error', message: msg }
+      end
+      msg = 'Bundle(s) provided and/or entry resources are not conformant. Check messages for issues found.'
+      skip_if validation_error_messages.present?, msg
+
     end
   end
 end
