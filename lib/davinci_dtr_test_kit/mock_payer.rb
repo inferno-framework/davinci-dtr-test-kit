@@ -14,14 +14,31 @@ module DaVinciDTRTestKit
 
     def payer_adaptive_questionnaire_response(request, _test = nil, _test_result = nil)
 
+
       client = FHIR::Client.new(JSON.parse(_test_result.input_json)[1]["value"])
       client.default_json
-      payer_response = client.send(:post, '/Questionnaire/HomeOxygenTherapyAdditional/$questionnaire-package', JSON.parse(request.request_body), { 'Content-Type' => 'application/json' })
+      payer_response = client.send(:post, '/Questionnaire/$questionnaire-package', JSON.parse(request.request_body), { 'Content-Type' => 'application/json' })
 
       request.status = 200
       request.response_headers = { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': 'http://localhost:3005' }
 
-      request.response_body = payer_response.response[:body].to_s
+
+      lacks_body = payer_response.response[:body].body.nil? rescue true
+      unless lacks_body
+        json_response = JSON.parse(payer_response.response[:body])
+        lacks_params = json_response["parameter"][0]["resource"]["entry"].nil? rescue true
+        unless lacks_params
+          json_response["parameter"][0]["resource"]["entry"].delete_if { |entry| 
+          lacks_profiles = entry["resource"]["meta"]["profile"].nil? rescue true
+          unless lacks_profiles
+            (!entry["resource"]["meta"]["profile"].include? "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-adapt") && entry["resource"]["resourceType"] == "Questionnaire"
+          else
+            false
+          end
+          }
+        end
+      end
+      request.response_body = RestClient::Response.create(JSON.generate(json_response).to_s, Net::HTTPOK.new("1.1",200,""), RestClient::Request.new(payer_response.request))
     end
 
     def questionnaire_next_response(request, _test = nil, _test_result = nil)
@@ -32,7 +49,7 @@ module DaVinciDTRTestKit
       request.status = 200
       request.response_headers = { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': 'http://localhost:3005' }
 
-      request.response_body = payer_response.response[:body].to_s
+      request.response_body = payer_response.response[:body]
     end
 
     def extract_client_id(request)
