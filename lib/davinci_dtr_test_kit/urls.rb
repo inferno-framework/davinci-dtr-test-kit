@@ -3,9 +3,7 @@
 module DaVinciDTRTestKit
   TOKEN_PATH = '/mock_auth/token'
   QUESTIONNAIRE_PACKAGE_PATH = '/fhir/Questionnaire/$questionnaire-package'
-  NEXT_PATH = '/fhir/$next-question'
-  # TODO: revert this path and change the path in the RI, it is the correct on per the IG, but using another for test of RI 
-  # NEXT_PATH = '/fhir/Questionnaire/$next-question'
+  NEXT_PATH = '/fhir/Questionnaire/$next-question'
   RESUME_PASS_PATH = '/resume_pass'
   RESUME_FAIL_PATH = '/resume_fail'
 
