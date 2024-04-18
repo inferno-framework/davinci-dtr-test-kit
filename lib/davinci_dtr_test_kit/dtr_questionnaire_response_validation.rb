@@ -31,38 +31,82 @@ module DaVinciDTRTestKit
       #    questionnaire package, or from data retrieved from the EHR) SHALL have their origin.source set to ‘auto’.
       #
       # Note that in the questionnaire fixture, all cql expression elements are enabled, so we don't filter
-      validation_errors = validate_cql_executed(standard_questionnaire, questionnaire_response)
+      validation_errors = validate_cql_executed(pre_populated_questionnaire_response.item, questionnaire_response.item)
 
       # Requirement: The DTR client SHALL retrieve the FHIR resources specified in the dataRequirement section of a
       #              Library
-      validation_errors.concat(validate_data_requirements_retrieved(questionnaire_response))
+      validation_errors.concat(validate_data_requirements_retrieved(pre_populated_questionnaire_response,
+                                                                    questionnaire_response))
 
       validation_errors.each { |msg| messages << { type: 'error', message: msg } }
       assert validation_errors.blank?, 'QuestionnaireResponse is not conformant. Check messages for issues found.'
     end
 
-    def validate_cql_executed(questionnaire, questionnaire_response)
-      link_ids = collect_questionnaire_cql_expression_link_ids(questionnaire.item)
-      validate_questionnaire_response_item_source(questionnaire_response.item, link_ids)
-    end
+    def validate_cql_executed(expected_items, actual_items, error_messages = [])
+      actual_items&.each do |item|
+        expected_item = find_item_by_link_id(expected_items, item.linkId)
+        if questionnaire_cql_expression_link_ids.include?(item.linkId)
+          answer = item.answer&.first
+          expected_answer = expected_item.answer.first
 
-    def validate_data_requirements_retrieved(questionnaire_response)
-      error_messages = []
-      data_req_condition_system = 'http://hl7.org/fhir/sid/icd-10-cm'
-      data_req_condition_code = 'J44.9'
+          if answer.present?
+            unless valid_pre_populated_item_source?(answer)
+              error_messages << "Pre-populated answer for question with linkId `#{item.linkId}` does not have " \
+                                "origin.source equal to 'auto'"
+            end
 
-      answer = find_answer_by_link_id(questionnaire_response.item, '3.1')
-      data_req_answer = answer&.find do |a|
-        a.valueCoding&.present? &&
-          a.valueCoding&.system == data_req_condition_system &&
-          a.valueCoding&.code == data_req_condition_code
-      end
-      unless data_req_answer.present?
-        error_messages << "dataRequirement not satisfied for Library 'RAD Prepopulation'. Expected answer to " \
-                          "question with linkId `3.1` to have coding with system: '`#{data_req_condition_system}`' " \
-                          "and value: '`#{data_req_condition_code}`'"
+            unless answer_value_equal?(expected_answer, answer)
+              error_messages << "Unexpected pre-populated answer for question with link_id `#{item.linkId}`: " \
+                                "expected `#{expected_answer.value.to_json}` and received `#{answer.value&.to_json}`"
+            end
+          else
+            error_messages << "CQL has not been executed for question with linkId #{item.linkId}"
+          end
+        end
+
+        validate_cql_executed(expected_item.item, item.item, error_messages)
       end
       error_messages
+    end
+
+    def validate_data_requirements_retrieved(expected_questionnaire_response, questionnaire_response)
+      error_messages = []
+
+      DATA_REQUIREMENT_ANSWERS.each do |library_name, link_id|
+        expected = find_item_by_link_id(expected_questionnaire_response.item, link_id).answer.first.value
+        actual = find_item_by_link_id(questionnaire_response.item, link_id)&.answer&.first&.value
+        next if coding_equal?(expected, actual)
+
+        error_messages << "dataRequirement not satisfied for Library '#{library_name}'. Expected answer to " \
+                          "question with linkId `#{link_id}` to have coding with system: '`#{expected.system}`' " \
+                          "and value: '`#{expected.code}`'"
+      end
+      error_messages
+    end
+
+    def questionnaire_cql_expression_link_ids
+      @questionnaire_cql_expression_link_ids ||= collect_questionnaire_cql_expression_link_ids(questionnaire.item)
+    end
+
+    def valid_pre_populated_item_source?(answer)
+      origin = find_extension(answer, 'http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/information-origin')
+      source = find_extension(origin, 'source')
+
+      source&.value == 'auto'
+    end
+
+    def find_item_by_link_id(items, link_id)
+      items.each do |item|
+        return item if item.linkId == link_id
+
+        match = find_item_by_link_id(item.item, link_id)
+        return match if match
+      end
+      nil
+    end
+
+    def find_extension(element, url)
+      element&.extension&.find { |e| e.url == url }
     end
 
     def collect_questionnaire_cql_expression_link_ids(items, link_ids = [])
@@ -73,45 +117,18 @@ module DaVinciDTRTestKit
       link_ids
     end
 
-    def validate_questionnaire_response_item_source(items, link_ids, error_messages = [])
-      items&.each do |item|
-        if link_ids.include?(item.linkId)
-          # We assume there is only one answer value. The IG does not specify expectations when there are multiple.
-          answer = item.answer&.find { |a| a.value.present? }
-          unless answer.present?
-            error_messages << "CQL has not been executed for question with linkId #{item.linkId}"
-            next
-          end
-
-          origin = find_extension(answer, 'http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/information-origin')
-          source = find_extension(origin, 'source')
-          unless source&.value == 'auto'
-            error_messages << "Pre-populated answer for question with linkId `#{item.linkId}` does not have " \
-                              "origin.source of 'auto'"
-          end
-        end
-
-        validate_questionnaire_response_item_source(item.item, link_ids, error_messages)
-      end
-      error_messages
-    end
-
     def item_is_cql_expression?(item)
       item.extension&.any? { |ext| CQL_EXPRESSION_EXTENSIONS.include?(ext.url) }
     end
 
-    def find_extension(element, url)
-      element&.extension&.find { |e| e.url == url }
+    def answer_value_equal?(expected, actual)
+      return coding_equal?(expected.value, actual.value) if expected.valueCoding.present?
+
+      expected.value == actual.value
     end
 
-    def find_answer_by_link_id(items, link_id)
-      items.each do |item|
-        return item.answer if item.linkId == link_id
-
-        match = find_answer_by_link_id(item.item, link_id)
-        return match if match
-      end
-      nil
+    def coding_equal?(expected, actual)
+      expected.system == actual&.system && expected.code == actual&.code
     end
   end
 end

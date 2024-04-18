@@ -4,11 +4,14 @@ module DaVinciDTRTestKit
   class FixtureLoader
     include Singleton
 
-    attr_reader :standard_questionnaire_package
+    attr_reader :questionnaire_package, :pre_populated_questionnaire_response
 
     def initialize
-      questionnaire_package_json = File.read('lib/davinci_dtr_test_kit/fixtures/standard_questionnaire_package.json')
-      @standard_questionnaire_package = FHIR.from_contents(questionnaire_package_json)
+      qp_json = File.read('lib/davinci_dtr_test_kit/fixtures/questionnaire_package.json')
+      @questionnaire_package = FHIR.from_contents(qp_json)
+
+      qr_json = File.read('lib/davinci_dtr_test_kit/fixtures/pre_populated_questionnaire_response.json')
+      @pre_populated_questionnaire_response = FHIR.from_contents(qr_json)
     end
   end
 end

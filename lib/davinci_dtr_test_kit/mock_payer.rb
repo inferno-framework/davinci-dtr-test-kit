@@ -13,7 +13,7 @@ module DaVinciDTRTestKit
     def questionnaire_package_response(request, _test = nil, _test_result = nil)
       request.status = 200
       request.response_headers = { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': 'http://localhost:3005' }
-      request.response_body = standard_questionnaire_package.to_json
+      request.response_body = questionnaire_package.to_json
     end
 
     def questionnaire_response_response(request, _test = nil, _test_result = nil)
