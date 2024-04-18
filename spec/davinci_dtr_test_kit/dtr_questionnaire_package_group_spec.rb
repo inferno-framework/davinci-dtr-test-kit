@@ -8,8 +8,6 @@ RSpec.describe DaVinciDTRTestKit::DTRQuestionnairePackageGroup do
   let(:group) { Inferno::Repositories::TestGroups.new.find('dtr_questionnaire_package') }
   let(:suite_id) { :dtr_smart_app }
   let(:questionnaire_package_url) { "/custom/#{suite_id}/fhir/Questionnaire/$questionnaire-package" }
-  let(:resume_pass_url) { "/custom/#{suite_id}/resume_pass" }
-  let(:resume_fail_url) { "/custom/#{suite_id}/resume_fail" }
   let(:session_data_repo) { Inferno::Repositories::SessionData.new }
   let(:test_session) { repo_create(:test_session, test_suite_id: suite_id) }
 
@@ -83,48 +81,6 @@ RSpec.describe DaVinciDTRTestKit::DTRQuestionnairePackageGroup do
                             test_session_id: test_session.id)
 
       result = run(runnable, test_session)
-      expect(result.result).to eq('fail')
-    end
-  end
-
-  describe 'Behavior of questionnaire rendering test' do
-    let(:runnable) { group.tests.find { |test| test.id.to_s.end_with? 'dtr_questionnaire_rendering' } }
-    let(:results_repo) { Inferno::Repositories::Results.new }
-    let(:access_token) { '1234' }
-
-    it 'passes if affirmative attestation is given' do
-      # For some reason it seems to completely ignore an allow...receive for resume_pass_url, so do this instead
-      allow_any_instance_of(DaVinciDTRTestKit::URLs).to(
-        receive(:suite_id).and_return(suite_id)
-      )
-
-      repo_create(:request, name: 'questionnaire_package', request_body: nil,
-                            test_session_id: test_session.id)
-
-      result = run(runnable, test_session, access_token:)
-      expect(result.result).to eq('wait')
-
-      get("#{resume_pass_url}?token=#{access_token}")
-
-      result = results_repo.find(result.id)
-      expect(result.result).to eq('pass')
-    end
-
-    it 'fails if negative attestation is given' do
-      # For some reason it seems to completely ignore an allow...receive for resume_fail_url, so do this instead
-      allow_any_instance_of(DaVinciDTRTestKit::URLs).to(
-        receive(:suite_id).and_return(suite_id)
-      )
-
-      repo_create(:request, name: 'questionnaire_package', request_body: nil,
-                            test_session_id: test_session.id)
-
-      result = run(runnable, test_session, access_token:)
-      expect(result.result).to eq('wait')
-
-      get("#{resume_fail_url}?token=#{access_token}")
-
-      result = results_repo.find(result.id)
       expect(result.result).to eq('fail')
     end
   end

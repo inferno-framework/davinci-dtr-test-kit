@@ -4,9 +4,9 @@ require_relative 'dtr_questionnaire_response_pre_population_test'
 module DaVinciDTRTestKit
   class DTRQuestionnairePrePopulationGroup < Inferno::TestGroup
     id :dtr_questionnaire_pre_population
-    title 'Questionnaire Pre-population'
+    title 'Questionnaire Pre-Population'
     description %(
-      Demonstrate the ability to pre-populate a questionnaire.
+      Demonstrate the ability to pre-populate the Respiratory Assist Device Questionnaire.
     )
     run_as_group
 

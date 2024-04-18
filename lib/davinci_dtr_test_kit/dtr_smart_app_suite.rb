@@ -1,9 +1,8 @@
 require_relative 'ext/inferno_core/runnable'
 require_relative 'ext/inferno_core/record_response_route'
 require_relative 'ext/inferno_core/request'
-require_relative 'client_groups/dtr_questionnaire_package_group'
-require_relative 'client_groups/dtr_questionnaire_pre_population_group'
 require_relative 'auth_groups/oauth2_authentication_group'
+require_relative 'client_groups/dtr_smart_app_questionnaire_workflow_group'
 require_relative 'mock_payer'
 
 module DaVinciDTRTestKit
@@ -64,7 +63,6 @@ module DaVinciDTRTestKit
     end
 
     group from: :oauth2_authentication
-    group from: :dtr_questionnaire_package
-    group from: :dtr_questionnaire_pre_population
+    group from: :dtr_smart_app_questionnaire_workflow
   end
 end
