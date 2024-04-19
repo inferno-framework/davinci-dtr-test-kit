@@ -1,6 +1,10 @@
 module DaVinciDTRTestKit
   module ValidationTest
 
+    def tests_failed
+      @tests_failed ||= {}
+    end
+
     def validate_resource(fhir_resource, resource_type, profile_url, index)
       assert fhir_resource.present?, 'Resource does not contain a recognized FHIR object'
       begin
@@ -11,7 +15,12 @@ module DaVinciDTRTestKit
         messages.each do |message|
           message[:message].prepend("[Resource #{index+1}] ")
         end
-        raise e
+        if tests_failed[profile_url].blank?
+          tests_failed[profile_url] = [e]
+        else
+          tests_failed[profile_url] << e
+        end  
+        # raise e
       end
     end
 
@@ -29,6 +38,9 @@ module DaVinciDTRTestKit
         fhir_resource = FHIR.from_contents(resource.request[:body])
         validate_resource(fhir_resource, resource_type, profile_url, index)
       end
+      if !tests_failed[profile_url].blank?
+        raise tests_failed[profile_url][0] 
+      end
     end
 
     def perform_response_validation_test(
@@ -43,6 +55,9 @@ module DaVinciDTRTestKit
         fhir_resource = FHIR.from_contents(resource.response[:body])
         assert_response_status(200, request: resource, response: resource.response)
         validate_resource(fhir_resource, resource_type, profile_url, index)
+      end
+      if !tests_failed[profile_url].blank?
+        raise tests_failed[profile_url][0] 
       end
     end
   end

@@ -21,7 +21,7 @@ module DaVinciDTRTestKit
       perform_request_validation_test(
       resources,
       :questionnaireResponse,
-      'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaireresponse',
+      'http://hl7.org/fhir/uv/sdc/StructureDefinition/parameters-questionnaire-next-question-in',
       next_url)
 
       validation_error_messages.each do |msg|
