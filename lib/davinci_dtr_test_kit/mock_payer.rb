@@ -29,16 +29,19 @@ module DaVinciDTRTestKit
         lacks_params = json_response["parameter"][0]["resource"]["entry"].nil? rescue true
         unless lacks_params
           json_response["parameter"][0]["resource"]["entry"].delete_if { |entry| 
-          lacks_profiles = entry["resource"]["meta"]["profile"].nil? rescue true
-          unless lacks_profiles
-            (!entry["resource"]["meta"]["profile"].include? "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-adapt") && entry["resource"]["resourceType"] == "Questionnaire"
-          else
-            false
-          end
+            lacks_profiles = entry["resource"]["meta"]["profile"].nil? rescue true
+            unless lacks_profiles
+              (!entry["resource"]["meta"]["profile"].include? "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-adapt") && entry["resource"]["resourceType"] == "Questionnaire"
+            else
+              false
+            end
           }
         end
+        request.response_body = RestClient::Response.create(JSON.generate(json_response).to_s, Net::HTTPOK.new("1.1",200,""), RestClient::Request.new(payer_response.request))
+      else
+        request.response_body = payer_response.response[:body].to_s
       end
-      request.response_body = RestClient::Response.create(JSON.generate(json_response).to_s, Net::HTTPOK.new("1.1",200,""), RestClient::Request.new(payer_response.request))
+      
     end
 
     def questionnaire_next_response(request, _test = nil, _test_result = nil)
