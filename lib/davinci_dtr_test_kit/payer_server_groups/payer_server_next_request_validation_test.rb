@@ -6,13 +6,16 @@ module DaVinciDTRTestKit
     title '[USER INPUT VALIDATION] Next Question request is valid'
     description %(
       This test validates the conformance of the client's request to the
-      [DTR Questionnaire Package Input Parameters](http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/dtr-qpackage-input-parameters)
+      [SDC Parameters Next Question In](http://hl7.org/fhir/uv/sdc/StructureDefinition/parameters-questionnaire-next-question-in)
       structure.
 
       It verifies the presence of mandatory elements and that elements with required bindings contain appropriate
       values. CodeableConcept element bindings will fail if none of their codings have a code/system belonging
       to the bound ValueSet. Quantity, Coding, and code element bindings will fail if their code/system are not found in
       the valueset.
+
+      This test may process multiple resources, labeling messages with the corresponding tested resources 
+      in the order that they were received.
     )
     id :payer_server_next_request_validation
 
@@ -24,11 +27,9 @@ module DaVinciDTRTestKit
       'http://hl7.org/fhir/uv/sdc/StructureDefinition/parameters-questionnaire-next-question-in',
       next_url)
 
-      validation_error_messages.each do |msg|
-        messages << { type: 'error', message: msg }
-      end
-      msg = 'Bundle(s) provided and/or entry resources are not conformant. Check messages for issues found.'
-      skip_if validation_error_messages.present?, msg
+    rescue Inferno::Exceptions::AssertionException => e
+      msg = "#{e.message}".strip
+      skip msg
 
     end
   end
