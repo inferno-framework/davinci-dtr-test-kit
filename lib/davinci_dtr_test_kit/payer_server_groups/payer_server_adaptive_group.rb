@@ -12,6 +12,9 @@ module DaVinciDTRTestKit
     )
     id :payer_server_adaptive_questionnaire
     run_as_group
+    input :adaptive_endpoint,
+      optional: true,
+      title: "Endpoint for a Particular Adaptive Resource"
 
     # receive client request
     test from: :payer_server_questionnaire_request,

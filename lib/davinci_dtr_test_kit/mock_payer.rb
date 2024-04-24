@@ -14,38 +14,22 @@ module DaVinciDTRTestKit
 
     def payer_adaptive_questionnaire_response(request, _test = nil, _test_result = nil)
 
-
-      client = FHIR::Client.new(JSON.parse(_test_result.input_json)[1]["value"])
+      endpoint_input = JSON.parse(_test_result.input_json).find {|input| input["name"] == "adaptive_endpoint"}
+      url_input = JSON.parse(_test_result.input_json).find {|input| input["name"] == "url"}
+      client = FHIR::Client.new(url_input["value"])
       client.default_json
-      payer_response = client.send(:post, '/Questionnaire/$questionnaire-package', JSON.parse(request.request_body), { 'Content-Type' => 'application/json' })
+      endpoint = endpoint_input["value"].nil? ? '/Questionnaire/$questionnaire-package' : endpoint_input["value"]
+      payer_response = client.send(:post, endpoint, JSON.parse(request.request_body), { 'Content-Type' => 'application/json' })
 
       request.status = 200
       request.response_headers = { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': 'http://localhost:3005' }
-
-
-      lacks_body = payer_response.response[:body].body.nil? rescue true
-      unless lacks_body
-        json_response = JSON.parse(payer_response.response[:body])
-        lacks_params = json_response["parameter"][0]["resource"]["entry"].nil? rescue true
-        unless lacks_params
-          json_response["parameter"][0]["resource"]["entry"].delete_if { |entry| 
-            lacks_profiles = entry["resource"]["meta"]["profile"].nil? rescue true
-            unless lacks_profiles
-              (!entry["resource"]["meta"]["profile"].include? "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-adapt") && entry["resource"]["resourceType"] == "Questionnaire"
-            else
-              false
-            end
-          }
-        end
-        request.response_body = RestClient::Response.create(JSON.generate(json_response).to_s, Net::HTTPOK.new("1.1",200,""), RestClient::Request.new(payer_response.request))
-      else
-        request.response_body = payer_response.response[:body].to_s
-      end
+      request.response_body = payer_response.response[:body].to_s
       
     end
 
     def questionnaire_next_response(request, _test = nil, _test_result = nil)
-      client = FHIR::Client.new(JSON.parse(_test_result.input_json)[1]["value"])
+      url_endpoint = JSON.parse(_test_result.input_json).find {|input| input["name"] == "url"}
+      client = FHIR::Client.new(url_endpoint["value"])
       client.default_json
       payer_response = client.send(:post, '/Questionnaire/$next-question', JSON.parse(request.request_body), { 'Content-Type' => 'application/json' })
 
