@@ -23,8 +23,6 @@ module DaVinciDTRTestKit
       )
 
     # These inputs will be available to all tests in this suite
-    input :url,
-    title: 'FHIR Server Base Url'
 
     input :credentials,
         title: 'OAuth Credentials',

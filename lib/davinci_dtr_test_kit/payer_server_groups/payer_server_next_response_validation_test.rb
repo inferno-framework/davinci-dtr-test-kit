@@ -20,7 +20,16 @@ module DaVinciDTRTestKit
     )
 
     run do
-      resources = load_tagged_requests(NEXT_TAG)
+      unless next_question_requests.nil?
+        resources = []
+        json_requests = JSON.parse(next_question_requests)
+        json_requests.each { |resource| 
+          resources.push(fhir_operation("#{url}/Questionnaire/$next-question", body: resource, headers: {"Content-Type": "application/json"}))
+        }
+      else
+        resources = load_tagged_requests(NEXT_TAG)
+      end
+      
       perform_response_validation_test(
         resources,
         :questionnaireResponse,
