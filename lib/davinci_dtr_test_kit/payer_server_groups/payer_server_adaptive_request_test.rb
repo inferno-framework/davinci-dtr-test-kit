@@ -9,9 +9,9 @@ module DaVinciDTRTestKit
       send a response.
     )
     id :payer_server_questionnaire_request
-    input :access_token
 
     run do
+      skip_if !(initial_questionnaire_request.nil? || next_question_requests.nil?), 'Proceeding with manually provided resources.'
       wait(
         identifier: access_token,
         message: %(

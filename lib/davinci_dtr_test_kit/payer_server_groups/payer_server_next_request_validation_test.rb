@@ -20,7 +20,11 @@ module DaVinciDTRTestKit
     id :payer_server_next_request_validation
 
     run do
-      resources = load_tagged_requests(NEXT_TAG)
+      unless initial_questionnaire_request.nil?
+        resources = next_question_requests
+      else
+        resources = load_tagged_requests(NEXT_TAG)
+      end
       perform_request_validation_test(
       resources,
       :questionnaireResponse,

@@ -20,7 +20,18 @@ module DaVinciDTRTestKit
     )
 
     run do
-      resources = load_tagged_requests(QUESTIONNAIRE_TAG)
+      unless initial_questionnaire_request.nil?
+        resources = []
+        if initial_questionnaire_request.kind_of?(Array)
+          initial_questionnaire_request.each { |resource| 
+            resources.push(fhir_operation("#{url}/Questionnaire/$questionnaire-package", body: JSON.parse(initial_questionnaire_request), headers: {"Content-Type": "application/json"}))
+          }
+        else 
+          resources.push(fhir_operation("#{url}/Questionnaire/$questionnaire-package", body: JSON.parse(initial_questionnaire_request), headers: {"Content-Type": "application/json"}))
+        end
+      else
+        resources = load_tagged_requests(QUESTIONNAIRE_TAG)
+      end
       perform_response_validation_test(
         resources,
         :parameters,
