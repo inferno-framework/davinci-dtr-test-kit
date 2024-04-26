@@ -35,8 +35,9 @@ module DaVinciDTRTestKit
       description: "Required for All Flows"
 
     input :access_token,
+      optional: true,
       title: "Access Token",
-      description: "Required for All Flows"
+      description: "DTR Client Flow"
 
     input :adaptive_endpoint,
       optional: true,
