@@ -69,7 +69,7 @@ module DaVinciDTRTestKit
     end
 
     resume_test_route :get, RESUME_PASS_PATH do |request|
-      DTRFullEHRSuite.extract_token_from_query_params(request)
+      DTRPayerServerSuite.extract_token_from_query_params(request)
     end
 
 

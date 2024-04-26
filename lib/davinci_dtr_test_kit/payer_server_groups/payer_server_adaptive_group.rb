@@ -24,8 +24,8 @@ module DaVinciDTRTestKit
       Optionally, an `Endpoint for a Particular Adaptive Resource` can also be provided, which should include the ID of the resource of 
       interest (e.g., `/Questionnaire/HomeOxygenTherapyAdditional/$questionnaire-package`).
 
-      - Enter the `Initial Questionnaire Request` and a set of  `Next Question Requests` to provide the json requests manually, 
-      rather than relying on a DTR client.
+      - Enter the `Initial Questionnaire Request` and a set of  `Next Question Requests`, in addition to the `FHIR Server Base Url` pointing to the payer server,
+      to provide the json requests manually, rather than relying on a DTR client.
     )
     id :payer_server_adaptive_questionnaire
     run_as_group
