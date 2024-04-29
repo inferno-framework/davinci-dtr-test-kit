@@ -5,7 +5,13 @@ module DaVinciDTRTestKit
       @tests_failed ||= {}
     end
 
-    def using_manual_tests
+    def using_manual_tests(resource_url)
+      if resource_url == next_url
+        return !next_question_requests.nil?
+      end
+      if resource_url == questionnaire_package_url
+        return !initial_questionnaire_request.nil?
+      end
       !(initial_questionnaire_request.nil? || next_question_requests.nil?)
     end
 
@@ -34,14 +40,14 @@ module DaVinciDTRTestKit
       resource_url)
       omit_if resources.blank?,
             "No #{resource_type.to_s} resources provided so the #{profile_url} profile does not apply"
-      if using_manual_tests
+      if using_manual_tests(resource_url)
         resources = JSON.parse(resources)
       end
       if !resources.kind_of?(Array)
         resources = [resources]
       end
       resources.each_with_index do |resource, index|
-        if !using_manual_tests
+        if !using_manual_tests(resource_url)
           assert resource.url == resource_url,
             "Request made to wrong URL: #{resource.request[:url]}. Should instead be to #{resource_url}"
           assert_valid_json(resource.request[:body])

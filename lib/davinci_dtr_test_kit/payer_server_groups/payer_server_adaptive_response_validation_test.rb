@@ -20,6 +20,7 @@ module DaVinciDTRTestKit
     )
 
     run do
+      skip_if access_token.nil? && initial_questionnaire_request.nil?, 'No access token or request resource provided.'
       unless initial_questionnaire_request.nil?
         resources = []
         if initial_questionnaire_request.kind_of?(Array)

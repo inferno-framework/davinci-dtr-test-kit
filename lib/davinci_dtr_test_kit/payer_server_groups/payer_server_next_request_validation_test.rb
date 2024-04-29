@@ -20,7 +20,9 @@ module DaVinciDTRTestKit
     id :payer_server_next_request_validation
 
     run do
-      unless initial_questionnaire_request.nil?
+
+      skip_if access_token.nil? && next_question_requests.nil?, 'No access token or request resources provided.'
+      unless next_question_requests.nil?
         resources = next_question_requests
       else
         resources = load_tagged_requests(NEXT_TAG)

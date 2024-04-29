@@ -20,6 +20,7 @@ module DaVinciDTRTestKit
     id :payer_server_adaptive_questionnaire_request_validation
 
     run do
+      skip_if access_token.nil? && initial_questionnaire_request.nil?, 'No access token or request resource provided.'
       unless initial_questionnaire_request.nil?
         resources = initial_questionnaire_request
       else

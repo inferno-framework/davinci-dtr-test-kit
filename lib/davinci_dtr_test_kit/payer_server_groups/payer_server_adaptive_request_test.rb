@@ -12,7 +12,7 @@ module DaVinciDTRTestKit
 
     run do
       pass_if !(initial_questionnaire_request.nil? || next_question_requests.nil?), 'Proceeding with manually provided resources.'
-      skip_if access_token.nil?, 'No access token or resources provided.'
+      skip_if access_token.nil?, 'Please provide an access token or all request resources as inputs.'
       wait(
         identifier: access_token,
         message: %(

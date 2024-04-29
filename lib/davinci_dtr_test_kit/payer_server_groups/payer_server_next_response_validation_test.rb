@@ -20,6 +20,7 @@ module DaVinciDTRTestKit
     )
 
     run do
+      skip_if access_token.nil? && next_question_requests.nil?, 'No access token or request resources provided.'
       unless next_question_requests.nil?
         resources = []
         json_requests = JSON.parse(next_question_requests)
