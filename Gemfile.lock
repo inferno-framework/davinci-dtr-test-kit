@@ -2,7 +2,7 @@ PATH
   remote: .
   specs:
     davinci_dtr_test_kit (0.0.1)
-      inferno_core (~> 0.4.28)
+      inferno_core (~> 0.4.34)
       us_core_test_kit (~> 0.6.4)
 
 GEM
