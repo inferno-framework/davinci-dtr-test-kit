@@ -8,7 +8,7 @@ Gem::Specification.new do |spec|
   spec.description   = 'Test Kit for the Da Vinci Documentation Templates and Rules (DTR) FHIR Implementation Guide'
   # spec.homepage      = 'TODO'
   spec.license       = 'Apache-2.0'
-  spec.add_runtime_dependency 'inferno_core', '~> 0.4.28'
+  spec.add_runtime_dependency 'inferno_core', '~> 0.4.34'
   spec.add_development_dependency 'database_cleaner-sequel', '~> 1.8'
   spec.add_development_dependency 'factory_bot', '~> 6.1'
   spec.add_development_dependency 'rack-test', '~> 1.1.0'
