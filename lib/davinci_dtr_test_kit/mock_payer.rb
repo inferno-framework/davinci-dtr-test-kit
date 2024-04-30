@@ -12,6 +12,33 @@ module DaVinciDTRTestKit
       request.response_body = response_body
     end
 
+    def payer_adaptive_questionnaire_response(request, _test = nil, _test_result = nil)
+
+      endpoint_input = JSON.parse(_test_result.input_json).find {|input| input["name"] == "adaptive_endpoint"}
+      url_input = JSON.parse(_test_result.input_json).find {|input| input["name"] == "url"}
+      client = FHIR::Client.new(url_input["value"])
+      client.default_json
+      endpoint = endpoint_input["value"].nil? ? '/Questionnaire/$questionnaire-package' : endpoint_input["value"]
+      payer_response = client.send(:post, endpoint, JSON.parse(request.request_body), { 'Content-Type' => 'application/json' })
+
+      request.status = 200
+      request.response_headers = { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': 'http://localhost:3005' }
+      request.response_body = payer_response.response[:body].to_s
+      
+    end
+
+    def questionnaire_next_response(request, _test = nil, _test_result = nil)
+      url_endpoint = JSON.parse(_test_result.input_json).find {|input| input["name"] == "url"}
+      client = FHIR::Client.new(url_endpoint["value"])
+      client.default_json
+      payer_response = client.send(:post, '/Questionnaire/$next-question', JSON.parse(request.request_body), { 'Content-Type' => 'application/json' })
+
+      request.status = 200
+      request.response_headers = { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': 'http://localhost:3005' }
+
+      request.response_body = payer_response.response[:body]
+    end
+
     def extract_client_id(request)
       URI.decode_www_form(request.request_body).to_h['client_id']
     end
@@ -23,6 +50,10 @@ module DaVinciDTRTestKit
 
     def extract_token_from_query_params(request)
       request.query_parameters['token']
+    end
+
+    def test_resumes?(test)
+      false
     end
 
     def response_body

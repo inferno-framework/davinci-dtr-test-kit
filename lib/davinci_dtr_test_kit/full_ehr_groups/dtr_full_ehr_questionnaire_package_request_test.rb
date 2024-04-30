@@ -7,7 +7,7 @@ module DaVinciDTRTestKit
     id :dtr_full_ehr_questionnaire_package_request
     title 'EHR invokes the DTR Questionnaire Package operation'
     description %(
-      Inferno will wait for a DTR questionnarie package request from the client. Upon receipt, Inferno will generate and
+      Inferno will wait for a DTR questionnaire package request from the client. Upon receipt, Inferno will generate and
       send a response.
     )
     input :access_token

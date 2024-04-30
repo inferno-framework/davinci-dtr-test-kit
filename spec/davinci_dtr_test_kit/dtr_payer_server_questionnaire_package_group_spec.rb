@@ -28,7 +28,7 @@ RSpec.describe DaVinciDTRTestKit::DTRPayerServerQuestionnairePackageGroup do
   end
 
   it 'passes if payer server returns valid static questionnaire' do
-    stub_request(:post, "#{server_endpoint}/Questionnaire/HomeOxygenTherapyAdditional/$questionnaire-package/")
+    stub_request(:post, "#{server_endpoint}/Questionnaire/$questionnaire-package/")
       .with(
         body: JSON.parse(questionnaire_parameters)
       )
