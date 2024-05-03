@@ -32,10 +32,6 @@ module DaVinciDTRTestKit
     id :payer_server_adaptive_questionnaire
     run_as_group
 
-    input :url,
-          title: 'FHIR Server Base Url',
-          description: 'Required for All Flows'
-
     input :access_token,
           optional: true,
           title: 'Access Token',

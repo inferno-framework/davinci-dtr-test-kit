@@ -9,9 +9,9 @@ RSpec.describe DaVinciDTRTestKit::DTRPayerServerQuestionnairePackageGroup do
       input :server_endpoint
     end
   end
-  let(:questionnaire_parameters) do
-    File.read(File.join(__dir__, '..', 'fixtures', 'questionnaire_package_input_params_ri.json'))
-  end
+    let(:initial_questionnaire_request) do
+      File.read(File.join(__dir__, '..', 'fixtures', 'questionnaire_package_input_params_ri.json'))
+    end
 
   def run(runnable, inputs = {})
     test_run_params = { test_session_id: test_session.id }.merge(runnable.reference_hash)
@@ -30,11 +30,11 @@ RSpec.describe DaVinciDTRTestKit::DTRPayerServerQuestionnairePackageGroup do
   it 'passes if payer server returns valid static questionnaire' do
     stub_request(:post, "#{server_endpoint}/Questionnaire/$questionnaire-package/")
       .with(
-        body: JSON.parse(questionnaire_parameters)
+        body: JSON.parse(initial_questionnaire_request)
       )
       .to_return(status: 200, body: {}.to_json)
 
-    result = run(test, questionnaire_parameters:, server_endpoint:)
+    result = run(test, initial_questionnaire_request:, server_endpoint:)
     expect(result.result).to eq('pass')
   end
 end

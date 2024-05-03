@@ -17,15 +17,6 @@ module DaVinciDTRTestKit
     id :payer_server_static_package
     run_as_group
 
-    input :url,
-          optional: true,
-          title: 'FHIR Server Base Url'
-
-    input :questionnaire_parameters,
-          title: 'Questionnaire Parameters',
-          description: 'Input Questionnaire Parameters',
-          type: 'textarea'
-
     test from: :dtr_v201_payer_static_form_test
   end
 end

@@ -4,7 +4,7 @@
   "test_suite_id": "dtr_payer_server",
   "inputs": [
     {
-      "name": "questionnaire_parameters",
+      "name": "initial_questionnaire_request",
       "title": "Questionnaire Parameters Parameters",
       "description": "Questionnaire Input Parameters",
       "type": "textarea",

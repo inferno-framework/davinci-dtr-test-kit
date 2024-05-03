@@ -24,6 +24,17 @@ module DaVinciDTRTestKit
 
     # These inputs will be available to all tests in this suite
 
+    input :url,
+      title: 'FHIR Server Base Url',
+      description: "Required for All Flows"
+
+    input :initial_questionnaire_request,
+      title: 'Questionnaire Input Parameters - Request Body',
+      description: 'Manual Flow (Required for Static Form)',
+      optional: true,
+      type: 'textarea'
+
+
     input :credentials,
           title: 'OAuth Credentials',
           type: :oauth_credentials,
