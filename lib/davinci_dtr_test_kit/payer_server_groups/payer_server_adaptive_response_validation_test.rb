@@ -1,6 +1,6 @@
 require_relative '../validation_test'
 module DaVinciDTRTestKit
-  class PayerAdaptiveFormTest < Inferno::Test
+  class PayerAdaptiveFormQuestionnaireResponseTest < Inferno::Test
     include DaVinciDTRTestKit::ValidationTest
     id :payer_server_adaptive_response_validation_test
     title 'Inferno sends payer server a request for an adaptive form - validate the response'
@@ -20,6 +20,7 @@ module DaVinciDTRTestKit
     )
 
     run do
+      skip_if retrieval_method == 'Static', 'Performing only static flow tests - only one flow is required.'
       skip_if access_token.nil? && initial_questionnaire_request.nil?, 'No access token or request resource provided.'
       if initial_questionnaire_request.nil?
         resources = load_tagged_requests(QUESTIONNAIRE_TAG)

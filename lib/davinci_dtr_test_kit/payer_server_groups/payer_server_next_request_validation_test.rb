@@ -1,6 +1,6 @@
 require_relative '../validation_test'
 module DaVinciDTRTestKit
-  class AdaptiveNextQuestionnairePackageValidationTest < Inferno::Test
+  class PayerAdaptiveFormNextRequestTest < Inferno::Test
     include URLs
     include DaVinciDTRTestKit::ValidationTest
     title '[USER INPUT VALIDATION] Next Question request is valid'
@@ -20,6 +20,7 @@ module DaVinciDTRTestKit
     id :payer_server_next_request_validation
 
     run do
+      skip_if retrieval_method == 'Static', 'Performing only static flow tests - only one flow is required.'
       skip_if access_token.nil? && next_question_requests.nil?, 'No access token or request resources provided.'
       resources = if next_question_requests.nil?
                     load_tagged_requests(NEXT_TAG)

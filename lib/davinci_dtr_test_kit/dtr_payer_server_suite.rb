@@ -24,6 +24,27 @@ module DaVinciDTRTestKit
 
     # These inputs will be available to all tests in this suite
 
+    input :retrieval_method,
+          title: 'Questionnaire Retrieval Method',
+          type: 'radio',
+          default: 'Both',
+          options: {
+            list_options: [
+              {
+                label: 'Static',
+                value: 'Static'
+              },
+              {
+                label: 'Adaptive',
+                value: 'Adaptive'
+              },
+              {
+                label: 'Both',
+                value: 'Both'
+              }
+            ]
+          }
+
     input :url,
       title: 'FHIR Server Base Url',
       description: "Required for All Flows"
@@ -39,6 +60,15 @@ module DaVinciDTRTestKit
           title: 'OAuth Credentials',
           type: :oauth_credentials,
           optional: true
+
+
+    input_order :retrieval_method,
+        :url,
+        :access_token,
+        :adaptive_endpoint,
+        :initial_questionnaire_request,
+        :next_question_requests,
+        :credentials
 
     # All FHIR requests in this suite will use this FHIR client
     fhir_client do

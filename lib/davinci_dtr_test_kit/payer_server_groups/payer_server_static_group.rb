@@ -17,6 +17,15 @@ module DaVinciDTRTestKit
     id :payer_server_static_package
     run_as_group
 
+    input :initial_questionnaire_request,
+      title: 'Questionnaire Input Parameters - Request Body',
+      description: 'Manual Flow (Required for Static Form)',
+      type: 'textarea'
+
+    input_order :retrieval_method,
+      :url,
+      :initial_questionnaire_request
+
     test from: :dtr_v201_payer_static_form_test
   end
 end

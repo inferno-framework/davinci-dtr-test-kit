@@ -6,6 +6,7 @@ module DaVinciDTRTestKit
 
     run do
 
+      skip_if retrieval_method == 'Adaptive', 'Performing only adaptive flow tests - only one flow is required.'
       resource_instance = FHIR.from_contents(initial_questionnaire_request)
       assert_valid_resource(resource: resource_instance, profile_url: "http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/dtr-qpackage-input-parameters")
       fhir_operation("#{url}/Questionnaire/$questionnaire-package/", body: JSON.parse(initial_questionnaire_request), headers: {"Content-Type": "application/json"})

@@ -1,5 +1,6 @@
 require_relative 'payer_server_adaptive_request_test'
 require_relative 'payer_server_adaptive_request_validation_test'
+require_relative 'payer_server_adaptive_response_validation_search_test'
 require_relative 'payer_server_adaptive_response_validation_test'
 require_relative 'payer_server_next_request_validation_test'
 require_relative 'payer_server_next_response_validation_test'
@@ -54,6 +55,14 @@ module DaVinciDTRTestKit
           description: 'Manual Flow',
           type: 'textarea'
 
+    input_order :retrieval_method,
+      :url,
+      :access_token,
+      :adaptive_endpoint,
+      :initial_questionnaire_request,
+      :next_question_requests,
+      :credentials
+
     # receive client request
     test from: :payer_server_questionnaire_request,
          receives_request: :client_questionnaire_package
@@ -62,7 +71,8 @@ module DaVinciDTRTestKit
     test from: :payer_server_adaptive_questionnaire_request_validation
 
     # pass request to payer server, validate questionnaire response
-    test from: :payer_server_adaptive_response_validation_test
+    test from: :payer_server_adaptive_response_validation_test 
+    test from: :payer_server_adaptive_response_validation_search_test
 
     # optionally validate the client request
     test from: :payer_server_next_request_validation
