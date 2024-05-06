@@ -1,10 +1,10 @@
 require_relative '../urls'
 
 module DaVinciDTRTestKit
-  class QuestionnaireRenderingTest < Inferno::Test
+  class DTRQuestionnaireRenderingAttestationTest < Inferno::Test
     include URLs
 
-    id :dtr_full_ehr_questionnaire_rendering
+    id :dtr_questionnaire_rendering_attestation
     title 'Check that the client renders the questionnaire (Attestation)'
     description %(
       Thist test provides the tester an opportunity to observe their client application following the receipt of the

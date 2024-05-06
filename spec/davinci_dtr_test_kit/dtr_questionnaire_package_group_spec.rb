@@ -1,30 +1,47 @@
-RSpec.describe DaVinciDTRTestKit::DTRFullEHRQuestionnairePackageGroup do
+RSpec.describe DaVinciDTRTestKit::DTRQuestionnairePackageGroup do
   include Rack::Test::Methods
 
   def app
     Inferno::Web.app
   end
 
-  let(:group) { Inferno::Repositories::TestGroups.new.find('dtr_full_ehr_questionnaire_package') }
-  let(:suite_id) { :dtr_full_ehr }
+  let(:group) { Inferno::Repositories::TestGroups.new.find('dtr_questionnaire_package') }
+  let(:suite_id) { :dtr_smart_app }
   let(:questionnaire_package_url) { "/custom/#{suite_id}/fhir/Questionnaire/$questionnaire-package" }
+  let(:session_data_repo) { Inferno::Repositories::SessionData.new }
   let(:test_session) { repo_create(:test_session, test_suite_id: suite_id) }
 
+  def run(runnable, test_session, inputs = {})
+    test_run_params = { test_session_id: test_session.id }.merge(runnable.reference_hash)
+    test_run = Inferno::Repositories::TestRuns.new.create(test_run_params)
+    inputs.each do |name, value|
+      session_data_repo.save(
+        test_session_id: test_session.id,
+        name:,
+        value:,
+        type: runnable.config.input_type(name)
+      )
+    end
+    Inferno::TestRunner.new(test_session:, test_run:).run(runnable)
+  end
+
   describe 'Behavior of questionnaire package request test' do
-    let(:runnable) { group.tests.find { |test| test.id.to_s.end_with? 'dtr_full_ehr_questionnaire_package_request' } }
+    let(:runnable) { group.tests.find { |test| test.id.to_s.end_with? 'dtr_questionnaire_package_request' } }
     let(:results_repo) { Inferno::Repositories::Results.new }
     let(:request_body) do
       File.read(File.join(__dir__, '..', 'fixtures', 'questionnaire_package_input_params_conformant.json'))
     end
+    let(:access_token) { '1234' }
 
     it 'passes if questionnaire package request is received' do
       allow_any_instance_of(DaVinciDTRTestKit::URLs).to(
         receive(:questionnaire_package_url).and_return(questionnaire_package_url)
       )
 
-      result = run(runnable, test_session)
+      result = run(runnable, test_session, access_token:)
       expect(result.result).to eq('wait')
 
+      header 'Authorization', "Bearer #{access_token}"
       post(questionnaire_package_url, request_body)
       expect(last_response.ok?).to be(true)
 
@@ -36,7 +53,7 @@ RSpec.describe DaVinciDTRTestKit::DTRFullEHRQuestionnairePackageGroup do
   describe 'Behavior of questionnaire package request validation test' do
     let(:runnable) do
       group.tests.find do |test|
-        test.id.to_s.end_with? 'dtr_full_ehr_questionnaire_package_request_validation'
+        test.id.to_s.end_with? 'dtr_questionnaire_package_request_validation'
       end
     end
     let(:request_body) do
