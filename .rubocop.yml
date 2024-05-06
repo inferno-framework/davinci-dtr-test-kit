@@ -52,6 +52,9 @@ Metrics/ModuleLength:
 Metrics/PerceivedComplexity:
   Enabled: false
 
+Metrics/CyclomaticComplexity:
+  Max: 10
+
 Metrics/ParameterLists:
   Enabled: false
 

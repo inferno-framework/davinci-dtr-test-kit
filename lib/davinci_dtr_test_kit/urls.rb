@@ -4,6 +4,7 @@ module DaVinciDTRTestKit
   TOKEN_PATH = '/mock_auth/token'
   QUESTIONNAIRE_PACKAGE_PATH = '/fhir/Questionnaire/$questionnaire-package'
   NEXT_PATH = '/fhir/Questionnaire/$next-question'
+  QUESTIONNAIRE_RESPONSE_PATH = '/fhir/QuestionnaireResponse'
   RESUME_PASS_PATH = '/resume_pass'
   RESUME_FAIL_PATH = '/resume_fail'
 
@@ -22,6 +23,10 @@ module DaVinciDTRTestKit
 
     def next_url
       @next_url ||= base_url + NEXT_PATH
+    end
+
+    def questionnaire_response_url
+      @questionnaire_response_url ||= base_url + QUESTIONNAIRE_RESPONSE_PATH
     end
 
     def resume_pass_url
