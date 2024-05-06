@@ -1,8 +1,10 @@
+require_relative '../urls'
+
 module DaVinciDTRTestKit
-  class QuestionnairePackageValidationTest < Inferno::Test
+  class DTRQuestionnairePackageValidationTest < Inferno::Test
     include URLs
 
-    id :dtr_full_ehr_questionnaire_package_request_validation
+    id :dtr_questionnaire_package_request_validation
     title 'Questionnaire Package request is valid'
     description %(
       This test validates the conformance of the client's request to the
