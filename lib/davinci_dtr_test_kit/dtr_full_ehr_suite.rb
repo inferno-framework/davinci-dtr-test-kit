@@ -1,6 +1,7 @@
 require_relative 'ext/inferno_core/runnable'
 require_relative 'ext/inferno_core/record_response_route'
 require_relative 'ext/inferno_core/request'
+require_relative 'ext/inferno_core/test_suite'
 require_relative 'client_groups/dtr_full_ehr_questionnaire_workflow_group'
 require_relative 'auth_groups/oauth2_authentication_group'
 require_relative 'mock_payer'
@@ -27,18 +28,7 @@ module DaVinciDTRTestKit
       url ENV.fetch('VALIDATOR_URL')
     end
 
-    # Handle pre-flight request to establish CORS
-    pre_flight_handler = proc do
-      [
-        200,
-        {
-          'Access-Control-Allow-Origin' => '*',
-          'Access-Control-Allow-Headers' => 'Content-Type, Authorization'
-        },
-        ['']
-      ]
-    end
-    route(:options, '/fhir/Questionnaire/$questionnaire-package', pre_flight_handler)
+    allow_cors QUESTIONNAIRE_PACKAGE_PATH
 
     record_response_route :post, TOKEN_PATH, 'dtr_auth', method(:token_response) do |request|
       DTRFullEHRSuite.extract_client_id(request)
