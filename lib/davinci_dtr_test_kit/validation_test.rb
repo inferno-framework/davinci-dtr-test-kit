@@ -26,7 +26,9 @@ module DaVinciDTRTestKit
         else
           tests_failed[profile_url] << e
         end
+        return false  
       end
+      return true
     end
 
     def perform_request_validation_test(

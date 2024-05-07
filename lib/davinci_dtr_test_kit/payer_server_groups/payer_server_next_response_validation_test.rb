@@ -32,7 +32,7 @@ module DaVinciDTRTestKit
                                         headers: { 'Content-Type': 'application/json' }))
         end
       end
-
+      scratch[:next_responses] =  resources
       perform_response_validation_test(
         resources,
         :questionnaireResponse,
