@@ -3,8 +3,8 @@ module DaVinciDTRTestKit
   class PayerAdaptiveFormQuestionnaireResponseTest < Inferno::Test
     include DaVinciDTRTestKit::ValidationTest
     id :payer_server_adaptive_response_validation_test
-    title 'Inferno sends payer server a request for an adaptive form - validate the response'
-    output :questionnaire_bundle
+    title 'Validate that the adaptive response conforms to the Output Parameters profile'
+    # output :questionnaire_response
     description %(
       This test validates the conformance of the payer's response to the
       [DTR Output Parameters](http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/dtr-qpackage-output-parameters)
@@ -22,22 +22,18 @@ module DaVinciDTRTestKit
     run do
       skip_if retrieval_method == 'Static', 'Performing only static flow tests - only one flow is required.'
       skip_if access_token.nil? && initial_questionnaire_request.nil?, 'No access token or request resource provided.'
-      if initial_questionnaire_request.nil?
-        resources = load_tagged_requests(QUESTIONNAIRE_TAG)
-      else
+      endpoint = adaptive_endpoint.blank? ? '/Questionnaire/$questionnaire-package' : adaptive_endpoint
+      unless initial_questionnaire_request.nil?
         resources = []
-        if initial_questionnaire_request.is_a?(Array)
-          initial_questionnaire_request.each do |_resource|
-            resources.push(fhir_operation("#{url}/Questionnaire/$questionnaire-package",
-                                          body: JSON.parse(initial_questionnaire_request),
-                                          headers: { 'Content-Type': 'application/json' }))
-          end
-        else
-          resources.push(fhir_operation("#{url}/Questionnaire/$questionnaire-package",
-                                        body: JSON.parse(initial_questionnaire_request),
-                                        headers: { 'Content-Type': 'application/json' }))
+        if initial_questionnaire_request.kind_of?(Array)
+          initial_questionnaire_request.each { |resource| 
+            resources.push(fhir_operation("#{url}#{endpoint}", body: JSON.parse(initial_questionnaire_request), headers: {"Content-Type": "application/json"}))
+          }
+        else 
+          resources.push(fhir_operation("#{url}#{endpoint}", body: JSON.parse(initial_questionnaire_request), headers: {"Content-Type": "application/json"}))
         end
       end
+      scratch[:adaptive_responses] =  resources
       perform_response_validation_test(
         resources,
         :parameters,
