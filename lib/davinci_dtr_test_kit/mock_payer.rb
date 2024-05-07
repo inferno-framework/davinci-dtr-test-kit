@@ -62,7 +62,7 @@ module DaVinciDTRTestKit
       request.query_parameters['token']
     end
 
-    def test_resumes?(test)
+    def test_resumes?(_test)
       false
     end
   end

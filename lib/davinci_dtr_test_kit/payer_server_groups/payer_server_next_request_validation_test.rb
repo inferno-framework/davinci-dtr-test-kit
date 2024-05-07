@@ -14,29 +14,27 @@ module DaVinciDTRTestKit
       to the bound ValueSet. Quantity, Coding, and code element bindings will fail if their code/system are not found in
       the valueset.
 
-      This test may process multiple resources, labeling messages with the corresponding tested resources 
+      This test may process multiple resources, labeling messages with the corresponding tested resources
       in the order that they were received.
     )
     id :payer_server_next_request_validation
 
     run do
-
       skip_if access_token.nil? && next_question_requests.nil?, 'No access token or request resources provided.'
-      unless next_question_requests.nil?
-        resources = next_question_requests
-      else
-        resources = load_tagged_requests(NEXT_TAG)
-      end
+      resources = if next_question_requests.nil?
+                    load_tagged_requests(NEXT_TAG)
+                  else
+                    next_question_requests
+                  end
       perform_request_validation_test(
-      resources,
-      :questionnaireResponse,
-      'http://hl7.org/fhir/uv/sdc/StructureDefinition/parameters-questionnaire-next-question-in',
-      next_url)
-
+        resources,
+        :questionnaireResponse,
+        'http://hl7.org/fhir/uv/sdc/StructureDefinition/parameters-questionnaire-next-question-in',
+        next_url
+      )
     rescue Inferno::Exceptions::AssertionException => e
-      msg = "#{e.message}".strip
+      msg = e.message.to_s.strip
       skip msg
-
     end
   end
 end
