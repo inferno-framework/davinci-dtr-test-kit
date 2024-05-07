@@ -1,9 +1,11 @@
 require_relative 'payer_server_adaptive_request_test'
 require_relative 'payer_server_adaptive_request_validation_test'
-require_relative 'payer_server_adaptive_response_validation_search_test'
+require_relative 'payer_server_adaptive_response_bundles_validation_test'
+require_relative 'payer_server_adaptive_response_search_validation_test'
 require_relative 'payer_server_adaptive_response_validation_test'
 require_relative 'payer_server_next_request_validation_test'
 require_relative 'payer_server_next_response_validation_test'
+require_relative 'payer_server_next_response_complete_test'
 
 module DaVinciDTRTestKit
   class DTRPayerServerAdaptiveQuestionnairePackageGroup < Inferno::TestGroup
@@ -39,9 +41,9 @@ module DaVinciDTRTestKit
           description: 'DTR Client Flow'
 
     input :adaptive_endpoint,
-          optional: true,
-          title: 'AdaptiveEndpoint for a Particular Adaptive Resource',
-          description: 'DTR Client Flow (optional)'
+      optional: true,
+      title: "AdaptiveEndpoint for a Particular Adaptive Resource",
+      description: "Either Flow (optional)"
 
     input :initial_questionnaire_request,
           optional: true,
@@ -57,8 +59,8 @@ module DaVinciDTRTestKit
 
     input_order :retrieval_method,
       :url,
-      :access_token,
       :adaptive_endpoint,
+      :access_token,
       :initial_questionnaire_request,
       :next_question_requests,
       :credentials
@@ -72,12 +74,15 @@ module DaVinciDTRTestKit
 
     # pass request to payer server, validate questionnaire response
     test from: :payer_server_adaptive_response_validation_test 
-    test from: :payer_server_adaptive_response_validation_search_test
+    test from: :payer_server_adaptive_response_bundles_validation_test
+    test from: :payer_server_adaptive_response_search_validation_test
 
     # optionally validate the client request
     test from: :payer_server_next_request_validation
 
     # pass request to payer server, validate adaptive questionnaire response
     test from: :payer_server_next_response_validation_test
+    test from: :payer_server_adaptive_completion_test
+
   end
 end
