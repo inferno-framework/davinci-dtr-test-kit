@@ -22,17 +22,31 @@ module DaVinciDTRTestKit
     run do
       skip_if retrieval_method == 'Static', 'Performing only static flow tests - only one flow is required.'
       skip_if access_token.nil? && next_question_requests.nil?, 'No access token or request resources provided.'
-      resources = if next_question_requests.nil?
-                    load_tagged_requests(NEXT_TAG)
-                  else
-                    next_question_requests
-                  end
-      perform_request_validation_test(
+      unless next_question_requests.nil?
+        resources = next_question_requests
+        json_resources = JSON.parse(resources)
+      else
+        resources = load_tagged_requests(NEXT_TAG)
+        json_resources = resources.map {|r| JSON.parse(r.request_body)}
+      end
+      if json_resources.any? { |r| r["resourceType"] == "QuestionnaireResponse"}
+        perform_request_validation_test(
         resources,
         :questionnaireResponse,
+        'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaireresponse-adapt',
+        next_url)
+      elsif json_resources.any? { |r| r["resourceType"] == "Parameters"}
+        perform_request_validation_test(
+        resources,
+        :parameters,
         'http://hl7.org/fhir/uv/sdc/StructureDefinition/parameters-questionnaire-next-question-in',
-        next_url
-      )
+        next_url)
+      else
+        raise new Inferno::Exceptions::AssertionException.new "Resource does not conform to the either accepted profiles: 
+        http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaireresponse-adapt or http://hl7.org/fhir/uv/sdc/StructureDefinition/parameters-questionnaire-next-question-in"
+      end
+
+
     rescue Inferno::Exceptions::AssertionException => e
       msg = e.message.to_s.strip
       skip msg
