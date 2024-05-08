@@ -22,7 +22,7 @@ module DaVinciDTRTestKit
       request.response_body = request.request_body
     end
 
-    def payer_adaptive_questionnaire_response(request, _test = nil, _test_result = nil)
+    def payer_adaptive_questionnaire_response(request, _test = nil)
       endpoint_input = JSON.parse(_test_result.input_json).find { |input| input['name'] == 'adaptive_endpoint' }
       url_input = JSON.parse(_test_result.input_json).find { |input| input['name'] == 'url' }
       client = FHIR::Client.new(url_input['value'])
@@ -36,7 +36,7 @@ module DaVinciDTRTestKit
       request.response_body = payer_response.response[:body].to_s
     end
 
-    def questionnaire_next_response(request, _test = nil, _test_result = nil)
+    def questionnaire_next_response(request, _test = nil)
       url_endpoint = JSON.parse(_test_result.input_json).find { |input| input['name'] == 'url' }
       client = FHIR::Client.new(url_endpoint['value'])
       client.default_json
@@ -62,7 +62,7 @@ module DaVinciDTRTestKit
       request.query_parameters['token']
     end
 
-    def test_resumes?(test)
+    def test_resumes?(_test)
       false
     end
   end
