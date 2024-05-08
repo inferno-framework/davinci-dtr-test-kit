@@ -115,19 +115,23 @@ module DaVinciDTRTestKit
         # check answer
         if answer.value.present?
           if answer.value != expected_answer
-            error_list << "answer to item #{item.linkId} contains unexpected value. Expected: #{expected_answer}. Found #{answer.value}"
+            error_list << "answer to item #{item.linkId} contains unexpected value. Expected: #{expected_answer}. " \
+                          "Found #{answer.value}"
           end
         else
           error_list << "No pre-populated answer value for item #{item.linkId}"
         end
 
         # check origin.source extension
-        source_extension = find_extension(answer, ['http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/information-origin', 'source'])
+        source_extension = find_extension(answer,
+                                          ['http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/information-origin',
+                                           'source'])
         if source_extension.present?
           if source_extension.value != 'auto'
-            error_list << "origin.source extension on item #{item.linkId} contains unexpected value. Expected: auto. Found #{source_extension.value}"
+            error_list << "origin.source extension on item #{item.linkId} contains unexpected value. Expected: auto. " \
+                          "Found #{source_extension.value}"
           end
-        else 
+        else
           error_list << "Required origin.source extension not present on answer to item #{item.linkId}"
         end
       else
@@ -141,19 +145,23 @@ module DaVinciDTRTestKit
         # check answer
         if answer.value.present?
           if answer.value == expected_non_answer
-            error_list << "answer to item #{item.linkId} contains the expected prepoppulated value. Found #{expected_non_answer} but should be different"
+            error_list << "answer to item #{item.linkId} contains the expected prepoppulated value. " \
+                          "Found #{expected_non_answer} but should be different"
           end
         else
           error_list << "No answer value for item #{item.linkId}"
         end
 
         # check origin.source extension
-        source_extension = find_extension(answer, ['http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/information-origin', 'source'])
+        source_extension = find_extension(answer,
+                                          ['http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/information-origin',
+                                           'source'])
         if source_extension.present?
           if source_extension.value != 'override'
-            error_list << "origin.source extension on item #{item.linkId} contains unexpected value. Expected: override. Found #{source_extension.value}"
+            error_list << "origin.source extension on item #{item.linkId} contains unexpected value. " \
+                          "Expected: override. Found #{source_extension.value}"
           end
-        else 
+        else
           error_list << "Required origin.source extension not present on answer to item #{item.linkId}"
         end
       else

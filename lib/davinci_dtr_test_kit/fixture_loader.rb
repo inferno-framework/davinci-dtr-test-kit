@@ -5,11 +5,7 @@ module DaVinciDTRTestKit
   class FixtureLoader
     include Singleton
 
-    attr_reader :questionnaire_package
-
     def initialize
-      @questionnaire_package = init_questionnaire_package_and_response('lib/davinci_dtr_test_kit/fixtures/questionnaire_package.json')
-
       # list of lists
       # - first entry is the path to a file containing a Questionnaire Bundle (not Parameters)
       # - second entry is the path to a file containing a Populated QuestionnaireResponse
@@ -37,7 +33,8 @@ module DaVinciDTRTestKit
         ]
 
       questionnaires_to_load.each do |questionnaire_details|
-        init_questionnaire_package_and_response(questionnaire_details[0], questionnaire_details[1], questionnaire_details[2])
+        init_questionnaire_package_and_response(questionnaire_details[0], questionnaire_details[1],
+                                                questionnaire_details[2])
       end
     end
 
