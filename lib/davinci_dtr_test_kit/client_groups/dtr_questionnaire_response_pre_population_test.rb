@@ -15,7 +15,8 @@ module DaVinciDTRTestKit
       2. All items that should be pre-populated by CQL execution have an answer
       3. Pre-populated answers have origin.source set to either 'auto' or 'override'
       4. Answer for 'Last Name' is equal to its expected calculated value
-      5. CQL Library dataRequirements have been fetched (to the extent this can be observed in the QuestionnaireResponse)
+      5. CQL Library dataRequirements have been fetched
+      (to the extent this can be observed in the QuestionnaireResponse)
     )
 
     run do

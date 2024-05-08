@@ -9,9 +9,9 @@ RSpec.describe DaVinciDTRTestKit::DTRPayerServerQuestionnairePackageGroup do
       input :server_endpoint
     end
   end
-    let(:questionnaire_parameters) do
-      File.read(File.join(__dir__, '..', 'fixtures', 'questionnaire_package_input_params_ri.json'))
-    end
+  let(:questionnaire_parameters) do
+    File.read(File.join(__dir__, '..', 'fixtures', 'questionnaire_package_input_params_ri.json'))
+  end
 
   def run(runnable, inputs = {})
     test_run_params = { test_session_id: test_session.id }.merge(runnable.reference_hash)

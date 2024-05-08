@@ -3,7 +3,8 @@ require_relative 'static_form_test'
 module DaVinciDTRTestKit
   class DTRPayerServerQuestionnairePackageGroup < Inferno::TestGroup
     title 'Static Questionnaire Package Retrieval'
-    short_description 'Verify support for the payer server capabilities required to provide appropriate questionnaire packages upon request.'
+    short_description 'Verify support for the payer server capabilities required to provide
+    appropriate questionnaire packages upon request.'
     description %(
     ## Background
 
@@ -17,13 +18,13 @@ module DaVinciDTRTestKit
     run_as_group
 
     input :url,
-      optional: true,
-      title: 'FHIR Server Base Url'
+          optional: true,
+          title: 'FHIR Server Base Url'
 
     input :questionnaire_parameters,
-      title: 'Questionnaire Parameters',
-      description: 'Input Questionnaire Parameters',
-      type: 'textarea'
+          title: 'Questionnaire Parameters',
+          description: 'Input Questionnaire Parameters',
+          type: 'textarea'
 
     test from: :dtr_v201_payer_static_form_test
   end
