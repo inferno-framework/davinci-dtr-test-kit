@@ -18,7 +18,8 @@ RSpec.describe DaVinciDTRTestKit::ValidationTest do
         questionnaire_request_resources,
         :parameters,
         'http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/dtr-qpackage-input-parameters',
-        questionnaire_package_url)
+        questionnaire_package_url
+      )
     end
 
     it 'passes if next-question requests validate' do
@@ -26,7 +27,8 @@ RSpec.describe DaVinciDTRTestKit::ValidationTest do
         next_request_resources,
         :questionnaireResponse,
         'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaireresponse',
-        next_url)
+        next_url
+      )
     end
   end
 
@@ -35,14 +37,16 @@ RSpec.describe DaVinciDTRTestKit::ValidationTest do
       perform_response_validation_test(
         questionnaire_request_resources,
         :parameters,
-        'http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/dtr-qpackage-output-parameters')
+        'http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/dtr-qpackage-output-parameters'
+      )
     end
 
     it 'passes if next-question responses validate' do
       perform_response_validation_test(
         next_request_resources,
         :questionnaireResponse,
-        'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaireresponse')
+        'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaireresponse'
+      )
     end
   end
 end

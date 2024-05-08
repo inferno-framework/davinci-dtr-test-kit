@@ -15,28 +15,33 @@ module DaVinciDTRTestKit
       to the bound ValueSet. Quantity, Coding, and code element bindings will fail if their code/system are not found in
       the valueset.
 
-      This test may process multiple resources, labeling messages with the corresponding tested resources 
+      This test may process multiple resources, labeling messages with the corresponding tested resources
       in the order that they were received.
     )
 
     run do
       skip_if access_token.nil? && initial_questionnaire_request.nil?, 'No access token or request resource provided.'
-      unless initial_questionnaire_request.nil?
-        resources = []
-        if initial_questionnaire_request.kind_of?(Array)
-          initial_questionnaire_request.each { |resource| 
-            resources.push(fhir_operation("#{url}/Questionnaire/$questionnaire-package", body: JSON.parse(initial_questionnaire_request), headers: {"Content-Type": "application/json"}))
-          }
-        else 
-          resources.push(fhir_operation("#{url}/Questionnaire/$questionnaire-package", body: JSON.parse(initial_questionnaire_request), headers: {"Content-Type": "application/json"}))
-        end
-      else
+      if initial_questionnaire_request.nil?
         resources = load_tagged_requests(QUESTIONNAIRE_TAG)
+      else
+        resources = []
+        if initial_questionnaire_request.is_a?(Array)
+          initial_questionnaire_request.each do |_resource|
+            resources.push(fhir_operation("#{url}/Questionnaire/$questionnaire-package",
+                                          body: JSON.parse(initial_questionnaire_request),
+                                          headers: { 'Content-Type': 'application/json' }))
+          end
+        else
+          resources.push(fhir_operation("#{url}/Questionnaire/$questionnaire-package",
+                                        body: JSON.parse(initial_questionnaire_request),
+                                        headers: { 'Content-Type': 'application/json' }))
+        end
       end
       perform_response_validation_test(
         resources,
         :parameters,
-        'http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/dtr-qpackage-output-parameters')
+        'http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/dtr-qpackage-output-parameters'
+      )
     end
   end
 end

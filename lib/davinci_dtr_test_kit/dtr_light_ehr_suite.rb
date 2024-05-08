@@ -1,8 +1,8 @@
 module DaVinciDTRTestKit
-    class DTRLightEHRSuite < Inferno::TestSuite
-      id :dtr_light_ehr
-      title 'Da Vinci DTR Light EHR Test Suite'
-      description %(
+  class DTRLightEHRSuite < Inferno::TestSuite
+    id :dtr_light_ehr
+    title 'Da Vinci DTR Light EHR Test Suite'
+    description %(
         # Da Vinci DTR Light EHR Test Suite
 
         This suite validates that an EMR or other application

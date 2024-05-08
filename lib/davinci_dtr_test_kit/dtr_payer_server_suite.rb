@@ -13,7 +13,7 @@ module DaVinciDTRTestKit
 
     id :dtr_payer_server
     title 'Da Vinci DTR Payer Server Test Suite'
-      description %(
+    description %(
         # Da Vinci DTR Payer Server Test Suite
 
         This suite validates that a payer server can act as a source
@@ -25,14 +25,14 @@ module DaVinciDTRTestKit
     # These inputs will be available to all tests in this suite
 
     input :credentials,
-        title: 'OAuth Credentials',
-        type: :oauth_credentials,
-        optional: true
+          title: 'OAuth Credentials',
+          type: :oauth_credentials,
+          optional: true
 
     # All FHIR requests in this suite will use this FHIR client
     fhir_client do
-    url :url
-    oauth_credentials :credentials
+      url :url
+      oauth_credentials :credentials
     end
 
     # All FHIR validation requsets will use this FHIR validator
@@ -71,7 +71,6 @@ module DaVinciDTRTestKit
     resume_test_route :get, RESUME_PASS_PATH do |request|
       DTRPayerServerSuite.extract_token_from_query_params(request)
     end
-
 
     group from: :payer_server_static_package
     group from: :payer_server_adaptive_questionnaire
