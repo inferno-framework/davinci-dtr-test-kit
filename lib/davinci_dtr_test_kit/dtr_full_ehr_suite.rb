@@ -27,18 +27,7 @@ module DaVinciDTRTestKit
       url ENV.fetch('VALIDATOR_URL')
     end
 
-    # Handle pre-flight request to establish CORS
-    pre_flight_handler = proc do
-      [
-        200,
-        {
-          'Access-Control-Allow-Origin' => '*',
-          'Access-Control-Allow-Headers' => 'Content-Type, Authorization'
-        },
-        ['']
-      ]
-    end
-    route(:options, '/fhir/Questionnaire/$questionnaire-package', pre_flight_handler)
+    allow_cors QUESTIONNAIRE_PACKAGE_PATH
 
     record_response_route :post, TOKEN_PATH, 'dtr_auth', method(:token_response) do |request|
       DTRFullEHRSuite.extract_client_id(request)
