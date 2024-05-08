@@ -2,7 +2,6 @@ require_relative 'fixtures'
 
 module DaVinciDTRTestKit
   module DTRQuestionnaireResponseValidation
-    include URLs
     include Fixtures
 
     CQL_EXPRESSION_EXTENSIONS = [
@@ -11,18 +10,7 @@ module DaVinciDTRTestKit
       'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-candidateExpression'
     ].freeze
 
-    def validate_questionnaire_pre_population(request, test_id)
-      assert request.url == questionnaire_response_url,
-             "Request made to wrong URL: #{request.url}. Should instead be to #{questionnaire_response_url}"
-
-      assert_valid_json(request.request_body)
-      questionnaire_response = FHIR.from_contents(request.request_body)
-      assert questionnaire_response.present?, 'Request does not contain a recognized FHIR object'
-      assert_resource_type(:questionnaire_response, resource: questionnaire_response)
-
-      assert_valid_resource(resource: questionnaire_response,
-                            profile_url: 'http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/dtr-questionnaireresponse')
-
+    def validate_questionnaire_pre_population(questionnaire_response, test_id)
       # Requirements:
       #  - Prior to exposing the draft QuestionnaireResponse to the user for completion and/or review, the DTR client
       #    SHALL execute all CQL necessary to resolve the initialExpression, candidateExpression and
@@ -37,46 +25,73 @@ module DaVinciDTRTestKit
       questionnaire = find_questionnaire_instance_for_test_id(test_id)
       raise "missing Questionnaire for test #{test_id}" unless questionnaire.present?
 
-      validation_errors = validate_cql_executed(template_questionnaire_response.item, questionnaire_response.item,
-                                                questionnaire)
-
-      # Requirement: The DTR client SHALL retrieve the FHIR resources specified in the dataRequirement section of a
-      #              Library
-      validation_errors.concat(validate_data_requirements_retrieved(template_questionnaire_response,
-                                                                    questionnaire_response))
+      questionnaire_cql_expression_link_ids = collect_questionnaire_cql_expression_link_ids(questionnaire.item)
+      template_prepopulation_expectations = {}
+      template_override_expectations = {}
+      extract_expected_answers_from_template(template_questionnaire_response,
+                                             questionnaire_cql_expression_link_ids,
+                                             template_prepopulation_expectations,
+                                             template_override_expectations)
+      validation_errors = []
+      validate_cql_executed(questionnaire_response.item, questionnaire_cql_expression_link_ids,
+                            template_prepopulation_expectations, template_override_expectations, validation_errors)
 
       validation_errors.each { |msg| messages << { type: 'error', message: msg } }
       assert validation_errors.blank?, 'QuestionnaireResponse is not conformant. Check messages for issues found.'
     end
 
-    def validate_cql_executed(expected_items, actual_items, questionnaire, error_messages = [])
-      questionnaire_cql_expression_link_ids = collect_questionnaire_cql_expression_link_ids(questionnaire.item)
+    def validate_cql_executed(actual_items, questionnaire_cql_expression_link_ids, template_prepopulation_expectations,
+                              template_override_expectations, error_messages)
 
-      actual_items&.each do |item|
-        link_id = item.linkId
-        expected_item = find_item_by_link_id(expected_items, link_id)
+      actual_items&.each do |one_item|
+        link_id = one_item.linkId
         if questionnaire_cql_expression_link_ids.include?(link_id)
-          answer = item.answer&.first
-          expected_answer = expected_item.answer.first
-
-          if answer.present?
-            unless valid_pre_populated_item_source?(answer)
-              error_messages << "Answer for question with linkId `#{link_id}` should be pre-populated. Expected " \
-                                "origin.source to equal 'auto' or 'override'"
-            end
-
-            if AUTO_POPULATED_ANSWERS.values.include?(link_id) && !answer_value_equal?(expected_answer, answer)
-              error_messages << "Unexpected pre-populated answer for question with linkId `#{link_id}`: " \
-                                "expected `#{expected_answer.value.to_json}` and received `#{answer.value&.to_json}`"
-            end
+          if template_prepopulation_expectations.key?(link_id)
+            check_item_prepopulation(one_item, template_prepopulation_expectations[link_id], error_messages)
+          elsif template_override_expectations.include?(link_id)
+            check_item_override(one_item, template_override_expectations[link_id], error_messages)
           else
-            error_messages << "Expected a pre-populated answer for question with linkId #{link_id}, but found none"
+            raise "template missing expectation for question #{link_id}"
           end
         end
 
-        validate_cql_executed(expected_item.item, item.item, questionnaire, error_messages)
+        validate_cql_executed(one_item.item, questionnaire_cql_expression_link_ids,
+                              template_prepopulation_expectations, template_override_expectations, error_messages)
       end
       error_messages
+    end
+
+    def extract_expected_answers_from_template(template_questionnaire_response,
+                                               questionnaire_cql_expression_link_ids,
+                                               expected_prepopulated = {},
+                                               expected_overrides = {})
+
+      questionnaire_cql_expression_link_ids.each do |target_link_id|
+        target_item = find_item_by_link_id(template_questionnaire_response.item, target_link_id)
+        raise "Template QuestionnaireResponse missing item with link id #{target_link_id}" unless target_item.present?
+
+        target_item_answer = target_item.answer.first
+        unless target_item_answer.present?
+          raise "Template QuestionnaireResponse missing an answer for item with link id #{target_link_id}"
+        end
+
+        source_extension = find_extension(target_item_answer,
+                                          ['http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/information-origin',
+                                           'source'])
+        unless source_extension.present?
+          raise "Template QuestionnaireResponse item #{target_link_id} missing the origin.source extension"
+        end
+
+        # TODO: handle other data types
+        if source_extension.value == 'auto'
+          expected_prepopulated[target_link_id] = target_item_answer.value
+        elsif source_extension.value == 'override'
+          # value form = NOT{<value>}
+          expected_overrides[target_link_id] = target_item_answer.value[4..-2]
+        else
+          raise "origin.source extension for item #{target_link_id} has unexpected value: #{source_extension.value}"
+        end
+      end
     end
 
     def validate_data_requirements_retrieved(expected_questionnaire_response, questionnaire_response)
@@ -94,11 +109,56 @@ module DaVinciDTRTestKit
       error_messages
     end
 
-    def valid_pre_populated_item_source?(answer)
-      origin = find_extension(answer, 'http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/information-origin')
-      source = find_extension(origin, 'source')
+    def check_item_prepopulation(item, expected_answer, error_list)
+      answer = item.answer.first
+      if answer.present?
+        # check answer
+        if answer.value.present?
+          if answer.value != expected_answer
+            error_list << "answer to item #{item.linkId} contains unexpected value. Expected: #{expected_answer}. Found #{answer.value}"
+          end
+        else
+          error_list << "No pre-populated answer value for item #{item.linkId}"
+        end
 
-      source&.value == 'auto' || source&.value == 'override'
+        # check origin.source extension
+        source_extension = find_extension(answer, ['http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/information-origin', 'source'])
+        if source_extension.present?
+          if source_extension.value != 'auto'
+            error_list << "origin.source extension on item #{item.linkId} contains unexpected value. Expected: auto. Found #{source_extension.value}"
+          end
+        else 
+          error_list << "Required origin.source extension not present on answer to item #{item.linkId}"
+        end
+      else
+        error_list << "No pre-populated answer for item #{item.linkId}"
+      end
+    end
+
+    def check_item_override(item, expected_non_answer, error_list)
+      answer = item.answer.first
+      if answer.present?
+        # check answer
+        if answer.value.present?
+          if answer.value == expected_non_answer
+            error_list << "answer to item #{item.linkId} contains the expected prepoppulated value. Found #{expected_non_answer} but should be different"
+          end
+        else
+          error_list << "No answer value for item #{item.linkId}"
+        end
+
+        # check origin.source extension
+        source_extension = find_extension(answer, ['http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/information-origin', 'source'])
+        if source_extension.present?
+          if source_extension.value != 'override'
+            error_list << "origin.source extension on item #{item.linkId} contains unexpected value. Expected: override. Found #{source_extension.value}"
+          end
+        else 
+          error_list << "Required origin.source extension not present on answer to item #{item.linkId}"
+        end
+      else
+        error_list << "No answer for item #{item.linkId}"
+      end
     end
 
     def find_item_by_link_id(items, link_id)
@@ -112,7 +172,16 @@ module DaVinciDTRTestKit
     end
 
     def find_extension(element, url)
-      element&.extension&.find { |e| e.url == url }
+      if url.is_a?(Array)
+        if url.size == 1
+          find_extension(element, url[0])
+        else
+          first_extension = url[0]
+          find_extension(element&.extension&.find { |e| e.url == first_extension }, url[1..])
+        end
+      else
+        element&.extension&.find { |e| e.url == url }
+      end
     end
 
     def collect_questionnaire_cql_expression_link_ids(items, link_ids = [])

@@ -1,8 +1,11 @@
-require_relative '../dtr_questionnaire_package_request_test'
-require_relative '../dtr_questionnaire_package_request_validation_test'
+require_relative '../shared/dtr_questionnaire_package_request_test'
+require_relative '../shared/dtr_questionnaire_package_request_validation_test'
 require_relative 'prepopulation_attestation_test'
+require_relative 'prepopulation_override_attestation_test'
 require_relative 'rendering_enabled_questions_attestation_test'
-require_relative '../dtr_questionnaire_response_save_test'
+require_relative '../shared/dtr_questionnaire_response_save_test'
+require_relative '../shared/dtr_questionnaire_response_basic_conformance_test'
+require_relative '../shared/dtr_questionnaire_response_pre_population_test'
 
 module DaVinciDTRTestKit
   class DTRSmartAppStaticDinnerQuestionnaireWorkflowGroup < Inferno::TestGroup
@@ -17,7 +20,7 @@ module DaVinciDTRTestKit
       2. Render and pre-populate the questionnaire appropriately, including:
          - fetch additional data needed for pre-population
          - pre-populate data as directed by the questionnaire
-         - display questions only when they are enabled
+         - display questions only when they are enabled by other answers
       3. Provide the completed QuestionnaireResponse with appropriate indicators for pre-populated
          and manually-entered data.
     )
@@ -54,10 +57,12 @@ module DaVinciDTRTestKit
 
       # Test 1: test to make sure they have requested encounter data
       # since the questionnaire asks them to
-      # TODO: once Tom has gotten the reference implementation hooked up
-      # Test 2: attest to the pre-population of the name fields, maybe the Encounter field as well
+      # TODO: once Tom has gotten the reference server hooked up
+      # Test 2: attest to the pre-population of the name fields
       test from: :dtr_dinner_static_rendering_prepopulation_attestation
-      # Test 3: attest to the display of the toppings questions only when a dinner answer is selected
+      # Test 3: attest to the pre-population and edit of the location field
+      test from: :dtr_dinner_static_prepopulation_override_attestation
+      # Test 4: attest to the display of the toppings questions only when a dinner answer is selected
       test from: :dtr_dinner_static_rendering_enabledQs_attestation
     end
 
@@ -67,15 +72,18 @@ module DaVinciDTRTestKit
       description %(
         The tester will complete the questionnaire such that a QuestionnaireResponse is stored
         back into Inferno's EHR endpoint. The stored QuestionnaireResponse will be evaluated for
-        conformance, correct indicators on pre-populated and manually-overriden items.
+        conformance, completeness, and correct indicators on pre-populated and manually-overriden
+        items.
       )
       run_as_group
 
       # Test 1: wait for a QuestionnaireResponse
       test from: :dtr_questionnaire_response_save,
            receives_request: :questionnaire_response_save
-      # Test 2: validate the QuestionnaireResponse, including conformance, pre-population flags,
-      # and any other details.
+      # Test 2: validate basic conformance of the QuestionnaireResponse
+      test from: :dtr_questionnaire_response_basic_conformance,
+           uses_request: :questionnaire_response_save
+      # Test 3: validate workflow-specific details such as pre-population and overrides
       test from: :dtr_questionnaire_response_pre_population,
            uses_request: :questionnaire_response_save
     end

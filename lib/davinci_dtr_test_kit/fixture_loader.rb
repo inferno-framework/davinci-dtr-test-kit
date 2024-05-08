@@ -26,7 +26,7 @@ module DaVinciDTRTestKit
           ],
           [
             'lib/davinci_dtr_test_kit/fixtures/dinner_static/questionnaire_dinner_order_static.json',
-            '',
+            'lib/davinci_dtr_test_kit/fixtures/dinner_static/questionnaire_response_dinner_order_static.json',
             ['dtr_smart_app_static_dinner_questionnaire_workflow']
           ],
           [

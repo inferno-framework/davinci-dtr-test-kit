@@ -1,0 +1,170 @@
+{
+  "resourceType": "QuestionnaireResponse",
+  "meta": {
+    "profile": [
+      "http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/dtr-questionnaireresponse"
+    ]
+  },
+  "status": "completed",
+  "authored": "*",
+  "item": [
+    {
+      "linkId": "PBD",
+      "item": [
+        {
+          "linkId": "PBD.1",
+          "answer": [
+            {
+              "valueString": "Oster",
+              "extension": [
+                {
+                  "url": "http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/information-origin",
+                  "extension": [
+                    {
+                      "url": "source",
+                      "valueCode": "auto"
+                    },
+                    {
+                      "url": "author",
+                      "extension": [
+                        {
+                          "url": "practitioner",
+                          "valueReference": {
+                            "reference": "*"
+                          }
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "linkId": "PBD.2",
+          "answer": [
+            {
+              "valueString": "William",
+              "extension": [
+                {
+                  "url": "http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/information-origin",
+                  "extension": [
+                    {
+                      "url": "source",
+                      "valueCode": "auto"
+                    },
+                    {
+                      "url": "author",
+                      "extension": [
+                        {
+                          "url": "practitioner",
+                          "valueReference": {
+                            "reference": "*"
+                          }
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "linkId": "LOC",
+      "item": [
+        {
+          "linkId": "LOC.1",
+          "answer": [
+            {
+              "valueString": "NOT{TODO}",
+              "extension": [
+                {
+                  "url": "http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/information-origin",
+                  "extension": [
+                    {
+                      "url": "source",
+                      "valueCode": "override"
+                    },
+                    {
+                      "url": "author",
+                      "extension": [
+                        {
+                          "url": "practitioner",
+                          "valueReference": {
+                            "reference": "*"
+                          }
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "linkId": "3",
+      "item": [
+        {
+          "linkId": "3.1",
+          "answer": [
+            {
+              "valueCoding": {
+                "code": "*"
+              },
+              "extension": [
+                {
+                  "url": "http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/information-origin",
+                  "extension": [
+                    {
+                      "url": "source",
+                      "valueCode": "manual"
+                    },
+                    {
+                      "url": "author",
+                      "extension": [
+                        {
+                          "url": "practitioner",
+                          "valueReference": {
+                            "reference": "*"
+                          }
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "author": {
+    "reference": "*"
+  },
+  "subject": {
+    "reference": "*"
+  },
+  "questionnaire": "urn:inferno:dtr-test-kit:dinner-order-static",
+  "extension": [
+    {
+      "url": "http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/context",
+      "valueReference": {
+        "reference": "*"
+      }
+    },
+    {
+      "url": "http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/context",
+      "valueReference": {
+        "reference": "*"
+      }
+    }
+  ]
+}

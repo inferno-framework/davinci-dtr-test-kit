@@ -2,7 +2,6 @@ require_relative 'fixture_loader'
 
 module DaVinciDTRTestKit
   module Fixtures
-    AUTO_POPULATED_ANSWERS = { 'Last Name' => 'PBD.1' }.freeze
     DATA_REQUIREMENT_ANSWERS = { 'RAD Prepopulation' => '3.1' }.freeze
 
     def get_questionnaire_package_for_group_id(group_id)

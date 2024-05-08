@@ -1,4 +1,4 @@
-require_relative '../urls'
+require_relative '../../urls'
 
 module DaVinciDTRTestKit
   class DTRQuestionnaireResponseSaveTest < Inferno::Test
