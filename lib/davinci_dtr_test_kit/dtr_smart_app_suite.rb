@@ -3,6 +3,8 @@ require_relative 'ext/inferno_core/record_response_route'
 require_relative 'ext/inferno_core/request'
 require_relative 'auth_groups/oauth2_authentication_group'
 require_relative 'client_groups/dtr_smart_app_questionnaire_workflow_group'
+require_relative 'client_groups/dinner_static/dtr_smart_app_questionnaire_workflow_group'
+require_relative 'client_groups/dinner_adaptive/dtr_smart_app_questionnaire_workflow_group'
 require_relative 'mock_payer'
 
 module DaVinciDTRTestKit
@@ -63,6 +65,24 @@ module DaVinciDTRTestKit
     end
 
     group from: :oauth2_authentication
-    group from: :dtr_smart_app_questionnaire_workflow
+    group do
+      id :dtr_smart_app_basic_workflows
+      title 'Basic Workflows'
+      description %(
+        Tests in this group validate that the client can complete basic DTR workflows
+      )
+
+      group from: :dtr_smart_app_static_dinner_questionnaire_workflow
+      group from: :dtr_smart_app_adaptive_dinner_questionnaire_workflow
+    end
+    group do
+      id :dtr_smart_app_questionnaire_functionality
+      title 'Questionnaire Functionality Coverage'
+      description %(
+        Tests in this group validate that the client can complete additional DTR workflows
+        covering additional must support features of questionnaires.
+      )
+      group from: :dtr_smart_app_questionnaire_workflow
+    end
   end
 end

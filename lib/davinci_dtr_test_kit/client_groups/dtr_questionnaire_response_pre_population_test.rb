@@ -19,7 +19,7 @@ module DaVinciDTRTestKit
     )
 
     run do
-      validate_questionnaire_pre_population(request)
+      validate_questionnaire_pre_population(request, id)
     end
   end
 end

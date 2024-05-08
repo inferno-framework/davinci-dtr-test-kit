@@ -11,7 +11,7 @@ module DaVinciDTRTestKit
       'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-candidateExpression'
     ].freeze
 
-    def validate_questionnaire_pre_population(request)
+    def validate_questionnaire_pre_population(request, test_id)
       assert request.url == questionnaire_response_url,
              "Request made to wrong URL: #{request.url}. Should instead be to #{questionnaire_response_url}"
 
@@ -31,18 +31,27 @@ module DaVinciDTRTestKit
       #    questionnaire package, or from data retrieved from the EHR) SHALL have their origin.source set to ‘auto’.
       #
       # Note that in the questionnaire fixture, all cql expression elements are enabled, so we don't filter
-      validation_errors = validate_cql_executed(pre_populated_questionnaire_response.item, questionnaire_response.item)
+      template_questionnaire_response = find_questionnaire_response_for_test_id(test_id)
+      raise "missing QuestionnaireResponse template for test #{test_id}" unless template_questionnaire_response.present?
+
+      questionnaire = find_questionnaire_instance_for_test_id(test_id)
+      raise "missing Questionnaire for test #{test_id}" unless questionnaire.present?
+
+      validation_errors = validate_cql_executed(template_questionnaire_response.item, questionnaire_response.item,
+                                                questionnaire)
 
       # Requirement: The DTR client SHALL retrieve the FHIR resources specified in the dataRequirement section of a
       #              Library
-      validation_errors.concat(validate_data_requirements_retrieved(pre_populated_questionnaire_response,
+      validation_errors.concat(validate_data_requirements_retrieved(template_questionnaire_response,
                                                                     questionnaire_response))
 
       validation_errors.each { |msg| messages << { type: 'error', message: msg } }
       assert validation_errors.blank?, 'QuestionnaireResponse is not conformant. Check messages for issues found.'
     end
 
-    def validate_cql_executed(expected_items, actual_items, error_messages = [])
+    def validate_cql_executed(expected_items, actual_items, questionnaire, error_messages = [])
+      questionnaire_cql_expression_link_ids = collect_questionnaire_cql_expression_link_ids(questionnaire.item)
+
       actual_items&.each do |item|
         link_id = item.linkId
         expected_item = find_item_by_link_id(expected_items, link_id)
@@ -65,7 +74,7 @@ module DaVinciDTRTestKit
           end
         end
 
-        validate_cql_executed(expected_item.item, item.item, error_messages)
+        validate_cql_executed(expected_item.item, item.item, questionnaire, error_messages)
       end
       error_messages
     end
@@ -83,10 +92,6 @@ module DaVinciDTRTestKit
                           "and value: '`#{expected.code}`'"
       end
       error_messages
-    end
-
-    def questionnaire_cql_expression_link_ids
-      @questionnaire_cql_expression_link_ids ||= collect_questionnaire_cql_expression_link_ids(questionnaire.item)
     end
 
     def valid_pre_populated_item_source?(answer)
