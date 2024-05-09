@@ -1,4 +1,5 @@
 require_relative 'static_form_test'
+require_relative 'static_form_cql_test'
 
 module DaVinciDTRTestKit
   class DTRPayerServerQuestionnairePackageGroup < Inferno::TestGroup
@@ -27,5 +28,6 @@ module DaVinciDTRTestKit
       :initial_questionnaire_request
 
     test from: :dtr_v201_payer_static_form_test
+    test from: :dtr_v201_payer_static_form_cql_test
   end
 end
