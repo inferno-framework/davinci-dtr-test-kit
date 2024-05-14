@@ -25,6 +25,7 @@ module DaVinciDTRTestKit
     def find_questionnaire_canonical_for_test_id(test_id)
       canonical_url = nil
 
+      # test_id is of the form [suite id]-[group id 1]-...-[group id n]-[test id]
       groups = test_id.split('-')[1..-2] # first is suite, last is test, we want groups
       groups.each do |one_group_id|
         next if canonical_url.present?
@@ -46,6 +47,7 @@ module DaVinciDTRTestKit
     def find_questionnaire_response_for_test_id(test_id)
       questionnaire_response = nil
 
+      # test_id is of the form [suite id]-[group id 1]-...-[group id n]-[test id]
       groups = test_id.split('-')[1..-2] # first is suite, last is test, we want groups
       groups.each do |one_group_id|
         next if questionnaire_response.present?

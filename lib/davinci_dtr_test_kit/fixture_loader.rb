@@ -92,17 +92,8 @@ module DaVinciDTRTestKit
       package
     end
 
-    def get_url_for_questionnaire(questionnaire_bundle_or_package)
-      case questionnaire_bundle_or_package
-      when FHIR::Questionnaire
-        questionnaire_bundle_or_package.url
-      when FHIR::Bundle
-        # assumes questionnaire is the first entry per requirement
-        get_url_for_questionnaire(questionnaire_bundle_or_package.entry[0].resource)
-      when FHIR::Parameters
-        # assumes return is the first parameter
-        get_url_for_questionnaire(questionnaire_bundle_or_package.parameter[0].resource)
-      end
+    def get_url_for_questionnaire(questionnaire_bundle)
+      questionnaire_bundle.entry[0].resource.url
     end
   end
 end

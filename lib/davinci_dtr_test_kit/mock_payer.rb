@@ -15,7 +15,7 @@ module DaVinciDTRTestKit
     def questionnaire_package_response(request, _test = nil, test_result = nil)
       request.status = 200
       request.response_headers = RESPONSE_HEADERS
-      request.response_body = questionnaire_package.to_json
+      request.response_body = build_package_questionnaire_response(request, test_result.test_id).to_json
     end
 
     def questionnaire_response_response(request, _test = nil, _test_result = nil)

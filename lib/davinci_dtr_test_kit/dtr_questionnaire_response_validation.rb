@@ -43,19 +43,20 @@ module DaVinciDTRTestKit
     def validate_cql_executed(actual_items, questionnaire_cql_expression_link_ids, template_prepopulation_expectations,
                               template_override_expectations, error_messages)
 
-      actual_items&.each do |one_item|
-        link_id = one_item.linkId
+      actual_items&.each do |item_to_validate|
+        link_id = item_to_validate.linkId
         if questionnaire_cql_expression_link_ids.include?(link_id)
           if template_prepopulation_expectations.key?(link_id)
-            check_item_prepopulation(one_item, template_prepopulation_expectations[link_id], error_messages)
+            check_item_prepopulation(item_to_validate, template_prepopulation_expectations[link_id], error_messages,
+                                     false)
           elsif template_override_expectations.include?(link_id)
-            check_item_override(one_item, template_override_expectations[link_id], error_messages)
+            check_item_prepopulation(item_to_validate, template_override_expectations[link_id], error_messages, true)
           else
-            raise "template missing expectation for question #{link_id}"
+            raise "template missing expectation for question `#{link_id}`"
           end
         end
 
-        validate_cql_executed(one_item.item, questionnaire_cql_expression_link_ids,
+        validate_cql_executed(item_to_validate.item, questionnaire_cql_expression_link_ids,
                               template_prepopulation_expectations, template_override_expectations, error_messages)
       end
       error_messages
@@ -68,28 +69,30 @@ module DaVinciDTRTestKit
 
       questionnaire_cql_expression_link_ids.each do |target_link_id|
         target_item = find_item_by_link_id(template_questionnaire_response.item, target_link_id)
-        raise "Template QuestionnaireResponse missing item with link id #{target_link_id}" unless target_item.present?
+        raise "Template QuestionnaireResponse missing item with link id `#{target_link_id}`" unless target_item.present?
 
         target_item_answer = target_item.answer.first
         unless target_item_answer.present?
-          raise "Template QuestionnaireResponse missing an answer for item with link id #{target_link_id}"
+          raise "Template QuestionnaireResponse missing an answer for item with link id `#{target_link_id}`"
         end
 
-        source_extension = find_extension(target_item_answer,
-                                          ['http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/information-origin',
-                                           'source'])
+        origin_extension = find_extension(target_item_answer,
+                                          'http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/information-origin')
+        source_extension = find_extension(origin_extension, 'source')
+
         unless source_extension.present?
-          raise "Template QuestionnaireResponse item #{target_link_id} missing the origin.source extension"
+          raise "Template QuestionnaireResponse item `#{target_link_id}` missing the `origin.source` extension"
         end
 
         # TODO: handle other data types
         if source_extension.value == 'auto'
           expected_prepopulated[target_link_id] = target_item_answer.value
         elsif source_extension.value == 'override'
-          # value form = NOT{<value>}
-          expected_overrides[target_link_id] = target_item_answer.value[4..-2]
+          # value form = NOT{<value>} to indicate explicitly that the actual value needs to be changed
+          # from this to something else
+          expected_overrides[target_link_id] = target_item_answer.value[4..-2] # take off the wrapping NOT{...}
         else
-          raise "origin.source extension for item #{target_link_id} has unexpected value: #{source_extension.value}"
+          raise "`origin.source` extension for item `#{target_link_id}` has unexpected value: #{source_extension.value}"
         end
       end
     end
@@ -109,63 +112,38 @@ module DaVinciDTRTestKit
       error_messages
     end
 
-    def check_item_prepopulation(item, expected_answer, error_list)
+    def check_item_prepopulation(item, expected_answer, error_list, override)
       answer = item.answer.first
       if answer.present?
         # check answer
         if answer.value.present?
-          if answer.value != expected_answer
-            error_list << "answer to item #{item.linkId} contains unexpected value. Expected: #{expected_answer}. " \
+          if override && answer.value == expected_answer
+            error_list << "Answer to item `#{item.linkId}` was not overriden from the pre-populated value. " \
+                          "Found #{expected_answer}, but should be different"
+          elsif answer.value != expected_answer
+            error_list << "answer to item `#{item.linkId}` contains unexpected value. Expected: #{expected_answer}. " \
                           "Found #{answer.value}"
           end
         else
-          error_list << "No pre-populated answer value for item #{item.linkId}"
+          error_list << "No answer for item `#{item.linkId}`"
         end
 
         # check origin.source extension
-        source_extension = find_extension(answer,
-                                          ['http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/information-origin',
-                                           'source'])
+        origin_extension = find_extension(answer,
+                                          'http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/information-origin')
+        source_extension = find_extension(origin_extension, 'source')
+
         if source_extension.present?
-          if source_extension.value != 'auto'
-            error_list << "origin.source extension on item #{item.linkId} contains unexpected value. Expected: auto. " \
-                          "Found #{source_extension.value}"
+          expected_source_value = override ? 'override' : 'auto'
+          if source_extension.value != expected_source_value
+            error_list << "`origin.source` extension on item `#{item.linkId}` contains unexpected value. Expected: " \
+                          "#{expected_source_value}. Found #{source_extension.value}"
           end
         else
-          error_list << "Required origin.source extension not present on answer to item #{item.linkId}"
+          error_list << "Required `origin.source` extension not present on answer to item `#{item.linkId}`"
         end
       else
-        error_list << "No pre-populated answer for item #{item.linkId}"
-      end
-    end
-
-    def check_item_override(item, expected_non_answer, error_list)
-      answer = item.answer.first
-      if answer.present?
-        # check answer
-        if answer.value.present?
-          if answer.value == expected_non_answer
-            error_list << "answer to item #{item.linkId} contains the expected prepoppulated value. " \
-                          "Found #{expected_non_answer} but should be different"
-          end
-        else
-          error_list << "No answer value for item #{item.linkId}"
-        end
-
-        # check origin.source extension
-        source_extension = find_extension(answer,
-                                          ['http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/information-origin',
-                                           'source'])
-        if source_extension.present?
-          if source_extension.value != 'override'
-            error_list << "origin.source extension on item #{item.linkId} contains unexpected value. " \
-                          "Expected: override. Found #{source_extension.value}"
-          end
-        else
-          error_list << "Required origin.source extension not present on answer to item #{item.linkId}"
-        end
-      else
-        error_list << "No answer for item #{item.linkId}"
+        error_list << "No answer for item `#{item.linkId}`"
       end
     end
 
@@ -180,16 +158,7 @@ module DaVinciDTRTestKit
     end
 
     def find_extension(element, url)
-      if url.is_a?(Array)
-        if url.size == 1
-          find_extension(element, url[0])
-        else
-          first_extension = url[0]
-          find_extension(element&.extension&.find { |e| e.url == first_extension }, url[1..])
-        end
-      else
-        element&.extension&.find { |e| e.url == url }
-      end
+      element&.extension&.find { |e| e.url == url }
     end
 
     def collect_questionnaire_cql_expression_link_ids(items, link_ids = [])
