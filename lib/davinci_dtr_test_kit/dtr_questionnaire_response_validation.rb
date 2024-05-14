@@ -112,18 +112,14 @@ module DaVinciDTRTestKit
 
     def check_item_prepopulation(item, expected_answer, error_list, override)
       answer = item.answer.first
-      if answer.present?
+      if answer&.value&.present?
         # check answer
-        if answer.value.present?
-          if override && answer.value == expected_answer
-            error_list << "Answer to item `#{item.linkId}` was not overriden from the pre-populated value. " \
-                          "Found #{expected_answer}, but should be different"
-          elsif answer.value != expected_answer
-            error_list << "answer to item `#{item.linkId}` contains unexpected value. Expected: #{expected_answer}. " \
-                          "Found #{answer.value}"
-          end
-        else
-          error_list << "No answer for item `#{item.linkId}`"
+        if override && answer.value == expected_answer
+          error_list << "Answer to item `#{item.linkId}` was not overriden from the pre-populated value. " \
+                        "Found #{expected_answer}, but should be different"
+        elsif answer.value != expected_answer
+          error_list << "answer to item `#{item.linkId}` contains unexpected value. Expected: #{expected_answer}. " \
+                        "Found #{answer.value}"
         end
 
         # check origin.source extension
