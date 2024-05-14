@@ -88,9 +88,7 @@ module DaVinciDTRTestKit
         if source_extension.value == 'auto'
           expected_prepopulated[target_link_id] = target_item_answer.value
         elsif source_extension.value == 'override'
-          # value form = NOT{<value>} to indicate explicitly that the actual value needs to be changed
-          # from this to something else
-          expected_overrides[target_link_id] = target_item_answer.value[4..-2] # take off the wrapping NOT{...}
+          expected_overrides[target_link_id] = target_item_answer.value
         else
           raise "`origin.source` extension for item `#{target_link_id}` has unexpected value: #{source_extension.value}"
         end

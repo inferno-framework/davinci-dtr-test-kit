@@ -80,7 +80,7 @@
           "linkId": "LOC.1",
           "answer": [
             {
-              "valueString": "NOT{TODO}",
+              "valueString": "TODO",
               "extension": [
                 {
                   "url": "http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/information-origin",

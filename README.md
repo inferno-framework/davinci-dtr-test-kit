@@ -35,6 +35,13 @@ value must be used as the payer server access token:
 d06d1d119a191d974d55fde1cdc55ee0
 ```
 
+## Client Questionnaire Workflow Test Framework
+
+To support testing that clients can fetch, populate, and complete various questionnaires with different features, the test kit includes a framework for building different iterations of these tests. At a high-level, the framework includes the ability to associate a set of fixtures with a group of tests including
+- a questionnaire that will be sent back when the client makes a $questionnaire-package request
+- a questionnaire response that contains expected pre-populated and overriden items. These are indicated by the origin.source extension on items with link ids corresponding to items in the questionnaire with cql expressions for pre-population. When it is `auto` that is the expected answer based on data Inferno has. When it is `override` that is the answer that would be present if the pre-populated answer were used, but Inferno will check that a different value is present since the tester will be expected to override the answer.
+
+See logic in `mock_payer`, `dtr_questionnaire_response_validation`, and `fixture_loader`, among others.
 
 ## License
 Copyright 2022 The MITRE Corporation
