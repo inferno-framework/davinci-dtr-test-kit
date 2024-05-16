@@ -117,7 +117,7 @@ module DaVinciDTRTestKit
         if override && answer.value == expected_answer
           error_list << "Answer to item `#{item.linkId}` was not overriden from the pre-populated value. " \
                         "Found #{expected_answer}, but should be different"
-        elsif answer.value != expected_answer
+        elsif !override && answer.value != expected_answer
           error_list << "answer to item `#{item.linkId}` contains unexpected value. Expected: #{expected_answer}. " \
                         "Found #{answer.value}"
         end
