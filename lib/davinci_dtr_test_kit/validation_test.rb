@@ -4,13 +4,6 @@ module DaVinciDTRTestKit
       @tests_failed ||= {}
     end
 
-    def using_manual_tests(resource_url)
-      return !next_question_requests.nil? if resource_url == next_url
-      return !initial_questionnaire_request.nil? if resource_url == questionnaire_package_url
-
-      !(initial_questionnaire_request.nil? || next_question_requests.nil?)
-    end
-
     def validate_resource(fhir_resource, resource_type, profile_url, index)
       assert fhir_resource.present?, 'Resource does not contain a recognized FHIR object'
       begin
@@ -26,21 +19,24 @@ module DaVinciDTRTestKit
         else
           tests_failed[profile_url] << e
         end
+        return false
       end
+      true
     end
 
     def perform_request_validation_test(
       resources,
       resource_type,
       profile_url,
-      resource_url
+      resource_url,
+      using_manual_entry
     )
       omit_if resources.blank?,
               "No #{resource_type} resources provided so the #{profile_url} profile does not apply"
-      resources = JSON.parse(resources) if using_manual_tests(resource_url)
+      resources = JSON.parse(resources) if using_manual_entry
       resources = [resources] unless resources.is_a?(Array)
       resources.each_with_index do |resource, index|
-        if using_manual_tests(resource_url)
+        if using_manual_entry
           assert_valid_json(resource.to_json)
           fhir_resource = FHIR.from_contents(resource.to_json)
         else
