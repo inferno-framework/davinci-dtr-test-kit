@@ -1,9 +1,4 @@
-require_relative 'static_form_request_test'
-require_relative 'static_form_request_validation_test'
-require_relative 'static_form_response_validation_test'
-require_relative 'static_form_libraries_test'
-require_relative 'static_form_questionnaire_extensions_test'
-require_relative 'static_form_questionnaire_expressions_test'
+require_relative 'static_form_test'
 
 module DaVinciDTRTestKit
   class DTRPayerServerQuestionnairePackageGroup < Inferno::TestGroup
@@ -18,47 +13,19 @@ module DaVinciDTRTestKit
     must contain resources conforming to the questionnaire-package as
     specified in the DTR v2.0.1 Implementation Guide.
 
-    ## Testing Work Flow Options
-
-      - Enter the `FHIR Server Base Url` and `Access Token` if you are connecting a client that will
-       provide inferno with requests to be tested and sent to the server under test.
-       These inputs must align with the configuration of the DTR client being used to provide requests.
-
-      - Enter the `Initial Static Questionnaire Request`, in addition to the
-      `FHIR Server Base Url` pointing to the payer server,
-      to provide the json requests manually, rather than relying on a DTR client.
-
-    The payer responses are also tested to ensure that appropriate libraries and expressions are
-    included to faciliate pre-population of questionnaires. The following is not tested:
-    - Check that CQL is version 1.5
-    - Check that CQL is valid and executed to populate the questionnaire
-    - CQL has a context of “Patient”
-    - CQL definitions and variables defined on ancestor elements or preceding expression extensions within the same
-    Questionnaire item are in scope for referencing in descendant/following expressions.
-    - Within Expression elements, the base expression CQL SHALL be accompanied by a US Public Health Alternative
-    Expression Extension containing the compiled JSON ELM for the expression.
-    - valueExpressions shall reference libraries (i.e., “LibraryName”.statementName) when multiple cqf libraries are
-     present in one questionnaire
-
           )
     id :payer_server_static_package
     run_as_group
 
-    input :initial_static_questionnaire_request,
+    input :url,
           optional: true,
-          title: 'Initial Static Questionnaire Request',
-          description: 'Manual Flow',
+          title: 'FHIR Server Base Url'
+
+    input :questionnaire_parameters,
+          title: 'Questionnaire Parameters',
+          description: 'Input Questionnaire Parameters',
           type: 'textarea'
 
-    input_order :retrieval_method,
-                :url,
-                :initial_static_questionnaire_request
-
-    test from: :dtr_v201_payer_static_questionnaire_request_test, receives_request: :statice_questionnaire_request
-    test from: :dtr_v201_payer_static_form_request_validation_test
-    test from: :dtr_v201_payer_static_form_response_test
-    test from: :dtr_v201_payer_static_form_libraries_test
-    test from: :dtr_v201_payer_static_form_extensions_test
-    test from: :dtr_v201_payer_static_form_expressions_test
+    test from: :dtr_v201_payer_static_form_test
   end
 end
