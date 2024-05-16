@@ -4,16 +4,9 @@
   "test_suite_id": "dtr_payer_server",
   "inputs": [
     {
-      "name": "initial_static_questionnaire_request",
-      "title": "Questionnaire Static Input Parameters",
-      "description": "Questionnaire Static Input Parameters",
-      "type": "textarea",
-      "value": "{\n        \"resourceType\": \"Parameters\",\n        \"id\": \"param1\",\n        \"parameter\": [\n            {\n                \"name\": \"coverage\",\n                \"resource\": {\n                    \"resourceType\": \"Coverage\",\n                    \"id\": \"cov1\"\n                }\n            },\n            {\n                \"name\": \"order\",\n                \"resource\": {\n                    \"resourceType\": \"DeviceRequest\",\n                    \"id\": \"dr1\"\n                }\n            }\n        ]\n      }"
-    },
-    {
-      "name": "initial_adaptive_questionnaire_request",
-      "title": "Questionnaire Adaptive Input Parameters",
-      "description": "Questionnaire Adaptive Input Parameters",
+      "name": "questionnaire_parameters",
+      "title": "Questionnaire Parameters Parameters",
+      "description": "Questionnaire Input Parameters",
       "type": "textarea",
       "value": "{\n        \"resourceType\": \"Parameters\",\n        \"id\": \"param1\",\n        \"parameter\": [\n            {\n                \"name\": \"coverage\",\n                \"resource\": {\n                    \"resourceType\": \"Coverage\",\n                    \"id\": \"cov1\"\n                }\n            },\n            {\n                \"name\": \"order\",\n                \"resource\": {\n                    \"resourceType\": \"DeviceRequest\",\n                    \"id\": \"dr1\"\n                }\n            }\n        ]\n      }"
     },
