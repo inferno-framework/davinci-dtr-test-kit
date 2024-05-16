@@ -29,19 +29,29 @@ module DaVinciDTRTestKit
       url ENV.fetch('VALIDATOR_URL')
     end
 
-    allow_cors QUESTIONNAIRE_PACKAGE_PATH, QUESTIONNAIRE_RESPONSE_PATH
+    allow_cors QUESTIONNAIRE_PACKAGE_PATH, QUESTIONNAIRE_RESPONSE_PATH, FHIR_RESOURCE_PATH
 
     record_response_route :post, TOKEN_PATH, 'dtr_auth', method(:token_response) do |request|
       DTRSmartAppSuite.extract_client_id(request)
     end
 
-    record_response_route :post, QUESTIONNAIRE_PACKAGE_PATH, 'dtr_smart_app_questionnaire_package',
-                          method(:questionnaire_package_response) do |request|
+    record_response_route :post, QUESTIONNAIRE_PACKAGE_PATH, QUESTIONNAIRE_PACKAGE_TAG,
+                          method(:questionnaire_package_response), resumes: ->(_) { false } do |request|
       DTRSmartAppSuite.extract_bearer_token(request)
     end
 
     record_response_route :post, QUESTIONNAIRE_RESPONSE_PATH, 'dtr_smart_app_questionnaire_response',
                           method(:questionnaire_response_response) do |request|
+      DTRSmartAppSuite.extract_bearer_token(request)
+    end
+
+    record_response_route :get, FHIR_RESOURCE_PATH, SMART_APP_EHR_REQUEST_TAG, method(:get_fhir_resource),
+                          resumes: ->(_) { false } do |request|
+      DTRSmartAppSuite.extract_bearer_token(request)
+    end
+
+    record_response_route :get, FHIR_SEARCH_PATH, SMART_APP_EHR_REQUEST_TAG, method(:get_fhir_resource),
+                          resumes: ->(_) { false } do |request|
       DTRSmartAppSuite.extract_bearer_token(request)
     end
 

@@ -7,6 +7,8 @@ module DaVinciDTRTestKit
   QUESTIONNAIRE_RESPONSE_PATH = '/fhir/QuestionnaireResponse'
   RESUME_PASS_PATH = '/resume_pass'
   RESUME_FAIL_PATH = '/resume_fail'
+  FHIR_RESOURCE_PATH = '/fhir/:resource/:id'
+  FHIR_SEARCH_PATH = '/fhir/:resource'
 
   module URLs
     def base_url
@@ -27,6 +29,10 @@ module DaVinciDTRTestKit
 
     def questionnaire_response_url
       @questionnaire_response_url ||= base_url + QUESTIONNAIRE_RESPONSE_PATH
+    end
+
+    def fhir_base_url
+      @fhir_base_url ||= "#{base_url}/fhir"
     end
 
     def resume_pass_url
