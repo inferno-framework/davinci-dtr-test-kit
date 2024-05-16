@@ -4,7 +4,6 @@ module DaVinciDTRTestKit
     include DaVinciDTRTestKit::ValidationTest
     id :payer_server_adaptive_response_bundles_validation_test
     title 'Validate that the adaptive response contains valid Questionnaire Bundle resources'
-    output :questionnaire_response
     description %(
       This test ensures that the payer's response includes a resource that conforms to the the
       [DTR Quesitonnaire Bundle](http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/DTR-QPackageBundle)
@@ -15,34 +14,27 @@ module DaVinciDTRTestKit
       to the bound ValueSet. Quantity, Coding, and code element bindings will fail if their code/system are not found in
       the valueset.
 
-      This test may process multiple resources, labeling messages with the corresponding tested resources 
+      This test may process multiple resources, labeling messages with the corresponding tested resources
       in the order that they were received.
     )
 
     run do
       skip_if retrieval_method == 'Static', 'Performing only static flow tests - only one flow is required.'
-      skip_if access_token.nil? && initial_questionnaire_request.nil?, 'No access token or request resource provided.'
       test_passed = false
-      profile_url = "http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/DTR-QPackageBundle"
+      profile_url = 'http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/DTR-QPackageBundle'
+      assert !scratch[:adaptive_responses].nil?, 'No resources to validate.'
       scratch[:adaptive_responses].each_with_index do |resource, index|
         fhir_resource = FHIR.from_contents(resource.response[:body])
         fhir_resource.parameter.each do |param|
-          begin
-            resource_is_valid = validate_resource(param.resource, :bundle, profile_url, index)
-            if resource_is_valid
-              test_passed = true
-            end
-          rescue => e
-            next
-          end
+          resource_is_valid = validate_resource(param.resource, :bundle, profile_url, index)
+          test_passed = true if resource_is_valid
+        rescue StandardError
+          next
         end
       end
-      if !test_passed && !tests_failed[profile_url].blank?
-        raise tests_failed[profile_url][0] 
-      end
-      if test_passed
-        messages.clear()
-      end
+      raise tests_failed[profile_url][0] if !test_passed && !tests_failed[profile_url].blank?
+
+      messages.clear if test_passed
     end
   end
 end

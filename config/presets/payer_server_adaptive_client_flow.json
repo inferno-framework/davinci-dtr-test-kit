@@ -25,7 +25,7 @@
       "type": "text"
     },
     {
-      "name": "adaptive_endpoint",
+      "name": "custom_endpoint",
       "value": "/Questionnaire/HomeOxygenTherapyAdditional/$questionnaire-package",
       "title": "Adaptive Endpoint",
       "description": "Adaptive Endpoint",

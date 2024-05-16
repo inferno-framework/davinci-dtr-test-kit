@@ -4,7 +4,6 @@ module DaVinciDTRTestKit
     include DaVinciDTRTestKit::ValidationTest
     id :payer_server_next_response_validation_test
     title 'Inferno sends payer server a request for subsequent adaptive forms - validate the responses'
-    output :questionnaire_bundle
     description %(
       This test validates the conformance of the payer's response to the
       [SDC Questionnaire Response](http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaireresponse)
@@ -16,23 +15,24 @@ module DaVinciDTRTestKit
       the valueset.
 
       This test may process multiple resources, labeling messages with the corresponding tested resources
+      This test may process multiple resources, labeling messages with the corresponding tested resources
       in the order that they were received.
     )
 
     run do
       skip_if retrieval_method == 'Static', 'Performing only static flow tests - only one flow is required.'
-      skip_if access_token.nil? && next_question_requests.nil?, 'No access token or request resources provided.'
       if next_question_requests.nil?
         resources = load_tagged_requests(NEXT_TAG)
       else
+        resources = []
         json_requests = JSON.parse(next_question_requests)
-        resources = json_requests.map do |resource|
-          resources.push(fhir_operation("#{url}/Questionnaire/$next-question",
-                                        body: resource,
-                                        headers: { 'Content-Type': 'application/json' }))
+        json_requests.each do |resource|
+          resources.push(fhir_operation("#{url}/Questionnaire/$next-question", body: resource,
+                                                                               headers: { 'Content-Type': 'application/json' }))
         end
       end
-      scratch[:next_responses] =  resources
+      assert !resources.nil?, 'No resources to validate.'
+      scratch[:next_responses] = resources
       perform_response_validation_test(
         resources,
         :questionnaireResponse,

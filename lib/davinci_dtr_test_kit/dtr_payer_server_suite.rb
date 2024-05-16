@@ -46,29 +46,32 @@ module DaVinciDTRTestKit
           }
 
     input :url,
-      title: 'FHIR Server Base Url',
-      description: "Required for All Flows"
+          title: 'FHIR Server Base Url',
+          description: 'Required for All Flows'
 
-    input :initial_questionnaire_request,
-      title: 'Questionnaire Input Parameters - Request Body',
-      description: 'Manual Flow (Required for Static Form)',
-      optional: true,
-      type: 'textarea'
+    input :access_token,
+          optional: true,
+          title: 'Access Token',
+          description: 'DTR Client Flow'
 
+    input :custom_endpoint,
+          optional: true,
+          title: 'CustomEndpoint for Accessing a Particular Resource',
+          description: 'Either Flow (optional)'
 
     input :credentials,
           title: 'OAuth Credentials',
           type: :oauth_credentials,
           optional: true
 
-
     input_order :retrieval_method,
-        :url,
-        :access_token,
-        :adaptive_endpoint,
-        :initial_questionnaire_request,
-        :next_question_requests,
-        :credentials
+                :url,
+                :access_token,
+                :custom_endpoint,
+                :initial_static_questionnaire_request,
+                :initial_adaptive_questionnaire_request,
+                :next_question_requests,
+                :credentials
 
     # All FHIR requests in this suite will use this FHIR client
     fhir_client do
@@ -88,7 +91,7 @@ module DaVinciDTRTestKit
     end
 
     record_response_route :post, '/fhir/Questionnaire/$questionnaire-package', QUESTIONNAIRE_TAG,
-                          method(:payer_adaptive_questionnaire_response), resumes: method(:test_resumes?) do |request|
+                          method(:payer_questionnaire_response), resumes: method(:test_resumes?) do |request|
       DTRPayerServerSuite.extract_bearer_token(request)
     end
 

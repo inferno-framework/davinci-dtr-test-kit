@@ -9,14 +9,17 @@ module DaVinciDTRTestKit
       send a response.
     )
     id :payer_server_questionnaire_request
+    config options: { accepts_multiple_requests: true }
 
     run do
-      pass_if !(initial_questionnaire_request.nil? || next_question_requests.nil?),
+      pass_if !(initial_adaptive_questionnaire_request.nil? || next_question_requests.nil?),
               'Proceeding with manually provided resources.'
       skip_if access_token.nil?, 'Please provide an access token or all request resources as inputs.'
       wait(
         identifier: access_token,
         message: %(
+          **Adaptive Form Testing**
+
           Invoke the DTR Questionnaire Package operation by sending a POST request to
 
           `#{questionnaire_package_url}`
