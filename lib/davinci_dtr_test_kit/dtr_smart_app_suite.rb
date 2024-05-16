@@ -9,8 +9,6 @@ require_relative 'mock_payer'
 
 module DaVinciDTRTestKit
   class DTRSmartAppSuite < Inferno::TestSuite
-    extend MockPayer
-
     id :dtr_smart_app
     title 'Da Vinci DTR Smart App Test Suite'
     description %(
@@ -24,54 +22,24 @@ module DaVinciDTRTestKit
         data.
       )
 
+    # These inputs will be available to all tests in this suite
+    input :url,
+          title: 'FHIR Server Base Url'
+
+    input :credentials,
+          title: 'OAuth Credentials',
+          type: :oauth_credentials,
+          optional: true
+
+    # All FHIR requests in this suite will use this FHIR client
+    fhir_client do
+      url :url
+      oauth_credentials :credentials
+    end
+
     # All FHIR validation requsets will use this FHIR validator
     validator do
       url ENV.fetch('VALIDATOR_URL')
-    end
-
-    allow_cors QUESTIONNAIRE_PACKAGE_PATH, QUESTIONNAIRE_RESPONSE_PATH
-
-    record_response_route :post, TOKEN_PATH, 'dtr_auth', method(:token_response) do |request|
-      DTRSmartAppSuite.extract_client_id(request)
-    end
-
-    record_response_route :post, QUESTIONNAIRE_PACKAGE_PATH, 'dtr_smart_app_questionnaire_package',
-                          method(:questionnaire_package_response) do |request|
-      DTRSmartAppSuite.extract_bearer_token(request)
-    end
-
-    record_response_route :post, QUESTIONNAIRE_RESPONSE_PATH, 'dtr_smart_app_questionnaire_response',
-                          method(:questionnaire_response_response) do |request|
-      DTRSmartAppSuite.extract_bearer_token(request)
-    end
-
-    resume_test_route :get, RESUME_PASS_PATH do |request|
-      DTRSmartAppSuite.extract_token_from_query_params(request)
-    end
-
-    resume_test_route :get, RESUME_FAIL_PATH, result: 'fail' do |request|
-      DTRSmartAppSuite.extract_token_from_query_params(request)
-    end
-
-    group from: :oauth2_authentication
-    group do
-      id :dtr_smart_app_basic_workflows
-      title 'Basic Workflows'
-      description %(
-        Tests in this group validate that the client can complete basic DTR workflows
-      )
-
-      group from: :dtr_smart_app_static_dinner_questionnaire_workflow
-      # group from: :dtr_smart_app_adaptive_dinner_questionnaire_workflow - TODO
-    end
-    group do
-      id :dtr_smart_app_questionnaire_functionality
-      title 'Questionnaire Functionality Coverage'
-      description %(
-        Tests in this group validate that the client can complete additional DTR workflows
-        covering additional must support features of questionnaires.
-      )
-      group from: :dtr_smart_app_questionnaire_workflow
     end
   end
 end
