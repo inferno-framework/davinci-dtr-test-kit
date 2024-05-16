@@ -1,6 +1,6 @@
 require_relative '../validation_test'
 module DaVinciDTRTestKit
-  class AdaptiveQuestionnairePackageValidationTest < Inferno::Test
+  class PayerAdaptiveFormRequestTest < Inferno::Test
     include URLs
     include DaVinciDTRTestKit::ValidationTest
     title '[USER INPUT VALIDATION] Questionnaire Package request is valid'
@@ -20,17 +20,21 @@ module DaVinciDTRTestKit
     id :payer_server_adaptive_questionnaire_request_validation
 
     run do
-      skip_if access_token.nil? && initial_questionnaire_request.nil?, 'No access token or request resource provided.'
-      resources = if initial_questionnaire_request.nil?
-                    load_tagged_requests(QUESTIONNAIRE_TAG)
-                  else
-                    initial_questionnaire_request
-                  end
+      skip_if retrieval_method == 'Static', 'Performing only static flow tests - only one flow is required.'
+      if initial_adaptive_questionnaire_request.nil?
+        resources = load_tagged_requests(QUESTIONNAIRE_TAG)
+        using_manual_entry = false
+      else
+        resources = initial_adaptive_questionnaire_request
+        using_manual_entry = true
+      end
+      skip_if resources.nil?, 'No request resources to validate.'
       perform_request_validation_test(
         resources,
         :parameters,
         'http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/dtr-qpackage-input-parameters',
-        questionnaire_package_url
+        questionnaire_package_url,
+        using_manual_entry
       )
     rescue Inferno::Exceptions::AssertionException => e
       msg = e.message.to_s.strip
