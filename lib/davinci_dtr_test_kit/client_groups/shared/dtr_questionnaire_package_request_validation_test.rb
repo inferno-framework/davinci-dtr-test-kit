@@ -18,6 +18,7 @@ module DaVinciDTRTestKit
     )
 
     run do
+      load_tagged_requests QUESTIONNAIRE_PACKAGE_TAG
       assert request.url == questionnaire_package_url,
              "Request made to wrong URL: #{request.url}. Should instead be to #{questionnaire_package_url}"
 

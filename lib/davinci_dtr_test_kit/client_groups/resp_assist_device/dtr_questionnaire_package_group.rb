@@ -10,10 +10,7 @@ module DaVinciDTRTestKit
     )
     run_as_group
 
-    test from: :dtr_questionnaire_package_request,
-         receives_request: :questionnaire_package
-
-    test from: :dtr_questionnaire_package_request_validation,
-         uses_request: :questionnaire_package
+    test from: :dtr_questionnaire_package_request
+    test from: :dtr_questionnaire_package_request_validation
   end
 end
