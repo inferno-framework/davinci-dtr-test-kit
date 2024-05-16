@@ -39,5 +39,12 @@ module DaVinciDTRTestKit
       end
 
     end
+
+    Dir.glob(File.join($LOAD_PATH.find { |x| x.match? "us_core_test_kit" }, 'us_core_test_kit/generated/v3.1.1/*_group.rb')).each do |test_group_path|
+      require test_group_path
+    
+      group from: "us_core_v311_#{File.basename(test_group_path).gsub('_group.rb','')}".to_sym
+    end
+
   end
   
