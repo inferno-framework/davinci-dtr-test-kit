@@ -68,7 +68,7 @@ module DaVinciDTRTestKit
     end
 
     def payer_questionnaire_response(request, _test = nil, test_result = nil)
-      endpoint_input = JSON.parse(test_result.input_json).find { |input| input['name'] == 'adaptive_endpoint' }
+      endpoint_input = JSON.parse(test_result.input_json).find { |input| input['name'] == 'custom_endpoint' }
       url_input = JSON.parse(test_result.input_json).find { |input| input['name'] == 'url' }
       client = FHIR::Client.new(url_input['value'])
       client.default_json
