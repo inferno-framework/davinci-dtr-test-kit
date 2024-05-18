@@ -9,7 +9,6 @@ module DaVinciDTRTestKit
     )
     run_as_group
 
-    test from: :dtr_questionnaire_rendering_attestation,
-         uses_request: :questionnaire_package
+    test from: :dtr_questionnaire_rendering_attestation
   end
 end
