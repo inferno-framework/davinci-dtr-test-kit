@@ -16,17 +16,17 @@ module DaVinciDTRTestKit
       questionnaires_to_load =
         [
           [
-            'lib/davinci_dtr_test_kit/fixtures/questionnaire_package.json',
-            'lib/davinci_dtr_test_kit/fixtures/pre_populated_questionnaire_response.json',
+            'fixtures/questionnaire_package.json',
+            'fixtures/pre_populated_questionnaire_response.json',
             ['dtr_smart_app_questionnaire_workflow', 'dtr_full_ehr_questionnaire_workflow']
           ],
           [
-            'lib/davinci_dtr_test_kit/fixtures/dinner_static/questionnaire_dinner_order_static.json',
-            'lib/davinci_dtr_test_kit/fixtures/dinner_static/questionnaire_response_dinner_order_static.json',
+            'fixtures/dinner_static/questionnaire_dinner_order_static.json',
+            'fixtures/dinner_static/questionnaire_response_dinner_order_static.json',
             ['dtr_smart_app_static_dinner_questionnaire_workflow']
           ],
           [
-            'lib/davinci_dtr_test_kit/fixtures/dinner_adaptive/questionnaire_dinner_order_adaptive.json',
+            'fixtures/dinner_adaptive/questionnaire_dinner_order_adaptive.json',
             '',
             ['dtr_smart_app_adaptive_dinner_questionnaire_workflow']
           ]
@@ -70,7 +70,7 @@ module DaVinciDTRTestKit
     end
 
     def init_questionnaire_package_and_response(package_file, response_file = nil, covered_groups = nil)
-      package_json = File.read(package_file)
+      package_json = File.read(File.join(__dir__, package_file))
       package = FHIR.from_contents(package_json)
       url = get_url_for_questionnaire(package)
 
@@ -80,7 +80,7 @@ module DaVinciDTRTestKit
       end
 
       if response_file.present?
-        response_json = File.read(response_file)
+        response_json = File.read(File.join(__dir__, response_file))
         response = FHIR.from_contents(response_json)
 
         covered_groups&.each do |group|
