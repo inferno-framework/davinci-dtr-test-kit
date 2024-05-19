@@ -13,7 +13,9 @@ module DaVinciDTRTestKit
     input :access_token
 
     run do
-      # TODO: Load tagged requests and add skip if none?
+      load_tagged_requests QUESTIONNAIRE_PACKAGE_TAG
+      skip_if request.blank?, 'A Quesitonnaire Package request must be made prior to running this test'
+
       wait(
         identifier: access_token,
         message: %(

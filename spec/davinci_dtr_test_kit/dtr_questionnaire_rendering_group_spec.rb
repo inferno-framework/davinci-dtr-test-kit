@@ -37,8 +37,9 @@ RSpec.describe DaVinciDTRTestKit::DTRQuestionnaireRenderingGroup do
         receive(:suite_id).and_return(suite_id)
       )
 
-      repo_create(:request, name: 'questionnaire_package', request_body: nil,
-                            test_session_id: test_session.id)
+      result = repo_create(:result, test_session_id: test_session.id)
+      repo_create(:request, result_id: result.id, name: 'questionnaire_package', request_body: nil,
+                            test_session_id: test_session.id, tags: [DaVinciDTRTestKit::QUESTIONNAIRE_PACKAGE_TAG])
 
       result = run(runnable, test_session, access_token:)
       expect(result.result).to eq('wait')
@@ -55,8 +56,9 @@ RSpec.describe DaVinciDTRTestKit::DTRQuestionnaireRenderingGroup do
         receive(:suite_id).and_return(suite_id)
       )
 
-      repo_create(:request, name: 'questionnaire_package', request_body: nil,
-                            test_session_id: test_session.id)
+      result = repo_create(:result, test_session_id: test_session.id)
+      repo_create(:request, result_id: result.id, name: 'questionnaire_package', request_body: nil,
+                            test_session_id: test_session.id, tags: [DaVinciDTRTestKit::QUESTIONNAIRE_PACKAGE_TAG])
 
       result = run(runnable, test_session, access_token:)
       expect(result.result).to eq('wait')
