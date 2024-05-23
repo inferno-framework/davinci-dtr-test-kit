@@ -15,25 +15,21 @@ module DaVinciDTRTestKit
       @@library_urls ||= Set.new
     end
 
+    def library_names
+      @@library_names ||= Set.new
+    end
+
     def found_questionnaire
       @found_questionnaire ||= false
     end
 
-    # TODO: when there are multiple cqf libraries in a questionnaire,
-    # any valueExpression referring to the defined variables SHALL specify
-    # the library & statement name as follows: “LibraryName”.statementName
-
-    # def multiple_cqf
-    #   @multiple_cqf ||= false
-    # end
-
-    def library_names
-      @library_names ||= Set.new
+    def multiple_cqf
+      @@multiple_cqf ||= false
     end
 
-    # def found_bad_library_reference
-    #   @found_bad_library_reference ||= false
-    # end
+    def found_bad_library_reference
+      @@found_bad_library_reference ||= false
+    end
 
     def found_duplicate_library_name
       @found_duplicate_library_name ||= false
@@ -47,8 +43,23 @@ module DaVinciDTRTestKit
       @found_non_cql_expression ||= false
     end
 
-    def check_questionnaire_extensions(questionnaire_bundle)
-      questionnaire_bundle.parameter.each do |param|
+    def reset_cql_tests
+      found_non_cql_expression = false
+      found_non_cql_elm_library = false
+      found_duplicate_library_name = false
+      found_bad_library_reference = false
+      found_questionnaire = false
+      multiple_cqf = false
+      library_names.clear
+      library_urls.clear
+      cqf_reference_libraries.clear
+      extension_requirements.each_key { |k| extension_requirements[k] = false}
+    end
+
+    def check_questionnaire_extensions(response)
+      resource = process_response(response)
+      assert !resource.nil?, 'Response is null or not a valid type.'
+      resource.parameter.each do |param|
         # Do out put parameters have a bundle?
         next unless param.resource.resourceType == 'Bundle'
 
@@ -74,12 +85,10 @@ module DaVinciDTRTestKit
             next unless extension.url == 'http://hl7.org/fhir/StructureDefinition/cqf-library'
 
             true if extension_requirements['found_min_cqf_lib']
+            true if extension_requirements['found_min_cqf_lib']
             cqf_reference_libraries.add(extension.valueCanonical)
             found_cqf_lib = true
             extension_requirements['found_min_cqf_lib'] = true
-            # if extension_requirements['found_min_cqf_lib']
-            #   multiple_cqf = true
-            # end
           end
           unless found_launch_context
             messages << { type: 'info',
@@ -95,11 +104,11 @@ module DaVinciDTRTestKit
                           message: format_markdown("[questionnaire #{index + 1}]
                            included no item population context.") }
           end
-          unless found_cqf_lib
-            messages << { type: 'info',
-                          message: format_markdown("[questionnaire #{index + 1}]
-                           included no cqf library.") }
-          end
+          next if found_cqf_lib
+
+          messages << { type: 'info',
+                        message: format_markdown("[questionnaire #{index + 1}]
+                         included no cqf library.") }
         end
       end
       check_library_references
@@ -117,10 +126,12 @@ module DaVinciDTRTestKit
              "Some libraries referenced by cqf-libraries were not found: #{missing_references.join(', ')}"
     end
 
-    def check_questionnaire_expressions(questionnaire_bundle)
+    def check_questionnaire_expressions(response)
+      resource = process_response(response)
+      assert !resource.nil?, 'Response is null or not a valid type.'
       found_bundle = found_questionnaire = false
       # are extensions present in any questionnaire?
-      questionnaire_bundle.parameter.each do |param|
+      resource.parameter.each do |param|
         # Do out put parameters have a bundle?
         next unless param.resource.resourceType == 'Bundle'
 
@@ -145,12 +156,12 @@ module DaVinciDTRTestKit
                                    does not have content type of cql.") }
                     true
                   end
-                  # if multiple_cqf && library_names.none? {|name|
-                  #               item_ext.valueExpression.expression.start_with? "\"#{name}\""}
-                  #   found_bad_library_reference = true
-                  #   messages << { type: 'info',
-                  #               message: format_markdown("[expression #{index + 1}] in [questionnaire #{q_index + 1}] does not begin with a reference to an included library name.") }
-                  # end
+                  if multiple_cqf && library_names.none? do |name|
+                       item_ext.valueExpression.expression.start_with? "\"#{name}\""
+                     end
+                    messages << { type: 'info',
+                                  message: format_markdown("[expression #{index + 1}] in [questionnaire #{q_index + 1}] does not begin with a reference to an included library name.") }
+                  end
                 end
                 if item_ext.url == 'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-initialExpression'
                   found_init_expression = true
@@ -161,12 +172,12 @@ module DaVinciDTRTestKit
                                   [questionnaire #{q_index + 1}] does not have content type of cql.") }
                     true
                   end
-                  # if multiple_cqf && library_names.none? do |name|
-                  #       item_ext.valueExpression.expression.start_with? "\"#{name}\""
-                  #     end
-                  #   messages << { type: 'info',
-                  #                 message: format_markdown("[expression #{index + 1}] in [questionnaire #{q_index + 1}] does not begin with a reference to an included library name.") }
-                  # end
+                  if multiple_cqf && library_names.none? do |name|
+                       item_ext.valueExpression.expression.start_with? "\"#{name}\""
+                     end
+                    messages << { type: 'info',
+                                  message: format_markdown("[expression #{index + 1}] in [questionnaire #{q_index + 1}] does not begin with a reference to an included library name.") }
+                  end
                 end
                 next unless item_ext.url == 'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-contextExpression'
 
@@ -177,12 +188,12 @@ module DaVinciDTRTestKit
                 messages << { type: 'info',
                               message: format_markdown("[expression #{index + 1}] in [questionnaire #{q_index + 1}] does
                                not have content type of cql.") }
-                # if multiple_cqf && library_names.none? {|name|
-                #               item_ext.valueExpression.expression.start_with? "\"#{name}\""}
-                #   found_bad_library_reference = true
-                #   messages << { type: 'info',
-                #               message: format_markdown("[expression #{index + 1}] in [questionnaire #{q_index + 1}] does not begin with a reference to an included library name.") }
-                # end
+                next unless multiple_cqf && library_names.none? do |name|
+                              item_ext.valueExpression.expression.start_with? "\"#{name}\""
+                            end
+
+                messages << { type: 'info',
+                              message: format_markdown("[expression #{index + 1}] in [questionnaire #{q_index + 1}] does not begin with a reference to an included library name.") }
               end
             end
           end
@@ -199,20 +210,30 @@ module DaVinciDTRTestKit
                           message: format_markdown("[questionnaire #{q_index + 1}] included no context expression.") }
           end
         end
-        assert found_questionnaire, 'No questionnaires found.'
+        begin
+          assert found_questionnaire, 'No questionnaires found.'
+        ensure
+          reset_cql_tests
+        end
       end
-      assert found_bundle, 'No questionnaire bundles found.'
-      assert !found_non_cql_expression, 'Found non-cql expression.'
-      # assert !found_bad_library_reference, 'Found expression with no or incorrect reference to library name.'
-      assert extension_requirements['found_min_init_expression'], 'No initial expression extension found.'
-      assert extension_requirements['found_min_candidate_expression'], 'No candidate expression extension found.'
-      assert extension_requirements['found_min_context_expression'], 'No context expression extension found.'
+      begin
+        assert found_bundle, 'No questionnaire bundles found.'
+        assert !found_non_cql_expression, 'Found non-cql expression.'
+        assert !found_bad_library_reference, 'Found expression with no or incorrect reference to library name.'
+        assert extension_requirements['found_min_init_expression'], 'No initial expression extension found.'
+        assert extension_requirements['found_min_candidate_expression'], 'No candidate expression extension found.'
+        assert extension_requirements['found_min_context_expression'], 'No context expression extension found.'
+      ensure
+        reset_cql_tests
+      end
     end
 
-    def check_libraries(questionnaire_bundle)
+    def check_libraries(payer_response)
+      resource = process_response(payer_response)
+      assert !resource.nil?, 'Response is null or not a valid type.'
       found_bundle = found_libraries = false
       # are extensions present in any questionnaire?
-      questionnaire_bundle.parameter.each do |param|
+      resource.parameter.each do |param|
         # Do out put parameters have a bundle?
         next unless param.resource.resourceType == 'Bundle'
 
@@ -243,9 +264,9 @@ module DaVinciDTRTestKit
             next unless library_names.include? entry.resource.name
 
             found_duplicate_library_name = true
-            assert !found_duplicate_library_name, 'Found duplicate library names - all names must be unique.'
             messages << { type: 'info', message: format_markdown("[library #{index + 1}] has a name,
              #{entry.resource.name}, that is already included in the bundle.") }
+            assert !found_duplicate_library_name, 'Found duplicate library names - all names must be unique.'
           end
           library_names.add(entry.resource.name)
           assert found_cql, "[library #{index + 1}] does not include CQL."
@@ -256,112 +277,20 @@ module DaVinciDTRTestKit
       assert found_bundle, 'No questionnaire bundles found.'
     end
 
-    # WIP - allow similar checks as above for adaptive questionnaires
+    def process_response(response)
+      if response.instance_of?(FHIR::Parameters) || response.instance_of?(FHIR::QuestionnaireResponse)
+        return response
+      elsif response.instance_of? Array
+        response.each do |resource|
+          next unless resource.instance_of? Inferno::Entities::Request
 
-    def extract_questionnaires(responses)
-      responses.flat_map do |response|
-        if response.instance_of?(Inferno::Entities::Request)
-          if (FHIR.from_contents(JSON.parse(response.response_body.body)).resourceType = 'Questionnaire')
-            FHIR.from_contents(JSON.parse(response.response_body.body))
-          end
-          # response.response_body.filter_map { |body|
-          # FHIR.from_contents(JSON.parse(body)) if
-          # }
-        elsif response.instance_of?(FHIR::Parameters)
-          response.parameter.filter_map do |param|
-            param if param.resource.entry.resource.resourceType == 'Questionnaire'
-          end
-        elsif response.instance_of?(FHIR::QuestionnaireResponse)
-          response.contained.filter_map do |contained|
-            contained if contained.resourceType == 'Questionnaire'
+          if FHIR.from_contents(resource.response_body).resourceType == 'Questionnaire' ||
+             FHIR.from_contents(resource.response_body).resourceType == 'Parameters'
+            return FHIR.from_contents(resource.response_body)
           end
         end
       end
-    end
-
-    def check_population_extensions_questionnaires(questionnaires)
-      found_bundle = false
-      # are extensions present in any questionnaire?
-      questionnaires.each do |entry|
-        # are extensions present in this questionnaire?
-        found_launch_context = found_variable = found_cqf_lib = found_pop_context =
-                                                  found_init_expression = found_candidate_expression = found_context_expression = false
-        # check questionnaire extensions
-        entry.resource.extension.each do |extension|
-          if extension.url == 'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-launchContext'
-            found_launch_context = true
-            extension_requirements['found_min_launch_context'] = true
-          end
-          if extension.url == 'http://hl7.org/fhir/StructureDefinition/variable'
-            found_variable = true
-            extension_requirements['found_min_variable'] = true
-          end
-          if extension.url == 'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-itemPopulationContext'
-            found_pop_context = true
-            extension_requirements['found_min_pop_context'] = true
-          end
-          next unless extension.url == 'http://hl7.org/fhir/StructureDefinition/cqf-library'
-
-          true if extension_requirements['found_min_cqf_lib']
-          found_cqf_lib = true
-          extension_requirements['found_min_cqf_lib'] = true
-        end
-        # check questionnaire items
-        entry.resource.item.each do |item|
-          # check extensions on items
-          item.extension.each do |item_ext|
-            if item_ext.url == 'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-candidateExpression'
-              found_candidate_expression = true
-              extension_requirements['found_min_candidate_expression'] = true
-            end
-            if item_ext == 'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-initialExpression'
-              found_init_expression = true
-              extension_requirements['found_min_init_expression'] = true
-            end
-            if item_ext == 'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-contextExpression'
-              found_context_expression = true
-              extension_requirements['found_min_context_expression'] = true
-            end
-          end
-        end
-
-        unless found_launch_context
-          messages << { type: 'info',
-                        message: format_markdown("[questionnaire #{index + 1}] included no launch context.") }
-        end
-        unless found_variable
-          messages << { type: 'info',
-                        message: format_markdown("[questionnaire #{index + 1}] included no variable to query for additional data.") }
-        end
-        unless found_pop_context
-          messages << { type: 'info',
-                        message: format_markdown("[questionnaire #{index + 1}] included no item population context.") }
-        end
-        unless found_cqf_lib
-          messages << { type: 'info',
-                        message: format_markdown("[questionnaire #{index + 1}] included no cqf library.") }
-        end
-        unless found_candidate_expression
-          messages << { type: 'info',
-                        message: format_markdown("[questionnaire #{index + 1}] included no candidate expression.") }
-        end
-        unless found_init_expression
-          messages << { type: 'info',
-                        message: format_markdown("[questionnaire #{index + 1}] included no initial expression.") }
-        end
-        unless found_context_expression
-          messages << { type: 'info',
-                        message: format_markdown("[questionnaire #{index + 1}] included no context expression.") }
-        end
-      end
-      assert found_bundle, 'No questionnaire bundles found.'
-      assert extension_requirements['found_min_cqf_lib'], 'No cqf library extension found.'
-      assert extension_requirements['found_min_init_expression'], 'No initial expression extension found.'
-      assert extension_requirements['found_min_variable'], 'No variable extension found.'
-      assert extension_requirements['found_min_launch_context'], 'No launch context extension found.'
-      assert extension_requirements['found_min_pop_context'], 'No population context extension found.'
-      assert extension_requirements['found_min_candidate_expression'], 'No candidate expression extension found.'
-      assert extension_requirements['found_min_context_expression'], 'No context expression extension found.'
+      nil
     end
   end
 end
