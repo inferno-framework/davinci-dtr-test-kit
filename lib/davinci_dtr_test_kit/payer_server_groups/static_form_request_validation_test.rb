@@ -14,7 +14,7 @@ module DaVinciDTRTestKit
        values. CodeableConcept element bindings will fail if none of their codings have a code/system belonging
        to the bound ValueSet. Quantity, Coding, and code element bindings will fail if their code/system are not found in
        the valueset.
- 
+
        This test may process multiple resources, labeling messages with the corresponding tested resources
        in the order that they were received.
     )

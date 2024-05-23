@@ -6,6 +6,11 @@ require_relative 'payer_server_adaptive_response_validation_test'
 require_relative 'payer_server_next_request_validation_test'
 require_relative 'payer_server_next_response_validation_test'
 require_relative 'payer_server_next_response_complete_test'
+require_relative 'adaptive_form_libraries_test'
+require_relative 'adaptive_form_questionnaire_extensions_test'
+require_relative 'adaptive_form_questionnaire_expressions_test'
+require_relative 'adaptive_next_questionnaire_extensions_test'
+require_relative 'adaptive_next_questionnaire_expressions_test'
 
 module DaVinciDTRTestKit
   class DTRPayerServerAdaptiveQuestionnairePackageGroup < Inferno::TestGroup
@@ -65,6 +70,9 @@ module DaVinciDTRTestKit
 
     # pass request to payer server, validate questionnaire response
     test from: :payer_server_adaptive_response_validation_test
+    test from: :dtr_v201_payer_adaptive_form_libraries_test
+    test from: :dtr_v201_payer_adaptive_form_extensions_test
+    test from: :dtr_v201_payer_adaptive_form_expressions_test
     test from: :payer_server_adaptive_response_bundles_validation_test
     test from: :payer_server_adaptive_response_search_validation_test
 
@@ -73,6 +81,8 @@ module DaVinciDTRTestKit
 
     # pass request to payer server, validate adaptive questionnaire response
     test from: :payer_server_next_response_validation_test
+    test from: :dtr_v201_payer_adaptive_next_form_extensions_test
+    test from: :dtr_v201_payer_adaptive_next_form_expressions_test
     test from: :payer_server_adaptive_completion_test
   end
 end

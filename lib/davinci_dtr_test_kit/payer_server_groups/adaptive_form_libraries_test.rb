@@ -1,0 +1,19 @@
+require_relative '../cql_test'
+module DaVinciDTRTestKit
+  class PayerAdaptiveFormLibrariesTest < Inferno::Test
+    include DaVinciDTRTestKit::CQLTest
+
+    id :dtr_v201_payer_adaptive_form_libraries_test
+    title 'Parameters contain libraries necessary for pre-population'
+    description %(
+      Inferno check that the payer response contains no duplicate library names
+       and that libraries contain cql and elm data.
+    )
+
+    run do
+      skip_if retrieval_method == 'Static', 'Performing only static flow tests - only one flow is required.'
+      skip_if scratch[:adaptive_responses].nil?, 'No questionnaire bundle returned.'
+      check_libraries(scratch[:adaptive_responses])
+    end
+  end
+end

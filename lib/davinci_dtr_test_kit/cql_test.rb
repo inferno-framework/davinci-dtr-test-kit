@@ -44,78 +44,92 @@ module DaVinciDTRTestKit
     end
 
     def reset_cql_tests
-      found_non_cql_expression = false
-      found_non_cql_elm_library = false
-      found_duplicate_library_name = false
-      found_bad_library_reference = false
-      found_questionnaire = false
-      multiple_cqf = false
       library_names.clear
       library_urls.clear
       cqf_reference_libraries.clear
-      extension_requirements.each_key { |k| extension_requirements[k] = false}
+      extension_requirements.each_key { |k| extension_requirements[k] = false }
     end
 
-    def check_questionnaire_extensions(response)
+    def questionnaire_extensions_test(response)
       resource = process_response(response)
       assert !resource.nil?, 'Response is null or not a valid type.'
-      resource.parameter.each do |param|
-        # Do out put parameters have a bundle?
-        next unless param.resource.resourceType == 'Bundle'
+      found_questionnaire = false
+      if resource.instance_of? Array
+        resource.each do |individual_resource|
+          next unless individual_resource.resourceType == 'QuestionnaireResponse'
 
-        param.resource.entry.each_with_index do |entry, index|
-          # are extensions present in this questionnaire?
-          found_launch_context = found_variable = found_pop_context = found_cqf_lib = false
-          # check questionnaire extensions
-          next unless entry.resource.resourceType == 'Questionnaire'
+          individual_resource.contained.each_with_index do |questionnaire, q_index|
+            # Do out put parameters have a bundle?
+            next unless questionnaire.resourceType == 'Questionnaire'
 
-          entry.resource.extension.each do |extension|
-            if extension.url == 'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-launchContext'
-              found_launch_context = true
-              extension_requirements['found_min_launch_context'] = true
-            end
-            if extension.url == 'http://hl7.org/fhir/StructureDefinition/variable'
-              found_variable = true
-              extension_requirements['found_min_variable'] = true
-            end
-            if extension.url == 'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-itemPopulationContext'
-              found_pop_context = true
-              extension_requirements['found_min_pop_context'] = true
-            end
-            next unless extension.url == 'http://hl7.org/fhir/StructureDefinition/cqf-library'
+            # check the libraries first so references in questionnaires can be checked after
+            found_questionnaire = true
+            check_questionnaire_extensions(questionnaire, q_index)
+          end
+        end
+      elsif resource.resourceType == 'Parameters'
+        resource.parameter.each do |param|
+          # Do out put parameters have a bundle?
+          next unless param.resource.resourceType == 'Bundle'
 
-            true if extension_requirements['found_min_cqf_lib']
-            true if extension_requirements['found_min_cqf_lib']
-            cqf_reference_libraries.add(extension.valueCanonical)
-            found_cqf_lib = true
-            extension_requirements['found_min_cqf_lib'] = true
-          end
-          unless found_launch_context
-            messages << { type: 'info',
-                          message: format_markdown("[questionnaire #{index + 1}] included no launch context.") }
-          end
-          unless found_variable
-            messages << { type: 'info',
-                          message: format_markdown("[questionnaire #{index + 1}]
-                           included no variable to query for additional data.") }
-          end
-          unless found_pop_context
-            messages << { type: 'info',
-                          message: format_markdown("[questionnaire #{index + 1}]
-                           included no item population context.") }
-          end
-          next if found_cqf_lib
+          param.resource.entry.each_with_index do |entry, q_index|
+            # check questionnaire extensions
+            next unless entry.resource.resourceType == 'Questionnaire'
 
-          messages << { type: 'info',
-                        message: format_markdown("[questionnaire #{index + 1}]
-                         included no cqf library.") }
+            found_questionnaire = true
+            check_questionnaire_extensions(entry, q_index)
+          end
         end
       end
       check_library_references
+      assert found_questionnaire, 'No questionnaires found.'
       assert extension_requirements['found_min_cqf_lib'], 'No cqf library extension found.'
       assert extension_requirements['found_min_variable'], 'No variable extension found.'
       assert extension_requirements['found_min_launch_context'], 'No launch context extension found.'
       assert extension_requirements['found_min_pop_context'], 'No population context extension found.'
+    end
+
+    def check_questionnaire_extensions(questionnaire, q_index)
+      # are extensions present in this questionnaire?
+      found_launch_context = found_variable = found_pop_context = found_cqf_lib = false
+      questionnaire.extension.each do |extension|
+        if extension.url == 'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-launchContext'
+          found_launch_context = true
+          extension_requirements['found_min_launch_context'] = true
+        end
+        if extension.url == 'http://hl7.org/fhir/StructureDefinition/variable'
+          found_variable = true
+          extension_requirements['found_min_variable'] = true
+        end
+        if extension.url == 'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-itemPopulationContext'
+          found_pop_context = true
+          extension_requirements['found_min_pop_context'] = true
+        end
+        next unless extension.url == 'http://hl7.org/fhir/StructureDefinition/cqf-library'
+
+        cqf_reference_libraries.add(extension.valueCanonical)
+        found_cqf_lib = true
+        extension_requirements['found_min_cqf_lib'] = true
+      end
+      unless found_launch_context
+        messages << { type: 'info',
+                      message: format_markdown("[questionnaire #{q_index + 1}] included no launch context.") }
+      end
+      unless found_variable
+        messages << { type: 'info',
+                      message: format_markdown("[questionnaire #{q_index + 1}]
+                       included no variable to query for additional data.") }
+      end
+      unless found_pop_context
+        messages << { type: 'info',
+                      message: format_markdown("[questionnaire #{q_index + 1}]
+                       included no item population context.") }
+      end
+      return if found_cqf_lib
+
+      messages << { type: 'info',
+                    message: format_markdown("[questionnaire #{q_index + 1}]
+                     included no cqf library.") }
     end
 
     def check_library_references
@@ -126,106 +140,120 @@ module DaVinciDTRTestKit
              "Some libraries referenced by cqf-libraries were not found: #{missing_references.join(', ')}"
     end
 
-    def check_questionnaire_expressions(response)
+    def questionnaire_expressions_test(response, final_cql_test)
       resource = process_response(response)
       assert !resource.nil?, 'Response is null or not a valid type.'
       found_bundle = found_questionnaire = false
       # are extensions present in any questionnaire?
-      resource.parameter.each do |param|
-        # Do out put parameters have a bundle?
-        next unless param.resource.resourceType == 'Bundle'
+      if resource.instance_of? Array
+        resource.each_with_index do |individual_resource, q_index|
+          next unless individual_resource.resourceType == 'QuestionnaireResponse'
 
-        found_bundle = true
-        # check the libraries first so references in questionnaires can be checked after
-        param.resource.entry.each_with_index do |entry, q_index|
-          if entry.resource.resourceType == 'Questionnaire'
+          individual_resource.contained.each do |questionnaire|
+            # Do out put parameters have a bundle?
+            next unless questionnaire.resourceType == 'Questionnaire'
+
+            # check the libraries first so references in questionnaires can be checked after
             found_questionnaire = true
+            check_questionnaire_expressions(questionnaire, q_index)
+          end
+        end
+      elsif resource.resourceType == 'Parameters'
+        resource.parameter.each do |param|
+          # Do out put parameters have a bundle?
+          next unless param.resource.resourceType == 'Bundle'
 
-            # are expressions present in this questionnaire?
-            found_init_expression = found_candidate_expression = found_context_expression = false
-            # check questionnaire items
-            entry.resource.item.each_with_index do |item, index|
-              # check extensions on items
-              item.extension.each do |item_ext|
-                if item_ext.url == 'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-candidateExpression'
-                  found_candidate_expression = true
-                  extension_requirements['found_min_candidate_expression'] = true
-                  unless item_ext.valueExpression.language == 'text/cql'
-                    messages << { type: 'info',
-                                  message: format_markdown("[expression #{index + 1}] in [questionnaire #{q_index + 1}]
-                                   does not have content type of cql.") }
-                    true
-                  end
-                  if multiple_cqf && library_names.none? do |name|
-                       item_ext.valueExpression.expression.start_with? "\"#{name}\""
-                     end
-                    messages << { type: 'info',
-                                  message: format_markdown("[expression #{index + 1}] in [questionnaire #{q_index + 1}] does not begin with a reference to an included library name.") }
-                  end
-                end
-                if item_ext.url == 'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-initialExpression'
-                  found_init_expression = true
-                  extension_requirements['found_min_init_expression'] = true
-                  unless item_ext.valueExpression.language == 'text/cql'
-                    messages << { type: 'info',
-                                  message: format_markdown("[expression #{index + 1}] in
-                                  [questionnaire #{q_index + 1}] does not have content type of cql.") }
-                    true
-                  end
-                  if multiple_cqf && library_names.none? do |name|
-                       item_ext.valueExpression.expression.start_with? "\"#{name}\""
-                     end
-                    messages << { type: 'info',
-                                  message: format_markdown("[expression #{index + 1}] in [questionnaire #{q_index + 1}] does not begin with a reference to an included library name.") }
-                  end
-                end
-                next unless item_ext.url == 'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-contextExpression'
-
-                found_context_expression = true
-                extension_requirements['found_min_context_expression'] = true
-                next if item_ext.valueExpression.language == 'text/cql'
-
-                messages << { type: 'info',
-                              message: format_markdown("[expression #{index + 1}] in [questionnaire #{q_index + 1}] does
-                               not have content type of cql.") }
-                next unless multiple_cqf && library_names.none? do |name|
-                              item_ext.valueExpression.expression.start_with? "\"#{name}\""
-                            end
-
-                messages << { type: 'info',
-                              message: format_markdown("[expression #{index + 1}] in [questionnaire #{q_index + 1}] does not begin with a reference to an included library name.") }
-              end
+          found_bundle = true
+          # check the libraries first so references in questionnaires can be checked after
+          param.resource.entry.each_with_index do |entry, q_index|
+            if entry.resource.resourceType == 'Questionnaire'
+              found_questionnaire = true
+              check_questionnaire_expressions(entry.resource, q_index)
             end
           end
-          unless found_candidate_expression
-            messages << { type: 'info',
-                          message: format_markdown("[questionnaire #{q_index + 1}] included no candidate expression.") }
-          end
-          unless found_init_expression
-            messages << { type: 'info',
-                          message: format_markdown("[questionnaire #{q_index + 1}] included no initial expression.") }
-          end
-          unless found_context_expression
-            messages << { type: 'info',
-                          message: format_markdown("[questionnaire #{q_index + 1}] included no context expression.") }
-          end
         end
-        begin
-          assert found_questionnaire, 'No questionnaires found.'
-        ensure
-          reset_cql_tests
-        end
+        assert found_bundle, 'No questionnaire bundles found.'
       end
       begin
-        assert found_bundle, 'No questionnaire bundles found.'
+        assert found_questionnaire, 'No questionnaires found.'
         assert !found_non_cql_expression, 'Found non-cql expression.'
         assert !found_bad_library_reference, 'Found expression with no or incorrect reference to library name.'
         assert extension_requirements['found_min_init_expression'], 'No initial expression extension found.'
         assert extension_requirements['found_min_candidate_expression'], 'No candidate expression extension found.'
         assert extension_requirements['found_min_context_expression'], 'No context expression extension found.'
       ensure
-        reset_cql_tests
+        reset_cql_tests if final_cql_test
       end
+    end
+
+    def check_questionnaire_expressions(questionnaire, q_index)
+      # are expressions present in this questionnaire?
+      found_init_expression = found_candidate_expression = found_context_expression = false
+      # check questionnaire items
+      questionnaire.item.each_with_index do |item, index|
+        # check extensions on items
+        item.extension.each do |item_ext|
+          if item_ext.url == 'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-candidateExpression'
+            found_candidate_expression = true
+            extension_requirements['found_min_candidate_expression'] = true
+            unless item_ext.valueExpression.language == 'text/cql'
+              messages << { type: 'info',
+                            message: format_markdown("[expression #{index + 1}] in [questionnaire #{q_index + 1}]
+                             does not have content type of cql.") }
+              true
+            end
+            if multiple_cqf && library_names.none? do |name|
+                 item_ext.valueExpression.expression.start_with? "\"#{name}\""
+               end
+              messages << { type: 'info',
+                            message: format_markdown("[expression #{index + 1}] in [questionnaire #{q_index + 1}] does not begin with a reference to an included library name.") }
+            end
+          end
+          if item_ext.url == 'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-initialExpression'
+            found_init_expression = true
+            extension_requirements['found_min_init_expression'] = true
+            unless item_ext.valueExpression.language == 'text/cql'
+              messages << { type: 'info',
+                            message: format_markdown("[expression #{index + 1}] in
+                            [questionnaire #{q_index + 1}] does not have content type of cql.") }
+              true
+            end
+            if multiple_cqf && library_names.none? do |name|
+                 item_ext.valueExpression.expression.start_with? "\"#{name}\""
+               end
+              messages << { type: 'info',
+                            message: format_markdown("[expression #{index + 1}] in [questionnaire #{q_index + 1}] does not begin with a reference to an included library name.") }
+            end
+          end
+          next unless item_ext.url == 'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-contextExpression'
+
+          found_context_expression = true
+          extension_requirements['found_min_context_expression'] = true
+          next if item_ext.valueExpression.language == 'text/cql'
+
+          messages << { type: 'info',
+                        message: format_markdown("[expression #{index + 1}] in [questionnaire #{q_index + 1}] does
+                         not have content type of cql.") }
+          next unless multiple_cqf && library_names.none? do |name|
+                        item_ext.valueExpression.expression.start_with? "\"#{name}\""
+                      end
+
+          messages << { type: 'info',
+                        message: format_markdown("[expression #{index + 1}] in [questionnaire #{q_index + 1}] does not begin with a reference to an included library name.") }
+        end
+      end
+      unless found_candidate_expression
+        messages << { type: 'info',
+                      message: format_markdown("[questionnaire #{q_index + 1}] included no candidate expression.") }
+      end
+      unless found_init_expression
+        messages << { type: 'info',
+                      message: format_markdown("[questionnaire #{q_index + 1}] included no initial expression.") }
+      end
+      return if found_context_expression
+
+      messages << { type: 'info',
+                    message: format_markdown("[questionnaire #{q_index + 1}] included no context expression.") }
     end
 
     def check_libraries(payer_response)
@@ -243,8 +271,7 @@ module DaVinciDTRTestKit
           next unless entry.resource.resourceType == 'Library'
 
           found_libraries = true
-          found_cql = false
-          found_elm = false
+          found_cql = found_elm = false
           library_urls.add(entry.resource.url) unless entry.resource.url.nil?
           entry.resource.content.each do |content|
             # TODO: validate CQL
@@ -281,7 +308,11 @@ module DaVinciDTRTestKit
       if response.instance_of?(FHIR::Parameters) || response.instance_of?(FHIR::QuestionnaireResponse)
         return response
       elsif response.instance_of? Array
+        questionnaire_responses = []
         response.each do |resource|
+          if FHIR.from_contents(resource.response_body).resourceType == 'QuestionnaireResponse'
+            questionnaire_responses << FHIR.from_contents(resource.response_body)
+          end
           next unless resource.instance_of? Inferno::Entities::Request
 
           if FHIR.from_contents(resource.response_body).resourceType == 'Questionnaire' ||
@@ -289,7 +320,9 @@ module DaVinciDTRTestKit
             return FHIR.from_contents(resource.response_body)
           end
         end
+        return questionnaire_responses
       end
+
       nil
     end
   end
