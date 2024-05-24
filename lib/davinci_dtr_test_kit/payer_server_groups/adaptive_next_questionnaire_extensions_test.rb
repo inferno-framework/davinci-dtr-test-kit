@@ -6,7 +6,7 @@ module DaVinciDTRTestKit
     id :dtr_v201_payer_adaptive_next_form_extensions_test
     title 'Questionnaire(s) contains extensions necessary for pre-population'
     description %(
-      Inferno checks that the payer server response has apprporiate extensions and references to libraries within
+      Inferno checks that the payer server response has appropriate extensions and references to libraries within
       those extensions.
     )
 

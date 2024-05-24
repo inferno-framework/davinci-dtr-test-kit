@@ -206,7 +206,8 @@ module DaVinciDTRTestKit
                  item_ext.valueExpression.expression.start_with? "\"#{name}\""
                end
               messages << { type: 'info',
-                            message: format_markdown("[expression #{index + 1}] in [questionnaire #{q_index + 1}] does not begin with a reference to an included library name.") }
+                            message: format_markdown("[expression #{index + 1}] in [questionnaire #{q_index + 1}]
+                             does not begin with a reference to an included library name.") }
             end
           end
           if item_ext.url == 'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-initialExpression'
@@ -222,7 +223,8 @@ module DaVinciDTRTestKit
                  item_ext.valueExpression.expression.start_with? "\"#{name}\""
                end
               messages << { type: 'info',
-                            message: format_markdown("[expression #{index + 1}] in [questionnaire #{q_index + 1}] does not begin with a reference to an included library name.") }
+                            message: format_markdown("[expression #{index + 1}] in [questionnaire #{q_index + 1}]
+                             does not begin with a reference to an included library name.") }
             end
           end
           next unless item_ext.url == 'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-contextExpression'
@@ -239,7 +241,8 @@ module DaVinciDTRTestKit
                       end
 
           messages << { type: 'info',
-                        message: format_markdown("[expression #{index + 1}] in [questionnaire #{q_index + 1}] does not begin with a reference to an included library name.") }
+                        message: format_markdown("[expression #{index + 1}] in [questionnaire #{q_index + 1}]
+                         does not begin with a reference to an included library name.") }
         end
       end
       unless found_candidate_expression

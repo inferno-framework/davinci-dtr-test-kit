@@ -34,8 +34,9 @@ module DaVinciDTRTestKit
         )
       else
         FHIR.from_contents(initial_static_questionnaire_request)
-        fhir_operation("#{url}/Questionnaire/$questionnaire-package/", body: JSON.parse(initial_static_questionnaire_request),
-                                                                       headers: { 'Content-Type': 'application/json' })
+        fhir_operation("#{url}/Questionnaire/$questionnaire-package/",
+                       body: JSON.parse(initial_static_questionnaire_request),
+                       headers: { 'Content-Type': 'application/json' })
         scratch[:questionnaire_bundle] = resource
 
         assert_response_status(200)

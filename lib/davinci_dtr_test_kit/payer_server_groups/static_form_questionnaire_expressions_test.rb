@@ -6,7 +6,7 @@ module DaVinciDTRTestKit
     id :dtr_v201_payer_static_form_expressions_test
     title 'Questionnaire(s) contains expressions necessary for pre-population'
     description %(
-      Inferno checks that the payer server response has apprporiate expressions and that expressions are
+      Inferno checks that the payer server response has appropriate expressions and that expressions are
        written in cql.
     )
 
