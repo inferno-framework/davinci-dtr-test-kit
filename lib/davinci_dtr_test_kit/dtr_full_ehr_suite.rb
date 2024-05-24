@@ -33,7 +33,7 @@ module DaVinciDTRTestKit
       DTRFullEHRSuite.extract_client_id(request)
     end
 
-    record_response_route :post, '/fhir/Questionnaire/$questionnaire-package', 'dtr_full_ehr_questionnaire_package',
+    record_response_route :post, '/fhir/Questionnaire/$questionnaire-package', QUESTIONNAIRE_PACKAGE_TAG,
                           method(:questionnaire_package_response) do |request|
       DTRFullEHRSuite.extract_bearer_token(request)
     end

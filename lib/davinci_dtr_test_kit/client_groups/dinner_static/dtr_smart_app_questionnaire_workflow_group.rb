@@ -36,11 +36,9 @@ module DaVinciDTRTestKit
       run_as_group
 
       # Test 1: wait for the $questionnaire-package request
-      test from: :dtr_questionnaire_package_request,
-           receives_request: :questionnaire_package
+      test from: :dtr_questionnaire_package_request
       # Test 2: validate the $questionnaire-package body
-      test from: :dtr_questionnaire_package_request_validation,
-           uses_request: :questionnaire_package
+      test from: :dtr_questionnaire_package_request_validation
     end
 
     group do
