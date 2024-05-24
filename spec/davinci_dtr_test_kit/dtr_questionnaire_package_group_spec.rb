@@ -32,11 +32,12 @@ RSpec.describe DaVinciDTRTestKit::DTRQuestionnairePackageGroup do
       File.read(File.join(__dir__, '..', 'fixtures', 'questionnaire_package_input_params_conformant.json'))
     end
     let(:access_token) { '1234' }
+    let(:resume_pass_url) { "/custom/#{suite_id}/resume_pass?token=#{access_token}" }
 
     it 'passes if questionnaire package request is received' do
-      allow_any_instance_of(DaVinciDTRTestKit::URLs).to(
-        receive(:questionnaire_package_url).and_return(questionnaire_package_url)
-      )
+      allow_any_instance_of(DaVinciDTRTestKit::URLs).to(receive(:questionnaire_package_url).and_return(''))
+      allow_any_instance_of(DaVinciDTRTestKit::URLs).to(receive(:fhir_base_url).and_return(''))
+      allow_any_instance_of(DaVinciDTRTestKit::URLs).to(receive(:resume_pass_url).and_return(''))
 
       result = run(runnable, test_session, access_token:)
       expect(result.result).to eq('wait')
@@ -44,6 +45,8 @@ RSpec.describe DaVinciDTRTestKit::DTRQuestionnairePackageGroup do
       header 'Authorization', "Bearer #{access_token}"
       post(questionnaire_package_url, request_body)
       expect(last_response.ok?).to be(true)
+
+      get(resume_pass_url)
 
       result = results_repo.find(result.id)
       expect(result.result).to eq('pass')
@@ -66,8 +69,10 @@ RSpec.describe DaVinciDTRTestKit::DTRQuestionnairePackageGroup do
       )
       allow_any_instance_of(runnable).to receive(:assert_valid_resource).and_return(true)
 
-      repo_create(:request, name: 'questionnaire_package', url: questionnaire_package_url,
-                            request_body:, test_session_id: test_session.id)
+      result = repo_create(:result, test_session_id: test_session.id)
+      repo_create(:request, result_id: result.id, name: 'questionnaire_package', url: questionnaire_package_url,
+                            request_body:, test_session_id: test_session.id,
+                            tags: [DaVinciDTRTestKit::QUESTIONNAIRE_PACKAGE_TAG])
 
       result = run(runnable, test_session)
       expect(result.result).to eq('pass'), result.result_message
@@ -79,8 +84,9 @@ RSpec.describe DaVinciDTRTestKit::DTRQuestionnairePackageGroup do
       )
       allow_any_instance_of(runnable).to receive(:assert_valid_resource).and_return(false)
 
-      repo_create(:request, name: 'questionnaire_package', request_body:,
-                            test_session_id: test_session.id)
+      result = repo_create(:result, test_session_id: test_session.id)
+      repo_create(:request, result_id: result.id, request_body:, test_session_id: test_session.id,
+                            tags: [DaVinciDTRTestKit::QUESTIONNAIRE_PACKAGE_TAG])
 
       result = run(runnable, test_session)
       expect(result.result).to eq('fail')

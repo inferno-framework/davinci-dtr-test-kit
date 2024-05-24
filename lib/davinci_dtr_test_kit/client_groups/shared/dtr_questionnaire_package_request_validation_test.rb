@@ -19,6 +19,8 @@ module DaVinciDTRTestKit
 
     run do
       load_tagged_requests QUESTIONNAIRE_PACKAGE_TAG
+      skip_if request.blank?, 'A Questionnaire Package request must be made prior to running this test'
+
       assert request.url == questionnaire_package_url,
              "Request made to wrong URL: #{request.url}. Should instead be to #{questionnaire_package_url}"
 
