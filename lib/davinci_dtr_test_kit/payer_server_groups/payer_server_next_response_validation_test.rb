@@ -26,9 +26,9 @@ module DaVinciDTRTestKit
       else
         json_requests = JSON.parse(next_question_requests)
         resources = json_requests.map do |resource|
-          resources.push(fhir_operation("#{url}/Questionnaire/$next-question",
-                                        body: resource,
-                                        headers: { 'Content-Type': 'application/json' }))
+          fhir_operation("#{url}/Questionnaire/$next-question",
+                         body: resource,
+                         headers: { 'Content-Type': 'application/json' })
         end
       end
       assert !resources.nil?, 'No resources to validate.'

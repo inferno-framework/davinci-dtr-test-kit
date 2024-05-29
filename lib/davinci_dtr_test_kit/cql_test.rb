@@ -77,7 +77,7 @@ module DaVinciDTRTestKit
             next unless entry.resource.resourceType == 'Questionnaire'
 
             found_questionnaire = true
-            check_questionnaire_extensions(entry, q_index)
+            check_questionnaire_extensions(entry.resource, q_index)
           end
         end
       end
@@ -313,14 +313,12 @@ module DaVinciDTRTestKit
       elsif response.instance_of? Array
         questionnaire_responses = []
         response.each do |resource|
-          if FHIR.from_contents(resource.response_body).resourceType == 'QuestionnaireResponse'
-            questionnaire_responses << FHIR.from_contents(resource.response_body)
-          end
+          fhir_resource = FHIR.from_contents(resource.response_body)
+          questionnaire_responses << fhir_resource if fhir_resource.resourceType == 'QuestionnaireResponse'
           next unless resource.instance_of? Inferno::Entities::Request
 
-          if FHIR.from_contents(resource.response_body).resourceType == 'Questionnaire' ||
-             FHIR.from_contents(resource.response_body).resourceType == 'Parameters'
-            return FHIR.from_contents(resource.response_body)
+          if fhir_resource.resourceType == 'Questionnaire' || fhir_resource.resourceType == 'Parameters'
+            return fhir_resource
           end
         end
         return questionnaire_responses
