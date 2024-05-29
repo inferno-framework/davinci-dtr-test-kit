@@ -12,6 +12,7 @@ module DaVinciDTRTestKit
     config options: { accepts_multiple_requests: true }
 
     run do
+      skip_if retrieval_method == 'Static', 'Performing only static flow tests - only one flow is required.'
       pass_if !(initial_adaptive_questionnaire_request.nil? || next_question_requests.nil?),
               'Proceeding with manually provided resources.'
       skip_if access_token.nil?, 'Please provide an access token or all request resources as inputs.'
