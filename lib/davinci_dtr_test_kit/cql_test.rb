@@ -1,10 +1,17 @@
 module DaVinciDTRTestKit
   module CQLTest
-    def extension_requirements
-      @extension_requirements ||= { 'found_min_launch_context' => false, 'found_min_variable' => false,
-                                    'found_min_pop_context' => false, 'found_min_init_expression' => false,
-                                    'found_min_candidate_expression' => false, 'found_min_context_expression' => false,
-                                    'found_min_cqf_lib' => false }
+    def extension_presence
+      @extension_presence ||= { 'found_min_launch_context' => false, 'found_min_variable' => false,
+                                'found_min_pop_context' => false, 'found_min_init_expression' => false,
+                                'found_min_candidate_expression' => false, 'found_min_context_expression' => false,
+                                'found_min_cqf_lib' => false }
+    end
+
+    def cql_presence
+      @cql_presence ||= { 'launch_context' => true, 'variable' => true,
+                          'pop_context' => true, 'init_expression' => true,
+                          'candidate_expression' => true, 'context_expression' => true,
+                          'cqf_lib' => true }
     end
 
     def cqf_reference_libraries
@@ -47,7 +54,7 @@ module DaVinciDTRTestKit
       library_names.clear
       library_urls.clear
       cqf_reference_libraries.clear
-      extension_requirements.each_key { |k| extension_requirements[k] = false }
+      extension_presence.each_key { |k| extension_presence[k] = false }
     end
 
     def questionnaire_extensions_test(response)
@@ -83,33 +90,39 @@ module DaVinciDTRTestKit
       end
       check_library_references
       assert found_questionnaire, 'No questionnaires found.'
-      assert extension_requirements['found_min_cqf_lib'], 'No cqf library extension found.'
-      assert extension_requirements['found_min_variable'], 'No variable extension found.'
-      assert extension_requirements['found_min_launch_context'], 'No launch context extension found.'
-      assert extension_requirements['found_min_pop_context'], 'No population context extension found.'
+      assert extension_presence['found_min_cqf_lib'], 'No cqf library extension found.'
+      assert extension_presence['found_min_variable'], 'No variable extension found.'
+      assert extension_presence['found_min_launch_context'], 'No launch context extension found.'
+      assert extension_presence['found_min_pop_context'], 'No population context extension found.'
+      assert cql_presence['variable'], 'Variable expression logic not written in CQL.'
+      assert cql_presence['launch_context'], 'Launch context expression logic not written in CQL.'
+      assert cql_presence['pop_context'], 'Population context expression logic not written in CQL.'
     end
 
     def check_questionnaire_extensions(questionnaire, q_index)
       # are extensions present in this questionnaire?
       found_launch_context = found_variable = found_pop_context = found_cqf_lib = false
-      questionnaire.extension.each do |extension|
+      questionnaire.extension.each_with_index do |extension, index|
         if extension.url == 'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-launchContext'
           found_launch_context = true
-          extension_requirements['found_min_launch_context'] = true
+          extension_presence['found_min_launch_context'] = true
+          check_for_cql(extension, 'launch_context', index, q_index, extension.url)
         end
         if extension.url == 'http://hl7.org/fhir/StructureDefinition/variable'
           found_variable = true
-          extension_requirements['found_min_variable'] = true
+          extension_presence['found_min_variable'] = true
+          check_for_cql(extension, 'variable', index, q_index, extension.url)
         end
         if extension.url == 'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-itemPopulationContext'
           found_pop_context = true
-          extension_requirements['found_min_pop_context'] = true
+          extension_presence['found_min_pop_context'] = true
+          check_for_cql(extension, 'pop_context', index, q_index, extension.url)
         end
         next unless extension.url == 'http://hl7.org/fhir/StructureDefinition/cqf-library'
 
         cqf_reference_libraries.add(extension.valueCanonical)
         found_cqf_lib = true
-        extension_requirements['found_min_cqf_lib'] = true
+        extension_presence['found_min_cqf_lib'] = true
       end
       unless found_launch_context
         messages << { type: 'info',
@@ -178,9 +191,12 @@ module DaVinciDTRTestKit
         assert found_questionnaire, 'No questionnaires found.'
         assert !found_non_cql_expression, 'Found non-cql expression.'
         assert !found_bad_library_reference, 'Found expression with no or incorrect reference to library name.'
-        assert extension_requirements['found_min_init_expression'], 'No initial expression extension found.'
-        assert extension_requirements['found_min_candidate_expression'], 'No candidate expression extension found.'
-        assert extension_requirements['found_min_context_expression'], 'No context expression extension found.'
+        assert extension_presence['found_min_init_expression'], 'No initial expression extension found.'
+        assert extension_presence['found_min_candidate_expression'], 'No candidate expression extension found.'
+        assert extension_presence['found_min_context_expression'], 'No context expression extension found.'
+        assert cql_presence['init_expression'], 'Initial expression logic not written in CQL.'
+        assert cql_presence['candidate_expression'], 'Candidate expression logic not written in CQL.'
+        assert cql_presence['context_expression'], 'Context expression logic not written in CQL.'
       ensure
         reset_cql_tests if final_cql_test
       end
@@ -195,13 +211,8 @@ module DaVinciDTRTestKit
         item.extension.each do |item_ext|
           if item_ext.url == 'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-candidateExpression'
             found_candidate_expression = true
-            extension_requirements['found_min_candidate_expression'] = true
-            unless item_ext.valueExpression.language == 'text/cql'
-              messages << { type: 'info',
-                            message: format_markdown("[expression #{index + 1}] in [questionnaire #{q_index + 1}]
-                             does not have content type of cql.") }
-              true
-            end
+            extension_presence['found_min_candidate_expression'] = true
+            check_for_cql(item_ext, 'candidate_expression', index, q_index, item_ext.urll)
             if multiple_cqf && library_names.none? do |name|
                  item_ext.valueExpression.expression.start_with? "\"#{name}\""
                end
@@ -212,13 +223,8 @@ module DaVinciDTRTestKit
           end
           if item_ext.url == 'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-initialExpression'
             found_init_expression = true
-            extension_requirements['found_min_init_expression'] = true
-            unless item_ext.valueExpression.language == 'text/cql'
-              messages << { type: 'info',
-                            message: format_markdown("[expression #{index + 1}] in
-                            [questionnaire #{q_index + 1}] does not have content type of cql.") }
-              true
-            end
+            extension_presence['found_min_init_expression'] = true
+            check_for_cql(item_ext, 'init_expression', index, q_index, item_ext.url)
             if multiple_cqf && library_names.none? do |name|
                  item_ext.valueExpression.expression.start_with? "\"#{name}\""
                end
@@ -230,12 +236,8 @@ module DaVinciDTRTestKit
           next unless item_ext.url == 'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-contextExpression'
 
           found_context_expression = true
-          extension_requirements['found_min_context_expression'] = true
-          next if item_ext.valueExpression.language == 'text/cql'
-
-          messages << { type: 'info',
-                        message: format_markdown("[expression #{index + 1}] in [questionnaire #{q_index + 1}] does
-                         not have content type of cql.") }
+          extension_presence['found_min_context_expression'] = true
+          check_for_cql(item_ext, 'context_expression', index, q_index, item_ext.url)
           next unless multiple_cqf && library_names.none? do |name|
                         item_ext.valueExpression.expression.start_with? "\"#{name}\""
                       end
@@ -305,6 +307,16 @@ module DaVinciDTRTestKit
         assert found_libraries, 'No Libraries found.'
       end
       assert found_bundle, 'No questionnaire bundles found.'
+    end
+
+    def check_for_cql(extension, extension_name, index, q_index, url)
+      return if extension.valueExpression.nil?
+      return if extension.valueExpression.language == 'text/cql'
+
+      cql_presence[extension_name] = false
+      messages << { type: 'info',
+                    message: format_markdown("[expression #{index + 1}] in [questionnaire #{q_index + 1}]
+                        does not have content type of cql. Check extension with url #{url}.") }
     end
 
     def process_response(response)
