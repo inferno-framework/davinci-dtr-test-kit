@@ -6,10 +6,12 @@ require_relative 'client_groups/resp_assist_device/dtr_smart_app_questionnaire_w
 require_relative 'client_groups/dinner_static/dtr_smart_app_questionnaire_workflow_group'
 require_relative 'client_groups/dinner_adaptive/dtr_smart_app_questionnaire_workflow_group'
 require_relative 'mock_payer'
+require_relative 'mock_ehr'
 
 module DaVinciDTRTestKit
   class DTRSmartAppSuite < Inferno::TestSuite
     extend MockPayer
+    extend MockEHR
 
     id :dtr_smart_app
     title 'Da Vinci DTR Smart App Test Suite'
