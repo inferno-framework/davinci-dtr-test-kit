@@ -19,6 +19,15 @@ module DaVinciDTRTestKit
       @resource_server_client = client
     end
 
+    def metadata_handler(_env)
+      cs = resource_server_client.capability_statement
+      if cs.present?
+        [200, { 'Content-Type' => 'application/json', 'Access-Control-Allow-Origin' => '*' }, [cs.to_json]]
+      else
+        [500, {}, ['Unexpected error occurred while fetching metadata']]
+      end
+    end
+
     def token_response(request, _test = nil, _test_result = nil)
       # Placeholder for a more complete mock token endpoint
       request.response_body = { access_token: SecureRandom.hex, token_type: 'bearer', expires_in: 300 }.to_json
@@ -38,28 +47,37 @@ module DaVinciDTRTestKit
     end
 
     def get_fhir_resource(request, _test = nil, _test_result = nil)
-      # TODO: filter and only proxy specific requests we expect (resource type, search params)
       resource_type, id = resource_type_and_id_from_url(request.url)
       request.response_headers = RESPONSE_HEADERS
 
-      unless resource_type.present?
-        request.status = 400
-        return
+      begin
+        fhir_class = FHIR.const_get(resource_type)
+      rescue NameError
+        resource_type = nil
       end
 
-      fhir_class = FHIR.const_get(resource_type)
-      response = if id.present?
-                   resource_server_client.read(fhir_class, id)
-                 else
-                   resource_server_client.search(fhir_class, search: { parameters: request.query_parameters })
-                 end
-
-      request.status = response.code
-      request.response_body = response.body
+      if resource_type.present?
+        response = if id.present?
+                     resource_server_client.read(fhir_class, id)
+                   else
+                     resource_server_client.search(fhir_class, search: { parameters: request.query_parameters })
+                   end
+        request.status = response.code
+        request.response_body = response.body
+      else
+        request.status = 400
+        request.response_headers = { 'Content-Type': 'application/json' }
+        request.response_body = FHIR::OperationOutcome.new(
+          issue: FHIR::OperationOutcome::Issue.new(severity: 'warning', code: 'not-supported',
+                                                   details: FHIR::CodeableConcept.new(
+                                                     text: 'No recognized resource type in URL'
+                                                   ))
+        ).to_json
+      end
     end
 
-    # Pull resource type from url
-    # e.g. http://example.org/fhir/Patient/123 -> Patient
+    # Pull resource type and ID from url
+    # e.g. http://example.org/fhir/Patient/123 -> ['Patient', '123']
     # @private
     def resource_type_and_id_from_url(url)
       path = url.split('?').first.split('/fhir/').second

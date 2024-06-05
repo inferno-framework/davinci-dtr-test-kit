@@ -29,7 +29,9 @@ module DaVinciDTRTestKit
       url ENV.fetch('VALIDATOR_URL')
     end
 
-    allow_cors QUESTIONNAIRE_PACKAGE_PATH, QUESTIONNAIRE_RESPONSE_PATH, FHIR_RESOURCE_PATH
+    allow_cors QUESTIONNAIRE_PACKAGE_PATH, QUESTIONNAIRE_RESPONSE_PATH, FHIR_RESOURCE_PATH, FHIR_SEARCH_PATH
+
+    route(:get, '/fhir/metadata', method(:metadata_handler))
 
     record_response_route :post, TOKEN_PATH, 'dtr_auth', method(:token_response) do |request|
       DTRSmartAppSuite.extract_client_id(request)
