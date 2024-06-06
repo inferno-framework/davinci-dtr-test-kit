@@ -3,7 +3,7 @@ require_relative '../shared/dtr_questionnaire_package_request_validation_test'
 require_relative 'prepopulation_attestation_test'
 require_relative 'prepopulation_override_attestation_test'
 require_relative 'rendering_enabled_questions_attestation_test'
-require_relative '../shared/dtr_questionnaire_response_save_test'
+require_relative 'dtr_questionnaire_response_save_test'
 require_relative '../shared/dtr_questionnaire_response_basic_conformance_test'
 require_relative '../shared/dtr_questionnaire_response_pre_population_test'
 
@@ -76,7 +76,7 @@ module DaVinciDTRTestKit
       run_as_group
 
       # Test 1: wait for a QuestionnaireResponse
-      test from: :dtr_questionnaire_response_save,
+      test from: :dtr_static_dinner_questionnaire_response_save,
            receives_request: :questionnaire_response_save
       # Test 2: validate basic conformance of the QuestionnaireResponse
       test from: :dtr_questionnaire_response_basic_conformance,

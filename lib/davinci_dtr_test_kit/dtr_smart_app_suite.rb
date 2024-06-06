@@ -6,10 +6,12 @@ require_relative 'client_groups/resp_assist_device/dtr_smart_app_questionnaire_w
 require_relative 'client_groups/dinner_static/dtr_smart_app_questionnaire_workflow_group'
 require_relative 'client_groups/dinner_adaptive/dtr_smart_app_questionnaire_workflow_group'
 require_relative 'mock_payer'
+require_relative 'mock_ehr'
 
 module DaVinciDTRTestKit
   class DTRSmartAppSuite < Inferno::TestSuite
     extend MockPayer
+    extend MockEHR
 
     id :dtr_smart_app
     title 'Da Vinci DTR Smart App Test Suite'
@@ -29,7 +31,9 @@ module DaVinciDTRTestKit
       url ENV.fetch('VALIDATOR_URL')
     end
 
-    allow_cors QUESTIONNAIRE_PACKAGE_PATH, QUESTIONNAIRE_RESPONSE_PATH, FHIR_RESOURCE_PATH
+    allow_cors QUESTIONNAIRE_PACKAGE_PATH, QUESTIONNAIRE_RESPONSE_PATH, FHIR_RESOURCE_PATH, FHIR_SEARCH_PATH
+
+    route(:get, '/fhir/metadata', method(:metadata_handler))
 
     record_response_route :post, TOKEN_PATH, 'dtr_auth', method(:token_response) do |request|
       DTRSmartAppSuite.extract_client_id(request)

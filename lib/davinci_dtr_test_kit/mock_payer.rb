@@ -6,18 +6,7 @@ module DaVinciDTRTestKit
   module MockPayer
     include Fixtures
 
-    RESOURCE_SERVER_BASE = ENV.fetch('FHIR_REFERENCE_SERVER')
-    RESOURCE_SERVER_BEARER_TOKEN = 'SAMPLE_TOKEN'
-
     RESPONSE_HEADERS = { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' }.freeze
-
-    def resource_server_client
-      return @resource_server_client if @resource_server_client
-
-      client = FHIR::Client.new(RESOURCE_SERVER_BASE)
-      client.set_bearer_token(RESOURCE_SERVER_BEARER_TOKEN)
-      @resource_server_client = client
-    end
 
     def token_response(request, _test = nil, _test_result = nil)
       # Placeholder for a more complete mock token endpoint
@@ -29,42 +18,6 @@ module DaVinciDTRTestKit
       request.status = 200
       request.response_headers = RESPONSE_HEADERS
       request.response_body = build_package_questionnaire_response(request, test_result.test_id).to_json
-    end
-
-    def questionnaire_response_response(request, _test = nil, _test_result = nil)
-      request.status = 201
-      request.response_headers = RESPONSE_HEADERS
-      request.response_body = request.request_body
-    end
-
-    def get_fhir_resource(request, _test = nil, _test_result = nil)
-      # TODO: filter and only proxy specific requests we expect (resource type, search params)
-      resource_type, id = resource_type_and_id_from_url(request.url)
-      request.response_headers = RESPONSE_HEADERS
-
-      unless resource_type.present?
-        request.status = 400
-        return
-      end
-
-      fhir_class = FHIR.const_get(resource_type)
-      response = if id.present?
-                   resource_server_client.read(fhir_class, id)
-                 else
-                   resource_server_client.search(fhir_class, search: { parameters: request.query_parameters })
-                 end
-
-      request.status = response.code
-      request.response_body = response.body
-    end
-
-    # Pull resource type from url
-    # e.g. http://example.org/fhir/Patient/123 -> Patient
-    # @private
-    def resource_type_and_id_from_url(url)
-      path = url.split('?').first.split('/fhir/').second
-      path.sub!(%r{/$}, '')
-      path.split('/')
     end
 
     def payer_questionnaire_response(request, _test = nil, test_result = nil)

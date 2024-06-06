@@ -1,10 +1,10 @@
 require_relative '../../urls'
 
 module DaVinciDTRTestKit
-  class DTRQuestionnaireResponseSaveTest < Inferno::Test
+  class DTRStaticDinnerQuestionnaireResponseSaveTest < Inferno::Test
     include URLs
 
-    id :dtr_questionnaire_response_save
+    id :dtr_static_dinner_questionnaire_response_save
     title 'Save the QuestionnaireResponse after completing it'
     description %(
       Inferno, acting as the EHR, will wait for a request to save the QuestionnaireResponse from the client.
@@ -18,8 +18,8 @@ module DaVinciDTRTestKit
           Complete the questionnaire, leaving the following items unmodified, because a subsequent test will expect
           their pre-populated values:
 
+          - First Name
           - Last Name
-          - Patient diagnoses for order
 
           Inferno will wait for a POST request at:
 
