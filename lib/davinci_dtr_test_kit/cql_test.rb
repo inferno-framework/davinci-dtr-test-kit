@@ -326,7 +326,8 @@ module DaVinciDTRTestKit
       item.item.each do |nested_item|
         check_nested_items(nested_item, index, q_index, found_item_expressions, nested_item.linkId)
         nested_item.extension.each do |item_ext|
-          misformatted_nested_expressions << check_item_extension(item_ext, index, q_index, found_item_expressions, link_id)
+          misformatted_nested_expressions << check_item_extension(item_ext, index, q_index, found_item_expressions,
+                                                                  link_id)
         end
       end
       misformatted_nested_expressions.compact
@@ -350,17 +351,17 @@ module DaVinciDTRTestKit
       return if extension.valueExpression.language == 'text/cql'
 
       cql_presence[extension_name] = false unless extension_name.blank?
-      if link_id.blank?
-        messages << { type: 'info',
+      messages << if link_id.blank?
+                    { type: 'info',
                       message: format_markdown("[extension #{index + 1}] in [questionnaire #{q_index + 1}]
                           contains expression that does not have content type of cql
                           (URL: #{url}).") }
-      else
-        messages << { type: 'info',
+                  else
+                    { type: 'info',
                       message: format_markdown("[item #{index + 1}] in [questionnaire #{q_index + 1}]
                           contains expression that does not have content type of cql
                           (linkId: #{link_id}, URL: #{url}).") }
-      end
+                  end
     end
 
     def process_response(response)
