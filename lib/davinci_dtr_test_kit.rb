@@ -1,4 +1,4 @@
 require_relative 'davinci_dtr_test_kit/dtr_payer_server_suite'
 require_relative 'davinci_dtr_test_kit/dtr_smart_app_suite'
-require_relative 'davinci_dtr_test_kit/dtr_full_ehr_suite'
-require_relative 'davinci_dtr_test_kit/dtr_light_ehr_suite'
+# require_relative 'davinci_dtr_test_kit/dtr_full_ehr_suite'
+# require_relative 'davinci_dtr_test_kit/dtr_light_ehr_suite'
