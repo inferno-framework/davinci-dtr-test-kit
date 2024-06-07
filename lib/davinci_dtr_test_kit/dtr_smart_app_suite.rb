@@ -15,16 +15,7 @@ module DaVinciDTRTestKit
 
     id :dtr_smart_app
     title 'Da Vinci DTR Smart App Test Suite'
-    description %(
-        # Da Vinci DTR Smart App Test Suite
-
-        This suite validates that a DTR Smart App can interact
-        with a payer server and a light DTR EMR to complete
-        questionnaires. Inferno will act as a payer server returning
-        questionnaires in response to requests from the system under
-        test and also as a light DTR EMR responding to requests for
-        data.
-      )
+    description File.read(File.join(__dir__, 'docs', 'dtr_smart_app_suite_description_v201.md'))
 
     # All FHIR validation requsets will use this FHIR validator
     validator do

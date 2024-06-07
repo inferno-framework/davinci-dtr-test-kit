@@ -5,7 +5,7 @@ systems to the STU 2 version of the HL7® FHIR®
 ## Scope
 
 These tests are a **DRAFT** intended to allow payer implementers to perform
-preliminary checks of their systems against PDex IG requirements and [provide
+preliminary checks of their systems against DTR IG requirements and [provide
 feedback](https://github.com/inferno-framework/davinci-dtr-test-kit/issues)
 on the tests. Future versions of these tests may validate other
 requirements and may change the test validation logic.
