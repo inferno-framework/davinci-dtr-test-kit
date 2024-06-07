@@ -1,8 +1,8 @@
 {
 	"info": {
 		"_postman_id": "c3d3453f-e6c3-44c6-8436-19b0c732312c",
-		"name": "DTR Smart App Tests Postman Demo",
-		"description": "The variables tab in this collection controls port for inferno and token used to establish a session.\n\n- url_prefix: points to a running instance of inferno. Typical values will be\n    \n    - Inferno production: [https://inferno.healthit.gov/suites](https://inferno.healthit.gov/suites)\n        \n    - Inferno QA: [https://inferno-qa.healthit.gov/suites](https://inferno-qa.healthit.gov/suites)\n        \n    - Local docker: [http://localhost](http://localhost)\n        \n    - Local development: [http://localhost:4657](http://localhost:4657)\n        \n- bearer_token: placed in the Authentication header as a bearer token and used by Inferno to recognize requests for a test session. This value will need to be entered in the Access Token input of the DTR Smart App test suite.",
+		"name": "DTR SMART App Tests Postman Demo",
+		"description": "The variables tab in this collection controls port for inferno and token used to establish a session.\n\n- url_prefix: points to a running instance of inferno. Typical values will be\n    \n    - Inferno production: [https://inferno.healthit.gov/suites](https://inferno.healthit.gov/suites)\n        \n    - Inferno QA: [https://inferno-qa.healthit.gov/suites](https://inferno-qa.healthit.gov/suites)\n        \n    - Local docker: [http://localhost](http://localhost)\n        \n    - Local development: [http://localhost:4657](http://localhost:4657)\n        \n- bearer_token: placed in the Authentication header as a bearer token and used by Inferno to recognize requests for a test session. This value will need to be entered in the Access Token input of the DTR SMART App test suite.",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
 		"_exporter_id": "32597978"
 	},

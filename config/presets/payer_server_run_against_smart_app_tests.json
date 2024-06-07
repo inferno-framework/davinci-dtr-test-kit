@@ -1,5 +1,5 @@
 {
-  "title": "Run Against DTR Smart App Tests",
+  "title": "Run Against DTR SMART App Tests",
   "id": "payer_server_run_against_smart_app_tests",
   "test_suite_id": "dtr_payer_server",
   "inputs": [

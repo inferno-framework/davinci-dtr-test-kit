@@ -80,14 +80,14 @@ section below.
 If you would like to try out the tests but don't have a DTR payer server implementation,
 you can run these tests against the DTR SMART Client test suite included in this test kit
 using the following steps:
-1. Start an Inferno session of the Da Vinci DTR Smart App Test Suite.
+1. Start an Inferno session of the Da Vinci DTR SMART App Test Suite.
 1. Select test 2.1.1 *Static Questionnaire Workflow* from the menu on the left.
 1. Click the "Run All Tests" button in the upper right.
 1. In the "access_token" input, put `cnVuIHRvZ2V0aGVy`.
 1. Click the "submit" button in the dialog that appears. The client tests will now be waiting for requests.
 1. Start an Inferno session of the DTR Payer Server test suite.
 1. Select test 1 *Static Questionnaire Package Retrieval* from the menu on the left.
-1. Select the *Run Against DTR Smart App Tests* option from the Preset dropdown in the
+1. Select the *Run Against DTR SMART App Tests* option from the Preset dropdown in the
    upper left.
 1. Click the "Run All Tests" button in the upper right.
 1. Click the "submit" button in the dialog that appears. The server tests will now make requests
@@ -95,7 +95,7 @@ using the following steps:
    these server tests can validate.
 
 At this time, only the standard questionnaire functionality can be tested using this approach as
-the client tests have not implemented a adaptive questionnaire set of tests.
+the client tests have not implemented an adaptive questionnaire set of tests.
 
 ## Additional Configuration Details
 
@@ -105,8 +105,8 @@ that appears when initiating a test run.
 ### Custom Endpoint for Accessing a Particular Resource
 
 If the `$questionnaire-package` requests should be made to a location other than 
-`/Questionnaire/$questionnaire-package` under the base server url, enter the
-location the requests should be made relative to the base server url.
+`/Questionnaire/$questionnaire-package` under the base server URL, enter the
+location the requests should be made relative to the base server URL.
 
 ## Limitations
 

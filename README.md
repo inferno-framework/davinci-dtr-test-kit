@@ -7,7 +7,7 @@ The test kit includes suites targeting the following actors from the specificati
 
 - **Payer Servers**: Inferno will act as a client and make a series of
   requests to the server under test requesting questionnaires.
-- **DTR Smart App**: Inferno will act as a server implementing the 
+- **DTR SMART App**: Inferno will act as a server implementing the 
   payer server and light EHR capabilities and responding to requests
   for questionnaires and clinical data made by the app under test.
 
@@ -37,12 +37,12 @@ started but not yet released for two actors:
 - Full DTR EMR: responsible for retriving questionnaires from a payer server, 
   filling them out based on local data and user input, and storing them
   locally.
-- Light DTR EMR: responsible for serving data that a DTR Smart App can use to
+- Light DTR EMR: responsible for serving data that a DTR SMART App can use to
   populate questionnaires.
 
 For the implemented actors, see suite-specific documentation on current limitations
 for the [payer server](lib/davinci_dtr_test_kit/docs/dtr_payer_server_suite_description_v201.md#limitations) and
-[DTR Smart App](lib/davinci_dtr_test_kit/docs/dtr_smart_app_suite_description_v201.md#limitations)
+[DTR SMART App](lib/davinci_dtr_test_kit/docs/dtr_smart_app_suite_description_v201.md#limitations)
 tests.
 
 ## How to Run
@@ -51,13 +51,13 @@ Use either of the following methods to run the suites within this test kit.
 If you would like to try out the tests but don’t have a DTR implementation, 
 the test home pages include instructions for trying out the tests, including
 
-- For payer server testing: running the tests against the DTR Smart App tests in this Test Kit
-- For DTR Smart App testing: a [sample postman collection](config/DTR%20Test%20Kit.postman_collection.json)
+- For payer server testing: running the tests against the DTR SMART App tests in this Test Kit
+- For DTR SMART App testing: a [sample postman collection](config/DTR%20Test%20Kit.postman_collection.json)
 
 Detailed instructions can be found in the suite descriptions when the tests
 are run or within this repository for the 
 [payer server](lib/davinci_dtr_test_kit/docs/dtr_payer_server_suite_description_v201.md#running-the-tests) and
-[DTR Smart App](lib/davinci_dtr_test_kit/docs/dtr_smart_app_suite_description_v201.md#running-the-tests).
+[DTR SMART App](lib/davinci_dtr_test_kit/docs/dtr_smart_app_suite_description_v201.md#running-the-tests).
 
 ### ONC Hosted Instance
 
@@ -68,15 +68,15 @@ You can run the DTR test kit via the [ONC Inferno](https://inferno.healthit.gov/
 - Download the source code from this repository.
 - [Start or identify](#fhir-server-simulation-for-the-client-suite) 
   an Inferno Reference Server instance for Inferno to use for simulation (only needed if
-  planning to run the DTR Smart App test suite).
+  planning to run the DTR SMART App test suite).
 - Open a terminal in the directory containing the downloaded code.
 - In the terminal, run `setup.sh`.
 - In the terminal, run `run.sh`.
 - Use a web browser to navigate to `http://localhost`.
 
-## FHIR Server Simulation for the DTR Smart App Suite
+## FHIR Server Simulation for the DTR SMART App Suite
 
-The DTR Smart App test suite needs to be able to return responses to FHIR read and search APIs.
+The DTR SMART App test suite needs to be able to return responses to FHIR read and search APIs.
 These responses can be complex and so the suite relies on a full FHIR server to provide 
 responses for it to provide back to systems under test. The test kit was written to work 
 with the [Inferno Reference Server](https://github.com/inferno-framework/inferno-reference-server)
