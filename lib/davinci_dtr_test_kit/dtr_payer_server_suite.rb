@@ -13,14 +13,7 @@ module DaVinciDTRTestKit
 
     id :dtr_payer_server
     title 'Da Vinci DTR Payer Server Test Suite'
-    description %(
-        # Da Vinci DTR Payer Server Test Suite
-
-        This suite validates that a payer server can act as a source
-        of questionnaires for a DTR application to complete. Inferno
-        will act as a DTR application requesting questionnaires from
-        the system under test.
-      )
+    description File.read(File.join(__dir__, 'docs', 'dtr_payer_server_suite_description_v201.md'))
 
     # These inputs will be available to all tests in this suite
 
@@ -56,7 +49,7 @@ module DaVinciDTRTestKit
 
     input :custom_endpoint,
           optional: true,
-          title: 'CustomEndpoint for Accessing a Particular Resource',
+          title: 'Custom Endpoint for Accessing a Particular Resource',
           description: 'Either Flow (optional)'
 
     input :credentials,

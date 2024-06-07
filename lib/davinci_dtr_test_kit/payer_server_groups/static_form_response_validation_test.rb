@@ -34,13 +34,15 @@ module DaVinciDTRTestKit
         )
       else
         FHIR.from_contents(initial_static_questionnaire_request)
-        fhir_operation("#{url}/Questionnaire/$questionnaire-package/", body: JSON.parse(initial_static_questionnaire_request),
-                                                                       headers: { 'Content-Type': 'application/json' })
+        fhir_operation("#{url}/Questionnaire/$questionnaire-package", body: JSON.parse(initial_static_questionnaire_request),
+                                                                      headers: { 'Content-Type': 'application/json' })
         scratch[:questionnaire_bundle] = resource
 
         assert_response_status(200)
         assert_resource_type(:parameters)
-        assert_valid_resource(profile_url: 'http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/dtr-qpackage-output-parameters')
+        questionnaire_bundle = resource.parameter.find { |param| param.name == 'return' }&.resource
+        assert questionnaire_bundle, 'No questionnaire bundle found in the response'
+        assert_valid_resource(resource: questionnaire_bundle, profile_url: 'http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/DTR-QPackageBundle')
       end
     end
   end

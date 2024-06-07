@@ -1,7 +1,9 @@
 {
   "resourceType": "Bundle",
+  "type": "collection",
   "entry": [
     {
+      "fullUrl": "urn:uuid:75e7eb59-a193-4cd8-b961-611e311d4a5c",
       "resource": {
         "resourceType": "Questionnaire",
         "id": "DinnerOrderStatic",
@@ -218,6 +220,7 @@
       }
     },
     {
+      "fullUrl": "urn:uuid:d38d7ae5-988b-4fda-8255-d4354713ffef",
       "resource": {
         "resourceType": "Library",
         "id": "DTRTest",
