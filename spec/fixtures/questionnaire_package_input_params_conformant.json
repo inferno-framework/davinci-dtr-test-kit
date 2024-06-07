@@ -1,0 +1,112 @@
+{
+  "resourceType" : "Parameters",
+  "id" : "QuestionnairePackageInputParamsExample",
+  "meta" : {
+    "profile" : ["http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/dtr-qpackage-input-parameters"]
+  },
+  "parameter" : [{
+    "name" : "coverage",
+    "resource" : {
+      "resourceType" : "Coverage",
+      "id" : "CoverageExample",
+      "meta" : {
+        "profile" : ["http://hl7.org/fhir/us/davinci-crd/StructureDefinition/profile-coverage"]
+      },
+      "contained" : [{
+        "resourceType" : "Organization",
+        "id" : "OrgExample",
+        "meta" : {
+          "profile" : ["http://hl7.org/fhir/us/core/StructureDefinition/us-core-organization"]
+        },
+        "active" : true,
+        "type" : [{
+          "coding" : [{
+            "system" : "http://terminology.hl7.org/CodeSystem/organization-type",
+            "code" : "pay",
+            "display" : "Payer"
+          }]
+        }],
+        "name" : "Insurance Company",
+        "telecom" : [{
+          "system" : "phone",
+          "value" : "860-547-5001",
+          "use" : "work"
+        }],
+        "address" : [{
+          "line" : ["680 Asylum Street"],
+          "city" : "Hartford",
+          "state" : "CT",
+          "postalCode" : "06155",
+          "country" : "US"
+        }]
+      }],
+      "status" : "active",
+      "subscriber" : {
+        "reference" : "Patient/examplepatient"
+      },
+      "subscriberId" : "PFP123450000",
+      "beneficiary" : {
+        "reference" : "Patient/examplepatient"
+      },
+      "relationship" : {
+        "coding" : [{
+          "system" : "http://terminology.hl7.org/CodeSystem/subscriber-relationship",
+          "code" : "self",
+          "display" : "Self"
+        }]
+      },
+      "period" : {
+        "start" : "2022-01-01",
+        "end" : "2023-01-01"
+      },
+      "payor" : [{
+        "reference" : "#OrgExample"
+      }],
+      "class" : [{
+        "type" : {
+          "coding" : [{
+            "system" : "http://terminology.hl7.org/CodeSystem/coverage-class",
+            "code" : "plan",
+            "display" : "Plan"
+          }]
+        },
+        "value" : "Premim Family Plus",
+        "name" : "Premim Family Plus Plan"
+      }]
+    }
+  },
+  {
+    "name" : "order",
+    "resource" : {
+      "resourceType" : "ServiceRequest",
+      "id" : "ServiceRequestExample",
+      "meta" : {
+        "profile" : ["http://hl7.org/fhir/us/davinci-crd/StructureDefinition/profile-servicerequest"]
+      },
+      "status" : "draft",
+      "intent" : "original-order",
+      "code" : {
+        "coding" : [{
+          "system" : "http://loinc.org",
+          "code" : "24338-6"
+        }],
+        "text" : "Gas panel - Blood"
+      },
+      "subject" : {
+        "reference" : "Patient/examplepatient"
+      },
+      "occurrenceDateTime" : "2019-05-08T09:33:27+07:00",
+      "authoredOn" : "2019-09-18T07:53:21+07:00",
+      "requester" : {
+        "reference" : "Practitioner/PractitionerExample"
+      },
+      "reasonCode" : [{
+        "coding" : [{
+          "system" : "http://snomed.info/sct",
+          "code" : "4565000"
+        }],
+        "text" : "Decreased oxygen affinity"
+      }]
+    }
+  }]
+}
