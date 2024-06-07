@@ -7,7 +7,7 @@ module DaVinciDTRTestKit
     id :dtr_v201_payer_static_form_response_test
     title 'Validate that the static response conforms to the Output Parameters profile'
     description %(
-      Inferno will validate that the payer server response conforms to the 
+      Inferno will validate that the payer server response conforms to the
        [Output Parameters profile](http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/dtr-qpackage-output-parameters).
 
       It verifies the presence of mandatory elements and that elements with required bindings contain appropriate
@@ -34,8 +34,9 @@ module DaVinciDTRTestKit
         )
       else
         FHIR.from_contents(initial_static_questionnaire_request)
-        fhir_operation("#{url}/Questionnaire/$questionnaire-package", body: JSON.parse(initial_static_questionnaire_request),
-                                                                      headers: { 'Content-Type': 'application/json' })
+        fhir_operation("#{url}/Questionnaire/$questionnaire-package",
+                       body: JSON.parse(initial_static_questionnaire_request),
+                       headers: { 'Content-Type': 'application/json' })
         scratch[:questionnaire_bundle] = resource
 
         assert_response_status(200)

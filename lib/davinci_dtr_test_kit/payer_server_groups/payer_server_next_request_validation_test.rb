@@ -49,8 +49,9 @@ module DaVinciDTRTestKit
           using_manual_entry
         )
       else
-        raise new Inferno::Exceptions::AssertionException.new "Resource does not conform to the either accepted profiles:
-        http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaireresponse-adapt or http://hl7.org/fhir/uv/sdc/StructureDefinition/parameters-questionnaire-next-question-in"
+        raise new Inferno::Exceptions::AssertionException.new "Resource does not conform to the either
+         accepted profiles: http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaireresponse-adapt
+         or http://hl7.org/fhir/uv/sdc/StructureDefinition/parameters-questionnaire-next-question-in"
       end
     rescue Inferno::Exceptions::AssertionException => e
       msg = e.message.to_s.strip
