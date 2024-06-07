@@ -27,19 +27,6 @@ module DaVinciDTRTestKit
       - Enter the `Initial Static Questionnaire Request`, in addition to the
       `FHIR Server Base Url` pointing to the payer server,
       to provide the json requests manually, rather than relying on a DTR client.
-
-    The payer responses are also tested to ensure that appropriate libraries and expressions are
-    included to faciliate pre-population of questionnaires. The following is not tested:
-    - Check that CQL is version 1.5
-    - Check that CQL is valid and executed to populate the questionnaire
-    - CQL has a context of “Patient”
-    - CQL definitions and variables defined on ancestor elements or preceding expression extensions within the same
-    Questionnaire item are in scope for referencing in descendant/following expressions.
-    - Within Expression elements, the base expression CQL SHALL be accompanied by a US Public Health Alternative
-    Expression Extension containing the compiled JSON ELM for the expression.
-    - valueExpressions shall reference libraries (i.e., “LibraryName”.statementName) when multiple cqf libraries are
-     present in one questionnaire
-
           )
     id :payer_server_static_package
     run_as_group

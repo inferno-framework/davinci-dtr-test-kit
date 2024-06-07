@@ -116,3 +116,12 @@ on the interpretation of the DTR IG as allowing payers to choose the features th
 they want to support. If this interpretation turns out to be inconsistent with the
 intention of the IG authors then future versions of the tests may require the payer
 to provide additional examples.
+
+The payer responses are also tested to ensure that appropriate libraries and expressions are
+ included to faciliate pre-population of questionnaires. The following is not tested:
+- CQL is version 1.5
+- CQL is valid and executed to populate the questionnaire
+- CQL has a context of “Patient”
+- CQL definitions and variables defined on ancestor elements or preceding expression extensions within the same
+Questionnaire item are in scope for referencing in descendant/following expressions.
+- Within Expression elements, the base expression CQL SHALL be accompanied by a US Public Health Alternative Expression Extension containing the compiled JSON ELM for the expression.
