@@ -72,13 +72,6 @@ module DaVinciDTRTestKit
       url_input = JSON.parse(test_result.input_json).find { |input| input['name'] == 'url' }
       client = FHIR::Client.new(url_input['value'])
       client.default_json
-      endpoint = if endpoint_input.nil?
-                   '/Questionnaire/$questionnaire-package'
-                 else
-                   endpoint_input['value'].nil? ? '/Questionnaire/$questionnaire-package' : endpoint_input['value']
-                 end
-      client.send(:post, endpoint, JSON.parse(request.request_body),
-                  { 'Content-Type' => 'application/json' })
       endpoint = endpoint_input['value'].nil? ? '/Questionnaire/$questionnaire-package' : endpoint_input['value']
       payer_response = client.send(:post, endpoint, JSON.parse(request.request_body),
                                    { 'Content-Type' => 'application/json' })
@@ -92,8 +85,6 @@ module DaVinciDTRTestKit
       url_endpoint = JSON.parse(test_result.input_json).find { |input| input['name'] == 'url' }
       client = FHIR::Client.new(url_endpoint['value'])
       client.default_json
-      client.send(:post, '/Questionnaire/$next-question', JSON.parse(request.request_body),
-                  { 'Content-Type' => 'application/json' })
       payer_response = client.send(:post, '/Questionnaire/$next-question', JSON.parse(request.request_body),
                                    { 'Content-Type' => 'application/json' })
 
