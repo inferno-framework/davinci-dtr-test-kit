@@ -19,7 +19,7 @@ course of these interactions, Inferno will seek to observe conformant handling o
 DTR workflows and requirements around the retrieval, completion, and storage of
 questionnaires.
 
-Tests within this suite are associated with a specific questionnaires that the app will
+Tests within this suite are associated with specific questionnaires that the app will
 demonstrate completion of. In each case, the app under test will initiate a request to
 the payer server simulated by Inferno for a questionnaire using the 
 `$questionnaire-package` operation. Inferno will always return the specific questionnaire
