@@ -4,6 +4,7 @@ require_relative 'ext/inferno_core/request'
 require_relative 'client_groups/resp_assist_device/dtr_full_ehr_questionnaire_workflow_group'
 require_relative 'auth_groups/oauth2_authentication_group'
 require_relative 'mock_payer'
+require_relative 'version'
 
 module DaVinciDTRTestKit
   class DTRFullEHRSuite < Inferno::TestSuite
@@ -21,6 +22,8 @@ module DaVinciDTRTestKit
         in response to queries from the system under test and validating
         that they can be completed as expected.
       )
+
+    version VERSION
 
     # All FHIR validation requsets will use this FHIR validator
     validator do

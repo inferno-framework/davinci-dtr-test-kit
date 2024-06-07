@@ -1,3 +1,5 @@
+require_relative 'version'
+
 module DaVinciDTRTestKit
   class DTRLightEHRSuite < Inferno::TestSuite
     id :dtr_light_ehr
@@ -6,11 +8,13 @@ module DaVinciDTRTestKit
         # Da Vinci DTR Light EHR Test Suite
 
         This suite validates that an EMR or other application
-        can act as a data source for a DTR Smart App. Inferno
-        will act as a DTR Smart App making requests for data
+        can act as a data source for a DTR SMART App. Inferno
+        will act as a DTR SMART App making requests for data
         against the system under test and storing completed
         questionnaire responses.
       )
+
+    version VERSION
 
     # These inputs will be available to all tests in this suite
     input :url,

@@ -3,9 +3,9 @@ require_relative 'ext/inferno_core/record_response_route'
 require_relative 'ext/inferno_core/request'
 require_relative 'payer_server_groups/payer_server_static_group'
 require_relative 'payer_server_groups/payer_server_adaptive_group'
-
 require_relative 'tags'
 require_relative 'mock_payer'
+require_relative 'version'
 
 module DaVinciDTRTestKit
   class DTRPayerServerSuite < Inferno::TestSuite
@@ -15,6 +15,7 @@ module DaVinciDTRTestKit
     title 'Da Vinci DTR Payer Server Test Suite'
     description File.read(File.join(__dir__, 'docs', 'dtr_payer_server_suite_description_v201.md'))
 
+    version VERSION
     # These inputs will be available to all tests in this suite
 
     input :retrieval_method,

@@ -7,6 +7,7 @@ require_relative 'client_groups/dinner_static/dtr_smart_app_questionnaire_workfl
 require_relative 'client_groups/dinner_adaptive/dtr_smart_app_questionnaire_workflow_group'
 require_relative 'mock_payer'
 require_relative 'mock_ehr'
+require_relative 'version'
 
 module DaVinciDTRTestKit
   class DTRSmartAppSuite < Inferno::TestSuite
@@ -14,8 +15,10 @@ module DaVinciDTRTestKit
     extend MockEHR
 
     id :dtr_smart_app
-    title 'Da Vinci DTR Smart App Test Suite'
+    title 'Da Vinci DTR SMART App Test Suite'
     description File.read(File.join(__dir__, 'docs', 'dtr_smart_app_suite_description_v201.md'))
+
+    version VERSION
 
     # All FHIR validation requsets will use this FHIR validator
     validator do
