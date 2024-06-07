@@ -37,8 +37,6 @@ module DaVinciDTRTestKit
     Questionnaire item are in scope for referencing in descendant/following expressions.
     - Within Expression elements, the base expression CQL SHALL be accompanied by a US Public Health Alternative
     Expression Extension containing the compiled JSON ELM for the expression.
-    - valueExpressions shall reference libraries (i.e., “LibraryName”.statementName) when multiple cqf libraries are
-     present in one questionnaire
 
           )
     id :payer_server_static_package
