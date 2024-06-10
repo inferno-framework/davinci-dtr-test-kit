@@ -1,10 +1,10 @@
 {
 	"info": {
-		"_postman_id": "c3d3453f-e6c3-44c6-8436-19b0c732312c",
+		"_postman_id": "813451b0-a13c-4c26-a42d-29702ee63d4d",
 		"name": "DTR SMART App Tests Postman Demo",
 		"description": "The variables tab in this collection controls port for inferno and token used to establish a session.\n\n- url_prefix: points to a running instance of inferno. Typical values will be\n    \n    - Inferno production: [https://inferno.healthit.gov/suites](https://inferno.healthit.gov/suites)\n        \n    - Inferno QA: [https://inferno-qa.healthit.gov/suites](https://inferno-qa.healthit.gov/suites)\n        \n    - Local docker: [http://localhost](http://localhost)\n        \n    - Local development: [http://localhost:4657](http://localhost:4657)\n        \n- bearer_token: placed in the Authentication header as a bearer token and used by Inferno to recognize requests for a test session. This value will need to be entered in the Access Token input of the DTR SMART App test suite.",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "32597978"
+		"_exporter_id": "2481890"
 	},
 	"item": [
 		{
@@ -195,11 +195,58 @@
 		}
 	],
 	"auth": {
-		"type": "bearer",
-		"bearer": [
+		"type": "oauth2",
+		"oauth2": [
 			{
-				"key": "token",
-				"value": "{{bearer_token}}",
+				"key": "accessTokenUrl",
+				"value": "{{base_url}}/custom/dtr_smart_app/mock_auth/token",
+				"type": "string"
+			},
+			{
+				"key": "refreshRequestParams",
+				"value": [],
+				"type": "any"
+			},
+			{
+				"key": "tokenRequestParams",
+				"value": [
+					{
+						"key": "",
+						"value": "",
+						"enabled": false,
+						"send_as": "request_body"
+					}
+				],
+				"type": "any"
+			},
+			{
+				"key": "authRequestParams",
+				"value": [],
+				"type": "any"
+			},
+			{
+				"key": "challengeAlgorithm",
+				"value": "S256",
+				"type": "string"
+			},
+			{
+				"key": "grant_type",
+				"value": "client_credentials",
+				"type": "string"
+			},
+			{
+				"key": "clientId",
+				"value": "8e065803bfd3cd8a9b59e488160b88f6",
+				"type": "string"
+			},
+			{
+				"key": "addTokenTo",
+				"value": "header",
+				"type": "string"
+			},
+			{
+				"key": "client_authentication",
+				"value": "body",
 				"type": "string"
 			}
 		]
@@ -229,12 +276,7 @@
 	"variable": [
 		{
 			"key": "base_url",
-			"value": "localhost:4567"
-		},
-		{
-			"key": "bearer_token",
-			"value": "RFRSIHNtYXJ0IGFwcCB0ZXN0cyBwb3N0bWFuIGRlbW8",
-			"type": "string"
+			"value": "https://inferno.healthit.gov/suites"
 		}
 	]
 }
