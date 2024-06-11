@@ -52,7 +52,7 @@ If you would like to try out the tests but don’t have a DTR implementation,
 the test home pages include instructions for trying out the tests, including
 
 - For payer server testing: running the tests against the DTR SMART App tests in this Test Kit
-- For DTR SMART App testing: a [sample postman collection](config/DTR%20Test%20Kit.postman_collection.json)
+- For DTR SMART App testing: a [sample postman collection](config/DTR%20SMART%20App%20Tests%20Postman%20Demo.postman_collection.json)
 
 Detailed instructions can be found in the suite descriptions when the tests
 are run or within this repository for the 
