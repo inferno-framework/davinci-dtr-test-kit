@@ -25,9 +25,32 @@ module DaVinciDTRTestKit
 
     version VERSION
 
-    # All FHIR validation requsets will use this FHIR validator
-    validator do
-      url ENV.fetch('VALIDATOR_URL')
+    links [
+      {
+        label: 'Report Issue',
+        url: 'https://github.com/inferno-framework/davinci-dtr-test-kit/issues'
+      },
+      {
+        label: 'Open Source',
+        url: 'https://github.com/inferno-framework/davinci-dtr-test-kit'
+      },
+      {
+        label: 'Download',
+        url: 'https://github.com/inferno-framework/davinci-dtr-test-kit/releases'
+      },
+      {
+        label: 'Implementation Guide',
+        url: 'https://hl7.org/fhir/us/davinci-dtr/STU2/'
+      }
+    ]
+
+    # Hl7 Validator Wrapper:
+    fhir_resource_validator do
+      igs 'hl7.fhir.us.davinci-dtr#2.0.1'
+
+      exclude_message do |message|
+        message.message.match?(/\A\S+: \S+: URL value '.*' does not resolve/)
+      end
     end
 
     allow_cors QUESTIONNAIRE_PACKAGE_PATH

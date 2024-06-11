@@ -16,6 +16,26 @@ module DaVinciDTRTestKit
     description File.read(File.join(__dir__, 'docs', 'dtr_payer_server_suite_description_v201.md'))
 
     version VERSION
+
+    links [
+      {
+        label: 'Report Issue',
+        url: 'https://github.com/inferno-framework/davinci-dtr-test-kit/issues'
+      },
+      {
+        label: 'Open Source',
+        url: 'https://github.com/inferno-framework/davinci-dtr-test-kit'
+      },
+      {
+        label: 'Download',
+        url: 'https://github.com/inferno-framework/davinci-dtr-test-kit/releases'
+      },
+      {
+        label: 'Implementation Guide',
+        url: 'https://hl7.org/fhir/us/davinci-dtr/STU2/'
+      }
+    ]
+
     # These inputs will be available to all tests in this suite
 
     input :retrieval_method,
@@ -73,9 +93,13 @@ module DaVinciDTRTestKit
       oauth_credentials :credentials
     end
 
-    # All FHIR validation requsets will use this FHIR validator
-    validator do
-      url ENV.fetch('VALIDATOR_URL')
+    # Hl7 Validator Wrapper:
+    fhir_resource_validator do
+      igs 'hl7.fhir.us.davinci-dtr#2.0.1'
+
+      exclude_message do |message|
+        message.message.match?(/\A\S+: \S+: URL value '.*' does not resolve/)
+      end
     end
 
     allow_cors QUESTIONNAIRE_PACKAGE_PATH, NEXT_PATH
