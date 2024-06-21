@@ -26,7 +26,7 @@ RSpec.describe DaVinciDTRTestKit::DTRQuestionnaireResponseGroup do
   end
 
   describe 'Behavior of questionnaire response save test' do
-    let(:runnable) { group.tests.find { |test| test.id.to_s.end_with? 'dtr_questionnaire_response_save' } }
+    let(:runnable) { group.tests.find { |test| test.id.to_s.end_with? 'questionnaire_response_save' } }
     let(:results_repo) { Inferno::Repositories::Results.new }
     let(:access_token) { '1234' }
 
