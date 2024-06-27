@@ -18,6 +18,7 @@ module DaVinciDTRTestKit
        This test may process multiple resources, labeling messages with the corresponding tested resources
        in the order that they were received.
     )
+    input :initial_static_questionnaire_request, :access_token, :retrieval_method
 
     run do
       skip_if retrieval_method == 'Adaptive', 'Performing only adaptive flow tests - only one flow is required.'

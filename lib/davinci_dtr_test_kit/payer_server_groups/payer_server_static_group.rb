@@ -37,12 +37,10 @@ module DaVinciDTRTestKit
           description: 'Manual Flow',
           type: 'textarea'
 
-    input :access_token
-    input :retrieval_method
-    input :url
+    input :access_token, :retrieval_method
 
     input_order :retrieval_method,
-                :url,
+                :access_token,
                 :initial_static_questionnaire_request
 
     test from: :dtr_v201_payer_static_questionnaire_request_test, receives_request: :static_questionnaire_request

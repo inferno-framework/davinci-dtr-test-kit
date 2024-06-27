@@ -1,4 +1,4 @@
-RSpec.shared_context('when running standard tests') do |group, suite_id, questionnaire_package_url, url|
+RSpec.shared_context('when running standard tests') do |group, suite_id, questionnaire_package_url, retrieval_method, url|
   def app
     Inferno::Web.app
   end
@@ -7,6 +7,8 @@ RSpec.shared_context('when running standard tests') do |group, suite_id, questio
   let(:questionnaire_package_url) { questionnaire_package_url }
   let(:url) { url }
   let(:session_data_repo) { Inferno::Repositories::SessionData.new }
+  let(:retrieval_method) { retrieval_method }
+  let(:access_token) { '1234' }
   let(:test_session) { repo_create(:test_session, test_suite_id: suite_id) }
 
   def run(runnable, test_session, inputs = {})
