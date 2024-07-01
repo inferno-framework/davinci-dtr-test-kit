@@ -11,15 +11,15 @@ RSpec.describe DaVinciDTRTestKit::DTRPayerServerQuestionnairePackageGroup do
 
   context 'when initial request is manually provided' do
     let(:initial_static_questionnaire_request) do
-      File.read(File.join(__dir__, '..', 'fixtures', 'questionnaire_response_conformant.json'))
+      File.read(File.join(__dir__, '..', 'fixtures', 'questionnaire_package_input_params_conformant.json'))
     end
 
     describe 'static questionnaire package incoming request test' do
       let(:runnable) { group.tests.find { |test| test.id.to_s.end_with? 'questionnaire_request_test' } }
 
-      it 'passes if questionnaire request is manually provided' do
+      it 'passes if valid questionnaire request is manually provided' do
         result = run(runnable, test_session, access_token:,
-                                            retrieval_method:, initial_static_questionnaire_request:, url:)
+                                             retrieval_method:, initial_static_questionnaire_request:, url:)
         expect(result.result).to eq('pass'), result.result_message
       end
 
@@ -45,6 +45,7 @@ RSpec.describe DaVinciDTRTestKit::DTRPayerServerQuestionnairePackageGroup do
         let(:initial_static_questionnaire_request) do
           File.read(File.join(__dir__, '..', 'fixtures', 'questionnaire_package_input_params_non_conformant.json'))
         end
+
         it 'skips if questionnaire request is not conformant' do
           allow_any_instance_of(DaVinciDTRTestKit::PayerStaticFormRequestValidationTest).to(
             receive(:assert_valid_resource).and_return(false)
@@ -86,8 +87,11 @@ RSpec.describe DaVinciDTRTestKit::DTRPayerServerQuestionnairePackageGroup do
   describe 'static questionnaire package incoming request test' do
     let(:runnable) { group.tests.find { |test| test.id.to_s.end_with? 'questionnaire_request_test' } }
     let(:results_repo) { Inferno::Repositories::Results.new }
-    let(:request_body) do
+    let(:request_body_conformant) do
       File.read(File.join(__dir__, '..', 'fixtures', 'questionnaire_package_input_params_conformant.json'))
+    end
+    let(:request_body_non_conformant) do
+      File.read(File.join(__dir__, '..', 'fixtures', 'questionnaire_package_input_params_non_conformant.json'))
     end
 
     let(:resume_pass_url) { "/custom/#{suite_id}/resume_pass?token=#{access_token}" }
@@ -95,7 +99,7 @@ RSpec.describe DaVinciDTRTestKit::DTRPayerServerQuestionnairePackageGroup do
     it 'passes if questionnaire package request is received' do
       stub_request(:post, "#{url}/Questionnaire/$questionnaire-package")
         .with(
-          body: JSON.parse(request_body),
+          body: JSON.parse(request_body_conformant),
           headers: {
             'Accept' => '*/*',
             'Accept-Encoding' => 'gzip;q=1.0,deflate;q=0.6,identity;q=0.3',
@@ -115,7 +119,7 @@ RSpec.describe DaVinciDTRTestKit::DTRPayerServerQuestionnairePackageGroup do
       expect(result.result).to eq('wait')
 
       header 'Authorization', "Bearer #{access_token}"
-      post(questionnaire_package_url, request_body)
+      post(questionnaire_package_url, request_body_conformant)
       expect(last_response.ok?).to be(true)
 
       get(resume_pass_url)
@@ -123,29 +127,44 @@ RSpec.describe DaVinciDTRTestKit::DTRPayerServerQuestionnairePackageGroup do
       result = results_repo.find(result.id)
       expect(result.result).to eq('pass')
     end
-  end
 
-  describe 'static questionnaire package request validation test' do
-    let(:runnable) { group.tests.find { |test| test.id.to_s.end_with? 'static_form_request_validation_test' } }
-    let(:results_repo) { Inferno::Repositories::Results.new }
+    describe 'static questionnaire package request validation test' do
+      let(:runnable) { group.tests.find { |test| test.id.to_s.end_with? 'static_form_request_validation_test' } }
+      let(:results_repo) { Inferno::Repositories::Results.new }
 
-    it 'skips when access_token is nil' do
-      result = run(runnable, test_session, retrieval_method:)
-      expect(result.result).to eq('skip'), result.result_message
+      it 'skips when access_token is nil' do
+        result = run(runnable, test_session, retrieval_method:)
+        expect(result.result).to eq('skip'), result.result_message
+      end
+
+      it 'passes when client request is conformant' do
+        allow_any_instance_of(DaVinciDTRTestKit::URLs).to(receive(:questionnaire_package_url).and_return(
+                                                            questionnaire_package_url
+                                                          ))
+        allow_any_instance_of(runnable).to(receive(:perform_request_validation_test)).and_return(true)
+
+        result = repo_create(:result, test_session_id: test_session.id)
+        repo_create(:request, result_id: result.id, name: 'questionnaire_package', url: questionnaire_package_url,
+                              request_body: request_body_conformant, test_session_id: test_session.id,
+                              tags: [DaVinciDTRTestKit::QUESTIONNAIRE_TAG])
+
+        result = run(runnable, test_session, access_token:, retrieval_method:)
+        expect(result.result).to eq('pass'), result.result_message
+      end
+
+      it 'skips when client request is not conformant' do
+        allow_any_instance_of(DaVinciDTRTestKit::URLs).to(receive(:questionnaire_package_url).and_return(
+                                                            questionnaire_package_url
+                                                          ))
+        allow_any_instance_of(runnable).to(receive(:perform_request_validation_test)).and_return(false)
+        result = repo_create(:result, test_session_id: test_session.id)
+        repo_create(:request, result_id: result.id, name: 'questionnaire_package', url: questionnaire_package_url,
+                              request_body: request_body_non_conformant, test_session_id: test_session.id,
+                              tags: [DaVinciDTRTestKit::QUESTIONNAIRE_TAG])
+
+        result = run(runnable, test_session, access_token:, retrieval_method:)
+        expect(result.result).to eq('skip'), result.result_message
+      end
     end
-
-    # it 'passes when client request is conformant' do
-    #   allow_any_instance_of(runnable).to(receive(:perform_request_validation_test)).and_return(true)
-
-    #   result = run(runnable, test_session, access_token:, retrieval_method:)
-    #   expect(result.result).to eq('skip'), result.result_message
-    # end
-
-    # it 'skips when client request is not conformant' do
-    #   allow_any_instance_of(runnable).to(receive(:perform_request_validation_test)).and_return(false)
-
-    #   result = run(runnable, test_session, retrieval_method:)
-    #   expect(result.result).to eq('skip'), result.result_message
-    # end
   end
 end

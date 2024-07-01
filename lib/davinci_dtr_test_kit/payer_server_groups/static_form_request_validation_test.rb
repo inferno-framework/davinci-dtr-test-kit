@@ -26,8 +26,8 @@ module DaVinciDTRTestKit
         using_manual_entry = false
         skip_if access_token.nil?, 'No access token provided - required for client flow.'
         resources = load_tagged_requests(QUESTIONNAIRE_TAG)
-        skip_if resources.nil?, 'No request resource received from the client.'
-        perform_request_validation_test(
+        skip_if resources.blank?, 'No request resource received from the client.'
+        assert perform_request_validation_test(
           resources,
           :parameters,
           'http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/dtr-qpackage-input-parameters',
@@ -38,7 +38,7 @@ module DaVinciDTRTestKit
         # TODO: fix redundant logic here
         skip_if initial_static_questionnaire_request.nil?, 'No request resource was provided - required for manual flow'
         request = FHIR.from_contents(initial_static_questionnaire_request)
-        assert_valid_resource(resource: request, profile_url: 'http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/dtr-qpackage-input-parameters')
+        assert assert_valid_resource(resource: request, profile_url: 'http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/dtr-qpackage-input-parameters')
       end
     rescue Inferno::Exceptions::AssertionException => e
       msg = e.message.to_s.strip
