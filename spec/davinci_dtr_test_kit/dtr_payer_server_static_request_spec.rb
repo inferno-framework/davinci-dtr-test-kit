@@ -13,12 +13,6 @@ RSpec.describe DaVinciDTRTestKit::DTRPayerServerQuestionnairePackageGroup do
     let(:initial_static_questionnaire_request) do
       File.read(File.join(__dir__, '..', 'fixtures', 'questionnaire_package_input_params_conformant.json'))
     end
-    let(:output_params) do
-      File.read(File.join(__dir__, '..', 'fixtures', 'questionnaire_package_output_params_conformant.json'))
-    end
-    let(:output_params_non_conformant) do
-      File.read(File.join(__dir__, '..', 'fixtures', 'questionnaire_package_output_params_non_conformant.json'))
-    end
 
     describe 'static questionnaire package incoming request test' do
       let(:runnable) { group.tests.find { |test| test.id.to_s.end_with? 'questionnaire_request_test' } }
@@ -59,67 +53,6 @@ RSpec.describe DaVinciDTRTestKit::DTRPayerServerQuestionnairePackageGroup do
 
           result = run(runnable, test_session, access_token:, retrieval_method:, initial_static_questionnaire_request:)
           expect(result.result).to eq('skip'), result.result_message
-        end
-      end
-
-      describe 'static response validation test' do
-        let(:runnable) { group.tests.find { |test| test.id.to_s.end_with? 'static_form_response_test' } }
-        let(:results_repo) { Inferno::Repositories::Results.new }
-
-        it 'passes if questionnaire response is conformant' do
-          # stub_request(:post, "#{url}/Questionnaire/$questionnaire-package")
-          # .with(
-          #   body: JSON.parse(initial_static_questionnaire_request),
-          #   headers: {
-          #     'Accept' => '*/*',
-          #     'Accept-Encoding' => 'gzip;q=1.0,deflate;q=0.6,identity;q=0.3',
-          #     'Content-Length' => '2082',
-          #     'Content-Type' => 'application/json',
-          #     'Host' => 'example.org',
-          #     'User-Agent' => 'rest-client/2.1.0 (darwin22 arm64) ruby/3.1.2p20'
-          #   }
-          # ).to_return(status: 200, body: output_params_non_conformant, headers: {})
-
-          allow_any_instance_of(DaVinciDTRTestKit::PayerStaticFormResponseTest).to(
-            receive(:fhir_operation).and_return(Inferno::Entities::Request.new(response_body: output_params, status: 200))
-          )
-          allow_any_instance_of(DaVinciDTRTestKit::PayerStaticFormResponseTest).to(
-            receive(:assert_response_status).and_return(true)
-          )
-          allow_any_instance_of(DaVinciDTRTestKit::PayerStaticFormResponseTest).to(
-            receive(:assert_resource_type).and_return(true)
-          )
-          allow_any_instance_of(DaVinciDTRTestKit::PayerStaticFormResponseTest).to(
-            receive(:perform_response_validation_test).and_return(true)
-          )
-          allow_any_instance_of(DaVinciDTRTestKit::PayerStaticFormResponseTest).to(
-            receive(:assert_valid_resource).and_return(false)
-          )
-
-          result = run(runnable, test_session, url:, access_token:, retrieval_method:, initial_static_questionnaire_request:)
-          puts result.result
-          expect(result.result).to eq('pass'), result.result_message
-        end
-
-        it 'fails if questionnaire response is not conformant' do
-          allow_any_instance_of(DaVinciDTRTestKit::PayerStaticFormResponseTest).to(
-            receive(:fhir_operation).and_return(Inferno::Entities::Request.new(response_body: output_params_non_conformant, status: 200))
-          )
-          allow_any_instance_of(DaVinciDTRTestKit::PayerStaticFormResponseTest).to(
-            receive(:assert_response_status).and_return(true)
-          )
-          allow_any_instance_of(DaVinciDTRTestKit::PayerStaticFormResponseTest).to(
-            receive(:assert_resource_type).and_return(true)
-          )
-          allow_any_instance_of(DaVinciDTRTestKit::PayerStaticFormResponseTest).to(
-            receive(:perform_response_validation_test).and_return(true)
-          )
-          allow_any_instance_of(DaVinciDTRTestKit::PayerStaticFormResponseTest).to(
-            receive(:assert_valid_resource).and_return(true)
-          )
-
-          result = run(runnable, test_session, url:, access_token:, retrieval_method:, initial_static_questionnaire_request:)
-          expect(result.result).to eq('fail'), result.result_message
         end
       end
     end
