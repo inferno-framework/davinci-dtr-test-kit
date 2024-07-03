@@ -9,6 +9,7 @@ module DaVinciDTRTestKit
     )
     id :dtr_v201_payer_static_questionnaire_request_test
     config options: { accepts_multiple_requests: false }
+    input :initial_static_questionnaire_request, :access_token, :retrieval_method, :url
 
     run do
       skip_if retrieval_method == 'Adaptive', 'Performing only adaptive flow tests - only one flow is required.'
