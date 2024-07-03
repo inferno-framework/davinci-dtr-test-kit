@@ -102,11 +102,8 @@ RSpec.describe DaVinciDTRTestKit::DTRPayerServerQuestionnairePackageGroup do
           body: JSON.parse(request_body_conformant),
           headers: {
             'Accept' => '*/*',
-            'Accept-Encoding' => 'gzip;q=1.0,deflate;q=0.6,identity;q=0.3',
-            'Content-Length' => '2082',
             'Content-Type' => 'application/json',
-            'Host' => 'example.org',
-            'User-Agent' => 'rest-client/2.1.0 (darwin22 arm64) ruby/3.1.2p20'
+            'Host' => 'example.org'
           }
         )
         .to_return(status: 200, body: '', headers: {})
