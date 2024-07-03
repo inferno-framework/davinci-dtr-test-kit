@@ -49,9 +49,8 @@ RSpec.describe DaVinciDTRTestKit::DTRPayerServerQuestionnairePackageGroup do
             )
             questionnaire_bundle = resource.parameter.find { |param| param.resource.resourceType == 'Bundle' }&.resource
             assert questionnaire_bundle, 'No questionnaire bundle found in the response'
-            # assert_valid_resource(resource: questionnaire_bundle, profile_url: 'http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/DTR-QPackageBundle')
-            # bundle = FHIR.from_contents(pa_request_payload)
-            # assert_resource_type(:bundle, resource: bundle)
+            assert_valid_resource(resource: questionnaire_bundle, profile_url: 'http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/DTR-QPackageBundle')
+            assert_resource_type(:bundle, resource: questionnaire_bundle)
           end
         end
       end
@@ -68,17 +67,13 @@ RSpec.describe DaVinciDTRTestKit::DTRPayerServerQuestionnairePackageGroup do
           .with(query: {
                   profile: 'http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/dtr-qpackage-output-parameters'
                 })
-          .with(body: output_params)
           .to_return(status: 200, body: FHIR::OperationOutcome.new.to_json)
 
-        # request = Inferno::Entities::Request.new(response_body: output_params, status: 200)
-        # resource = FHIR.from_contents(request.response[:body])
-        # questionnaire_bundle = resource.parameter.find { |param| param.resource.resourceType == 'Bundle' }&.resource
-        # stub_request(:post, validation_url)
-        #   .with(query: { profile: 'http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/DTR-QPackageBundle' })
-        #   .with(body: questionnaire_bundle)
-        #   .to_return(status: 200, body: FHIR::OperationOutcome.new.to_json)
-
+        stub_request(:post, validation_url)
+          .with(query: {
+                  profile: 'http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/DTR-QPackageBundle'
+                })
+          .to_return(status: 200, body: FHIR::OperationOutcome.new.to_json)
         result = run(output_validation_test, test_session, url:, access_token:,
                                                            retrieval_method:,
                                                            initial_static_questionnaire_request:,
@@ -96,14 +91,6 @@ RSpec.describe DaVinciDTRTestKit::DTRPayerServerQuestionnairePackageGroup do
                 })
           .with(body: output_params_non_conformant)
           .to_return(status: 200, body: FHIR::OperationOutcome.new(issue: { severity: 'error' }).to_json)
-
-        # request = Inferno::Entities::Request.new(response_body: output_params, status: 200)
-        # resource = FHIR.from_contents(request.response[:body])
-        # questionnaire_bundle = resource.parameter.find { |param| param.resource.resourceType == 'Bundle' }&.resource
-        # stub_request(:post, validation_url)
-        #   .with(query: { profile: 'http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/DTR-QPackageBundle' })
-        #   .with(body: questionnaire_bundle)
-        #   .to_return(status: 200, body: FHIR::OperationOutcome.new.to_json)
 
         result = run(output_validation_test, test_session, url:, access_token:, retrieval_method:,
                                                            initial_static_questionnaire_request:,

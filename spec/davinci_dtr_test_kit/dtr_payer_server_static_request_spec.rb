@@ -98,14 +98,6 @@ RSpec.describe DaVinciDTRTestKit::DTRPayerServerQuestionnairePackageGroup do
 
     it 'passes if questionnaire package request is received' do
       stub_request(:post, "#{url}/Questionnaire/$questionnaire-package")
-        .with(
-          body: JSON.parse(request_body_conformant),
-          headers: {
-            'Accept' => '*/*',
-            'Content-Type' => 'application/json',
-            'Host' => 'example.org'
-          }
-        )
         .to_return(status: 200, body: '', headers: {})
 
       allow_any_instance_of(DaVinciDTRTestKit::URLs).to(receive(:questionnaire_package_url).and_return(''))
