@@ -5,10 +5,12 @@ require_relative 'payer_server_groups/payer_server_static_group'
 require_relative 'payer_server_groups/payer_server_adaptive_group'
 require_relative 'tags'
 require_relative 'mock_payer'
+require_relative 'mock_auth_server'
 require_relative 'version'
 
 module DaVinciDTRTestKit
   class DTRPayerServerSuite < Inferno::TestSuite
+    extend MockAuthServer
     extend MockPayer
 
     id :dtr_payer_server
@@ -104,16 +106,16 @@ module DaVinciDTRTestKit
 
     allow_cors QUESTIONNAIRE_PACKAGE_PATH, NEXT_PATH
 
-    record_response_route :post, TOKEN_PATH, 'dtr_auth', method(:token_response) do |request|
-      DTRPayerServerSuite.extract_client_id(request)
+    record_response_route :post, PAYER_TOKEN_PATH, 'dtr_payer_auth', method(:payer_token_response) do |request|
+      DTRPayerServerSuite.extract_client_id_from_form_params(request)
     end
 
-    record_response_route :post, '/fhir/Questionnaire/$questionnaire-package', QUESTIONNAIRE_TAG,
+    record_response_route :post, QUESTIONNAIRE_PACKAGE_PATH, QUESTIONNAIRE_TAG,
                           method(:payer_questionnaire_response), resumes: method(:test_resumes?) do |request|
       DTRPayerServerSuite.extract_bearer_token(request)
     end
 
-    record_response_route :post, '/fhir/Questionnaire/$next-question', NEXT_TAG,
+    record_response_route :post, NEXT_PATH, NEXT_TAG,
                           method(:questionnaire_next_response), resumes: method(:test_resumes?) do |request|
       DTRPayerServerSuite.extract_bearer_token(request)
     end

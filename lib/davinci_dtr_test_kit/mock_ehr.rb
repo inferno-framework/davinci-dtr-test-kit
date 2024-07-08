@@ -1,11 +1,13 @@
 # frozen_string_literal: true
 
+require_relative 'urls'
+
 module DaVinciDTRTestKit
   module MockEHR
     RESOURCE_SERVER_BASE = ENV.fetch('FHIR_REFERENCE_SERVER')
     RESOURCE_SERVER_BEARER_TOKEN = 'SAMPLE_TOKEN'
 
-    RESPONSE_HEADERS = { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' }.freeze
+    RESPONSE_HEADERS = { 'Content-Type' => 'application/json', 'Access-Control-Allow-Origin' => '*' }.freeze
 
     def resource_server_client
       return @resource_server_client if @resource_server_client
@@ -18,7 +20,7 @@ module DaVinciDTRTestKit
     def metadata_handler(_env)
       cs = resource_server_client.capability_statement
       if cs.present?
-        [200, { 'Content-Type' => 'application/json', 'Access-Control-Allow-Origin' => '*' }, [cs.to_json]]
+        [200, RESPONSE_HEADERS, [cs.to_json]]
       else
         [500, {}, ['Unexpected error occurred while fetching metadata']]
       end

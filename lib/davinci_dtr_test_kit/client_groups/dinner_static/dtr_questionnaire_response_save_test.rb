@@ -9,11 +9,11 @@ module DaVinciDTRTestKit
     description %(
       Inferno, acting as the EHR, will wait for a request to save the QuestionnaireResponse from the client.
     )
-    input :access_token
+    input :client_id
 
     run do
       wait(
-        identifier: access_token,
+        identifier: client_id,
         message: %(
           Complete the questionnaire, leaving the following items unmodified, because a subsequent test will expect
           their pre-populated values:

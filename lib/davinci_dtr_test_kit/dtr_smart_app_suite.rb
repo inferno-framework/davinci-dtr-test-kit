@@ -11,8 +11,9 @@ require_relative 'version'
 
 module DaVinciDTRTestKit
   class DTRSmartAppSuite < Inferno::TestSuite
-    extend MockPayer
+    extend MockAuthServer
     extend MockEHR
+    extend MockPayer
 
     id :dtr_smart_app
     title 'Da Vinci DTR SMART App Test Suite'
@@ -48,43 +49,64 @@ module DaVinciDTRTestKit
       end
     end
 
-    allow_cors QUESTIONNAIRE_PACKAGE_PATH, QUESTIONNAIRE_RESPONSE_PATH, FHIR_RESOURCE_PATH, FHIR_SEARCH_PATH
+    allow_cors QUESTIONNAIRE_PACKAGE_PATH, QUESTIONNAIRE_RESPONSE_PATH, FHIR_RESOURCE_PATH, FHIR_SEARCH_PATH,
+               EHR_AUTHORIZE_PATH, EHR_TOKEN_PATH
 
     route(:get, '/fhir/metadata', method(:metadata_handler))
 
-    record_response_route :post, TOKEN_PATH, 'dtr_auth', method(:token_response) do |request|
-      DTRSmartAppSuite.extract_client_id(request)
+    route(:get, SMART_CONFIG_PATH, method(:ehr_smart_config))
+
+    record_response_route :get, EHR_AUTHORIZE_PATH, 'dtr_smart_app_ehr_authorize', method(:ehr_authorize),
+                          resumes: ->(_) { false } do |request|
+      DTRSmartAppSuite.extract_client_id_from_query_params(request)
+    end
+
+    record_response_route :post, EHR_AUTHORIZE_PATH, 'dtr_smart_app_authorize', method(:ehr_authorize),
+                          resumes: ->(_) { false } do |request|
+      DTRSmartAppSuite.extract_client_id_from_form_params(request)
+    end
+
+    record_response_route :post, EHR_TOKEN_PATH, 'dtr_smart_app_ehr_token', method(:ehr_token_response),
+                          resumes: ->(_) { false } do |request|
+      DTRSmartAppSuite.extract_client_id_from_client_assertion(request)
+    end
+
+    record_response_route :post, PAYER_TOKEN_PATH, 'dtr_smart_app_payer_token',
+                          method(:payer_token_response) do |request|
+      DTRSmartAppSuite.extract_client_id_from_client_assertion(request)
     end
 
     record_response_route :post, QUESTIONNAIRE_PACKAGE_PATH, QUESTIONNAIRE_PACKAGE_TAG,
                           method(:questionnaire_package_response), resumes: ->(_) { false } do |request|
-      DTRSmartAppSuite.extract_bearer_token(request)
+      DTRSmartAppSuite.extract_client_id_from_bearer_token(request)
     end
 
     record_response_route :post, QUESTIONNAIRE_RESPONSE_PATH, 'dtr_smart_app_questionnaire_response',
                           method(:questionnaire_response_response) do |request|
-      DTRSmartAppSuite.extract_bearer_token(request)
+      DTRSmartAppSuite.extract_client_id_from_bearer_token(request)
     end
 
     record_response_route :get, FHIR_RESOURCE_PATH, SMART_APP_EHR_REQUEST_TAG, method(:get_fhir_resource),
                           resumes: ->(_) { false } do |request|
-      DTRSmartAppSuite.extract_bearer_token(request)
+      DTRSmartAppSuite.extract_client_id_from_bearer_token(request)
     end
 
     record_response_route :get, FHIR_SEARCH_PATH, SMART_APP_EHR_REQUEST_TAG, method(:get_fhir_resource),
                           resumes: ->(_) { false } do |request|
-      DTRSmartAppSuite.extract_bearer_token(request)
+      DTRSmartAppSuite.extract_client_id_from_bearer_token(request)
     end
 
     resume_test_route :get, RESUME_PASS_PATH do |request|
-      DTRSmartAppSuite.extract_token_from_query_params(request)
+      DTRSmartAppSuite.extract_client_id_from_query_params(request)
     end
 
     resume_test_route :get, RESUME_FAIL_PATH, result: 'fail' do |request|
-      DTRSmartAppSuite.extract_token_from_query_params(request)
+      DTRSmartAppSuite.extract_client_id_from_query_params(request)
     end
 
-    group from: :oauth2_authentication
+    # TODO: Update based on SMART Launch changes. Do we even want to have this group now?
+    # group from: :oauth2_authentication
+
     group do
       id :dtr_smart_app_basic_workflows
       title 'Basic Workflows'

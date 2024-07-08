@@ -1,20 +1,20 @@
 require_relative '../../urls'
 
 module DaVinciDTRTestKit
-  class DTRQuestionnairePackageRequestTest < Inferno::Test
+  class DTRDinnerQuestionnairePackageRequestTest < Inferno::Test
     include URLs
 
-    id :dtr_questionnaire_package_request
+    id :dtr_dinner_questionnaire_package_request
     title 'Invoke the DTR Questionnaire Package operation'
     description %(
       Inferno will wait for a DTR questionnaire package request from the client. Upon receipt, Inferno will generate and
       send a response.
     )
-    input :access_token
+    input :client_id
 
     run do
       wait(
-        identifier: access_token,
+        identifier: client_id,
         message: %(
           Invoke the DTR Questionnaire Package operation by sending a POST request to
 

@@ -1,4 +1,4 @@
-require_relative '../shared/dtr_questionnaire_package_request_test'
+require_relative 'dtr_dinner_questionnaire_package_request_test'
 require_relative '../shared/dtr_questionnaire_package_request_validation_test'
 require_relative 'prepopulation_attestation_test'
 require_relative 'prepopulation_override_attestation_test'
@@ -36,7 +36,7 @@ module DaVinciDTRTestKit
       run_as_group
 
       # Test 1: wait for the $questionnaire-package request
-      test from: :dtr_questionnaire_package_request
+      test from: :dtr_dinner_questionnaire_package_request
       # Test 2: validate the $questionnaire-package body
       test from: :dtr_questionnaire_package_request_validation
     end
