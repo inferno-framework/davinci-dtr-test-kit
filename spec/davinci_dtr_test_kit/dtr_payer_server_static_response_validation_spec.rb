@@ -9,7 +9,7 @@ RSpec.describe DaVinciDTRTestKit::DTRPayerServerQuestionnairePackageGroup do
                   'Static', # retrieval_method
                   'http://example.org/fhir/R4') # url
 
-  let(:validation_url) { "#{ENV.fetch('VALIDATOR_URL')}/validate" }
+  let(:validation_url) { "#{ENV.fetch('FHIR_RESOURCE_VALIDATOR_URL')}/validate" }
 
   context 'when initial request/response is manually provided' do
     let(:initial_static_questionnaire_request) do
@@ -28,7 +28,7 @@ RSpec.describe DaVinciDTRTestKit::DTRPayerServerQuestionnairePackageGroup do
           include DaVinciDTRTestKit::ValidationTest
 
           validator do
-            url ENV.fetch('VALIDATOR_URL')
+            url ENV.fetch('FHIR_RESOURCE_VALIDATOR_URL')
           end
 
           input :url, :access_token, :retrieval_method, :initial_static_questionnaire_request, :output_params
