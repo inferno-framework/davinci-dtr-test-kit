@@ -39,7 +39,7 @@ module DaVinciDTRTestKit
         skip_if initial_static_questionnaire_request.nil?, 'No request resource was provided - required for manual flow'
         assert_valid_json(initial_static_questionnaire_request)
         request = FHIR.from_contents(initial_static_questionnaire_request)
-        assert assert_valid_resource(resource: request, profile_url: 'http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/dtr-qpackage-input-parameters')
+        assert_valid_resource(resource: request, profile_url: 'http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/dtr-qpackage-input-parameters')
       end
     rescue Inferno::Exceptions::AssertionException => e
       msg = e.message.to_s.strip
