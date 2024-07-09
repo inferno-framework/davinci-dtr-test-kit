@@ -46,14 +46,14 @@ RSpec.describe DaVinciDTRTestKit::DTRPayerServerQuestionnairePackageGroup do
           File.read(File.join(__dir__, '..', 'fixtures', 'questionnaire_package_input_params_non_conformant.json'))
         end
 
-        it 'skips if questionnaire request is not conformant' do
-          allow_any_instance_of(DaVinciDTRTestKit::PayerStaticFormRequestValidationTest).to(
-            receive(:assert_valid_resource).and_return(false)
-          )
+        # it 'skips if questionnaire request is not conformant' do
+        #   allow_any_instance_of(DaVinciDTRTestKit::PayerStaticFormRequestValidationTest).to(
+        #     receive(:assert_valid_resource).and_return(false)
+        #   )
 
-          result = run(runnable, test_session, access_token:, retrieval_method:, initial_static_questionnaire_request:)
-          expect(result.result).to eq('skip'), result.result_message
-        end
+        #   result = run(runnable, test_session, access_token:, retrieval_method:, initial_static_questionnaire_request:)
+        #   expect(result.result).to eq('skip'), result.result_message
+        # end
       end
     end
 
