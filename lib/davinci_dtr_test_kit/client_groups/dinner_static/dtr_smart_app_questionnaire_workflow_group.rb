@@ -25,6 +25,18 @@ module DaVinciDTRTestKit
          and manually-entered data.
     )
 
+    input :static_dinner_available_instances,
+          optional: true,
+          title: 'EHR-available instances (static dinner)',
+          description: %(
+            Instances available from the EHR needed to drive the static dinner
+            questionnaire workflow. Formatted as a FHIR bundle that contains
+            instances, each with an `id` property populated. Each instance present
+            will be available for retrieval at the endpoint 
+            `somethinghere/[resource type]/[instance id].`
+          ),
+          type: 'textarea'
+
     group do
       id :dtr_static_questionnaire_retrieval
       title 'Retrieving the Static Questionnaire'
