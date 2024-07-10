@@ -26,7 +26,7 @@ module DaVinciDTRTestKit
       end
     end
 
-    def get_fhir_resource(request, _test = nil, _test_result = nil)
+    def get_fhir_resource(request, _test = nil, test_result = nil)
       resource_type, id = resource_type_and_id_from_url(request.url)
       request.response_headers = RESPONSE_HEADERS
 
@@ -36,23 +36,44 @@ module DaVinciDTRTestKit
         resource_type = nil
       end
 
-      if resource_type.present?
-        response = if id.present?
-                     resource_server_client.read(fhir_class, id)
-                   else
-                     resource_server_client.search(fhir_class, search: { parameters: request.query_parameters })
-                   end
-        request.status = response.code
-        request.response_body = response.body
-      else
-        request.status = 400
-        request.response_headers = { 'Content-Type': 'application/json' }
-        request.response_body = FHIR::OperationOutcome.new(
-          issue: FHIR::OperationOutcome::Issue.new(severity: 'warning', code: 'not-supported',
-                                                   details: FHIR::CodeableConcept.new(
-                                                     text: 'No recognized resource type in URL'
-                                                   ))
-        ).to_json
+      instance_found = false
+      if resource_type.present? && id.present?
+        ehr_instances_input = JSON.parse(test_result.input_json).find { |input| input['name'].include?('available_instances') }
+        if ehr_instances_input.present?
+          ehr_instances_bundle = FHIR.from_contents(ehr_instances_input['value'])
+          if (ehr_instances_bundle.present? && ehr_instances_bundle.is_a?(FHIR::Bundle))
+            target_instance_entry = ehr_instances_bundle.entry.find { |entry| 
+              entry.resource.is_a?(fhir_class) && entry.resource.id = id}
+            if target_instance_entry
+              instance_found = true
+              request.status = 400
+              request.response_headers = { 'Content-Type': 'application/json' }
+              request.response_body = target_instance_entry.resource.to_json
+            end
+          end
+        end
+      end
+
+      if !instance_found
+        if resource_type.present?
+          response = 
+            if id.present?
+              resource_server_client.read(fhir_class, id)
+            else
+              resource_server_client.search(fhir_class, search: { parameters: request.query_parameters })
+            end
+          request.status = response.code
+          request.response_body = response.body
+        else
+          request.status = 400
+          request.response_headers = { 'Content-Type': 'application/json' }
+          request.response_body = FHIR::OperationOutcome.new(
+            issue: FHIR::OperationOutcome::Issue.new(severity: 'warning', code: 'not-supported',
+                                                    details: FHIR::CodeableConcept.new(
+                                                      text: 'No recognized resource type in URL'
+                                                    ))
+          ).to_json
+        end
       end
     end
 
