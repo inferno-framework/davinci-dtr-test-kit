@@ -68,7 +68,7 @@ module DaVinciDTRTestKit
 
     record_response_route :post, EHR_TOKEN_PATH, 'dtr_smart_app_ehr_token', method(:ehr_token_response),
                           resumes: ->(_) { false } do |request|
-      DTRSmartAppSuite.extract_client_id_from_client_assertion(request)
+      DTRSmartAppSuite.extract_client_id_from_token_request(request)
     end
 
     record_response_route :post, PAYER_TOKEN_PATH, 'dtr_smart_app_payer_token',

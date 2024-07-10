@@ -25,6 +25,8 @@ module DaVinciDTRTestKit
             'launch-ehr',
             'permission-patient',
             'permission-user',
+            'client-public',
+            'client-confidential-symmetric',
             'client-confidential-asymmetric'
           ]
         }.to_json
@@ -54,7 +56,7 @@ module DaVinciDTRTestKit
     end
 
     def ehr_token_response(request, _test = nil, test_result = nil)
-      client_id = extract_client_id_from_client_assertion(request)
+      client_id = extract_client_id_from_token_request(request)
       token = JWT.encode({ client_id: }, nil, 'none')
       smart_app_launch = JSON.parse(test_result.input_json).find { |input| input['name'] == 'smart_app_launch' }
       response = { access_token: token, token_type: 'bearer', expires_in: 300 }
@@ -74,14 +76,31 @@ module DaVinciDTRTestKit
       request.status = 200
     end
 
+    def extract_client_id_from_token_request(request)
+      # Public client || confidential client asymmetric || confidential client symmetric
+      extract_client_id_from_form_params(request) ||
+        extract_client_id_from_client_assertion(request) ||
+        extract_client_id_from_basic_auth(request)
+    end
+
     def extract_client_id_from_form_params(request)
       URI.decode_www_form(request.request_body).to_h['client_id']
     end
 
     def extract_client_id_from_client_assertion(request)
       encoded_jwt = URI.decode_www_form(request.request_body).to_h['client_assertion']
+      return unless encoded_jwt.present?
+
       jwt_payload = JWT.decode(encoded_jwt, nil, false)&.first # skip signature verification
-      jwt_payload['iss'] || jwt_payload['sub']
+      jwt_payload['iss'] || jwt_payload['sub'] if jwt_payload.present?
+    end
+
+    def extract_client_id_from_basic_auth(request)
+      encoded_credentials = request.request_header('Authorization')&.value&.split&.last
+      return unless encoded_credentials.present?
+
+      decoded_credentials = Base64.decode64(encoded_credentials)
+      decoded_credentials&.split(':')&.first
     end
 
     def extract_client_id_from_query_params(request)
