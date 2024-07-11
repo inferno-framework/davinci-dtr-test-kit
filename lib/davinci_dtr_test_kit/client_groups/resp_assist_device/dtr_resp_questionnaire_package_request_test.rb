@@ -16,6 +16,13 @@ module DaVinciDTRTestKit
                                                        { label: 'Launch from EHR', value: 'ehr' }] }
     input :client_id
     input :launch_uri, optional: true, description: 'Required if "Launch from Inferno" is selected'
+    input :ehr_bundle, optional: true, title: 'EHR-available resources (Respiratory Assist Device)', type: 'textarea',
+                       description: %(
+                         Resources available from the EHR needed to drive the respiratory assist device workflow.
+                         Formatted as a FHIR bundle that contains resources, each with an `id` property populated. Each
+                         instance present will be available for retrieval at the endpoint
+                         `[fhir-base]/[resource type]/[instance id].`
+                       )
 
     run do
       launch_prompt = if smart_app_launch == 'inferno'
