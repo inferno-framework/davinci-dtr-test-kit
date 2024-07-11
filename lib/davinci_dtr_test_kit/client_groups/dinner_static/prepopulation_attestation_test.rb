@@ -21,7 +21,7 @@ module DaVinciDTRTestKit
 
           [Click here](#{resume_pass_url}?client_id=#{client_id}) if the above statement is **true**.
 
-          [Click here](#{resume_fail_url}?client_id=#{access_client_id}) if the above statement is **false**.
+          [Click here](#{resume_fail_url}?client_id=#{client_id}) if the above statement is **false**.
         )
       )
     end
