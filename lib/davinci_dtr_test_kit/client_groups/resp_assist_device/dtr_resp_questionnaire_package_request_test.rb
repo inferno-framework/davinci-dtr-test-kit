@@ -20,9 +20,22 @@ module DaVinciDTRTestKit
                        description: %(
                          Resources available from the EHR needed to drive the respiratory assist device workflow.
                          Formatted as a FHIR bundle that contains resources, each with an `id` property populated. Each
-                         instance present will be available for retrieval at the endpoint
+                         instance present will be available for retrieval from Inferno at the endpoint
                          `[fhir-base]/[resource type]/[instance id].`
                        )
+    input :smart_fhir_context, optional: true, title: 'SMART App Launch fhirContext (Respiratory Assist Device)',
+                               type: 'textarea',
+                               description: %(
+                                 References to be provided by Inferno as the `fhirContext` as a part of the SMART app
+                                 launch. These references help determine the behavior of the app. Referenced instances
+                                 may be providedin the "EHR-available resources" input.
+                               )
+    input :smart_patient_id, optional: true, title: 'SMART App Launch Patient ID (Respiratory Assist Device)',
+                             type: 'text',
+                             description: %(
+                               Patient instance id to be provided by Inferno as the `patient` as a part of the SMART app
+                               launch.
+                             )
 
     run do
       launch_prompt = if smart_app_launch == 'inferno'

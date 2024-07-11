@@ -58,12 +58,25 @@ module DaVinciDTRTestKit
     def ehr_token_response(request, _test = nil, test_result = nil)
       client_id = extract_client_id_from_token_request(request)
       token = JWT.encode({ client_id: }, nil, 'none')
-      smart_app_launch = JSON.parse(test_result.input_json).find { |input| input['name'] == 'smart_app_launch' }
       response = { access_token: token, token_type: 'bearer', expires_in: 300 }
-      if smart_app_launch.present?
-        # When Test Kit supports more than one questionnaire with SMART Launch, this will have to become more dynamic
-        response.merge!({ patient: 'pat015', fhirContext: [{ reference: 'Coverage/cov015' },
-                                                           { reference: 'DeviceRequest/devreqe0470' }] })
+      test_input = JSON.parse(test_result.input_json)
+      smart_app_launch_input = test_input.find { |input| input['name'] == 'smart_app_launch' }
+
+      if smart_app_launch_input.present? && smart_app_launch_input['value'] == 'inferno'
+        fhir_context_input = test_input.find { |input| input['name'] == 'smart_fhir_context' }
+        fhir_context_input_value = fhir_context_input['value'] if fhir_context_input.present?
+        # When the test kit supports more than one questionnaire with SMART Launch, this will have to become more
+        # dynamic
+        fhir_context = fhir_context_input_value || [
+          { reference: 'Coverage/cov015' },
+          { reference: 'DeviceRequest/devreqe0470' }
+        ]
+
+        smart_patient_input = test_input.find { |input| input['name'] == 'smart_patient_id' }
+        smart_patient_input_value = smart_patient_input['value'] if smart_patient_input.present?
+        smart_patient = smart_patient_input_value || 'pat015'
+
+        response.merge!({ patient: smart_patient, fhirContext: fhir_context })
       end
       request.response_body = response.to_json
       request.response_headers = { 'Access-Control-Allow-Origin' => '*' }
