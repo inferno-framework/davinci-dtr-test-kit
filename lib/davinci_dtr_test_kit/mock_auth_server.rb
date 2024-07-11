@@ -61,9 +61,27 @@ module DaVinciDTRTestKit
       smart_app_launch = JSON.parse(test_result.input_json).find { |input| input['name'] == 'smart_app_launch' }
       response = { access_token: token, token_type: 'bearer', expires_in: 300 }
       if smart_app_launch.present?
-        # When Test Kit supports more than one questionnaire with SMART Launch, this will have to become more dynamic
-        response.merge!({ patient: 'pat015', fhirContext: [{ reference: 'Coverage/cov015' },
-                                                           { reference: 'DeviceRequest/devreqe0470' }] })
+        
+        fhir_context_input = JSON.parse(test_result.input_json).find { |input| input['name'] == 'smart_fhir_context' }
+        fhir_context = 
+          if fhir_context_input.present?
+            fhir_context_input
+          else
+            [
+              { reference: 'Coverage/cov015' }, 
+              { reference: 'DeviceRequest/devreqe0470' }
+            ]
+          end
+        
+        smart_patient_input = JSON.parse(test_result.input_json).find { |input| input['name'] == 'smart_patient_id' }
+        smart_patient = 
+          if smart_patient_input.present?
+            smart_patient_input
+          else
+             'pat015'
+          end
+        
+        response.merge!({ patient: smart_patient, fhirContext: fhir_context })
       end
       request.response_body = response.to_json
       request.response_headers = { 'Access-Control-Allow-Origin' => '*' }
