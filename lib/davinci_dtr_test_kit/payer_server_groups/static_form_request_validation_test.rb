@@ -5,7 +5,7 @@ module DaVinciDTRTestKit
     include DaVinciDTRTestKit::ValidationTest
     include URLs
     id :dtr_v201_payer_static_form_request_validation_test
-    title '[USER INPUT VALIDATION] Client sends payer server a request for a static form'
+    title 'User Input Validation:  Client sends payer server a request for a static form'
     description %(
       Inferno will validate that the request to the payer server conforms to the
        [Input Parameters profile](http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/dtr-qpackage-input-parameters).
