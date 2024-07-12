@@ -57,16 +57,14 @@ module DaVinciDTRTestKit
 
     def ehr_token_response(request, _test = nil, test_result = nil)
       client_id = extract_client_id_from_token_request(request)
-      token = JWT.encode({ client_id: }, nil, 'none')
-      response = { access_token: token, token_type: 'bearer', expires_in: 300 }
+      token = JWT.encode({ inferno_client_id: client_id }, nil, 'none')
+      response = { access_token: token, token_type: 'bearer', expires_in: 3600 }
       test_input = JSON.parse(test_result.input_json)
       smart_app_launch_input = test_input.find { |input| input['name'] == 'smart_app_launch' }
 
       if smart_app_launch_input.present? && smart_app_launch_input['value'] == 'inferno'
         fhir_context_input = test_input.find { |input| input['name'] == 'smart_fhir_context' }
         fhir_context_input_value = fhir_context_input['value'] if fhir_context_input.present?
-        # When the test kit supports more than one questionnaire with SMART Launch, this will have to become more
-        # dynamic
         fhir_context = fhir_context_input_value || [
           { reference: 'Coverage/cov015' },
           { reference: 'DeviceRequest/devreqe0470' }
@@ -85,7 +83,7 @@ module DaVinciDTRTestKit
 
     def payer_token_response(request, _test = nil, _test_result = nil)
       # Placeholder for a more complete mock token endpoint
-      request.response_body = { access_token: SecureRandom.hex, token_type: 'bearer', expires_in: 300 }.to_json
+      request.response_body = { access_token: SecureRandom.hex, token_type: 'bearer', expires_in: 3600 }.to_json
       request.status = 200
     end
 
@@ -122,7 +120,7 @@ module DaVinciDTRTestKit
 
     def extract_client_id_from_bearer_token(request)
       token = extract_bearer_token(request)
-      JWT.decode(token, nil, false)&.first&.dig('client_id')
+      JWT.decode(token, nil, false)&.first&.dig('inferno_client_id')
     end
 
     # Header expected to be a bearer token of the form "Bearer: <token>"
