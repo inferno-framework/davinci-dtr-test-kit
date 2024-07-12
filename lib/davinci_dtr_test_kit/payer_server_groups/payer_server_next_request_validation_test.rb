@@ -49,7 +49,7 @@ module DaVinciDTRTestKit
           using_manual_entry
         )
       else
-        messages << { type: 'eror',
+        messages << { type: 'error',
         message: format_markdown("No resources were of type 'Parameters' or 'QuestionnaireResponse'") }
       end
       errors_found = messages.any? { |message| message[:type] == 'error' }
