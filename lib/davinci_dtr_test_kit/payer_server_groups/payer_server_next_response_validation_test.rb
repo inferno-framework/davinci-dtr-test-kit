@@ -15,7 +15,6 @@ module DaVinciDTRTestKit
       the valueset.
 
       This test may process multiple resources, labeling messages with the corresponding tested resources
-      This test may process multiple resources, labeling messages with the corresponding tested resources
       in the order that they were received.
     )
 
@@ -38,6 +37,9 @@ module DaVinciDTRTestKit
         :questionnaireResponse,
         'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaireresponse'
       )
+      errors_found = messages.any? { |message| message[:type] == 'error' }
+      skip_if errors_found, "No resources conform to the profiles http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaireresponse-adapt
+        or http://hl7.org/fhir/uv/sdc/StructureDefinition/parameters-questionnaire-next-question-in"
     end
   end
 end

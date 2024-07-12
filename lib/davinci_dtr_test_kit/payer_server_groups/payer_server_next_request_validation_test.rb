@@ -49,13 +49,11 @@ module DaVinciDTRTestKit
           using_manual_entry
         )
       else
-        messages << { type: 'warning',
-        message: format_markdown("Resource does not conform to the either
-        #  accepted profiles: http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaireresponse-adapt
-        #  or http://hl7.org/fhir/uv/sdc/StructureDefinition/parameters-questionnaire-next-question-in") }
+        messages << { type: 'eror',
+        message: format_markdown("No resources were of type 'Parameters' or 'QuestionnaireResponse'") }
       end
       errors_found = messages.any? { |message| message[:type] == 'error' }
-      skip_if errors_found, "Resource does not conform to the profiles http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaireresponse-adapt
+      skip_if errors_found, "No resources conform to the profiles http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaireresponse-adapt
         or http://hl7.org/fhir/uv/sdc/StructureDefinition/parameters-questionnaire-next-question-in"
     end
   end

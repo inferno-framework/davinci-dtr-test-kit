@@ -21,7 +21,7 @@ module DaVinciDTRTestKit
     run do
       skip_if retrieval_method == 'Static', 'Performing only static flow tests - only one flow is required.'
       test_passed = false
-      profile_url = 'http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/DTR-QPackageBundle'
+      profile_url = 'http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/DTR-QPackageBundle|2.0.1'
       assert !scratch[:adaptive_responses].nil?, 'No resources to validate.'
       scratch[:adaptive_responses].each_with_index do |resource, index|
         fhir_resource = FHIR.from_contents(resource.response[:body])
@@ -32,9 +32,7 @@ module DaVinciDTRTestKit
           next
         end
       end
-      raise tests_failed[profile_url][0] if !test_passed && !tests_failed[profile_url].blank?
-
-      messages.clear if test_passed
+      raise assert test_passed, "No returned resources conform to the profile: #{profile_url}" if !test_passed && !tests_failed[profile_url].blank?
     end
   end
 end
