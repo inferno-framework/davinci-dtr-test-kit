@@ -29,7 +29,7 @@ RSpec.describe DaVinciDTRTestKit::DTRQuestionnaireRenderingGroup do
   describe 'Behavior of questionnaire rendering attestation test' do
     let(:runnable) { group.tests.find { |test| test.id.to_s.end_with? 'dtr_questionnaire_rendering_attestation' } }
     let(:results_repo) { Inferno::Repositories::Results.new }
-    let(:access_token) { '1234' }
+    let(:client_id) { '1234' }
 
     it 'passes if affirmative attestation is given' do
       # For some reason it seems to completely ignore an allow...receive for resume_pass_url, so do this instead
@@ -41,10 +41,10 @@ RSpec.describe DaVinciDTRTestKit::DTRQuestionnaireRenderingGroup do
       repo_create(:request, result_id: result.id, name: 'questionnaire_package', request_body: nil,
                             test_session_id: test_session.id, tags: [DaVinciDTRTestKit::QUESTIONNAIRE_PACKAGE_TAG])
 
-      result = run(runnable, test_session, access_token:)
+      result = run(runnable, test_session, client_id:)
       expect(result.result).to eq('wait')
 
-      get("#{resume_pass_url}?token=#{access_token}")
+      get("#{resume_pass_url}?client_id=#{client_id}")
 
       result = results_repo.find(result.id)
       expect(result.result).to eq('pass')
@@ -60,10 +60,10 @@ RSpec.describe DaVinciDTRTestKit::DTRQuestionnaireRenderingGroup do
       repo_create(:request, result_id: result.id, name: 'questionnaire_package', request_body: nil,
                             test_session_id: test_session.id, tags: [DaVinciDTRTestKit::QUESTIONNAIRE_PACKAGE_TAG])
 
-      result = run(runnable, test_session, access_token:)
+      result = run(runnable, test_session, client_id:)
       expect(result.result).to eq('wait')
 
-      get("#{resume_fail_url}?token=#{access_token}")
+      get("#{resume_fail_url}?client_id=#{client_id}")
 
       result = results_repo.find(result.id)
       expect(result.result).to eq('fail')
