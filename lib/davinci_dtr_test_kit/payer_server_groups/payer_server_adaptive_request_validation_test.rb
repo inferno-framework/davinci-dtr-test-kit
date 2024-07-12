@@ -21,6 +21,7 @@ module DaVinciDTRTestKit
 
     run do
       skip_if retrieval_method == 'Static', 'Performing only static flow tests - only one flow is required.'
+      profile_with_version = 'http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/dtr-qpackage-input-parameters|2.0.1'
       if initial_adaptive_questionnaire_request.nil?
         resources = load_tagged_requests(QUESTIONNAIRE_TAG)
         using_manual_entry = false
@@ -32,13 +33,12 @@ module DaVinciDTRTestKit
       perform_request_validation_test(
         resources,
         :parameters,
-        'http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/dtr-qpackage-input-parameters',
+        profile_with_version,
         questionnaire_package_url,
         using_manual_entry
       )
-    rescue Inferno::Exceptions::AssertionException => e
-      msg = e.message.to_s.strip
-      skip msg
+      errors_found = messages.any? { |message| message[:type] == 'error' }
+      skip_if errors_found, "Resource does not conform to the profile #{profile_with_version}"
     end
   end
 end
