@@ -14,9 +14,6 @@ module DaVinciDTRTestKit
        values. CodeableConcept element bindings will fail if none of their codings have a code/system belonging
        to the bound ValueSet. Quantity, Coding, and code element bindings will fail if their code/system
        are not found in the valueset.
-
-       This test may process multiple resources, labeling messages with the corresponding tested resources
-       in the order that they were received.
     )
     input :initial_static_questionnaire_request, :access_token, :retrieval_method
 
@@ -24,17 +21,11 @@ module DaVinciDTRTestKit
       skip_if retrieval_method == 'Adaptive', 'Performing only adaptive flow tests - only one flow is required.'
       profile_with_version = 'http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/dtr-qpackage-input-parameters|2.0.1'
       if initial_static_questionnaire_request.nil?
-        using_manual_entry = false
         skip_if access_token.nil?, 'No access token provided - required for client flow.'
-        resources = load_tagged_requests(QUESTIONNAIRE_TAG)
-        skip_if resources.blank?, 'No request resource received from the client.'
-        perform_request_validation_test(
-          resources,
-          :parameters,
-          profile_with_version,
-          questionnaire_package_url,
-          using_manual_entry
-        )
+        requests = load_tagged_requests(QUESTIONNAIRE_TAG)
+        skip_if requests.blank?, 'No request resource received from the client.'
+        # making the assumption that only one request was made here - if there were multiple, we are only validating the first
+        resource_is_valid?(resource: FHIR.from_contents(requests[0].request[:body]), profile_url: profile_with_version)
       else
         request = FHIR.from_contents(initial_static_questionnaire_request)
         resource_is_valid?(resource: request, profile_url: profile_with_version)

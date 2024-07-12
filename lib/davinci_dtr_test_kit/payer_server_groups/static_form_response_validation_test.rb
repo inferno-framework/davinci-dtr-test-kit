@@ -15,23 +15,19 @@ module DaVinciDTRTestKit
       to the bound ValueSet. Quantity, Coding, and code element bindings will fail if their code/system are not found in
       the valueset.
 
-      This test may process multiple resources, labeling messages with the corresponding tested resources
-      in the order that they were received.
     )
     input :url
 
     run do
       skip_if retrieval_method == 'Adaptive', 'Performing only adaptive flow tests - only one flow is required.'
+      profile_with_version = 'http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/dtr-qpackage-output-parameters|2.0.1'
       if initial_static_questionnaire_request.nil?
         skip_if access_token.nil?, 'No access token provided - required for client flow.'
         resources = load_tagged_requests(QUESTIONNAIRE_TAG)
         skip_if resources.nil?, 'No request resource received from the client.'
         scratch[:output_parameters] = resources
-        perform_response_validation_test(
-          resources,
-          :parameters,
-          'http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/dtr-qpackage-output-parameters'
-        )
+        # making the assumption that only one response was received- if there were multiple, we are only validating the first
+        resource_is_valid?(resource: FHIR.from_contents(resources[0].request[:body]), profile_url: profile_with_version)
       else
         request = fhir_operation("#{url}/Questionnaire/$questionnaire-package",
                                  body: JSON.parse(initial_static_questionnaire_request),
@@ -41,14 +37,10 @@ module DaVinciDTRTestKit
         scratch[:output_parameters] = resource
         assert_response_status([200, 201], response: request.response)
         assert_resource_type(:parameters, resource:)
-        perform_response_validation_test(
-          [request],
-          :parameters,
-          'http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/dtr-qpackage-output-parameters'
-        )
+        resource_is_valid?(resource: resource, profile_url: profile_with_version)
         questionnaire_bundle = resource.parameter.find { |param| param.resource.resourceType == 'Bundle' }&.resource
         assert questionnaire_bundle, 'No questionnaire bundle found in the response'
-        assert_valid_resource(resource: questionnaire_bundle, profile_url: 'http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/DTR-QPackageBundle')
+        assert_valid_resource(resource: questionnaire_bundle, profile_url: 'http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/DTR-QPackageBundle|2.0.1')
       end
     end
   end

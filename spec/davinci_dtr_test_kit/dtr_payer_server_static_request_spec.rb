@@ -52,6 +52,12 @@ RSpec.describe DaVinciDTRTestKit::DTRPayerServerQuestionnairePackageGroup do
           receive(:resource_is_valid?).and_return(true)
         )
 
+        stub_request(:post, validation_url)
+          .with(query: {
+                  profile: 'http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/dtr-qpackage-input-parameters|2.0.1'
+                })
+          .to_return(status: 200, body: FHIR::OperationOutcome.new.to_json)
+
         result = run(runnable, test_session, access_token:, retrieval_method:, initial_static_questionnaire_request:)
         expect(result.result).to eq('pass'), result.result_message
       end
@@ -66,6 +72,8 @@ RSpec.describe DaVinciDTRTestKit::DTRPayerServerQuestionnairePackageGroup do
         end
 
         it 'skips if questionnaire request is not conformant' do
+          
+
           result = run(input_validation_test, test_session, access_token:, retrieval_method:, initial_static_questionnaire_request:)
           expect(result.result).to eq('skip'), result.result_message
         end
@@ -135,7 +143,6 @@ RSpec.describe DaVinciDTRTestKit::DTRPayerServerQuestionnairePackageGroup do
     describe 'static questionnaire package request validation test' do
       let(:runnable) { group.tests.find { |test| test.id.to_s.end_with? 'static_form_request_validation_test' } }
       let(:results_repo) { Inferno::Repositories::Results.new }
-      let(:validation_url) { "#{ENV.fetch('FHIR_RESOURCE_VALIDATOR_URL')}/validate" }
 
       it 'skips when access_token is nil' do
         result = run(runnable, test_session, retrieval_method:)
@@ -146,21 +153,13 @@ RSpec.describe DaVinciDTRTestKit::DTRPayerServerQuestionnairePackageGroup do
         allow_any_instance_of(DaVinciDTRTestKit::URLs).to(receive(:questionnaire_package_url).and_return(
                                                             questionnaire_package_url
                                                           ))
-        runnable.validator do
-          url ENV.fetch('FHIR_RESOURCE_VALIDATOR_URL')
-        end
-
-        stub_request(:post, validation_url)
-          .with(query: {
-                  profile: 'http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/dtr-qpackage-input-parameters|2.0.1'
-                })
-          .to_return(status: 200, body: FHIR::OperationOutcome.new.to_json)
 
         result = repo_create(:result, test_session_id: test_session.id)
         repo_create(:request, result_id: result.id, name: 'questionnaire_package', url: questionnaire_package_url,
                               request_body: request_body_conformant, test_session_id: test_session.id,
                               tags: [DaVinciDTRTestKit::QUESTIONNAIRE_TAG])
 
+        allow_any_instance_of(runnable).to receive(:resource_is_valid?).and_return(true)
         result = run(runnable, test_session, access_token:, retrieval_method:)
         expect(result.result).to eq('pass'), result.result_message
       end
@@ -169,10 +168,21 @@ RSpec.describe DaVinciDTRTestKit::DTRPayerServerQuestionnairePackageGroup do
         allow_any_instance_of(DaVinciDTRTestKit::URLs).to(receive(:questionnaire_package_url).and_return(
                                                             questionnaire_package_url
                                                           ))
+        
         result = repo_create(:result, test_session_id: test_session.id)
         repo_create(:request, result_id: result.id, name: 'questionnaire_package', url: questionnaire_package_url,
                               request_body: request_body_non_conformant, test_session_id: test_session.id,
                               tags: [DaVinciDTRTestKit::QUESTIONNAIRE_TAG])
+
+        runnable.validator do
+          url ENV.fetch('FHIR_RESOURCE_VALIDATOR_URL')
+        end
+
+        stub_request(:post, validation_url)
+          .with(query: {
+                  profile: 'http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/dtr-qpackage-input-parameters|2.0.1'
+                })
+          .to_return(status: 200, body: FHIR::OperationOutcome.new(issue: { severity: 'error' }).to_json)
 
         result = run(runnable, test_session, access_token:, retrieval_method:)
         expect(result.result).to eq('skip'), result.result_message
