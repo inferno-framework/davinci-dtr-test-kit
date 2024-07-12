@@ -36,21 +36,29 @@ module DaVinciDTRTestKit
       validate_cql_executed(questionnaire_response.item, questionnaire_cql_expression_link_ids,
                             template_prepopulation_expectations, template_override_expectations, validation_errors)
 
+      if template_prepopulation_expectations.size > 0
+        validation_errors << "Items expected to be pre-populated not found: #{template_prepopulation_expectations.keys.join(', ')}"
+      end
+
+      if template_override_expectations.size > 0
+        validation_errors << "Items expected to be pre-poplated and overridden not found: #{template_override_expectations.keys.join(', ')}"
+      end
+
       validation_errors.each { |msg| messages << { type: 'error', message: msg } }
       assert validation_errors.blank?, 'QuestionnaireResponse is not conformant. Check messages for issues found.'
     end
 
     def validate_cql_executed(actual_items, questionnaire_cql_expression_link_ids, template_prepopulation_expectations,
                               template_override_expectations, error_messages)
-
+      
       actual_items&.each do |item_to_validate|
         link_id = item_to_validate.linkId
         if questionnaire_cql_expression_link_ids.include?(link_id)
           if template_prepopulation_expectations.key?(link_id)
-            check_item_prepopulation(item_to_validate, template_prepopulation_expectations[link_id], error_messages,
+            check_item_prepopulation(item_to_validate, template_prepopulation_expectations.delete(link_id), error_messages,
                                      false)
           elsif template_override_expectations.include?(link_id)
-            check_item_prepopulation(item_to_validate, template_override_expectations[link_id], error_messages, true)
+            check_item_prepopulation(item_to_validate, template_override_expectations.delete(link_id), error_messages, true)
           else
             raise "template missing expectation for question `#{link_id}`"
           end
@@ -84,11 +92,10 @@ module DaVinciDTRTestKit
           raise "Template QuestionnaireResponse item `#{target_link_id}` missing the `origin.source` extension"
         end
 
-        # TODO: handle other data types
         if source_extension.value == 'auto'
-          expected_prepopulated[target_link_id] = target_item_answer.value
+          expected_prepopulated[target_link_id] = target_item_answer
         elsif source_extension.value == 'override'
-          expected_overrides[target_link_id] = target_item_answer.value
+          expected_overrides[target_link_id] = target_item_answer
         else
           raise "`origin.source` extension for item `#{target_link_id}` has unexpected value: #{source_extension.value}"
         end
@@ -114,12 +121,12 @@ module DaVinciDTRTestKit
       answer = item.answer.first
       if answer&.value&.present?
         # check answer
-        if override && answer.value == expected_answer
+        if override && answer_value_equal?(expected_answer, answer)
           error_list << "Answer to item `#{item.linkId}` was not overriden from the pre-populated value. " \
                         "Found #{expected_answer}, but should be different"
-        elsif !override && answer.value != expected_answer
-          error_list << "answer to item `#{item.linkId}` contains unexpected value. Expected: #{expected_answer}. " \
-                        "Found #{answer.value}"
+        elsif !override && !answer_value_equal?(expected_answer, answer)
+          error_list << "answer to item `#{item.linkId}` contains unexpected value. Expected: #{value_for_display(expected_answer)}. " \
+                        "Found #{value_for_display(answer)}"
         end
 
         # check origin.source extension
@@ -176,5 +183,12 @@ module DaVinciDTRTestKit
     def coding_equal?(expected, actual)
       expected.system == actual&.system && expected.code == actual&.code
     end
+
+    def value_for_display(answer)
+      return "#{answer.value&.system}|#{answer.value&.code}" if answer.valueCoding.present?
+
+      answer.value
+    end
+
   end
 end
