@@ -140,6 +140,12 @@ controlled by the following inputs present on each group associated with a quest
   previous two inputs. Each instance must include a `id` element that Inferno will use in conjunction
   with the `resourceType` to make the instances available at the `[server base url]/[resourceType]/[id]`.
 
+Each questionnaire workflow group description includes a link to the questionnaire package that Inferno will return
+(e.g., [here](https://github.com/inferno-framework/davinci-dtr-test-kit/blob/main/lib/davinci_dtr_test_kit/fixtures/dinner_static/questionnaire_dinner_order_static.json))
+where you can find `id` and `url` values and any other details needed to determine what inputs 
+will allow the app under test to work with that questionnaire. Note additionally that Inferno will always
+return that questionnaire in response to `$questionnaire-package` requests made during that test.
+
 These inputs can be cumbersome to create and if you have suggestions about how to improve this process
 while keeping the flexibility of Inferno to run with any app, submit a ticket 
 [here](https://github.com/inferno-framework/davinci-pas-test-kit/issues).

@@ -7,10 +7,11 @@ module DaVinciDTRTestKit
     id :dtr_smart_app_questionnaire_workflow
     title 'Respiratory Assist Device Questionnaire Workflow'
     description %(
-      This workflow validates that a DTR SMART App can perform a full DTR Questionnaire workflow using a canned
-      Questionnaire for a respiratory assist device order:
+      This workflow validates that a DTR SMART App can perform a full DTR 
+      Questionnaire workflow using a canned Questionnaire 
+      for a respiratory assist device order:
 
-      1. Fetch the questionnaire package
+      1. Fetch the questionnaire package ([RespiratoryAssistDevices](https://github.com/inferno-framework/davinci-dtr-test-kit/blob/main/lib/davinci_dtr_test_kit/fixtures/questionnaire_package.json))
       2. Render the questionnaire
       3. Pre-populate the questionnaire response
     )

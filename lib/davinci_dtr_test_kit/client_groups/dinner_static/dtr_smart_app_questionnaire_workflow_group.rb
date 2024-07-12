@@ -16,7 +16,8 @@ module DaVinciDTRTestKit
       using a mocked questionnaire requesting what a patient wants for dinner. The client system must
       demonstrate their ability to:
 
-      1. Fetch the static questionnaire package
+      1. Fetch the static questionnaire package 
+         ([DinnerOrderStatic](https://github.com/inferno-framework/davinci-dtr-test-kit/blob/main/lib/davinci_dtr_test_kit/fixtures/dinner_static/questionnaire_dinner_order_static.json))
       2. Render and pre-populate the questionnaire appropriately, including:
          - fetch additional data needed for pre-population
          - pre-populate data as directed by the questionnaire
@@ -24,18 +25,6 @@ module DaVinciDTRTestKit
       3. Provide the completed QuestionnaireResponse with appropriate indicators for pre-populated
          and manually-entered data.
     )
-
-    input :static_dinner_available_instances,
-          optional: true,
-          title: 'EHR-available instances (static dinner)',
-          description: %(
-            Instances available from the EHR needed to drive the static dinner
-            questionnaire workflow. Formatted as a FHIR bundle that contains
-            instances, each with an `id` property populated. Each instance present
-            will be available for retrieval at the endpoint 
-            `somethinghere/[resource type]/[instance id].`
-          ),
-          type: 'textarea'
 
     group do
       id :dtr_static_questionnaire_retrieval

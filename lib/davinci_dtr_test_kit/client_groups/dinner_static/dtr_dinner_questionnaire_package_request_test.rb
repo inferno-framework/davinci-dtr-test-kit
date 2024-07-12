@@ -38,8 +38,6 @@ module DaVinciDTRTestKit
                          `[fhir-base]/[resource type]/[instance id].`
                        )
     
-    
-
     def example_client_jwt_payload_part
       Base64.strict_encode64("{\"inferno_client_id\":\"#{client_id}\"}").delete('=')
     end

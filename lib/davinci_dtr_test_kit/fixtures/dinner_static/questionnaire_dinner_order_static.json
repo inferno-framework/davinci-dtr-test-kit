@@ -7,6 +7,7 @@
       "resource": {
         "resourceType": "Questionnaire",
         "id": "DinnerOrderStatic",
+        "url": "urn:inferno:dtr-test-kit:dinner-order-static",
         "meta": {
           "profile": [
             "http://hl7.org/fhir/StructureDefinition/cqf-questionnaire",
@@ -21,7 +22,6 @@
         ],
         "name": "DinnerOrderStatic",
         "title": "Dinner Order (Static)",
-        "url": "urn:inferno:dtr-test-kit:dinner-order-static",
         "status": "draft",
         "subjectType": [
           "Patient"
