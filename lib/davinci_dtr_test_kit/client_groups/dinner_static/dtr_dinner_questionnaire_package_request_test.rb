@@ -1,3 +1,4 @@
+require "base64"
 require_relative '../../urls'
 
 module DaVinciDTRTestKit
@@ -16,6 +17,19 @@ module DaVinciDTRTestKit
                                                        { label: 'Launch from EHR', value: 'ehr' }] }
     input :client_id
     input :launch_uri, optional: true, description: 'Required if "Launch from Inferno" is selected'
+    input :smart_patient_id, optional: true, title: 'SMART App Launch Patient ID (Dinner Static)',
+                             type: 'text',
+                             description: %(
+                               Patient instance id to be provided by Inferno as the `patient` as a part of the SMART app
+                               launch.
+                             )
+    input :smart_fhir_context, optional: true, title: 'SMART App Launch fhirContext (Dinner Static)',
+                             type: 'textarea',
+                             description: %(
+                               References to be provided by Inferno as the `fhirContext` as a part of the SMART app
+                               launch. These references help determine the behavior of the app. Referenced instances
+                               may be providedin the "EHR-available resources" input.
+                             )
     input :ehr_bundle, optional: true, title: 'EHR-available resources (Dinner Static)', type: 'textarea',
                        description: %(
                          Resources available from the EHR needed to drive the dinner static workflow.
@@ -23,20 +37,13 @@ module DaVinciDTRTestKit
                          instance present will be available for retrieval from Inferno at the endpoint
                          `[fhir-base]/[resource type]/[instance id].`
                        )
-    input :smart_fhir_context, optional: true, title: 'SMART App Launch fhirContext (Dinner Static)',
-                               type: 'textarea',
-                               description: %(
-                                 References to be provided by Inferno as the `fhirContext` as a part of the SMART app
-                                 launch. These references help determine the behavior of the app. Referenced instances
-                                 may be providedin the "EHR-available resources" input.
-                               )
-    input :smart_patient_id, optional: true, title: 'SMART App Launch Patient ID (Dinner Static)',
-                             type: 'text',
-                             description: %(
-                               Patient instance id to be provided by Inferno as the `patient` as a part of the SMART app
-                               launch.
-                             )
+    
+    
 
+    def example_client_jwt
+      Base64.strict_encode64("{\"inferno_client_id\":\"#{client_id}\"}").delete('=')
+    end
+    
     run do
       launch_prompt = if smart_app_launch == 'inferno'
                         %(Launch the DTR SMART App from Inferno by right clicking
@@ -47,6 +54,7 @@ module DaVinciDTRTestKit
                       end
       inferno_prompt_cont = %(As the DTR app steps through the launch steps, Inferno will wait and respond to the app's
                               requests for SMART configuration, authorization and access token.)
+
 
       wait(
         identifier: client_id,
@@ -71,7 +79,15 @@ module DaVinciDTRTestKit
 
           `#{fhir_base_url}`
 
+          ### Request Identification
+          
+          In order to identify requests for this session, Inferno will look for 
+          an `Authorization` header with value `Bearer eyJhbGcmOiJub25lIn0.#{example_client_jwt}`.
+
+          ### Continuing the Tests
+
           When the DTR application has finished loading the Questionnaire,
+          including any clinical data requests to support pre-population,
           [Click here](#{resume_pass_url}?client_id=#{client_id}) to continue.
         )
       )
