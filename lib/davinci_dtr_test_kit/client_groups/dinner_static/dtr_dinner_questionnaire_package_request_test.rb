@@ -39,7 +39,7 @@ module DaVinciDTRTestKit
                        )
 
     def example_client_jwt_payload_part
-      Base64.strict_encode64("{\"inferno_client_id\":\"#{client_id}\"}").delete('=')
+      Base64.strict_encode64({ inferno_client_id: client_id }.to_json).delete('=')
     end
 
     run do
@@ -79,7 +79,11 @@ module DaVinciDTRTestKit
           ### Request Identification
 
           In order to identify requests for this session, Inferno will look for
-          an `Authorization` header with value `Bearer eyJhbGcmOiJub25lIn0.#{example_client_jwt_payload_part}`.
+          an `Authorization` header with value:
+          
+          ```
+          Bearer eyJhbGcmOiJub25lIn0.#{example_client_jwt_payload_part}.
+          ```
 
           ### Continuing the Tests
 

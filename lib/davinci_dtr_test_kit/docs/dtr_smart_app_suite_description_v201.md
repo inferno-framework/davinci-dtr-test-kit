@@ -57,35 +57,35 @@ This test suite can be run in two modes, each described below:
 2. [Standalone launch mode](#standalone-launch)
 
 At this time, Inferno's simulation of the payer server that provides the questionnaires
-uses the same base server url and access token and apps will need to be configured to
-connect to it as well. See [here](#combined-payer-and-ehr-fhir-servers) for details.
+uses the same base server url and access token, and apps will need to be configured to
+connect to it as well. See the "Combined payer and EHR FHIR servers" section below for details.
 
 The DTR specification allows apps and their partners significant leeway in how they decide
 what questionnaire to request. Inferno cannot know ahead of time what data needs to be
 available for the app under test to successfully request, pre-populate, and render 
-a questionnaire. See the [`fhirContext` and available instances](#fhircontext-and-available-instances)
+a questionnaire. See the "`fhirContext` and available instances"
 section below for details on how to enable Inferno to meet the needs of your application.
 
 #### EHR Launch
 
 In this mode Inferno will launch the app under test using the SMART App Launch
-[EHR launch](https://hl7.org/fhir/smart-app-launch/app-launch.html#launch-app-ehr-launch)
+[EHR launch](https://hl7.org/fhir/smart-app-launch/STU2.1/app-launch.html#launch-app-ehr-launch)
 flow. 
 
 The tester must provide
 1. a `client_id`: can be any string and will uniquely identify the testing session.
-2. a `launch_uri`: will be used by Inferno to launch the app under test.
+2. a `launch_uri`: will be used by Inferno to generate a link to launch the app under test.
 
-All the details needed to access clinical data from Inferno's simulated are provided
+All the details needed to access clinical data from Inferno's simulated EHR are provided
 as a part of the SMART flow, including 
-- the FHIR base server url to request data from
+- the FHIR base server URL to request data from
 - a bearer token to provide on all requests
 
 #### Standalone Launch
 
 In this mode the app under test will launch and on its own and reach out to Inferno to
 begin the workflow as described in the 
-[standalone launch section](https://hl7.org/fhir/smart-app-launch/app-launch.html#launch-app-standalone-launch).
+[standalone launch section](https://hl7.org/fhir/smart-app-launch/STU2.1/app-launch.html#launch-app-standalone-launch).
 
 The tester must provide
 1. a `client_id`: can be any string and will uniquely identify the testing session.
@@ -131,13 +131,13 @@ currently support 2 context parameters that contain references to instance in th
 testers with a way to provide those instances to Inferno so it can serve them to the app. These are
 controlled by the following inputs present on each group associated with a questionnaire:
 
-- `SMART App Launch Patient ID`: provide an id for the subject Patient FHIR instance.
-- `SMART App Launch fhirContext`: provide a json object containing FHIR references to instances
+- `SMART App Launch Patient ID`: provide an `id` for the subject Patient FHIR instance.
+- `SMART App Launch fhirContext`: provide a JSON object containing FHIR references to instances
   relevant to the DTR workflow, e.g. 
   `[{reference: 'Coverage/cov015'}, {reference: 'DeviceRequest/devreqe0470'}]`. This will be included
   under the `fhirContext` key of the token response.
 - `EHR-available resources`: provide a Bundle containing FHIR instances referenced in and from the
-  previous two inputs. Each instance must include a `id` element that Inferno will use in conjunction
+  previous two inputs. Each instance must include an `id` element that Inferno will use in conjunction
   with the `resourceType` to make the instances available at the `[server base url]/[resourceType]/[id]`.
 
 Each questionnaire workflow group description includes a link to the questionnaire package that Inferno will return
@@ -163,11 +163,11 @@ refresh tokens are not currently supported and scopes are not precise. To provid
 input on the design of this feature and help us priortize improvements, submit a ticket 
 [here](https://github.com/inferno-framework/davinci-pas-test-kit/issues).
 
-### Combined payer and ehr fhir servers
+### Combined payer and EHR FHIR servers
 
 At this time, the test suite simulates a single FHIR server that uses the same access token
-for both the payer server and the ehr server. Apps under test must use theFHIR base server url
-and access token identified during the SMART app launch sequence when making requests
+for both the payer server and the EHR server. Apps under test must use the FHIR server base url
+and access token identified during the SMART App Launch sequence when making requests
 to retrieve questionnaires.
 
 ### Questionnaire Feature Coverage
