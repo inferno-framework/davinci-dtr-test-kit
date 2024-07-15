@@ -16,7 +16,7 @@ module DaVinciDTRTestKit
       using a mocked questionnaire requesting what a patient wants for dinner. The client system must
       demonstrate their ability to:
 
-      1. Fetch the static questionnaire package 
+      1. Fetch the static questionnaire package
          ([DinnerOrderStatic](https://github.com/inferno-framework/davinci-dtr-test-kit/blob/main/lib/davinci_dtr_test_kit/fixtures/dinner_static/questionnaire_dinner_order_static.json))
       2. Render and pre-populate the questionnaire appropriately, including:
          - fetch additional data needed for pre-population

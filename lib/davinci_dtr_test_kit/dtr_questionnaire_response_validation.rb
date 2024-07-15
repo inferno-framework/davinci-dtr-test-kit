@@ -36,12 +36,14 @@ module DaVinciDTRTestKit
       validate_cql_executed(questionnaire_response.item, questionnaire_cql_expression_link_ids,
                             template_prepopulation_expectations, template_override_expectations, validation_errors)
 
-      if template_prepopulation_expectations.size > 0
-        validation_errors << "Items expected to be pre-populated not found: #{template_prepopulation_expectations.keys.join(', ')}"
+      if template_prepopulation_expectations.size.positive?
+        validation_errors << 'Items expected to be pre-populated not found: ' \
+                             "#{template_prepopulation_expectations.keys.join(', ')}"
       end
 
-      if template_override_expectations.size > 0
-        validation_errors << "Items expected to be pre-poplated and overridden not found: #{template_override_expectations.keys.join(', ')}"
+      if template_override_expectations.size.positive?
+        validation_errors << 'Items expected to be pre-poplated and overridden not found: ' \
+                             "#{template_override_expectations.keys.join(', ')}"
       end
 
       validation_errors.each { |msg| messages << { type: 'error', message: msg } }
@@ -50,7 +52,7 @@ module DaVinciDTRTestKit
 
     def validate_cql_executed(actual_items, questionnaire_cql_expression_link_ids, template_prepopulation_expectations,
                               template_override_expectations, error_messages)
-      
+
       actual_items&.each do |item_to_validate|
         link_id = item_to_validate.linkId
         if questionnaire_cql_expression_link_ids.include?(link_id)
@@ -58,7 +60,8 @@ module DaVinciDTRTestKit
             check_item_prepopulation(item_to_validate, template_prepopulation_expectations.delete(link_id), error_messages,
                                      false)
           elsif template_override_expectations.include?(link_id)
-            check_item_prepopulation(item_to_validate, template_override_expectations.delete(link_id), error_messages, true)
+            check_item_prepopulation(item_to_validate, template_override_expectations.delete(link_id), error_messages,
+                                     true)
           else
             raise "template missing expectation for question `#{link_id}`"
           end
@@ -189,6 +192,5 @@ module DaVinciDTRTestKit
 
       answer.value
     end
-
   end
 end

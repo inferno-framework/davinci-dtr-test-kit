@@ -1,4 +1,4 @@
-require "base64"
+require 'base64'
 require_relative '../../urls'
 
 module DaVinciDTRTestKit
@@ -24,8 +24,8 @@ module DaVinciDTRTestKit
                                launch.
                              )
     input :smart_fhir_context, optional: true, title: 'SMART App Launch fhirContext (Dinner Static)',
-                             type: 'textarea',
-                             description: %(
+                               type: 'textarea',
+                               description: %(
                                References to be provided by Inferno as the `fhirContext` as a part of the SMART app
                                launch. These references help determine the behavior of the app. Referenced instances
                                may be providedin the "EHR-available resources" input.
@@ -37,11 +37,11 @@ module DaVinciDTRTestKit
                          instance present will be available for retrieval from Inferno at the endpoint
                          `[fhir-base]/[resource type]/[instance id].`
                        )
-    
+
     def example_client_jwt_payload_part
       Base64.strict_encode64("{\"inferno_client_id\":\"#{client_id}\"}").delete('=')
     end
-    
+
     run do
       launch_prompt = if smart_app_launch == 'inferno'
                         %(Launch the DTR SMART App from Inferno by right clicking
@@ -52,7 +52,6 @@ module DaVinciDTRTestKit
                       end
       inferno_prompt_cont = %(As the DTR app steps through the launch steps, Inferno will wait and respond to the app's
                               requests for SMART configuration, authorization and access token.)
-
 
       wait(
         identifier: client_id,
@@ -78,8 +77,8 @@ module DaVinciDTRTestKit
           `#{fhir_base_url}`
 
           ### Request Identification
-          
-          In order to identify requests for this session, Inferno will look for 
+
+          In order to identify requests for this session, Inferno will look for
           an `Authorization` header with value `Bearer eyJhbGcmOiJub25lIn0.#{example_client_jwt_payload_part}`.
 
           ### Continuing the Tests
