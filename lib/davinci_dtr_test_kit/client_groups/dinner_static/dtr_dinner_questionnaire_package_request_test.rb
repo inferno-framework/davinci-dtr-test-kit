@@ -80,7 +80,7 @@ module DaVinciDTRTestKit
 
           In order to identify requests for this session, Inferno will look for
           an `Authorization` header with value:
-          
+
           ```
           Bearer eyJhbGcmOiJub25lIn0.#{example_client_jwt_payload_part}.
           ```

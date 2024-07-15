@@ -42,7 +42,9 @@ RSpec.describe DaVinciDTRTestKit::DTRQuestionnairePackageGroup do
       result = run(runnable, test_session, client_id:, smart_app_launch: 'ehr')
       expect(result.result).to eq('wait')
 
-      header 'Authorization', "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.#{Base64.strict_encode64("{\"inferno_client_id\":\"#{client_id}\"}").delete('=')}"
+      encoded_client_id = Base64.strict_encode64("{\"inferno_client_id\":\"#{client_id}\"}").delete('=')
+      header 'Authorization',
+             "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.#{encoded_client_id}"
       post(questionnaire_package_url, request_body)
       expect(last_response.ok?).to be(true)
 

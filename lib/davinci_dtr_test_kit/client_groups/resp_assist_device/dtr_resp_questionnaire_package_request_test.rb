@@ -31,10 +31,10 @@ module DaVinciDTRTestKit
                                )
     input :ehr_bundle, optional: true, title: 'EHR-available resources (Respiratory Assist Device)', type: 'textarea',
                        description: %(
-                                 Resources available from the EHR needed to drive the respiratory assist device workflow.
-                                 Formatted as a FHIR bundle that contains resources, each with an `id` property populated. Each
-                                 instance present will be available for retrieval from Inferno at the endpoint
-                                 `[fhir-base]/[resource type]/[instance id].`
+                                 Resources available from the EHR needed to drive the respiratory assist device
+                                 workflow. Formatted as a FHIR bundle that contains resources, each with an `id`
+                                 property populated. Each instance present will be available for retrieval from
+                                 Inferno at the endpoint `[fhir-base]/[resource type]/[instance id].`
                                )
 
     def example_client_jwt_payload_part
@@ -78,7 +78,7 @@ module DaVinciDTRTestKit
 
           In order to identify requests for this session, Inferno will look for
           an `Authorization` header with value:
-          
+
           ```
           Bearer eyJhbGcmOiJub25lIn0.#{example_client_jwt_payload_part}.
           ```

@@ -57,8 +57,8 @@ module DaVinciDTRTestKit
         link_id = item_to_validate.linkId
         if questionnaire_cql_expression_link_ids.include?(link_id)
           if template_prepopulation_expectations.key?(link_id)
-            check_item_prepopulation(item_to_validate, template_prepopulation_expectations.delete(link_id), error_messages,
-                                     false)
+            check_item_prepopulation(item_to_validate, template_prepopulation_expectations.delete(link_id),
+                                     error_messages, false)
           elsif template_override_expectations.include?(link_id)
             check_item_prepopulation(item_to_validate, template_override_expectations.delete(link_id), error_messages,
                                      true)
@@ -128,8 +128,8 @@ module DaVinciDTRTestKit
           error_list << "Answer to item `#{item.linkId}` was not overriden from the pre-populated value. " \
                         "Found #{expected_answer}, but should be different"
         elsif !override && !answer_value_equal?(expected_answer, answer)
-          error_list << "answer to item `#{item.linkId}` contains unexpected value. Expected: #{value_for_display(expected_answer)}. " \
-                        "Found #{value_for_display(answer)}"
+          error_list << "answer to item `#{item.linkId}` contains unexpected value. Expected: \
+          #{value_for_display(expected_answer)}. Found #{value_for_display(answer)}"
         end
 
         # check origin.source extension
