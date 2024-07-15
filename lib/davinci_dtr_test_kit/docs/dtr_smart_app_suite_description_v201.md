@@ -60,8 +60,10 @@ At this time, Inferno's simulation of the payer server that provides the questio
 uses the same base server url and access token, and apps will need to be configured to
 connect to it as well. See the "Combined payer and EHR FHIR servers" section below for details.
 
-The DTR specification allows apps and their partners significant leeway in how they decide
-what questionnaire to request. Inferno cannot know ahead of time what data needs to be
+The DTR specification allows apps and their partners significant leeway in terms of
+what information is provided on launch and how that information gets used by the app
+to determine the `$questionnaire-package` endpoint and what details to submit as a
+part of that operation. Inferno cannot know ahead of time what data needs to be
 available for the app under test to successfully request, pre-populate, and render 
 a questionnaire. See the "`fhirContext` and available instances"
 section below for details on how to enable Inferno to meet the needs of your application.
@@ -127,16 +129,19 @@ particular questionnaire.
 
 Therefore, use of this test suite requests that the tester provide this information so that the
 app can demonstrate its capabilities based on whatever business logic is present. These tests
-currently support 2 context parameters that contain references to instance in the EHR and provides
+currently support two context parameters that contain references to instance in the EHR and provides
 testers with a way to provide those instances to Inferno so it can serve them to the app. These are
 controlled by the following inputs present on each group associated with a questionnaire:
 
-- `SMART App Launch Patient ID`: provide an `id` for the subject Patient FHIR instance.
-- `SMART App Launch fhirContext`: provide a JSON object containing FHIR references to instances
+- **SMART App Launch Patient ID**: provide an `id` for the subject Patient FHIR instance.
+- **SMART App Launch `fhirContext`**: provide a JSON object containing FHIR references to instances
   relevant to the DTR workflow, e.g. 
-  `[{reference: 'Coverage/cov015'}, {reference: 'DeviceRequest/devreqe0470'}]`. This will be included
-  under the `fhirContext` key of the token response.
-- `EHR-available resources`: provide a Bundle containing FHIR instances referenced in and from the
+  
+  ```
+  [{reference: 'Coverage/cov015'}, {reference: 'DeviceRequest/devreqe0470'}]
+  ``` 
+  This will be included under the `fhirContext` key of the token response.
+- **EHR-available resources**: provide a Bundle containing FHIR instances referenced in and from the
   previous two inputs. Each instance must include an `id` element that Inferno will use in conjunction
   with the `resourceType` to make the instances available at the `[server base url]/[resourceType]/[id]`.
 
