@@ -1,4 +1,7 @@
-RSpec.shared_context('when running standard tests') do |group, suite_id, questionnaire_package_url, retrieval_method, url|
+RSpec.shared_context('when running standard tests') do |group,
+                                                        suite_id,
+                                                        questionnaire_package_url,
+                                                        retrieval_method, url|
   def app
     Inferno::Web.app
   end

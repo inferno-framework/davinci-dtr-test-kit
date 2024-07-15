@@ -68,7 +68,11 @@ RSpec/DescribeClass:
 RSpec/ExampleLength:
   Enabled: false
 
-RSpec/FilePath:
+RSpec/SpecFilePathFormat:
+  CustomTransform:
+    DaVinciDTRTestKit: davinci_dtr_test_kit
+
+RSpec/SpecFilePathSuffix:
   CustomTransform:
     DaVinciDTRTestKit: davinci_dtr_test_kit
 

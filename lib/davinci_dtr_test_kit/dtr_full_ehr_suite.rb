@@ -55,11 +55,12 @@ module DaVinciDTRTestKit
 
     allow_cors QUESTIONNAIRE_PACKAGE_PATH
 
-    record_response_route :post, TOKEN_PATH, 'dtr_auth', method(:token_response) do |request|
-      DTRFullEHRSuite.extract_client_id(request)
+    record_response_route :post, PAYER_TOKEN_PATH, 'dtr_full_ehr_payer_token',
+                          method(:payer_token_response) do |request|
+      DTRFullEHRSuite.extract_client_id_from_form_params(request)
     end
 
-    record_response_route :post, '/fhir/Questionnaire/$questionnaire-package', QUESTIONNAIRE_PACKAGE_TAG,
+    record_response_route :post, QUESTIONNAIRE_PACKAGE_PATH, QUESTIONNAIRE_PACKAGE_TAG,
                           method(:questionnaire_package_response) do |request|
       DTRFullEHRSuite.extract_bearer_token(request)
     end

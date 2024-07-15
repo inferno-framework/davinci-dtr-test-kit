@@ -5,6 +5,7 @@
       "resource": {
         "resourceType": "Questionnaire",
         "id": "RespiratoryAssistDevices",
+        "url": "urn:inferno:dtr-test-kit:respiratory-assist-devices",
         "meta": {
           "profile": [
             "http://hl7.org/fhir/StructureDefinition/cqf-questionnaire",
@@ -453,7 +454,6 @@
         ],
         "name": "RespiratoryAssistDevices",
         "title": "Respiratory Assist Device Questionnaire",
-        "url": "urn:fake",
         "status": "draft",
         "subjectType": [
           "Patient"

@@ -9,19 +9,19 @@ module DaVinciDTRTestKit
     description %(
       Validate that pre-population of patient name information occurs as expected.
     )
-    input :access_token
+    input :client_id
 
     run do
       wait(
-        identifier: access_token,
+        identifier: client_id,
         message: %(
           I attest that the client application pre-populates the following questions with the respective values:
           - Last Name: Oster
           - First Name: William
 
-          [Click here](#{resume_pass_url}?token=#{access_token}) if the above statement is **true**.
+          [Click here](#{resume_pass_url}?client_id=#{client_id}) if the above statement is **true**.
 
-          [Click here](#{resume_fail_url}?token=#{access_token}) if the above statement is **false**.
+          [Click here](#{resume_fail_url}?client_id=#{client_id}) if the above statement is **false**.
         )
       )
     end

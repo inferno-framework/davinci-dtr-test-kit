@@ -1,4 +1,4 @@
-require_relative '../shared/dtr_questionnaire_package_request_test'
+require_relative 'dtr_dinner_questionnaire_package_request_test'
 require_relative '../shared/dtr_questionnaire_package_request_validation_test'
 require_relative 'prepopulation_attestation_test'
 require_relative 'prepopulation_override_attestation_test'
@@ -17,6 +17,7 @@ module DaVinciDTRTestKit
       demonstrate their ability to:
 
       1. Fetch the static questionnaire package
+         ([DinnerOrderStatic](https://github.com/inferno-framework/davinci-dtr-test-kit/blob/main/lib/davinci_dtr_test_kit/fixtures/dinner_static/questionnaire_dinner_order_static.json))
       2. Render and pre-populate the questionnaire appropriately, including:
          - fetch additional data needed for pre-population
          - pre-populate data as directed by the questionnaire
@@ -36,7 +37,7 @@ module DaVinciDTRTestKit
       run_as_group
 
       # Test 1: wait for the $questionnaire-package request
-      test from: :dtr_questionnaire_package_request
+      test from: :dtr_dinner_questionnaire_package_request
       # Test 2: validate the $questionnaire-package body
       test from: :dtr_questionnaire_package_request_validation
     end

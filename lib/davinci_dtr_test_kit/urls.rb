@@ -1,7 +1,10 @@
 # frozen_string_literal: true
 
 module DaVinciDTRTestKit
-  TOKEN_PATH = '/mock_auth/token'
+  SMART_CONFIG_PATH = '/fhir/.well-known/smart-configuration'
+  EHR_AUTHORIZE_PATH = '/mock_ehr_auth/authorize'
+  EHR_TOKEN_PATH = '/mock_ehr_auth/token'
+  PAYER_TOKEN_PATH = '/mock_payer_auth/token'
   QUESTIONNAIRE_PACKAGE_PATH = '/fhir/Questionnaire/$questionnaire-package'
   NEXT_PATH = '/fhir/Questionnaire/$next-question'
   QUESTIONNAIRE_RESPONSE_PATH = '/fhir/QuestionnaireResponse'
@@ -15,8 +18,16 @@ module DaVinciDTRTestKit
       @base_url ||= "#{Inferno::Application['base_url']}/custom/#{suite_id}"
     end
 
-    def token_url
-      @token_url ||= base_url + TOKEN_PATH
+    def ehr_authorize_url
+      @ehr_authorize_url ||= base_url + EHR_AUTHORIZE_PATH
+    end
+
+    def ehr_token_url
+      @ehr_token_url ||= base_url + EHR_TOKEN_PATH
+    end
+
+    def payer_token_url
+      @payer_token_url ||= base_url + PAYER_TOKEN_PATH
     end
 
     def questionnaire_package_url

@@ -3,6 +3,7 @@ PATH
   specs:
     davinci_dtr_test_kit (0.10.0)
       inferno_core (~> 0.4.37)
+      jwt (~> 2.6)
 
 GEM
   remote: https://rubygems.org/

@@ -28,17 +28,17 @@ RSpec.describe DaVinciDTRTestKit::DTRQuestionnaireResponseGroup do
   describe 'Behavior of questionnaire response save test' do
     let(:runnable) { group.tests.find { |test| test.id.to_s.end_with? 'questionnaire_response_save' } }
     let(:results_repo) { Inferno::Repositories::Results.new }
-    let(:access_token) { '1234' }
+    let(:client_id) { '1234' }
 
     it 'passes if questionnaire package POST request is received' do
       allow_any_instance_of(DaVinciDTRTestKit::URLs).to(
         receive(:questionnaire_response_url).and_return(questionnaire_response_url)
       )
-
-      result = run(runnable, test_session, access_token:)
+      result = run(runnable, test_session, client_id:)
       expect(result.result).to eq('wait')
 
-      header 'Authorization', "Bearer #{access_token}"
+      encoded_client_id = Base64.strict_encode64("{\"inferno_client_id\":\"#{client_id}\"}").delete('=')
+      header 'Authorization', "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.#{encoded_client_id}"
       post(questionnaire_response_url, '')
       expect(last_response.created?).to be(true)
 

@@ -10,19 +10,19 @@ module DaVinciDTRTestKit
       Validate that the rendering of the questionnaire includes only the "What would you like on..."
       question appropriate for the dinner selection, if made.
     )
-    input :access_token
+    input :client_id
 
     run do
       wait(
-        identifier: access_token,
+        identifier: client_id,
         message: %(
           I attest that the client application does not display any "What would you like on..."
           questions until I have selected a dinner choice and then only displays the
           "What would you like on..." question relevant for the dinner request:
 
-          [Click here](#{resume_pass_url}?token=#{access_token}) if the above statement is **true**.
+          [Click here](#{resume_pass_url}?client_id=#{client_id}) if the above statement is **true**.
 
-          [Click here](#{resume_fail_url}?token=#{access_token}) if the above statement is **false**.
+          [Click here](#{resume_fail_url}?client_id=#{client_id}) if the above statement is **false**.
         )
       )
     end
