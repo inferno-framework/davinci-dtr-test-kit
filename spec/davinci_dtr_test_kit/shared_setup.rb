@@ -13,8 +13,10 @@ RSpec.shared_context('when running standard tests') do |group,
   let(:retrieval_method) { retrieval_method }
   let(:access_token) { '1234' }
   let(:test_session) { repo_create(:test_session, test_suite_id: suite_id) }
+  let(:validation_url) { "#{ENV.fetch('FHIR_RESOURCE_VALIDATOR_URL')}/validate" }
 
   def run(runnable, test_session, inputs = {})
+
     test_run_params = { test_session_id: test_session.id }.merge(runnable.reference_hash)
     test_run = Inferno::Repositories::TestRuns.new.create(test_run_params)
     inputs.each do |name, value|

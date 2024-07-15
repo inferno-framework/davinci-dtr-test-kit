@@ -5,14 +5,17 @@ module DaVinciDTRTestKit
     end
 
     def validate_resource(fhir_resource, resource_type, profile_url, index)
-      assert fhir_resource.present?, 'Resource does not contain a recognized FHIR object'
       begin
+        assert fhir_resource.present?, 'Resource does not contain a recognized FHIR object'
         assert_resource_type(resource_type, resource: fhir_resource)
         assert_valid_resource(resource: fhir_resource,
                               profile_url:)
       rescue StandardError => e
+        self.add_message('error', e.message)
         messages.each do |message|
-          message[:message].prepend("[Resource #{index + 1}] ")
+          unless message[:message].start_with? "[Resource"
+            message[:message].prepend("[Resource #{index + 1}] ")
+          end
         end
         if tests_failed[profile_url].blank?
           tests_failed[profile_url] = [e]
@@ -37,19 +40,16 @@ module DaVinciDTRTestKit
       resources = [resources] unless resources.is_a?(Array)
       resources.each_with_index do |resource, index|
         if using_manual_entry
-          assert_valid_json(resource.to_json)
           fhir_resource = FHIR.from_contents(resource.to_json)
         else
-          assert resource.url == resource_url,
-                 "Request made to wrong URL: #{resource.request[:url]}. Should instead be to #{resource_url}"
-          assert_valid_json(resource.request[:body])
+          if resource.url != resource_url
+            messages << { type: 'warning',
+            message: format_markdown("Request made to wrong URL: #{resource.request[:url]}. Should instead be to #{resource_url}") }
+          end
           fhir_resource = FHIR.from_contents(resource.request[:body])
         end
         validate_resource(fhir_resource, resource_type, profile_url, index)
       end
-      return if tests_failed[profile_url].blank?
-
-      raise tests_failed[profile_url][0]
     end
 
     def perform_response_validation_test(

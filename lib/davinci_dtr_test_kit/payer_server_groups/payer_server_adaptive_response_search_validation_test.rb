@@ -34,9 +34,8 @@ module DaVinciDTRTestKit
           next
         end
       end
-      raise tests_failed[profile_url][0] if !test_passed && !tests_failed[profile_url].blank?
+      raise assert test_passed, "No returned resources conform to the profile: http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/dtr-questionnaire-adapt-search" if !test_passed && !tests_failed[profile_url].blank?
 
-      messages.clear if test_passed
     end
   end
 end
