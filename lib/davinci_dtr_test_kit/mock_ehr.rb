@@ -49,9 +49,14 @@ module DaVinciDTRTestKit
       end
 
       # Respond with user-inputted resource if there is one that matches the request
-      ehr_bundle_input = JSON.parse(test_result.input_json).find { |input| input['name'] == 'ehr_bundle' }
-      ehr_bundle_input_value = ehr_bundle_input_value = ehr_bundle_input['value'] if ehr_bundle_input.present?
-      ehr_bundle = FHIR.from_contents(ehr_bundle_input_value) if ehr_bundle_input_value.present?
+      begin
+        ehr_bundle_input = JSON.parse(test_result.input_json).find { |input| input['name'] == 'ehr_bundle' }
+        ehr_bundle_input_value = ehr_bundle_input_value = ehr_bundle_input['value'] if ehr_bundle_input.present?
+        ehr_bundle = FHIR.from_contents(ehr_bundle_input_value) if ehr_bundle_input_value.present?
+      rescue StandardError
+        ehr_bundle = nil
+      end
+
       if id.present? && ehr_bundle.present? && ehr_bundle.is_a?(FHIR::Bundle)
         matching_resource = ehr_bundle.entry&.find do |entry|
           entry.resource.is_a?(fhir_class) && entry.resource&.id == id

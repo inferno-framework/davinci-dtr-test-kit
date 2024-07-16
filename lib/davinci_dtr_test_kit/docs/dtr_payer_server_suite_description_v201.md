@@ -81,9 +81,9 @@ If you would like to try out the tests but don't have a DTR payer server impleme
 you can run these tests against the DTR SMART Client test suite included in this test kit
 using the following steps:
 1. Start an Inferno session of the Da Vinci DTR SMART App Test Suite.
-1. Select test 2.1.1 *Static Questionnaire Workflow* from the menu on the left.
+1. Select test 1.1.1 *Retrieving the Static Questionnaire* from the menu on the left.
 1. Click the "Run All Tests" button in the upper right.
-1. In the "access_token" input, put `cnVuIHRvZ2V0aGVy`.
+1. In the "SMART App Launch" select `Standalone Launch` and in the "client_id" input, put `sample`.
 1. Click the "submit" button in the dialog that appears. The client tests will now be waiting for requests.
 1. Start an Inferno session of the DTR Payer Server test suite.
 1. Select test 1 *Static Questionnaire Package Retrieval* from the menu on the left.

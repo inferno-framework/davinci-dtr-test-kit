@@ -60,6 +60,7 @@ module DaVinciDTRTestKit
       omit_if resources.blank?,
               "No #{resource_type} resources provided so the #{profile_url} profile does not apply"
       resources.each_with_index do |resource, index|
+        assert_valid_json(resource.response[:body])
         fhir_resource = FHIR.from_contents(resource.response[:body])
         assert_response_status([200, 202], request: resource, response: resource.response)
         validate_resource(fhir_resource, resource_type, profile_url, index)

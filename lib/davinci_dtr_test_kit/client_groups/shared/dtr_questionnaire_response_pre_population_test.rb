@@ -21,6 +21,7 @@ module DaVinciDTRTestKit
     )
 
     run do
+      assert_valid_json(request.request_body)
       questionnaire_response = FHIR.from_contents(request.request_body)
       skip_if !questionnaire_response.present?, 'QuestionnaireResponse not received'
 
