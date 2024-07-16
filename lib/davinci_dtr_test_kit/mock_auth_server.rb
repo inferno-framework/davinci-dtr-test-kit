@@ -60,22 +60,20 @@ module DaVinciDTRTestKit
       token = JWT.encode({ inferno_client_id: client_id }, nil, 'none')
       response = { access_token: token, token_type: 'bearer', expires_in: 3600 }
       test_input = JSON.parse(test_result.input_json)
-      smart_app_launch_input = test_input.find { |input| input['name'] == 'smart_app_launch' }
 
-      if smart_app_launch_input.present? && smart_app_launch_input['value'] == 'inferno'
-        fhir_context_input = test_input.find { |input| input['name'] == 'smart_fhir_context' }
-        fhir_context_input_value = fhir_context_input['value'] if fhir_context_input.present?
-        fhir_context = fhir_context_input_value || [
-          { reference: 'Coverage/cov015' },
-          { reference: 'DeviceRequest/devreqe0470' }
-        ]
-
-        smart_patient_input = test_input.find { |input| input['name'] == 'smart_patient_id' }
-        smart_patient_input_value = smart_patient_input['value'] if smart_patient_input.present?
-        smart_patient = smart_patient_input_value || 'pat015'
-
-        response.merge!({ patient: smart_patient, fhirContext: fhir_context })
+      fhir_context_input = test_input.find { |input| input['name'] == 'smart_fhir_context' }
+      fhir_context_input_value = fhir_context_input['value'] if fhir_context_input.present?
+      begin
+        fhir_context = JSON.parse(fhir_context_input_value)
+      rescue StandardError
+        fhir_context = nil
       end
+      response.merge!({ fhirContext: fhir_context }) if fhir_context
+
+      smart_patient_input = test_input.find { |input| input['name'] == 'smart_patient_id' }
+      smart_patient_input_value = smart_patient_input['value'] if smart_patient_input.present?
+      response.merge!({ patient: smart_patient_input_value }) if smart_patient_input_value
+
       request.response_body = response.to_json
       request.response_headers = { 'Access-Control-Allow-Origin' => '*' }
       request.status = 200
