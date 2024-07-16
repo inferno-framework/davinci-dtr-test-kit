@@ -100,7 +100,12 @@ module DaVinciDTRTestKit
       encoded_jwt = URI.decode_www_form(request.request_body).to_h['client_assertion']
       return unless encoded_jwt.present?
 
-      jwt_payload = JWT.decode(encoded_jwt, nil, false)&.first # skip signature verification
+      begin
+        jwt_payload = JWT.decode(encoded_jwt, nil, false)&.first # skip signature verification
+      rescue StandardError
+        jwt_payload = nil
+      end
+
       jwt_payload['iss'] || jwt_payload['sub'] if jwt_payload.present?
     end
 
@@ -118,7 +123,12 @@ module DaVinciDTRTestKit
 
     def extract_client_id_from_bearer_token(request)
       token = extract_bearer_token(request)
-      JWT.decode(token, nil, false)&.first&.dig('inferno_client_id')
+      begin
+        jwt = JWT.decode(token, nil, false)
+      rescue StandardError
+        jwt = nil
+      end
+      jwt&.first&.dig('inferno_client_id')
     end
 
     # Header expected to be a bearer token of the form "Bearer: <token>"
