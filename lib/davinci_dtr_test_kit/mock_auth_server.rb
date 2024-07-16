@@ -100,11 +100,12 @@ module DaVinciDTRTestKit
       encoded_jwt = URI.decode_www_form(request.request_body).to_h['client_assertion']
       return unless encoded_jwt.present?
 
-      begin
-        jwt_payload = JWT.decode(encoded_jwt, nil, false)&.first # skip signature verification
-      rescue StandardError
-        jwt_payload = nil
-      end
+      jwt_payload =
+        begin
+          JWT.decode(encoded_jwt, nil, false)&.first # skip signature verification
+        rescue StandardError
+          nil
+        end
 
       jwt_payload['iss'] || jwt_payload['sub'] if jwt_payload.present?
     end
@@ -123,11 +124,12 @@ module DaVinciDTRTestKit
 
     def extract_client_id_from_bearer_token(request)
       token = extract_bearer_token(request)
-      begin
-        jwt = JWT.decode(token, nil, false)
-      rescue StandardError
-        jwt = nil
-      end
+      jwt =
+        begin
+          JWT.decode(token, nil, false)
+        rescue StandardError
+          nil
+        end
       jwt&.first&.dig('inferno_client_id')
     end
 
