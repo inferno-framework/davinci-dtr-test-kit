@@ -55,7 +55,6 @@ module DaVinciDTRTestKit
         ehr_bundle = FHIR.from_contents(ehr_bundle_input_value) if ehr_bundle_input_value.present?
       rescue StandardError
         ehr_bundle = nil
-        # warning '**EHR-available resources** input is not valid JSON FHIR Bundle and instances were not made available.'
       end
 
       if id.present? && ehr_bundle.present? && ehr_bundle.is_a?(FHIR::Bundle)
