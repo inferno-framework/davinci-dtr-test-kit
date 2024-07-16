@@ -36,6 +36,7 @@ module DaVinciDTRTestKit
         request = fhir_operation("#{url}/Questionnaire/$questionnaire-package",
                                  body: JSON.parse(initial_static_questionnaire_request),
                                  headers: { 'Content-Type': 'application/json' })
+        assert_valid_json(request.response[:body])
         resource = FHIR.from_contents(request.response[:body])
         scratch[:output_parameters] = resource
         assert_response_status([200, 201], response: request.response)
