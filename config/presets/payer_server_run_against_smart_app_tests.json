@@ -27,7 +27,7 @@
       "name": "credentials",
       "title": "OAuth Credentials",
       "type": "oauth_credentials",
-      "value": "{\"access_token\":\"cnVuIHRvZ2V0aGVy\"}"
+      "value": "{\"access_token\":\"eyJhbGciOiJub25lIn0.eyJpbmZlcm5vX2NsaWVudF9pZCI6InNhbXBsZSJ9\"}"
     }
   ]
 }
