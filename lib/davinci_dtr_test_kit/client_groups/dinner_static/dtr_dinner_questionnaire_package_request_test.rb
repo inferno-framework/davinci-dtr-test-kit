@@ -64,7 +64,7 @@ module DaVinciDTRTestKit
       warning do
         if smart_fhir_context
           assert_valid_json(smart_fhir_context,
-                            'The **SMART App Launch fhirContext** input is not valid JSON and will not be included in
+                            'The **SMART App Launch fhirContext** input is not valid JSON, so it will not be included in
                             the access token response.')
         end
       end
@@ -72,10 +72,10 @@ module DaVinciDTRTestKit
       warning do
         if ehr_bundle
           assert_valid_json(ehr_bundle,
-                            'The **EHR-available resources** input is not valid JSON and no tester-specified instances
+                            'The **EHR-available resources** input is not valid JSON, so no tester-specified instances
                               will be available to access from Inferno.')
           assert(FHIR.from_contents(ehr_bundle).is_a?(FHIR::Bundle),
-                 'The **EHR-available resources** input does not contain a FHIR Bundle and no tester-specified instances
+                 'The **EHR-available resources** input does not contain a FHIR Bundle, so no tester-specified instances
                  will be available to access from Inferno.')
         end
       end
