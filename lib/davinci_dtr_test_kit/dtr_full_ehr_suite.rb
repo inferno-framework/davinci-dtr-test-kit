@@ -13,16 +13,7 @@ module DaVinciDTRTestKit
 
     id :dtr_full_ehr
     title 'Da Vinci DTR Full EHR Test Suite'
-    description %(
-        # Da Vinci DTR Full EHR Test Suite
-
-        This suite validates that an EHR or other application can act
-        as a full DTR application requesting questionnaires from a
-        payer server and using local data to complete and store them.
-        Inferno will act as payer server returning questionnaires
-        in response to queries from the system under test and validating
-        that they can be completed as expected.
-      )
+    description File.read(File.join(__dir__, 'docs', 'dtr_full_ehr_suite_description_v201.md'))
 
     version VERSION
 
