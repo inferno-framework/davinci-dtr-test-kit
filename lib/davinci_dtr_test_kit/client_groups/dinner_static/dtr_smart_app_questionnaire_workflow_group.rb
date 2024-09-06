@@ -1,9 +1,9 @@
-require_relative 'dtr_dinner_questionnaire_package_request_test'
+require_relative 'dtr_smart_app_dinner_questionnaire_package_request_test'
 require_relative '../shared/dtr_questionnaire_package_request_validation_test'
-require_relative 'prepopulation_attestation_test'
-require_relative 'prepopulation_override_attestation_test'
-require_relative 'rendering_enabled_questions_attestation_test'
-require_relative 'dtr_questionnaire_response_save_test'
+require_relative 'dtr_smart_app_prepopulation_attestation_test'
+require_relative 'dtr_smart_app_prepopulation_override_attestation_test'
+require_relative 'dtr_smart_app_rendering_enabled_questions_attestation_test'
+require_relative 'dtr_smart_app_questionnaire_response_save_test'
 require_relative '../shared/dtr_questionnaire_response_basic_conformance_test'
 require_relative '../shared/dtr_questionnaire_response_pre_population_test'
 
@@ -27,7 +27,7 @@ module DaVinciDTRTestKit
     )
 
     group do
-      id :dtr_static_questionnaire_retrieval
+      id :dtr_smart_app_static_questionnaire_retrieval
       title 'Retrieving the Static Questionnaire'
       description %(
         Inferno will wait for the client system to request a questionnaire using the
@@ -37,13 +37,13 @@ module DaVinciDTRTestKit
       run_as_group
 
       # Test 1: wait for the $questionnaire-package request
-      test from: :dtr_dinner_questionnaire_package_request
+      test from: :dtr_smart_app_dinner_questionnaire_package_request
       # Test 2: validate the $questionnaire-package body
       test from: :dtr_questionnaire_package_request_validation
     end
 
     group do
-      id :dtr_static_questionnaire_rendering
+      id :dtr_smart_app_static_questionnaire_rendering
       title 'Filling Out the Static Questionnaire'
       description %(
         The tester will interact with the questionnaire within their client system
@@ -58,15 +58,15 @@ module DaVinciDTRTestKit
       # since the questionnaire asks them to
       # TODO: once Tom has gotten the reference server hooked up
       # Test 2: attest to the pre-population of the name fields
-      test from: :dtr_dinner_static_rendering_prepopulation_attestation
+      test from: :dtr_smart_app_dinner_static_rendering_prepopulation_attestation
       # Test 3: attest to the pre-population and edit of the location field
-      test from: :dtr_dinner_static_prepopulation_override_attestation
+      test from: :dtr_smart_app_dinner_static_prepopulation_override_attestation
       # Test 4: attest to the display of the toppings questions only when a dinner answer is selected
-      test from: :dtr_dinner_static_rendering_enabledQs_attestation
+      test from: :dtr_smart_app_dinner_static_rendering_enabledQs_attestation
     end
 
     group do
-      id :dtr_static_questionnaire_response
+      id :dtr_smart_app_static_questionnaire_response
       title 'Saving the QuestionnaireResponse'
       description %(
         The tester will complete the questionnaire such that a QuestionnaireResponse is stored
@@ -77,7 +77,7 @@ module DaVinciDTRTestKit
       run_as_group
 
       # Test 1: wait for a QuestionnaireResponse
-      test from: :dtr_static_dinner_questionnaire_response_save,
+      test from: :dtr_smart_app_static_dinner_questionnaire_response_save,
            receives_request: :questionnaire_response_save
       # Test 2: validate basic conformance of the QuestionnaireResponse
       test from: :dtr_questionnaire_response_basic_conformance,

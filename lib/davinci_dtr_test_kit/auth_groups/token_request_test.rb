@@ -17,7 +17,7 @@ module DaVinciDTRTestKit
         message: %(
           Submit your token request to
 
-          `#{token_url}`
+          `#{payer_token_url}`
         )
       )
     end

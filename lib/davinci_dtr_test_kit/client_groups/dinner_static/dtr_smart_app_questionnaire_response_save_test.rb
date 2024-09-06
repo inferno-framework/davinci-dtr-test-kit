@@ -1,10 +1,10 @@
 require_relative '../../urls'
 
 module DaVinciDTRTestKit
-  class DTRStaticDinnerQuestionnaireResponseSaveTest < Inferno::Test
+  class DTRSmartAppStaticDinnerQuestionnaireResponseSaveTest < Inferno::Test
     include URLs
 
-    id :dtr_static_dinner_questionnaire_response_save
+    id :dtr_smart_app_static_dinner_questionnaire_response_save
     title 'Save the QuestionnaireResponse after completing it'
     description %(
       Inferno, acting as the EHR, will wait for a request to save the QuestionnaireResponse from the client.
