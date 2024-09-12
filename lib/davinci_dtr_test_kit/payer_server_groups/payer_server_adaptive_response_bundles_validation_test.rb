@@ -33,8 +33,7 @@ module DaVinciDTRTestKit
         end
       end
       if !test_passed && !tests_failed[profile_url].blank?
-        raise assert test_passed,
-                     "Not all returned resources conform to the profile: #{profile_url}"
+        assert test_passed, "Not all returned resources conform to the profile: #{profile_url}"
       end
     end
   end
