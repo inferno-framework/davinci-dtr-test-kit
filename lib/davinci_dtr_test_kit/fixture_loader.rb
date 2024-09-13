@@ -23,7 +23,7 @@ module DaVinciDTRTestKit
           [
             'fixtures/dinner_static/questionnaire_dinner_order_static.json',
             'fixtures/dinner_static/questionnaire_response_dinner_order_static.json',
-            ['dtr_smart_app_static_dinner_questionnaire_workflow']
+            ['dtr_smart_app_static_dinner_questionnaire_workflow', 'dtr_full_ehr_static_dinner_questionnaire_workflow']
           ],
           [
             'fixtures/dinner_adaptive/questionnaire_dinner_order_adaptive.json',

@@ -1,10 +1,10 @@
 require_relative '../../urls'
 
 module DaVinciDTRTestKit
-  class DTRStaticDinnerRenderingAttestationTest < Inferno::Test
+  class DTRSmartAppStaticDinnerRenderingAttestationTest < Inferno::Test
     include URLs
 
-    id :dtr_dinner_static_rendering_enabledQs_attestation
+    id :dtr_smart_app_dinner_static_rendering_enabledQs_attestation
     title 'Check that the client renders enabled questions appropriately (Attestation)'
     description %(
       Validate that the rendering of the questionnaire includes only the "What would you like on..."

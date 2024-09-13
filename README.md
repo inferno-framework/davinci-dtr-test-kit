@@ -10,6 +10,9 @@ The test kit includes suites targeting the following actors from the specificati
 - **DTR SMART App**: Inferno will act as a server implementing the 
   payer server and light EHR capabilities and responding to requests
   for questionnaires and clinical data made by the app under test.
+- **DTR Full EHR**: Inferno will act as a server implementing the 
+  payer server responding to requests for questionnaires made by
+  the EHR under test.
 
 In each case, content provided by the system under test will be checked individually
 for conformance and in aggregate to determine that the full set of features is
@@ -33,17 +36,14 @@ requirements and may change how these are tested.
 
 The DTR specification is complex and evolving and these tests do not yet
 cover the full scope of the specification. In particular, tests have been 
-started but not yet released for two actors:
-- Full DTR EMR: responsible for retriving questionnaires from a payer server, 
-  filling them out based on local data and user input, and storing them
-  locally.
-- Light DTR EMR: responsible for serving data that a DTR SMART App can use to
-  populate questionnaires.
+started but not yet released Light DTR EMR actors responsible for launching
+a DTR SMART App and serving data that the app can use to populate questionnaires.
 
 For the implemented actors, see suite-specific documentation on current limitations
-for the [payer server](lib/davinci_dtr_test_kit/docs/dtr_payer_server_suite_description_v201.md#limitations) and
-[DTR SMART App](lib/davinci_dtr_test_kit/docs/dtr_smart_app_suite_description_v201.md#limitations)
-tests.
+for the [payer server](lib/davinci_dtr_test_kit/docs/dtr_payer_server_suite_description_v201.md#limitations),
+[DTR SMART App](lib/davinci_dtr_test_kit/docs/dtr_smart_app_suite_description_v201.md#limitations), 
+[DTR Full EHR](lib/davinci_dtr_test_kit/docs/dtr_full_ehr_suite_description_v201.md#limitations)
+tests
 
 ## How to Run
 
@@ -53,11 +53,13 @@ the test home pages include instructions for trying out the tests, including
 
 - For payer server testing: running the tests against the DTR SMART App tests in this Test Kit
 - For DTR SMART App testing: a [sample postman collection](config/DTR%20SMART%20App%20Tests%20Postman%20Demo.postman_collection.json)
+- For DTR Full EHR testing: [sample postman collection](config/DTR%20Full%20EHR%20Tests%20Postman%20Demo.postman_collection.json)
 
 Detailed instructions can be found in the suite descriptions when the tests
 are run or within this repository for the 
-[payer server](lib/davinci_dtr_test_kit/docs/dtr_payer_server_suite_description_v201.md#running-the-tests) and
-[DTR SMART App](lib/davinci_dtr_test_kit/docs/dtr_smart_app_suite_description_v201.md#running-the-tests).
+[payer server](lib/davinci_dtr_test_kit/docs/dtr_payer_server_suite_description_v201.md#running-the-tests), 
+[DTR SMART App](lib/davinci_dtr_test_kit/docs/dtr_smart_app_suite_description_v201.md#running-the-tests),
+and [DTR Full EHR](lib/davinci_dtr_test_kit/docs/dtr_full_ehr_suite_description_v201.md#running-the-tests).
 
 ### ONC Hosted Instance
 

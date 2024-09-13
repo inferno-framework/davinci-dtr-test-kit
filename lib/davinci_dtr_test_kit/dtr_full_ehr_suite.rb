@@ -1,7 +1,7 @@
 require_relative 'ext/inferno_core/runnable'
 require_relative 'ext/inferno_core/record_response_route'
 require_relative 'ext/inferno_core/request'
-require_relative 'client_groups/resp_assist_device/dtr_full_ehr_questionnaire_workflow_group'
+require_relative 'client_groups/dinner_static/dtr_full_ehr_questionnaire_workflow_group'
 require_relative 'auth_groups/oauth2_authentication_group'
 require_relative 'mock_payer'
 require_relative 'version'
@@ -9,19 +9,11 @@ require_relative 'version'
 module DaVinciDTRTestKit
   class DTRFullEHRSuite < Inferno::TestSuite
     extend MockPayer
+    extend MockAuthServer
 
     id :dtr_full_ehr
     title 'Da Vinci DTR Full EHR Test Suite'
-    description %(
-        # Da Vinci DTR Full EHR Test Suite
-
-        This suite validates that an EHR or other application can act
-        as a full DTR application requesting questionnaires from a
-        payer server and using local data to complete and store them.
-        Inferno will act as payer server returning questionnaires
-        in response to queries from the system under test and validating
-        that they can be completed as expected.
-      )
+    description File.read(File.join(__dir__, 'docs', 'dtr_full_ehr_suite_description_v201.md'))
 
     version VERSION
 
@@ -74,6 +66,6 @@ module DaVinciDTRTestKit
     end
 
     group from: :oauth2_authentication
-    group from: :dtr_full_ehr_questionnaire_workflow
+    group from: :dtr_full_ehr_static_dinner_questionnaire_workflow
   end
 end

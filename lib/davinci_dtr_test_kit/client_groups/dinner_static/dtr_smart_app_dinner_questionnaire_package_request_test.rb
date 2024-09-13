@@ -2,10 +2,10 @@ require 'base64'
 require_relative '../../urls'
 
 module DaVinciDTRTestKit
-  class DTRDinnerQuestionnairePackageRequestTest < Inferno::Test
+  class DTRSmartAppDinnerQuestionnairePackageRequestTest < Inferno::Test
     include URLs
 
-    id :dtr_dinner_questionnaire_package_request
+    id :dtr_smart_app_dinner_questionnaire_package_request
     title 'Invoke the DTR Questionnaire Package operation'
     description %(
       Inferno will wait for a DTR questionnaire package request from the client. Upon receipt, Inferno will generate and
@@ -49,7 +49,7 @@ module DaVinciDTRTestKit
             Resources available from the EHR needed to drive the dinner static workflow.
             Formatted as a FHIR bundle that contains resources, each with an `id` property populated. Each
             instance present will be available for retrieval from Inferno at the endpoint:
-            
+
             ```
             [fhir-base]/[resource type]/[instance id]
             ```
