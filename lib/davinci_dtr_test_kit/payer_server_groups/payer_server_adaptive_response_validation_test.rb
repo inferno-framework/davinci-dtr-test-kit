@@ -16,34 +16,32 @@ module DaVinciDTRTestKit
       the valueset.
 
       This test may process multiple resources, labeling messages with the corresponding tested resources
-      This test may process multiple resources, labeling messages with the corresponding tested resources
       in the order that they were received.
     )
 
     run do
       skip_if retrieval_method == 'Static', 'Performing only static flow tests - only one flow is required.'
+      profile_with_version = 'http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/dtr-qpackage-output-parameters|2.0.1'
       endpoint = custom_endpoint.blank? ? '/Questionnaire/$questionnaire-package' : custom_endpoint
       if initial_adaptive_questionnaire_request.nil?
-        resources = load_tagged_requests(QUESTIONNAIRE_TAG)
+        # making the assumption that only one response was received - if there were multiple, we are only validating the first
+        response = load_tagged_requests(QUESTIONNAIRE_TAG)[0]
+        scratch[:adaptive_responses] = [response]
+        resource = FHIR.from_contents(response.response[:body])
       else
-        resources = []
-        if initial_adaptive_questionnaire_request.is_a?(Array)
-          initial_adaptive_questionnaire_request.each do |_resource|
-            resources.push(fhir_operation("#{url}#{endpoint}", body: JSON.parse(initial_adaptive_questionnaire_request),
-                                                               headers: { 'Content-Type': 'application/json' }))
-          end
-        else
-          resources.push(fhir_operation("#{url}#{endpoint}", body: JSON.parse(initial_adaptive_questionnaire_request),
-                                                             headers: { 'Content-Type': 'application/json' }))
-        end
+        response = fhir_operation("#{url}#{endpoint}", body: JSON.parse(initial_adaptive_questionnaire_request),
+                                                              headers: { 'Content-Type': 'application/json' })
+        resource = FHIR.from_contents(response.response[:body])
+        scratch[:adaptive_responses] = [response]
       end
-      scratch[:adaptive_responses] = resources
+      
       assert !scratch[:adaptive_responses].nil?, 'No resources to validate.'
-      perform_response_validation_test(
-        resources,
-        :parameters,
-        'http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/dtr-qpackage-output-parameters'
-      )
+      assert_response_status([200, 201], response: response.response)
+      assert_resource_type(:parameters, resource: resource)
+      assert_valid_resource(resource: resource, profile_url: profile_with_version)
+      questionnaire_bundle = resource.parameter.find { |param| param.resource.resourceType == 'Bundle' }&.resource
+      assert questionnaire_bundle, 'No questionnaire bundle found in the response'
+      assert_valid_resource(resource: questionnaire_bundle, profile_url: 'http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/DTR-QPackageBundle|2.0.1')
     end
   end
 end

@@ -22,7 +22,7 @@ module DaVinciDTRTestKit
       assert_resource_type(:questionnaire_response, resource: questionnaire_response)
 
       assert_valid_resource(resource: questionnaire_response,
-                            profile_url: 'http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/dtr-questionnaireresponse')
+                            profile_url: 'http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/dtr-questionnaireresponse|2.0.1')
     end
   end
 end

@@ -45,7 +45,7 @@ RSpec.describe DaVinciDTRTestKit::DTRPayerServerQuestionnairePackageGroup do
             perform_response_validation_test(
               [request],
               :parameters,
-              'http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/dtr-qpackage-output-parameters'
+              'http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/dtr-qpackage-output-parameters|2.0.1'
             )
             questionnaire_bundle = resource.parameter.find { |param| param.resource.resourceType == 'Bundle' }&.resource
             assert questionnaire_bundle, 'No questionnaire bundle found in the response'
@@ -65,13 +65,13 @@ RSpec.describe DaVinciDTRTestKit::DTRPayerServerQuestionnairePackageGroup do
         )
         stub_request(:post, validation_url)
           .with(query: {
-                  profile: 'http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/dtr-qpackage-output-parameters'
+                  profile: 'http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/dtr-qpackage-output-parameters|2.0.1'
                 })
           .to_return(status: 200, body: FHIR::OperationOutcome.new.to_json)
 
         stub_request(:post, validation_url)
           .with(query: {
-                  profile: 'http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/DTR-QPackageBundle'
+                  profile: 'http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/DTR-QPackageBundle|2.0.1'
                 })
           .to_return(status: 200, body: FHIR::OperationOutcome.new.to_json)
         result = run(output_validation_test, test_session, url:, access_token:,
@@ -87,7 +87,7 @@ RSpec.describe DaVinciDTRTestKit::DTRPayerServerQuestionnairePackageGroup do
         )
         stub_request(:post, validation_url)
           .with(query: {
-                  profile: 'http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/dtr-qpackage-output-parameters'
+                  profile: 'http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/dtr-qpackage-output-parameters|2.0.1'
                 })
           .with(body: output_params_non_conformant)
           .to_return(status: 200, body: FHIR::OperationOutcome.new(issue: { severity: 'error' }).to_json)

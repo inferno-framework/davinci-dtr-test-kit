@@ -3,7 +3,7 @@ module DaVinciDTRTestKit
   class PayerAdaptiveFormNextRequestTest < Inferno::Test
     include URLs
     include DaVinciDTRTestKit::ValidationTest
-    title '[USER INPUT VALIDATION] Next Question request is valid'
+    title 'User Input Validation:  Next Question request is valid'
     description %(
       This test validates the conformance of the client's request to the
       [SDC Parameters Next Question In](http://hl7.org/fhir/uv/sdc/StructureDefinition/parameters-questionnaire-next-question-in)
@@ -49,13 +49,12 @@ module DaVinciDTRTestKit
           using_manual_entry
         )
       else
-        raise new Inferno::Exceptions::AssertionException.new "Resource does not conform to the either
-         accepted profiles: http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaireresponse-adapt
-         or http://hl7.org/fhir/uv/sdc/StructureDefinition/parameters-questionnaire-next-question-in"
+        messages << { type: 'error',
+        message: format_markdown("No resources were of type 'Parameters' or 'QuestionnaireResponse'") }
       end
-    rescue Inferno::Exceptions::AssertionException => e
-      msg = e.message.to_s.strip
-      skip msg
+      errors_found = messages.any? { |message| message[:type] == 'error' }
+      skip_if errors_found, "No resources conform to the profiles http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaireresponse-adapt
+        or http://hl7.org/fhir/uv/sdc/StructureDefinition/parameters-questionnaire-next-question-in"
     end
   end
 end

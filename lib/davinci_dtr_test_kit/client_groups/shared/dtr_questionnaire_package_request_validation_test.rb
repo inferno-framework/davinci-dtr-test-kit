@@ -29,7 +29,7 @@ module DaVinciDTRTestKit
       assert input_params.present?, 'Request does not contain a recognized FHIR object'
       assert_resource_type(:parameters, resource: input_params)
       assert_valid_resource(resource: input_params,
-                            profile_url: 'http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/dtr-qpackage-input-parameters')
+                            profile_url: 'http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/dtr-qpackage-input-parameters|2.0.1')
     end
   end
 end

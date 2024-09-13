@@ -88,7 +88,7 @@ module DaVinciDTRTestKit
         end
 
         origin_extension = find_extension(target_item_answer,
-                                          'http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/information-origin')
+                                          'http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/information-origin|2.0.1')
         source_extension = find_extension(origin_extension, 'source')
 
         unless source_extension.present?
@@ -134,7 +134,7 @@ module DaVinciDTRTestKit
 
         # check origin.source extension
         origin_extension = find_extension(answer,
-                                          'http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/information-origin')
+                                          'http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/information-origin|2.0.1')
         source_extension = find_extension(origin_extension, 'source')
 
         if source_extension.present?

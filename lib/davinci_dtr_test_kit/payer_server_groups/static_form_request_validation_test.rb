@@ -5,7 +5,7 @@ module DaVinciDTRTestKit
     include DaVinciDTRTestKit::ValidationTest
     include URLs
     id :dtr_v201_payer_static_form_request_validation_test
-    title '[USER INPUT VALIDATION] Client sends payer server a request for a static form'
+    title 'User Input Validation:  Client sends payer server a request for a static form'
     description %(
       Inferno will validate that the request to the payer server conforms to the
        [Input Parameters profile](http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/dtr-qpackage-input-parameters).
@@ -14,36 +14,24 @@ module DaVinciDTRTestKit
        values. CodeableConcept element bindings will fail if none of their codings have a code/system belonging
        to the bound ValueSet. Quantity, Coding, and code element bindings will fail if their code/system
        are not found in the valueset.
-
-       This test may process multiple resources, labeling messages with the corresponding tested resources
-       in the order that they were received.
     )
     input :initial_static_questionnaire_request, :access_token, :retrieval_method
 
     run do
       skip_if retrieval_method == 'Adaptive', 'Performing only adaptive flow tests - only one flow is required.'
+      profile_with_version = 'http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/dtr-qpackage-input-parameters|2.0.1'
       if initial_static_questionnaire_request.nil?
-        using_manual_entry = false
         skip_if access_token.nil?, 'No access token provided - required for client flow.'
-        resources = load_tagged_requests(QUESTIONNAIRE_TAG)
-        skip_if resources.blank?, 'No request resource received from the client.'
-        assert perform_request_validation_test(
-          resources,
-          :parameters,
-          'http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/dtr-qpackage-input-parameters',
-          questionnaire_package_url,
-          using_manual_entry
-        )
+        requests = load_tagged_requests(QUESTIONNAIRE_TAG)
+        skip_if requests.blank?, 'No request resource received from the client.'
+        # making the assumption that only one request was made here - if there were multiple, we are only validating the first
+        resource_is_valid?(resource: FHIR.from_contents(requests[0].request[:body]), profile_url: profile_with_version)
       else
-        # TODO: fix redundant logic here
-        skip_if initial_static_questionnaire_request.nil?, 'No request resource was provided - required for manual flow'
-        assert_valid_json(initial_static_questionnaire_request)
         request = FHIR.from_contents(initial_static_questionnaire_request)
-        assert assert_valid_resource(resource: request, profile_url: 'http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/dtr-qpackage-input-parameters')
+        resource_is_valid?(resource: request, profile_url: profile_with_version)
       end
-    rescue Inferno::Exceptions::AssertionException => e
-      msg = e.message.to_s.strip
-      skip msg
+      errors_found = messages.any? { |message| message[:type] == 'error' }
+      skip_if errors_found, "Resource does not conform to the profile #{profile_with_version}"
     end
   end
 end
