@@ -11,11 +11,9 @@ module DaVinciDTRTestKit
         assert_valid_resource(resource: fhir_resource,
                               profile_url:)
       rescue StandardError => e
-        self.add_message('error', e.message)
+        add_message('error', e.message)
         messages.each do |message|
-          unless message[:message].start_with? "[Resource"
-            message[:message].prepend("[Resource #{index + 1}] ")
-          end
+          message[:message].prepend("[Resource #{index + 1}] ") unless message[:message].start_with? '[Resource'
         end
         if tests_failed[profile_url].blank?
           tests_failed[profile_url] = [e]
@@ -44,7 +42,7 @@ module DaVinciDTRTestKit
         else
           if resource.url != resource_url
             messages << { type: 'warning',
-            message: format_markdown("Request made to wrong URL: #{resource.request[:url]}. Should instead be to #{resource_url}") }
+                          message: format_markdown("Request made to wrong URL: #{resource.request[:url]}. Should instead be to #{resource_url}") }
           end
           fhir_resource = FHIR.from_contents(resource.request[:body])
         end
