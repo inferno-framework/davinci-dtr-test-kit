@@ -83,7 +83,7 @@ module DaVinciDTRTestKit
       launch_prompt = if smart_app_launch == 'ehr'
                         %(Launch the DTR SMART App from Inferno by right clicking
                           [this link](#{launch_uri}?iss=#{fhir_base_url}&launch=#{launch_uri})
-                          and selecting or "Open in new window" or "Open in new tab".)
+                          and selecting "Open in new window" or "Open in new tab".)
                       else
                         %(Launch the SMART App from your EHR.)
                       end
