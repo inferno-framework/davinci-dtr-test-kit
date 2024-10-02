@@ -1,30 +1,77 @@
-require_relative 'fixtures'
+# frozen_string_literal: true
 
 module DaVinciDTRTestKit
   module DTRQuestionnaireResponseValidation
-    include Fixtures
-
     CQL_EXPRESSION_EXTENSIONS = [
       'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-initialExpression',
       'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-calculatedExpression',
       'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-candidateExpression'
     ].freeze
 
-    def validate_questionnaire_pre_population(questionnaire_response, test_id)
-      # Requirements:
-      #  - Prior to exposing the draft QuestionnaireResponse to the user for completion and/or review, the DTR client
-      #    SHALL execute all CQL necessary to resolve the initialExpression, candidateExpression and
-      #    calculatedExpression extensions found in the Questionnaire for any enabled elements.
-      #  - All items that are pre-populated (whether by the payer in the initial QuestionnaireResponse provided in the
-      #    questionnaire package, or from data retrieved from the EHR) SHALL have their origin.source set to ‘auto’.
-      #
-      # Note that in the questionnaire fixture, all cql expression elements are enabled, so we don't filter
-      template_questionnaire_response = find_questionnaire_response_for_test_id(test_id)
-      raise "missing QuestionnaireResponse template for test #{test_id}" unless template_questionnaire_response.present?
+    def check_is_questionnaire_response(questionnaire_response_json)
+      assert_valid_json(questionnaire_response_json)
+      questionnaire_response = begin
+        FHIR.from_contents(questionnaire_response_json)
+      rescue StandardError
+        nil
+      end
 
-      questionnaire = find_questionnaire_instance_for_test_id(test_id)
-      raise "missing Questionnaire for test #{test_id}" unless questionnaire.present?
+      assert questionnaire_response.present?, 'The QuestionnaireResponse is not a recognized FHIR object'
+      assert_resource_type(:questionnaire_response, resource: questionnaire_response)
+    end
 
+    def verify_basic_conformance(questionnaire_response_json)
+      check_is_questionnaire_response(questionnaire_response_json)
+      assert_valid_resource(resource: FHIR.from_contents(questionnaire_response_json),
+                            profile_url: 'http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/dtr-questionnaireresponse|2.0.1')
+    end
+
+    # This only checks answers in the questionnaire response, meaning it does not catch missing answers
+    def check_origin_sources(questionnaire_items, response_items, expected_overrides: [])
+      response_items&.each do |response_item|
+        check_origin_sources(questionnaire_items, response_item.item, expected_overrides:)
+        next unless response_item.answer&.any?
+
+        link_id = response_item.linkId
+        origin_source = find_origin_source(response_item)
+        questionnaire_item = find_item_by_link_id(questionnaire_items, link_id)
+        is_cql_expression = item_is_cql_expression?(questionnaire_item)
+
+        if origin_source.nil?
+          add_message('error', "Required `origin.source` extension not present on answer to item `#{link_id}`")
+        elsif expected_overrides.include?(link_id)
+          if origin_source != 'override'
+            add_message('error', %(`origin.source` extension on item `#{link_id}` contains unexpected value. Expected:
+                                   override. Found: #{origin_source}))
+          end
+        elsif is_cql_expression && !['auto', 'override'].include?(origin_source)
+          add_message('error', %(`origin.source` extension on item `#{link_id}` contains unexpected value. Expected:
+                                 auto or override. Found: #{origin_source}))
+        elsif !is_cql_expression && origin_source != 'manual'
+          add_message('error', %(`origin.source` extension on item `#{link_id}` contains unexpected value. Expected:
+                                 manual. Found: #{origin_source}))
+        end
+      end
+    end
+
+    # This checks presence of all answers if link_ids is nil
+    def check_answer_presence(items, link_ids: nil)
+      items&.each do |item|
+        check_answer_presence(item.item, link_ids:)
+
+        if !item.answer&.first&.value.present? && (link_ids.nil? || link_ids.include?(item.linkId))
+          add_message('error', "No answer for item #{item.linkId}")
+        end
+      end
+    end
+
+    # Requirements:
+    #  - Prior to exposing the draft QuestionnaireResponse to the user for completion and/or review, the DTR client
+    #    SHALL execute all CQL necessary to resolve the initialExpression, candidateExpression and
+    #    calculatedExpression extensions found in the Questionnaire for any enabled elements.
+    #  - All items that are pre-populated (whether by the payer in the initial QuestionnaireResponse provided in the
+    #    questionnaire package, or from data retrieved from the EHR) SHALL have their origin.source set to ‘auto’.
+    def validate_questionnaire_pre_population(questionnaire, template_questionnaire_response, questionnaire_response)
       questionnaire_cql_expression_link_ids = collect_questionnaire_cql_expression_link_ids(questionnaire.item)
       template_prepopulation_expectations = {}
       template_override_expectations = {}
@@ -87,37 +134,20 @@ module DaVinciDTRTestKit
           raise "Template QuestionnaireResponse missing an answer for item with link id `#{target_link_id}`"
         end
 
-        origin_extension = find_extension(target_item_answer,
-                                          'http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/information-origin|2.0.1')
-        source_extension = find_extension(origin_extension, 'source')
+        origin_source = find_origin_source(target_item)
 
-        unless source_extension.present?
+        unless origin_source.present?
           raise "Template QuestionnaireResponse item `#{target_link_id}` missing the `origin.source` extension"
         end
 
-        if source_extension.value == 'auto'
+        if origin_source == 'auto'
           expected_prepopulated[target_link_id] = target_item_answer
-        elsif source_extension.value == 'override'
+        elsif origin_source == 'override'
           expected_overrides[target_link_id] = target_item_answer
         else
-          raise "`origin.source` extension for item `#{target_link_id}` has unexpected value: #{source_extension.value}"
+          raise "`origin.source` extension for item `#{target_link_id}` has unexpected value: #{origin_source}"
         end
       end
-    end
-
-    def validate_data_requirements_retrieved(expected_questionnaire_response, questionnaire_response)
-      error_messages = []
-
-      DATA_REQUIREMENT_ANSWERS.each do |library_name, link_id|
-        expected = find_item_by_link_id(expected_questionnaire_response.item, link_id).answer.first.value
-        actual = find_item_by_link_id(questionnaire_response.item, link_id)&.answer&.first&.value
-        next if coding_equal?(expected, actual)
-
-        error_messages << "dataRequirement not satisfied for Library '#{library_name}'. Expected answer to " \
-                          "question with linkId `#{link_id}` to have coding with system: '`#{expected.system}`' " \
-                          "and value: '`#{expected.code}`'"
-      end
-      error_messages
     end
 
     def check_item_prepopulation(item, expected_answer, error_list, override)
@@ -133,15 +163,13 @@ module DaVinciDTRTestKit
         end
 
         # check origin.source extension
-        origin_extension = find_extension(answer,
-                                          'http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/information-origin|2.0.1')
-        source_extension = find_extension(origin_extension, 'source')
+        origin_source = find_origin_source(item)
 
-        if source_extension.present?
+        if origin_source.present?
           expected_source_value = override ? 'override' : 'auto'
-          if source_extension.value != expected_source_value
+          if origin_source != expected_source_value
             error_list << "`origin.source` extension on item `#{item.linkId}` contains unexpected value. Expected: " \
-                          "#{expected_source_value}. Found #{source_extension.value}"
+                          "#{expected_source_value}. Found #{origin_source}"
           end
         else
           error_list << "Required `origin.source` extension not present on answer to item `#{item.linkId}`"
@@ -159,6 +187,14 @@ module DaVinciDTRTestKit
         return match if match
       end
       nil
+    end
+
+    def find_origin_source(item)
+      origin_extension = find_extension(
+        item&.answer&.first,
+        'http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/information-origin'
+      )
+      find_extension(origin_extension, 'source')&.value
     end
 
     def find_extension(element, url)

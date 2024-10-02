@@ -6,6 +6,8 @@ require_relative 'dtr_full_ehr_prepopulation_override_attestation_test'
 require_relative 'dtr_full_ehr_rendering_enabled_questions_attestation_test'
 require_relative 'dtr_full_ehr_store_attestation_test'
 require_relative 'dtr_full_ehr_prepopulation_representation_attestation_test'
+require_relative 'dtr_full_ehr_dinner_static_questionnaire_response_conformance_test'
+require_relative 'dtr_full_ehr_dinner_static_questionnaire_response_correctness_test'
 
 module DaVinciDTRTestKit
   class DTRFullEHRStaticDinnerQuestionnaireWorkflowGroup < Inferno::TestGroup
@@ -68,14 +70,23 @@ module DaVinciDTRTestKit
         The tester will attest to the completion of the questionnaire such that
         the results are stored for later use.
       )
+      input :questionnaire_response,
+            type: 'textarea',
+            title: 'Completed QuestionnaireResponse',
+            optional: true,
+            description: %(
+              The QuestionnaireResponse as exported from the EHR after completion of the Questionnaire. IMPORTANT: If
+              you have not yet run the 'Filling Out the Static Questionnaire' group, leave this blank until you have
+              done so. Then, run just the 'Saving the QuestionnaireResponse' group and populate this input.
+            )
       run_as_group
 
       # Test 1: attest QuestionnaireResponse saved
       test from: :dtr_full_ehr_dinner_static_store_attestation
-      # Test 2: validate basic conformance of the QuestionnaireResponse
-      # - not using currently
-      # Test 3: validate workflow-specific details such as pre-population and overrides
-      test from: :dtr_full_ehr_dinner_static_prepopulation_representation_attestation
+      # Test 2: verify basic conformance of the QuestionnaireResponse
+      test from: :dtr_full_ehr_dinner_static_questionnaire_response_conformance
+      # Test 3: check workflow-specific details such as pre-population and overrides
+      test from: :dtr_full_ehr_dinner_static_questionnaire_response_correctness
     end
   end
 end

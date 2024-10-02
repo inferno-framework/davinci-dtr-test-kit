@@ -1,10 +1,7 @@
 require_relative 'urls'
-require_relative 'fixtures'
 
 module DaVinciDTRTestKit
   module MockAuthServer
-    include Fixtures
-
     def ehr_smart_config(env)
       protocol = env['rack.url_scheme']
       host = env['HTTP_HOST']
