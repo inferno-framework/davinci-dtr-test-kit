@@ -43,6 +43,8 @@ module DaVinciDTRTestKit
       !test.config.options[:accepts_multiple_requests]
     end
 
+    private
+
     def build_questionnaire_package_response(request, test_id)
       begin
         input_parameters = FHIR.from_contents(request.request_body)
@@ -55,9 +57,7 @@ module DaVinciDTRTestKit
         return operation_outcome('error', 'business-rule', "No Questionnaire found for Inferno test #{test_id}")
       end
 
-      questionnaire_canonical = questionnaire_package&.entry&.find do |e|
-        e.resource.is_a?(FHIR::Questionnaire)
-      end&.resource&.url
+      questionnaire_canonical = find_questionnaire_canonical(questionnaire_package)
 
       other_questionnaire_params = input_parameters.parameter.filter do |param|
         param.name == 'questionnaire' && param.valueCanonical != questionnaire_canonical
@@ -81,6 +81,10 @@ module DaVinciDTRTestKit
           )
         ]
       )
+    end
+
+    def find_questionnaire_canonical(questionnaire_package)
+      questionnaire_package&.entry&.find { |e| e.resource.is_a?(FHIR::Questionnaire) }&.resource&.url
     end
 
     def operation_outcome(severity, code, text = nil)
