@@ -4,14 +4,12 @@ require_relative 'fixtures'
 
 module DaVinciDTRTestKit
   module MockPayer
-    include Fixtures
-
     RESPONSE_HEADERS = { 'Content-Type' => 'application/json', 'Access-Control-Allow-Origin' => '*' }.freeze
 
     def questionnaire_package_response(request, _test = nil, test_result = nil)
       request.status = 200
       request.response_headers = RESPONSE_HEADERS
-      request.response_body = build_package_questionnaire_response(request, test_result.test_id).to_json
+      request.response_body = build_questionnaire_package_response(request, test_result.test_id).to_json
     end
 
     def payer_questionnaire_response(request, _test = nil, test_result = nil)
@@ -45,79 +43,58 @@ module DaVinciDTRTestKit
       !test.config.options[:accepts_multiple_requests]
     end
 
-    def build_package_questionnaire_response(request, test_id)
-      test_questionnaire_canonical = find_questionnaire_canonical_for_test_id(test_id)
-      test_questionnaire_loaded = false
+    private
 
-      bundles = []
-      issues = []
-
-      # first try the parameters - load the questionnaire specified by the questionnaire parameter
-      input_parameters = FHIR.from_contents(request.request_body)
-      input_parameters.parameter.each do |one_parameter|
-        next unless one_parameter.name == 'questionnaire'
-        next unless one_parameter.valueCanonical
-
-        # don't load test questionnaire if it is also specified explicitly
-        test_questionnaire_loaded = true if one_parameter.valueCanonical == test_questionnaire_canonical
-
-        add_questionnaire_canonical_to_response(one_parameter.valueCanonical, bundles, issues)
+    def build_questionnaire_package_response(request, test_id)
+      begin
+        input_parameters = FHIR.from_contents(request.request_body)
+      rescue StandardError
+        return operation_outcome('error', 'invalid', 'No valid input parameters')
       end
 
-      unless test_questionnaire_loaded
-        if test_questionnaire_canonical
-          add_questionnaire_canonical_to_response(test_questionnaire_canonical, bundles, issues)
-
-        elsif bundles.empty?
-          # no questionnaire for this test ...
-          operation_outcome_issue = FHIR::OperationOutcome::Issue.new
-          operation_outcome_issue.severity = 'error'
-          operation_outcome_issue.code = 'business-rule'
-          details = FHIR::CodeableConcept.new
-          details.text = "no questionnaire found for test #{test_id}"
-          operation_outcome_issue.details = details
-          issues << operation_outcome_issue
-        end
+      questionnaire_package = Fixtures.questionnaire_package_for_test(test_id)
+      unless questionnaire_package
+        return operation_outcome('error', 'business-rule', "No Questionnaire found for Inferno test #{test_id}")
       end
 
-      build_package_questionnaire_response_from_lists(bundles, issues)
+      questionnaire_canonical = find_questionnaire_canonical(questionnaire_package)
+
+      other_questionnaire_params = input_parameters.parameter.filter do |param|
+        param.name == 'questionnaire' && param.valueCanonical != questionnaire_canonical
+      end
+
+      return questionnaire_package unless other_questionnaire_params.any?
+
+      FHIR::Parameters.new(
+        parameter: [
+          FHIR::Parameters::Parameter.new(
+            name: 'PackageBundle',
+            resource: questionnaire_package
+          ),
+          FHIR::Parameters::Parameter.new(
+            name: 'Outcome',
+            resource: FHIR::OperationOutcome.new(
+              issue: other_questionnaire_params.map do |param|
+                outcome_issue('warning', 'not-found', "Questionnaire #{param.valueCanonical} does not exist")
+              end
+            )
+          )
+        ]
+      )
     end
 
-    def add_questionnaire_canonical_to_response(questionnaire_canonical, bundles, issues)
-      questionnaire_bundle = get_questionnaire_packcage_for_canonical(questionnaire_canonical)
-
-      if questionnaire_bundle
-        bundles << questionnaire_bundle
-      else
-        operation_outcome_issue = FHIR::OperationOutcome::Issue.new
-        operation_outcome_issue.severity = 'warning'
-        operation_outcome_issue.code = 'value'
-        details = FHIR::CodeableConcept.new
-        details.text = "Questionnaire Canonical #{questionnaire_canonical} does not exist"
-        operation_outcome_issue.details = details
-        issues << operation_outcome_issue
-      end
+    def find_questionnaire_canonical(questionnaire_package)
+      questionnaire_package&.entry&.find { |e| e.resource.is_a?(FHIR::Questionnaire) }&.resource&.url
     end
 
-    def build_package_questionnaire_response_from_lists(bundles, issues)
-      response = FHIR::Parameters.new
-      bundles.each do |one_bundle|
-        return_param = FHIR::Parameters::Parameter.new
-        return_param.name = 'return'
-        return_param.resource = one_bundle
-        response.parameter << return_param
-      end
+    def operation_outcome(severity, code, text = nil)
+      FHIR::OperationOutcome.new(issue: outcome_issue(severity, code, text))
+    end
 
-      unless issues.empty?
-        outcome = FHIR::OperationOutcome.new
-        outcome.issue = issues
-        outcome_param = FHIR::Parameters::Parameter.new
-        outcome_param.name = 'outcome'
-        outcome_param.resource = outcome
-        response.parameter << outcome_param
+    def outcome_issue(severity, code, text = nil)
+      FHIR::OperationOutcome::Issue.new(severity:, code:).tap do |issue|
+        issue.details = FHIR::CodeableConcept.new(text:) if text.present?
       end
-
-      response
     end
   end
 end

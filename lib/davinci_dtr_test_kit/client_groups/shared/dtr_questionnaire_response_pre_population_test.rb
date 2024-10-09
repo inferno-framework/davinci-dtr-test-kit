@@ -1,4 +1,7 @@
+# frozen_string_literal: true
+
 require_relative '../../dtr_questionnaire_response_validation'
+require_relative '../../fixtures'
 
 module DaVinciDTRTestKit
   class DTRQuestionnaireResponsePrePopulationTest < Inferno::Test
@@ -21,11 +24,12 @@ module DaVinciDTRTestKit
     )
 
     run do
-      assert_valid_json(request.request_body)
-      questionnaire_response = FHIR.from_contents(request.request_body)
-      skip_if !questionnaire_response.present?, 'QuestionnaireResponse not received'
-
-      validate_questionnaire_pre_population(questionnaire_response, id)
+      questionnaire_response_json = request.request_body
+      check_is_questionnaire_response(questionnaire_response_json)
+      questionnaire_response = FHIR.from_contents(questionnaire_response_json)
+      questionnaire = Fixtures.questionnaire_for_test(id)
+      response_template = Fixtures.questionnaire_response_for_test(id)
+      validate_questionnaire_pre_population(questionnaire, response_template, questionnaire_response)
     end
   end
 end
