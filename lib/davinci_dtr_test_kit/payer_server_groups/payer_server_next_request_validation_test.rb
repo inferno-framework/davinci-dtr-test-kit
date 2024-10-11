@@ -50,7 +50,7 @@ module DaVinciDTRTestKit
         )
       else
         messages << { type: 'error',
-        message: format_markdown("No resources were of type 'Parameters' or 'QuestionnaireResponse'") }
+                      message: format_markdown("No resources were of type 'Parameters' or 'QuestionnaireResponse'") }
       end
       errors_found = messages.any? { |message| message[:type] == 'error' }
       skip_if errors_found, "No resources conform to the profiles http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaireresponse-adapt
