@@ -30,15 +30,15 @@ module DaVinciDTRTestKit
         resource = FHIR.from_contents(response.response[:body])
       else
         response = fhir_operation("#{url}#{endpoint}", body: JSON.parse(initial_adaptive_questionnaire_request),
-                                                              headers: { 'Content-Type': 'application/json' })
+                                                       headers: { 'Content-Type': 'application/json' })
         resource = FHIR.from_contents(response.response[:body])
         scratch[:adaptive_responses] = [response]
       end
-      
+
       assert !scratch[:adaptive_responses].nil?, 'No resources to validate.'
       assert_response_status([200, 201], response: response.response)
-      assert_resource_type(:parameters, resource: resource)
-      assert_valid_resource(resource: resource, profile_url: profile_with_version)
+      assert_resource_type(:parameters, resource:)
+      assert_valid_resource(resource:, profile_url: profile_with_version)
       questionnaire_bundle = resource.parameter.find { |param| param.resource.resourceType == 'Bundle' }&.resource
       assert questionnaire_bundle, 'No questionnaire bundle found in the response'
       assert_valid_resource(resource: questionnaire_bundle, profile_url: 'http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/DTR-QPackageBundle|2.0.1')
