@@ -1,3 +1,4 @@
+require 'securerandom'
 require_relative '../../urls'
 
 module DaVinciDTRTestKit
@@ -9,18 +10,18 @@ module DaVinciDTRTestKit
     description %(
       Attest that DTR has been launched for a patient with data that will be used for prepopulation.
     )
-    input :access_token
 
     run do
+      random_id = SecureRandom.uuid
       wait(
-        identifier: access_token,
+        identifier: random_id,
         message: %(
           I attest that DTR has been launched in the context of a patient with an official name, including
           first and last.
 
-          [Click here](#{resume_pass_url}?token=#{access_token}) if the above statement is **true**.
+          [Click here](#{resume_pass_url}?token=#{random_id}) if the above statement is **true**.
 
-          [Click here](#{resume_fail_url}?token=#{access_token}) if the above statement is **false**.
+          [Click here](#{resume_fail_url}?token=#{random_id}) if the above statement is **false**.
         )
       )
     end
