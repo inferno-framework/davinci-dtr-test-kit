@@ -21,9 +21,11 @@
             "valueCanonical": "https://madie.cms.gov/Library/DTRTest"
           }
         ],
+        "derivedFrom": [
+          "http://hl7.org/fhir/us/core/StructureDefinition/us-core-questionnaire"
+        ],
         "name": "DinnerOrderAdaptive",
         "title": "Dinner Order (Adaptive)",
-        "url": "urn:inferno:dtr-test-kit:dinner-order-adaptive",
         "status": "draft",
         "subjectType": [
           "Patient"
