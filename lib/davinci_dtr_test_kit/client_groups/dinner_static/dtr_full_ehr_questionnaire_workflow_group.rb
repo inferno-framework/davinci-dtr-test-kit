@@ -1,5 +1,5 @@
-require_relative 'dtr_full_ehr_launch_attestation_test'
-require_relative 'dtr_full_ehr_dinner_questionnaire_package_request_test'
+require_relative '../full_ehr/dtr_full_ehr_launch_attestation_test'
+require_relative '../full_ehr/dtr_full_ehr_questionnaire_package_request_test'
 require_relative '../shared/dtr_questionnaire_package_request_validation_test'
 require_relative 'dtr_full_ehr_prepopulation_attestation_test'
 require_relative 'dtr_full_ehr_prepopulation_override_attestation_test'
@@ -36,9 +36,9 @@ module DaVinciDTRTestKit
       run_as_group
 
       # Test 0: attest to launch
-      test from: :dtr_full_ehr_dinner_static_launch_attestation
+      test from: :dtr_full_ehr_launch_attestation
       # Test 1: wait for the $questionnaire-package request
-      test from: :dtr_full_ehr_dinner_questionnaire_package_request
+      test from: :dtr_full_ehr_questionnaire_package_request
       # Test 2: validate the $questionnaire-package body
       test from: :dtr_questionnaire_package_request_validation
     end
