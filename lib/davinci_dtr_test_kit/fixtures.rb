@@ -21,6 +21,12 @@ module DaVinciDTRTestKit
         ],
         questionnaire_package: File.join('dinner_static', 'questionnaire_dinner_order_static.json'),
         questionnaire_response: File.join('dinner_static', 'questionnaire_response_dinner_order_static.json')
+      },
+      {
+        group_ids: [
+          'dtr_full_ehr_adaptive_questionnaire_retrieval'
+        ],
+        questionnaire_package: File.join('dinner_adaptive', 'questionnaire_dinner_order_adaptive.json')
       }
     ].freeze
 
