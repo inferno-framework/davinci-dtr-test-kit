@@ -17,6 +17,9 @@
       "valueCanonical": "https://madie.cms.gov/Library/DTRTest"
     }
   ],
+  "derivedFrom": [
+    "http://hl7.org/fhir/us/core/StructureDefinition/us-core-questionnaire"
+  ],
   "name": "DinnerOrderAdaptive",
   "title": "Dinner Order (Adaptive)",
   "status": "draft",
