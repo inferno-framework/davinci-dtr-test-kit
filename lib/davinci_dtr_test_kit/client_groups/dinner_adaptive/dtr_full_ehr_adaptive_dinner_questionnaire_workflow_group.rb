@@ -1,5 +1,6 @@
 require_relative '../full_ehr/dtr_full_ehr_launch_attestation_test'
 require_relative '../full_ehr/dtr_full_ehr_questionnaire_package_request_test'
+require_relative '../full_ehr/dtr_full_ehr_questionnaire_rendering_group'
 require_relative '../shared/dtr_questionnaire_package_request_validation_test'
 require_relative '../shared/dtr_adaptive_questionnaire_initial_next_question_request_test'
 require_relative '../shared/dtr_adaptive_questionnaire_next_question_request_validation_test'
@@ -44,18 +45,29 @@ module DaVinciDTRTestKit
 
     group do
       id :dtr_full_ehr_adaptive_questionnaire_initial
-      title 'Retrieving Initial Adaptive Questions'
+      title 'Initial Adaptive Questions Retrieval, Rendering, and Population'
       description %(
         The client must request the initial set of questions using the $next-question operation, and Inferno will
         validate that the request conforms to the [next question operation input parameters profile](http://hl7.org/fhir/uv/sdc/StructureDefinition/parameters-questionnaire-next-question-in).
-        The initial set of questions will be returned for the tester to complete.
+        The initial set of questions will be returned for the tester to complete and attest to pre-population
+        and questionnaire rendering.
       )
       run_as_group
 
-      # Test 1: wait for the initial $next-question request
-      test from: :dtr_adaptive_questionnaire_initial_next_question_request
-      # Test 2: validate the $next-question request
-      test from: :dtr_adaptive_questionnaire_next_question_request_validation
+      group do
+        id :dtr_full_ehr_adaptive_initial_next_question_retrieval
+        title 'Initial $next-question Operation'
+        description %(
+          This group includes tests for invoking and validating the initial $next-question operation.
+        )
+
+        # Test 1: wait for the initial $next-question request
+        test from: :dtr_adaptive_questionnaire_initial_next_question_request
+        # Test 2: validate the $next-question request
+        test from: :dtr_adaptive_questionnaire_next_question_request_validation
+      end
+
+      group from: :dtr_full_ehr_questionnaire_rendering
     end
   end
 end
