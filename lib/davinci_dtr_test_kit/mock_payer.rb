@@ -125,9 +125,7 @@ module DaVinciDTRTestKit
     end
 
     def questionnaire_in_questionnaire_response_exist?(questionnaire_response, next_questionnaire)
-      canonical = find_questionnaire_canonical(next_questionnaire) || "##{next_questionnaire.id}"
-      questionnaire_response.questionnaire == canonical ||
-        questionnaire_response.questionnaire == "##{next_questionnaire.id}"
+      questionnaire_response.questionnaire == "##{next_questionnaire.id}"
     end
 
     def build_parameters(parameters)
@@ -146,10 +144,8 @@ module DaVinciDTRTestKit
       questionnaire_response.contained << next_questionnaire
     end
 
-    def find_questionnaire_canonical(resource)
-      return resource.url if resource.is_a?(FHIR::Questionnaire)
-
-      resource&.entry&.find { |e| e.resource.is_a?(FHIR::Questionnaire) }&.resource&.url
+    def find_questionnaire_canonical(questionnaire_package)
+      questionnaire_package&.entry&.find { |e| e.resource.is_a?(FHIR::Questionnaire) }&.resource&.url
     end
 
     def operation_outcome(severity, code, text = nil)

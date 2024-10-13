@@ -35,7 +35,7 @@ module DaVinciDTRTestKit
              "The input parameter must contain one `parameter:questionnaire-response` slice.  Found #{qr_params_count}"
 
       questionnaire_response =  questionnaire_response_params.first.resource
-      assert_resource_type(:questionnaire_response, questionnaire_response)
+      assert_resource_type(:questionnaire_response, resource: questionnaire_response)
     end
   end
 end
