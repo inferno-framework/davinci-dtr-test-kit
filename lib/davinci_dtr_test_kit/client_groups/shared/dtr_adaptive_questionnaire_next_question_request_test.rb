@@ -1,14 +1,16 @@
 require_relative '../../urls'
 
 module DaVinciDTRTestKit
-  class DTRAdaptiveQuestionnaireInitialNextQuestionRequestTest < Inferno::Test
+  class DTRAdaptiveQuestionnaireNextQuestionRequestTest < Inferno::Test
     include URLs
 
-    id :dtr_adaptive_questionnaire_initial_next_question_request
-    title 'Invoke the initial $next-question operation'
+    id :dtr_adaptive_questionnaire_next_question_request
+    title 'Invoke the $next-question operation'
     description %(
-      Inferno will wait for the client to invoke the $next-question operation to retrieve the initial set of questions.
-      Inferno will validate the request body and return the initial questionnaire.
+      Inferno will wait for the client to invoke the $next-question operation to retrieve the next question
+      or set of questions.
+      Inferno will validate the request body and update the contained Questionnaire to include
+      the next question or set of questions.
     )
 
     input :access_token
@@ -17,14 +19,14 @@ module DaVinciDTRTestKit
       wait(
         identifier: access_token,
         message: %(
-          ### Initial Next Question Request
+          ### Next Question Request
 
           Inferno will wait for the client to invoke the $next-question operation by sending a POST
           request to
 
           `#{next_url}`
 
-          Upon receipt, Inferno will respond with the initial set of questions.
+          Upon receipt, Inferno will provide the next question or set of questions to complete.
 
           ### Request Identification
 

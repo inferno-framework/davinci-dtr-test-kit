@@ -2,8 +2,7 @@ require_relative '../full_ehr/dtr_full_ehr_launch_attestation_test'
 require_relative '../full_ehr/dtr_full_ehr_questionnaire_package_request_test'
 require_relative '../full_ehr/dtr_full_ehr_questionnaire_rendering_group'
 require_relative '../shared/dtr_questionnaire_package_request_validation_test'
-require_relative '../shared/dtr_adaptive_questionnaire_initial_next_question_request_test'
-require_relative '../shared/dtr_adaptive_questionnaire_next_question_request_validation_test'
+require_relative '../shared/dtr_adaptive_questionnaire_next_question_retieval_group'
 
 module DaVinciDTRTestKit
   class DTRFullEHRAdaptiveDinnerQuestionnaireWorkflowGroup < Inferno::TestGroup
@@ -54,19 +53,7 @@ module DaVinciDTRTestKit
       )
       run_as_group
 
-      group do
-        id :dtr_full_ehr_adaptive_initial_next_question_retrieval
-        title 'Initial $next-question Operation'
-        description %(
-          This group includes tests for invoking and validating the initial $next-question operation.
-        )
-
-        # Test 1: wait for the initial $next-question request
-        test from: :dtr_adaptive_questionnaire_initial_next_question_request
-        # Test 2: validate the $next-question request
-        test from: :dtr_adaptive_questionnaire_next_question_request_validation
-      end
-
+      group from: :dtr_adaptive_questionnaire_next_question_retrieval
       group from: :dtr_full_ehr_questionnaire_rendering
     end
   end
