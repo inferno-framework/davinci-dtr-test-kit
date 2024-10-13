@@ -58,7 +58,7 @@ module DaVinciDTRTestKit
       DTRFullEHRSuite.extract_bearer_token(request)
     end
 
-    record_response_route :post, NEXT_PATH, NEXT_TAG,
+    record_response_route :post, NEXT_PATH, CLIENT_NEXT_TAG,
                           method(:client_questionnaire_next_response) do |request|
       DTRFullEHRSuite.extract_bearer_token(request)
     end
