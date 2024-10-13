@@ -18,7 +18,7 @@
     }
   ],
   "derivedFrom": [
-    "http://hl7.org/fhir/us/core/StructureDefinition/us-core-questionnaire"
+    "urn:inferno:dtr-test-kit:dinner-order-adaptive"
   ],
   "name": "DinnerOrderAdaptive",
   "title": "Dinner Order (Adaptive)",

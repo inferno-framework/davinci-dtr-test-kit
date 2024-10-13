@@ -17,6 +17,9 @@
       "valueCanonical": "https://madie.cms.gov/Library/DTRTest"
     }
   ],
+  "derivedFrom": [
+    "urn:inferno:dtr-test-kit:dinner-order-adaptive"
+  ],
   "name": "DinnerOrderAdaptive",
   "title": "Dinner Order (Adaptive)",
   "status": "draft",
