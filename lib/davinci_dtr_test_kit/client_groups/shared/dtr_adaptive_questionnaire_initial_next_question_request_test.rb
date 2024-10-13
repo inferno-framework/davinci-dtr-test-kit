@@ -1,10 +1,10 @@
 require_relative '../../urls'
 
 module DaVinciDTRTestKit
-  class DTRAdaptiveInitialNextQuestionRequestTest < Inferno::Test
+  class DTRAdaptiveQuestionnaireInitialNextQuestionRequestTest < Inferno::Test
     include URLs
 
-    id :dtr_adaptive_initial_next_question_request
+    id :dtr_adaptive_questionnaire_initial_next_question_request
     title 'Invoke the initial $next-question operation'
     description %(
       Inferno will wait for the client to invoke the $next-question operation to retrieve the initial set of questions.
