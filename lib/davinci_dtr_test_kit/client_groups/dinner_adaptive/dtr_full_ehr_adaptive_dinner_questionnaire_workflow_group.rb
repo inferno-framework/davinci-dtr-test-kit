@@ -1,6 +1,7 @@
 require_relative '../full_ehr/dtr_full_ehr_launch_attestation_test'
 require_relative '../full_ehr/dtr_full_ehr_questionnaire_package_request_test'
 require_relative '../shared/dtr_questionnaire_package_request_validation_test'
+require_relative '../shared/dtr_adaptive_initial_next_question_request_test'
 
 module DaVinciDTRTestKit
   class DTRFullEHRAdaptiveDinnerQuestionnaireWorkflowGroup < Inferno::TestGroup
@@ -38,6 +39,20 @@ module DaVinciDTRTestKit
       test from: :dtr_full_ehr_questionnaire_package_request
       # Test 2: validate the $questionnaire-package request body
       test from: :dtr_questionnaire_package_request_validation
+    end
+
+    group do
+      id :dtr_full_ehr_adaptive_questionnaire_initial
+      title 'Initial Adaptive Questions Rendering and Prepopulation'
+      description %(
+        The client must request the initial set of questions using the $next-question operation, and Inferno will
+        validate that the request conforms to expected parameters. The initial set of questions will be returned
+        for the tester to complete and attest to pre-population.
+      )
+      run_as_group
+
+      # Test 1: wait for the initial $next-question request
+      test from: :dtr_adaptive_initial_next_question_request
     end
   end
 end

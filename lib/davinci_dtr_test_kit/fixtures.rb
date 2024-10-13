@@ -27,6 +27,12 @@ module DaVinciDTRTestKit
           'dtr_full_ehr_adaptive_questionnaire_retrieval'
         ],
         questionnaire_package: File.join('dinner_adaptive', 'questionnaire_dinner_order_adaptive.json')
+      },
+      {
+        group_ids: [
+          'dtr_full_ehr_adaptive_questionnaire_initial'
+        ],
+        next_question: File.join('dinner_adaptive', 'dinner_order_adaptive_next_question_initial.json')
       }
     ].freeze
 
@@ -35,6 +41,11 @@ module DaVinciDTRTestKit
     # full_test_id needs to be the long inferno-generated ID that includes hyphenated ancestor IDs
     def questionnaire_package_for_test(full_test_id)
       get_fixture(full_test_id, :questionnaire_package)
+    end
+
+    # full_test_id needs to be the long inferno-generated ID that includes hyphenated ancestor IDs
+    def next_question_for_test(full_test_id)
+      get_fixture(full_test_id, :next_question)
     end
 
     # full_test_id needs to be the long inferno-generated ID that includes hyphenated ancestor IDs

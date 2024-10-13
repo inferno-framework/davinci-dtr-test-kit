@@ -46,7 +46,7 @@ module DaVinciDTRTestKit
       end
     end
 
-    allow_cors QUESTIONNAIRE_PACKAGE_PATH
+    allow_cors QUESTIONNAIRE_PACKAGE_PATH, NEXT_PATH
 
     record_response_route :post, PAYER_TOKEN_PATH, 'dtr_full_ehr_payer_token',
                           method(:payer_token_response) do |request|
@@ -55,6 +55,11 @@ module DaVinciDTRTestKit
 
     record_response_route :post, QUESTIONNAIRE_PACKAGE_PATH, QUESTIONNAIRE_PACKAGE_TAG,
                           method(:questionnaire_package_response) do |request|
+      DTRFullEHRSuite.extract_bearer_token(request)
+    end
+
+    record_response_route :post, NEXT_PATH, NEXT_TAG,
+                          method(:client_questionnaire_next_response) do |request|
       DTRFullEHRSuite.extract_bearer_token(request)
     end
 
