@@ -51,6 +51,12 @@ module DaVinciDTRTestKit
         The initial set of questions will be returned for the tester to complete and attest to pre-population
         and questionnaire rendering.
       )
+
+      config(
+        options: {
+          next_question_prompt_title: 'Initial Next Question Request'
+        }
+      )
       run_as_group
 
       group from: :dtr_adaptive_questionnaire_next_question_retrieval
@@ -69,6 +75,12 @@ module DaVinciDTRTestKit
         and questionnaire rendering.
       )
 
+      config(
+        options: {
+          next_question_prompt_title: 'Follow-up Next Question Request'
+        }
+      )
+
       run_as_group
 
       group from: :dtr_adaptive_questionnaire_next_question_retrieval
@@ -83,6 +95,12 @@ module DaVinciDTRTestKit
         Inferno will validate that the request conforms to the [next question operation input parameters profile](http://hl7.org/fhir/uv/sdc/StructureDefinition/parameters-questionnaire-next-question-in)
         and will update the status of the QuestionnaireResponse resource parameter to `complete`.
         Inferno will also validate the completed QuestionnaireResponse conformance.
+      )
+
+      config(
+        options: {
+          next_question_prompt_title: 'Last Next Question Request'
+        }
       )
       run_as_group
 
