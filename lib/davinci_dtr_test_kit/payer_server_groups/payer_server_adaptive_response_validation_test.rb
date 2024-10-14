@@ -24,7 +24,8 @@ module DaVinciDTRTestKit
       profile_with_version = 'http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/dtr-qpackage-output-parameters|2.0.1'
       endpoint = custom_endpoint.blank? ? '/Questionnaire/$questionnaire-package' : custom_endpoint
       if initial_adaptive_questionnaire_request.nil?
-        # making the assumption that only one response was received - if there were multiple, we are only validating the first
+        # making the assumption that only one response was received - if there were multiple, we are only validating the
+        # first
         response = load_tagged_requests(QUESTIONNAIRE_TAG)[0]
         scratch[:adaptive_responses] = [response]
         resource = FHIR.from_contents(response.response[:body])

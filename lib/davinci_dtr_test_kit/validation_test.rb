@@ -42,7 +42,8 @@ module DaVinciDTRTestKit
         else
           if resource.url != resource_url
             messages << { type: 'warning',
-                          message: format_markdown("Request made to wrong URL: #{resource.request[:url]}. Should instead be to #{resource_url}") }
+                          message: format_markdown(%(Request made to wrong URL: #{resource.request[:url]}.
+                                                     Should instead be to #{resource_url})) }
           end
           fhir_resource = FHIR.from_contents(resource.request[:body])
         end

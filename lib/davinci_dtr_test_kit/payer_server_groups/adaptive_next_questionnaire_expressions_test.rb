@@ -6,8 +6,8 @@ module DaVinciDTRTestKit
     id :dtr_v201_payer_adaptive_next_form_expressions_test
     title 'Questionnaire(s) contains items with expressions necessary for pre-population'
     description %(
-      Inferno checks that the payer server response to $next-question operation has appropriate expressions and that expressions are
-       written in cql.
+      Inferno checks that the payer server response to $next-question operation has appropriate expressions and that
+      expressions are written in cql.
     )
 
     run do
