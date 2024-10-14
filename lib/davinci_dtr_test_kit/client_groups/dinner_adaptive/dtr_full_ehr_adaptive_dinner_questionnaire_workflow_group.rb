@@ -74,5 +74,19 @@ module DaVinciDTRTestKit
       group from: :dtr_adaptive_questionnaire_next_question_retrieval
       group from: :dtr_full_ehr_questionnaire_rendering
     end
+
+    group do
+      id :dtr_full_ehr_adaptive_questionnaire_completion
+      title 'Adaptive Questionnaire Completion'
+      description %(
+        The client makes a final $next-question call, including the answers to all required questions asked so far.
+        Inferno will validate that the request conforms to the [next question operation input parameters profile](http://hl7.org/fhir/uv/sdc/StructureDefinition/parameters-questionnaire-next-question-in)
+        and will update the status of the QuestionnaireResponse resource parameter to `complete`.
+        Inferno will also validate the completed QuestionnaireResponse conformance.
+      )
+      run_as_group
+
+      group from: :dtr_adaptive_questionnaire_next_question_retrieval
+    end
   end
 end

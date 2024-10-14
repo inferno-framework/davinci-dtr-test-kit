@@ -20,10 +20,10 @@ module DaVinciDTRTestKit
       assert_resource_type(:questionnaire_response, resource: questionnaire_response)
     end
 
-    def verify_basic_conformance(questionnaire_response_json)
+    def verify_basic_conformance(questionnaire_response_json, profile_url = nil)
+      profile_url ||= 'http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/dtr-questionnaireresponse|2.0.1'
       check_is_questionnaire_response(questionnaire_response_json)
-      assert_valid_resource(resource: FHIR.from_contents(questionnaire_response_json),
-                            profile_url: 'http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/dtr-questionnaireresponse|2.0.1')
+      assert_valid_resource(resource: FHIR.from_contents(questionnaire_response_json), profile_url:)
     end
 
     # This only checks answers in the questionnaire response, meaning it does not catch missing answers

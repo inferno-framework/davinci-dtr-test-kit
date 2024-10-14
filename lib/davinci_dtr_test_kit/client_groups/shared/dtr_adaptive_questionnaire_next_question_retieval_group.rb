@@ -1,5 +1,6 @@
 require_relative 'dtr_adaptive_questionnaire_next_question_request_test'
 require_relative 'dtr_adaptive_questionnaire_next_question_request_validation_test'
+require_relative 'dtr_adaptive_questionnaire_response_validation_test'
 
 module DaVinciDTRTestKit
   class DTRAdaptiveQuestionnaireNextQuestionRetrievalGroup < Inferno::TestGroup
@@ -16,5 +17,7 @@ module DaVinciDTRTestKit
     test from: :dtr_adaptive_questionnaire_next_question_request
     # Test 2: validate the $next-question request
     test from: :dtr_adaptive_questionnaire_next_question_request_validation
+    # Test 3: validate the QuestionnaireResponse in the input parameter
+    test from: :dtr_adaptive_questionnaire_response_validation
   end
 end
