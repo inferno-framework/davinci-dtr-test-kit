@@ -26,7 +26,8 @@ module DaVinciDTRTestKit
         resources = load_tagged_requests(QUESTIONNAIRE_TAG)
         skip_if resources.nil?, 'No request resource received from the client.'
         scratch[:output_parameters] = resources
-        # making the assumption that only one response was received- if there were multiple, we are only validating the first
+        # making the assumption that only one response was received- if there were multiple, we are only validating the
+        # first
         assert_valid_resource(resource: FHIR.from_contents(resources[0].request[:body]),
                               profile_url: profile_with_version)
       else
