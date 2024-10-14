@@ -56,5 +56,23 @@ module DaVinciDTRTestKit
       group from: :dtr_adaptive_questionnaire_next_question_retrieval
       group from: :dtr_full_ehr_questionnaire_rendering
     end
+
+    group do
+      id :dtr_full_ehr_adaptive_questionnaire_followup_questions
+      title 'Follow-Up Adaptive Questions Retrieval, Rendering, and Population'
+      description %(
+        The client makes a subsequent call to request the next question or set of questions
+        using the $next-question operation, and including the answers to all required questions
+        in the questionnaire to this point.
+        Inferno will validate that the request conforms to the [next question operation input parameters profile](http://hl7.org/fhir/uv/sdc/StructureDefinition/parameters-questionnaire-next-question-in)
+        and will provide follow-up questions accordingly for the tester to complete and attest to pre-population
+        and questionnaire rendering.
+      )
+
+      run_as_group
+
+      group from: :dtr_adaptive_questionnaire_next_question_retrieval
+      group from: :dtr_full_ehr_questionnaire_rendering
+    end
   end
 end

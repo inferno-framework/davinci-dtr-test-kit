@@ -1,5 +1,3 @@
-# frozen_string_literal: true
-
 require_relative 'fixtures'
 
 module DaVinciDTRTestKit
@@ -81,20 +79,25 @@ module DaVinciDTRTestKit
       input_parameters = parse_request_body(request)
       return input_parameters if input_parameters.is_a?(FHIR::OperationOutcome)
 
-      next_questionnaire = Fixtures.next_question_for_test(test_id)
-      unless next_questionnaire
-        return operation_outcome('error', 'business-rule',
-                                 "No additional Questionnaire found for Inferno test #{test_id}")
-      end
-
       questionnaire_response_param = find_questionnaire_response(input_parameters)
       return questionnaire_response_param if questionnaire_response_param.is_a?(FHIR::OperationOutcome)
 
       questionnaire_response = questionnaire_response_param.resource
-      unless valid_questionnaire_response?(questionnaire_response)
-        issue = 'Input `parameter:questionnaire-response.resource` is missing or not a QuestionnaireResponse.'
-        return operation_outcome('error', 'business-rule', issue)
+      return invalid_next_question_param_resource_outcome unless valid_questionnaire_response?(questionnaire_response)
+
+      if questionnaire_last_dinner_order_question_present?(questionnaire_response)
+        # change the questionnaire response status to complete and return the parameters
+        return handle_last_dinner_order(questionnaire_response_param)
+      elsif questionnaire_dinner_order_selection_present?(questionnaire_response)
+        # Retrieve the selected option from the response and determine the next set of questions
+        next_questionnaire = dinner_question_from_selection(questionnaire_response, test_id)
+      else
+        next_questionnaire = Fixtures.next_question_for_test(test_id)
       end
+
+      return missing_next_questionnaire_outcome(test_id) unless next_questionnaire
+
+      update_questionnaire_response(questionnaire_response, next_questionnaire)
 
       unless questionnaire_in_questionnaire_response_exist?(questionnaire_response, next_questionnaire)
         issue = "Questionnaire #{questionnaire_response.questionnaire} does not exist"
@@ -102,7 +105,6 @@ module DaVinciDTRTestKit
         return build_parameters([questionnaire_response_param, outcome_param])
       end
 
-      update_questionnaire_response(questionnaire_response, next_questionnaire)
       build_parameters([questionnaire_response_param])
     end
 
@@ -110,6 +112,27 @@ module DaVinciDTRTestKit
       FHIR.from_contents(request.request_body)
     rescue StandardError
       operation_outcome('error', 'invalid', 'No valid input parameters')
+    end
+
+    def build_parameters(parameters)
+      FHIR::Parameters.new(parameter: parameters)
+    end
+
+    def build_outcome_param(issues)
+      FHIR::Parameters::Parameter.new(
+        name: 'Outcome',
+        resource: FHIR::OperationOutcome.new(issue: issues)
+      )
+    end
+
+    def operation_outcome(severity, code, text = nil)
+      FHIR::OperationOutcome.new(issue: outcome_issue(severity, code, text))
+    end
+
+    def outcome_issue(severity, code, text = nil)
+      FHIR::OperationOutcome::Issue.new(severity:, code:).tap do |issue|
+        issue.details = FHIR::CodeableConcept.new(text:) if text.present?
+      end
     end
 
     def find_questionnaire_response(input_parameters)
@@ -124,38 +147,67 @@ module DaVinciDTRTestKit
       questionnaire_response.is_a?(FHIR::QuestionnaireResponse)
     end
 
+    def invalid_next_question_param_resource_outcome
+      issue = 'Input `parameter:questionnaire-response.resource` is missing or not a QuestionnaireResponse.'
+      operation_outcome('error', 'business-rule', issue)
+    end
+
+    def missing_next_questionnaire_outcome(test_id)
+      operation_outcome('error', 'business-rule', "No Questionnaire found for Inferno test #{test_id}")
+    end
+
+    def handle_last_dinner_order(questionnaire_response_param)
+      update_questionnaire_response(questionnaire_response_param.resource)
+      build_parameters([questionnaire_response_param])
+    end
+
+    # Retrieve the selected option from the response and determine the next set of questions
+    def dinner_question_from_selection(questionnaire_response, test_id)
+      option = retrieve_dinner_order_selection(questionnaire_response)
+      unless option
+        issue = 'Cannot determine next question to return: Dinner order selection answer missing '
+        return operation_outcome('error', 'business-rule', issue)
+      end
+
+      Fixtures.next_question_for_test(test_id, option)
+    end
+
     def questionnaire_in_questionnaire_response_exist?(questionnaire_response, next_questionnaire)
-      questionnaire_response.questionnaire == "##{next_questionnaire.id}"
+      questionnaire_response.questionnaire&.include?(next_questionnaire.id)
     end
 
-    def build_parameters(parameters)
-      FHIR::Parameters.new(parameter: parameters)
+    def questionnaire_dinner_order_selection_present?(questionnaire_response)
+      # LinkId = 3.1 for the What would you like for dinner? question
+      path = "contained.where($this is Questionnaire).item.where(linkId = '3').item.where(linkId = '3.1').exists()"
+      result = evaluator.evaluate_fhirpath(questionnaire_response, path, self)
+      !!result.first&.dig('element')
     end
 
-    def build_outcome_param(issues)
-      FHIR::Parameters::Parameter.new(
-        name: 'Outcome',
-        resource: FHIR::OperationOutcome.new(issue: issues)
-      )
+    def questionnaire_last_dinner_order_question_present?(questionnaire_response)
+      # LinkId = 3.3 for the Any special requests? question
+      path = "contained.where($this is Questionnaire).item.where(linkId = '3').item.where(linkId = '3.3').exists()"
+      result = evaluator.evaluate_fhirpath(questionnaire_response, path, self)
+      !!result.first&.dig('element')
     end
 
-    def update_questionnaire_response(questionnaire_response, next_questionnaire)
-      questionnaire_response.contained.reject! { |resource| resource.resourceType == 'Questionnaire' }
-      questionnaire_response.contained << next_questionnaire
+    def retrieve_dinner_order_selection(questionnaire_response)
+      # LinkId = 3.1 for the What would you like for dinner? question
+      path = "item.where(linkId = '3').item.where(linkId = '3.1').answer.where(value is Coding).value.code"
+      result = evaluator.evaluate_fhirpath(questionnaire_response, path, self)
+      result.first&.dig('element')&.parameterize&.underscore
+    end
+
+    def update_questionnaire_response(questionnaire_response, next_questionnaire = nil)
+      if next_questionnaire
+        questionnaire_response.contained.reject! { |resource| resource.resourceType == 'Questionnaire' }
+        questionnaire_response.contained << next_questionnaire
+      else
+        questionnaire_response.status = 'complete'
+      end
     end
 
     def find_questionnaire_canonical(questionnaire_package)
       questionnaire_package&.entry&.find { |e| e.resource.is_a?(FHIR::Questionnaire) }&.resource&.url
-    end
-
-    def operation_outcome(severity, code, text = nil)
-      FHIR::OperationOutcome.new(issue: outcome_issue(severity, code, text))
-    end
-
-    def outcome_issue(severity, code, text = nil)
-      FHIR::OperationOutcome::Issue.new(severity:, code:).tap do |issue|
-        issue.details = FHIR::CodeableConcept.new(text:) if text.present?
-      end
     end
   end
 end
