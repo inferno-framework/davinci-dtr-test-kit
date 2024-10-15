@@ -56,10 +56,9 @@ module DaVinciDTRTestKit
       client_id = extract_client_id_from_token_request(request)
       token = JWT.encode({ inferno_client_id: client_id }, nil, 'none')
       response = { access_token: token, token_type: 'bearer', expires_in: 3600 }
-      test_input = JSON.parse(test_result.input_json)
 
-      fhir_context_input = test_input.find { |input| input['name'] == 'smart_fhir_context' }
-      fhir_context_input_value = fhir_context_input['value'] if fhir_context_input.present?
+      fhir_context_input = find_test_input(test_result, 'smart_fhir_context')
+      fhir_context_input_value = fhir_context_input['value'] if fhir_context_input
       begin
         fhir_context = JSON.parse(fhir_context_input_value)
       rescue StandardError
@@ -67,7 +66,7 @@ module DaVinciDTRTestKit
       end
       response.merge!({ fhirContext: fhir_context }) if fhir_context
 
-      smart_patient_input = test_input.find { |input| input['name'] == 'smart_patient_id' }
+      smart_patient_input = find_test_input(test_result, 'smart_patient_id')
       smart_patient_input_value = smart_patient_input['value'] if smart_patient_input.present?
       response.merge!({ patient: smart_patient_input_value }) if smart_patient_input_value
 
@@ -137,6 +136,10 @@ module DaVinciDTRTestKit
 
     def extract_token_from_query_params(request)
       request.query_parameters['token']
+    end
+
+    def find_test_input(test_result, input_name)
+      JSON.parse(test_result.input_json)&.find { |input| input['name'] == input_name }
     end
   end
 end
