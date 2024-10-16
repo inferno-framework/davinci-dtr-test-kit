@@ -179,21 +179,21 @@ module DaVinciDTRTestKit
     def questionnaire_dinner_order_selection_present?(questionnaire_response)
       # LinkId = 3.1 for the What would you like for dinner? question
       path = "contained.where($this is Questionnaire).item.where(linkId = '3').item.where(linkId = '3.1').exists()"
-      result = evaluator.evaluate_fhirpath(questionnaire_response, path, self)
+      result = evaluator.evaluate_fhirpath(questionnaire_response, path, new)
       !!result.first&.dig('element')
     end
 
     def questionnaire_last_dinner_order_question_present?(questionnaire_response)
       # LinkId = 3.3 for the Any special requests? question
       path = "contained.where($this is Questionnaire).item.where(linkId = '3').item.where(linkId = '3.3').exists()"
-      result = evaluator.evaluate_fhirpath(questionnaire_response, path, self)
+      result = evaluator.evaluate_fhirpath(questionnaire_response, path, new)
       !!result.first&.dig('element')
     end
 
     def retrieve_dinner_order_selection(questionnaire_response)
       # LinkId = 3.1 for the What would you like for dinner? question
       path = "item.where(linkId = '3').item.where(linkId = '3.1').answer.where(value is Coding).value.code"
-      result = evaluator.evaluate_fhirpath(questionnaire_response, path, self)
+      result = evaluator.evaluate_fhirpath(questionnaire_response, path, new)
       result.first&.dig('element')&.parameterize&.underscore
     end
 

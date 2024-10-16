@@ -48,18 +48,22 @@ module DaVinciDTRTestKit
 
     allow_cors QUESTIONNAIRE_PACKAGE_PATH, NEXT_PATH
 
+    def self.test_resumes?(test)
+      !test.config.options[:accepts_multiple_requests]
+    end
+
     record_response_route :post, PAYER_TOKEN_PATH, 'dtr_full_ehr_payer_token',
                           method(:payer_token_response) do |request|
       DTRFullEHRSuite.extract_client_id_from_form_params(request)
     end
 
     record_response_route :post, QUESTIONNAIRE_PACKAGE_PATH, QUESTIONNAIRE_PACKAGE_TAG,
-                          method(:questionnaire_package_response) do |request|
+                          method(:questionnaire_package_response), resumes: method(:test_resumes?) do |request|
       DTRFullEHRSuite.extract_bearer_token(request)
     end
 
-    record_response_route :post, NEXT_PATH, CLIENT_NEXT_TAG,
-                          method(:client_questionnaire_next_response) do |request|
+    record_response_route :post, NEXT_PATH, CLIENT_NEXT_TAG, method(:client_questionnaire_next_response),
+                          resumes: method(:test_resumes?) do |request|
       DTRFullEHRSuite.extract_bearer_token(request)
     end
 

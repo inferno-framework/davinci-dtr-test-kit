@@ -26,12 +26,7 @@ module DaVinciDTRTestKit
         group_ids: [
           'dtr_full_ehr_adaptive_questionnaire_retrieval'
         ],
-        questionnaire_package: File.join('dinner_adaptive', 'questionnaire_dinner_order_adaptive.json')
-      },
-      {
-        group_ids: [
-          'dtr_full_ehr_adaptive_questionnaire_initial'
-        ],
+        questionnaire_package: File.join('dinner_adaptive', 'questionnaire_dinner_order_adaptive.json'),
         next_question: File.join('dinner_adaptive', 'dinner_order_adaptive_next_question_initial.json')
       },
       {

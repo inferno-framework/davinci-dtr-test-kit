@@ -1,7 +1,5 @@
-require_relative '../full_ehr/dtr_full_ehr_launch_attestation_test'
-require_relative '../full_ehr/dtr_full_ehr_questionnaire_package_request_test'
+require_relative '../full_ehr/dtr_full_ehr_adaptive_questionnaire_initial_retrieval_group'
 require_relative '../full_ehr/dtr_full_ehr_questionnaire_rendering_group'
-require_relative '../shared/dtr_questionnaire_package_request_validation_test'
 require_relative '../shared/dtr_adaptive_questionnaire_next_question_retieval_group'
 
 module DaVinciDTRTestKit
@@ -26,52 +24,32 @@ module DaVinciDTRTestKit
 
     group do
       id :dtr_full_ehr_adaptive_questionnaire_retrieval
-      title 'Retrieving the Adaptive Questionnaire Package'
+      title 'Retrieving the Adaptive Questionnaire'
       description %(
         After DTR launch, Inferno will wait for the client system to request a questionnaire using the
-        $questionnaire-package operation and will return an adaptive questionnaire for the tester to complete.
-        Inferno will then validate the conformance of the request.
-      )
-      run_as_group
+        $questionnaire-package operation and follow up with an initial $next-question request to retrieve
+        the first set of questions.
 
-      # Test 0: attest to launch
-      test from: :dtr_full_ehr_launch_attestation
-      # Test 1: wait for the $questionnaire-package request
-      test from: :dtr_full_ehr_questionnaire_package_request
-      # Test 2: validate the $questionnaire-package request body
-      test from: :dtr_questionnaire_package_request_validation
-    end
-
-    group do
-      id :dtr_full_ehr_adaptive_questionnaire_initial
-      title 'Initial Adaptive Questions Retrieval, Rendering, and Population'
-      description %(
-        The client must request the initial set of questions using the $next-question operation, and Inferno will
-        validate that the request conforms to the [next question operation input parameters profile](http://hl7.org/fhir/uv/sdc/StructureDefinition/parameters-questionnaire-next-question-in).
         The initial set of questions will be returned for the tester to complete and attest to pre-population
         and questionnaire rendering.
-      )
 
-      config(
-        options: {
-          next_question_prompt_title: 'Initial Next Question Request'
-        }
+        Inferno will also validate the conformance of the requests.
       )
       run_as_group
 
-      group from: :dtr_adaptive_questionnaire_next_question_retrieval
+      group from: :dtr_full_ehr_adaptive_questionnaire_initial_retrieval
       group from: :dtr_full_ehr_questionnaire_rendering
     end
 
     group do
       id :dtr_full_ehr_adaptive_questionnaire_followup_questions
-      title 'Follow-Up Adaptive Questions Retrieval, Rendering, and Population'
+      title 'Retrieving the Next Question'
       description %(
         The client makes a subsequent call to request the next question or set of questions
         using the $next-question operation, and including the answers to all required questions
         in the questionnaire to this point.
         Inferno will validate that the request conforms to the [next question operation input parameters profile](http://hl7.org/fhir/uv/sdc/StructureDefinition/parameters-questionnaire-next-question-in)
-        and will provide follow-up questions accordingly for the tester to complete and attest to pre-population
+        and will provide the next questions accordingly for the tester to complete and attest to pre-population
         and questionnaire rendering.
       )
 
@@ -89,7 +67,7 @@ module DaVinciDTRTestKit
 
     group do
       id :dtr_full_ehr_adaptive_questionnaire_completion
-      title 'Adaptive Questionnaire Completion'
+      title 'Completing the Adaptive Questionnaire'
       description %(
         The client makes a final $next-question call, including the answers to all required questions asked so far.
         Inferno will validate that the request conforms to the [next question operation input parameters profile](http://hl7.org/fhir/uv/sdc/StructureDefinition/parameters-questionnaire-next-question-in)
