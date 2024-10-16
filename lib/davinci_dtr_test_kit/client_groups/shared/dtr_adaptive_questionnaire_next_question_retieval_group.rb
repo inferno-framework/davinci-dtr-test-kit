@@ -5,7 +5,7 @@ require_relative 'dtr_adaptive_questionnaire_response_validation_test'
 module DaVinciDTRTestKit
   class DTRAdaptiveQuestionnaireNextQuestionRetrievalGroup < Inferno::TestGroup
     id :dtr_adaptive_questionnaire_next_question_retrieval
-    title 'Retrieving the Adaptive Questionnaire Next Question'
+    title 'Next Question Request and Validation'
     description %(
       Inferno will wait for the client system to request the next question (or set of questions) using the
       $next-question operation and will return an updated QuestionnaireResponse with a contained Questionnaire

@@ -11,13 +11,14 @@ module DaVinciDTRTestKit
     description %(
       This test validates the conformance of the Adative QuestionnaireResponse to the
       [SDCQuestionnaireResponseAdapt](http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaireresponse-adapt)
-      structure.
+      structure. It verifies the presence of mandatory elements and that elements
+      with required bindings contain appropriate values.
 
        It also ensures that all required questions are answered, and that the `origin.source`
       extension is correct for each answer:
-            - `PBD.1` (Last Name) and `LOC.1` (Location): `auto`
-            - `PBD.2` (First Name): `override`
-            - `3.1` (dinner choice): `manual`
+        - `PBD.1` (Last Name) and `LOC.1` (Location): `auto`
+        - `PBD.2` (First Name): `override`
+        - `3` (all nested dinner questions): `manual`
 
       Note: For the initial next-question request, only the conformance to the profile is checked
       since neither the QuestionnaireResponse nor the contained Questionnaire will have any items,
