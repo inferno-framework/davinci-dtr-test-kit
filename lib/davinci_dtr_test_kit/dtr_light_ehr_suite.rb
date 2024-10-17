@@ -1,18 +1,14 @@
+require 'tls_test_kit'
 require_relative 'version'
+require_relative 'dtr_options'
+require 'smart_app_launch/smart_stu1_suite'
+require 'smart_app_launch/smart_stu2_suite'
 
 module DaVinciDTRTestKit
   class DTRLightEHRSuite < Inferno::TestSuite
     id :dtr_light_ehr
     title 'Da Vinci DTR Light EHR Test Suite'
-    description %(
-        # Da Vinci DTR Light EHR Test Suite
-
-        This suite validates that an EMR or other application
-        can act as a data source for a DTR SMART App. Inferno
-        will act as a DTR SMART App making requests for data
-        against the system under test and storing completed
-        questionnaire responses.
-      )
+    description File.read(File.join(__dir__, 'docs', 'dtr_light_ehr_suite_description_v201.md'))
 
     version VERSION
 
@@ -35,28 +31,45 @@ module DaVinciDTRTestKit
       }
     ]
 
-    # These inputs will be available to all tests in this suite
     input :url,
-          title: 'FHIR Server Base Url'
+          title: 'FHIR Endpoint',
+          description: 'URL of the DTR FHIR server'
 
-    input :credentials,
-          title: 'OAuth Credentials',
-          type: :oauth_credentials,
-          optional: true
+    group do
+      title 'Authorization'
 
-    # All FHIR requests in this suite will use this FHIR client
-    fhir_client do
-      url :url
-      oauth_credentials :credentials
-    end
+      group from: :smart_discovery_stu2 do
+        required_suite_options DTROptions::SMART_2_REQUIREMENT
+        run_as_group
 
-    # Hl7 Validator Wrapper:
-    fhir_resource_validator do
-      igs 'hl7.fhir.us.davinci-dtr#2.0.1'
+        test from: :tls_version_test do
+          title 'DTR FHIR Server is secured by transport layer security'
+          description <<~DESCRIPTION
+            Under [Privacy, Security, and Safety](https://hl7.org/fhir/us/davinci-crd/STU2/security.html),
+            the DTR Implementation Guide imposes the following rule about TLS:
+            As per the [DTR Hook specification](https://cds-hooks.hl7.org/2.0/#security-and-safety),
+            communications between DTR Clients and DTR Servers SHALL
+            use TLS. Mutual TLS is not required by this specification but is permitted. DTR Servers and
+            DTR Clients SHOULD enforce a minimum version and other TLS configuration requirements based
+            on HRex rules for PHI exchange.
+            This test verifies that the FHIR server is using TLS 1.2 or higher.
+          DESCRIPTION
 
-      exclude_message do |message|
-        message.message.match?(/\A\S+: \S+: URL value '.*' does not resolve/)
+          id :dtr_server_tls_version_stu2
+
+          config(
+            options: { minimum_allowed_version: OpenSSL::SSL::TLS1_2_VERSION }
+          )
+        end
       end
+
+      group from: :smart_ehr_launch_stu2,
+            required_suite_options: DTROptions::SMART_2_REQUIREMENT,
+            run_as_group: true
+
+      group from: :smart_standalone_launch_stu2,
+            required_suite_options: DTROptions::SMART_2_REQUIREMENT,
+            run_as_group: true
     end
   end
 end
