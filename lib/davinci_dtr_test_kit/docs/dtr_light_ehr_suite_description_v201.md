@@ -21,3 +21,9 @@ Once the connection between the DTR SMART App and the DTR Light EHR is establish
 If you would like to try out the tests but don't have a DTR payer server implementation, you can run these tests against the [public instance of the Inferno Reference Server](https://inferno.healthit.gov/reference-server/r4/) by using the Inferno Reference Server preset in the test suite.
 
 In order to get the Inferno QA Reference Server to do an EHR launch, navigate to https://inferno.healthit.gov/reference-server/app/app-launch and use https://inferno.healthit.gov/custom/smart/launch as the App Launch URL.
+
+## Limitations
+
+The DTR IG is a complex specification and these tests currently validate conformance to only
+a subset of IG requirements. Future versions of the test suite will test further
+features.
