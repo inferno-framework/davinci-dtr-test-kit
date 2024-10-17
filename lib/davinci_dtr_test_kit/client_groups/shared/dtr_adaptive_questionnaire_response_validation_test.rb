@@ -38,18 +38,18 @@ module DaVinciDTRTestKit
       input_params = FHIR.from_contents(request.request_body)
       skip_if input_params.blank?, 'Request does not contain a recognized FHIR object'
 
-      questionnaire_response = input_params.parameter&.find { |param| param.name == 'questionnaire-response' }&.resource
-      questionnaire = questionnaire_response&.contained&.find { |res| res.resourceType == 'Questionnaire' }
-      skip_if questionnaire_response.nil?, 'QuestionnaireResponse resource not provided.'
-      skip_if questionnaire.nil?, 'QuestionnaireResponse resource does not contain a Questionnaire resource.'
+      questionnaire_response = input_params.try(:parameter)&.find do |param|
+                                 param.name == 'questionnaire-response'
+                               end&.resource
 
+      skip_if questionnaire_response.nil?, 'QuestionnaireResponse resource not provided.'
       verify_basic_conformance(questionnaire_response.to_json, profile_url)
+
+      questionnaire = questionnaire_response.contained.find { |res| res.resourceType == 'Questionnaire' }
       check_origin_sources(questionnaire.item, questionnaire_response.item, expected_overrides: ['PBD.2'])
 
-      required_link_ids = questionnaire.item.flat_map do |item|
-        item.item&.select(&:required)&.map(&:linkId)
-      end.compact
-      check_answer_presence(questionnaire_response.item, link_ids: required_link_ids)
+      required_link_ids = extract_required_link_ids(questionnaire.item)
+      check_required_answers_presence(questionnaire_response.item, required_link_ids)
 
       assert(messages.none? { |m| m[:type] == 'error' }, 'QuestionnaireResponse is not correct, see error message(s)')
     end

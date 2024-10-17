@@ -65,6 +65,27 @@ module DaVinciDTRTestKit
       end
     end
 
+    # Ensures that all required questions have been answered
+    # @note I do not think the above `check_answer_presence` checks that
+    # answer is present for a given question. it will pass if the response
+    # items is empty. Logic to be revised.
+    def check_required_answers_presence(response_items, required_link_ids = [])
+      required_link_ids.each do |link_id|
+        item = find_item_by_link_id(response_items, link_id)
+        unless item&.answer&.any? { |answer| answer.value.present? }
+          add_message('error', "No answer for item #{link_id}")
+        end
+      end
+    end
+
+    def extract_required_link_ids(questionnaire_items)
+      questionnaire_items.each_with_object([]) do |item, required_link_ids|
+        required_link_ids << item.linkId if item.required
+
+        required_link_ids.concat(extract_required_link_ids(item.item)) if item.item.present?
+      end
+    end
+
     # Requirements:
     #  - Prior to exposing the draft QuestionnaireResponse to the user for completion and/or review, the DTR client
     #    SHALL execute all CQL necessary to resolve the initialExpression, candidateExpression and

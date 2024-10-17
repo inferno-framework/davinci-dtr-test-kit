@@ -1,0 +1,60 @@
+{
+  "resourceType": "Parameters",
+  "id": "next-question-initial",
+  "meta": {
+    "profile": [
+      "http://hl7.org/fhir/uv/sdc/StructureDefinition/parameters-questionnaire-next-question-in"
+    ]
+  },
+  "parameter": [
+    {
+      "name": "questionnaire-response",
+      "resource": {
+        "resourceType": "QuestionnaireResponse",
+        "id": "adaptive-dinner-response",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaireresponse-adapt"
+          ]
+        },
+        "status": "in-progress",
+        "questionnaire": "#DinnerOrderAdaptive",
+        "subject": {
+          "reference": "Patient/example"
+        },
+        "authored": "2024-10-10T00:00:00Z",
+        "contained": [
+          {
+            "resourceType": "Questionnaire",
+            "id": "DinnerOrderAdaptive",
+            "url": "urn:inferno:dtr-test-kit:dinner-order-adaptive",
+            "meta": {
+              "profile": [
+                "http://hl7.org/fhir/StructureDefinition/cqf-questionnaire",
+                "http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/dtr-questionnaire-adapt-search"
+              ]
+            },
+            "extension": [
+              {
+                "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-questionnaireAdaptive",
+                "valueBoolean": true
+              },
+              {
+                "url": "http://hl7.org/fhir/StructureDefinition/cqf-library",
+                "valueCanonical": "https://madie.cms.gov/Library/DTRTest"
+              }
+            ],
+            "name": "DinnerOrderAdaptive",
+            "title": "Dinner Order (Adaptive)",
+            "status": "draft",
+            "subjectType": [
+              "Patient"
+            ],
+            "date": "2024-05-06",
+            "publisher": "Inferno"
+          }
+        ]
+      }
+    }
+  ]
+}
