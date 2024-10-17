@@ -13,6 +13,8 @@ The test kit includes suites targeting the following actors from the specificati
 - **DTR Full EHR**: Inferno will act as a server implementing the
   payer server responding to requests for questionnaires made by
   the EHR under test.
+- **DTR Light EHR**: Inferno will act as a DTR SMART App that will connect
+  to the DTR Light EHR system under test and make requests to the Light EHR under test.
 
 In each case, content provided by the system under test will be checked individually
 for conformance and in aggregate to determine that the full set of features is
