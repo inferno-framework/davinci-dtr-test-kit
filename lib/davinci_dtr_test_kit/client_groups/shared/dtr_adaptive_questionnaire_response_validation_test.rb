@@ -49,7 +49,7 @@ module DaVinciDTRTestKit
       check_origin_sources(questionnaire.item, questionnaire_response.item, expected_overrides: ['PBD.2'])
 
       required_link_ids = extract_required_link_ids(questionnaire.item)
-      check_required_answers_presence(questionnaire_response.item, required_link_ids)
+      check_answer_presence(questionnaire_response.item, required_link_ids)
 
       assert(messages.none? { |m| m[:type] == 'error' }, 'QuestionnaireResponse is not correct, see error message(s)')
     end

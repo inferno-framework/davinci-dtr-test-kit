@@ -54,22 +54,9 @@ module DaVinciDTRTestKit
       end
     end
 
-    # This checks presence of all answers if link_ids is nil
-    def check_answer_presence(items, link_ids: nil)
-      items&.each do |item|
-        check_answer_presence(item.item, link_ids:)
-
-        if !item.answer&.first&.value.present? && (link_ids.nil? || link_ids.include?(item.linkId))
-          add_message('error', "No answer for item #{item.linkId}")
-        end
-      end
-    end
-
-    # Ensures that all required questions have been answered
-    # @note I do not think the above `check_answer_presence` checks that
-    # answer is present for a given question. it will pass if the response
-    # items is empty. Logic to be revised.
-    def check_required_answers_presence(response_items, required_link_ids = [])
+    # Ensures that all required questions have been answered.
+    # If required_link_ids not provided, all questions are treated as optional.
+    def check_answer_presence(response_items, required_link_ids = [])
       required_link_ids.each do |link_id|
         item = find_item_by_link_id(response_items, link_id)
         unless item&.answer&.any? { |answer| answer.value.present? }

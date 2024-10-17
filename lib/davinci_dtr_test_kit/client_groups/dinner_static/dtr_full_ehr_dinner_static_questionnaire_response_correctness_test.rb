@@ -23,7 +23,8 @@ module DaVinciDTRTestKit
       # questionnaire = Fixtures.find_questionnaire('DinnerOrderStatic')
       qr = FHIR.from_contents(questionnaire_response)
       check_origin_sources(questionnaire.item, qr.item, expected_overrides: ['PBD.2'])
-      check_answer_presence(qr.item, link_ids: ['PBD.1', 'PBD.2', 'LOC.1'])
+      required_link_ids = extract_required_link_ids(questionnaire.item)
+      check_answer_presence(qr.item, required_link_ids)
       assert(messages.none? { |m| m[:type] == 'error' }, 'QuestionnaireResponse is not correct, see error message(s)')
     end
   end
