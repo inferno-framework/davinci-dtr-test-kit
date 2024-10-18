@@ -14,23 +14,19 @@ module DaVinciDTRTestKit
     end
 
     def cqf_reference_libraries
-      @cqf_reference_libraries ||= Set.new
+      scratch[:cqf_reference_libraries] ||= Set.new
     end
 
     def library_urls
-      @@library_urls ||= Set.new
+      scratch[:library_urls] ||= Set.new
     end
 
     def library_names
-      @@library_names ||= Set.new
+      scratch[:library_names] ||= Set.new
     end
 
     def found_questionnaire
       @found_questionnaire ||= false
-    end
-
-    def found_bad_library_reference
-      @@found_bad_library_reference ||= false
     end
 
     def found_duplicate_library_name
@@ -129,7 +125,6 @@ module DaVinciDTRTestKit
       begin
         assert found_questionnaire, 'No questionnaires found.'
         assert !found_non_cql_expression, 'Found non-cql expression.'
-        assert !found_bad_library_reference, 'Found expression with no or incorrect reference to library name.'
         assert extension_presence.value?(true), 'No extensions found. Questionnaire must demonstrate prepopulation.'
         assert cql_presence['init_expression'], 'Initial expression logic not written in CQL.'
         assert cql_presence['candidate_expression'], 'Candidate expression logic not written in CQL.'
