@@ -1,37 +1,64 @@
+require_relative 'shared_setup'
+
 RSpec.describe DaVinciDTRTestKit::CQLTest do
-  let(:test) { Class.new { extend DaVinciDTRTestKit::CQLTest, Inferno::DSL::Assertions } }
+  include_context('when running standard tests',
+                  'payer_server_static_package', # group
+                  suite_id = :dtr_payer_server,
+                  "/custom/#{suite_id}/fhir/Questionnaire/$questionnaire-package", # questionnaire_package_url
+                  'Static', # retrieval_method
+                  'http://example.org/fhir/R4') # url
 
-  describe 'given a bad response' do
-    let(:output_params_no_lib) do
-      FHIR.from_contents(File.read(File.join(
-                                     __dir__, '..',
-                                     'fixtures', 'questionnaire_package_output_params_conformant.json'
-                                   )))
+  context 'when output is valid' do
+    let(:scratch) do
+      { output_parameters: FHIR.from_contents(
+        File.read(File.join(__dir__, '..', 'fixtures',
+                            'questionnaire_package_output_params_conformant.json'))
+      ) }
     end
 
-    it 'nothing should raise exception' do
-      expect { test.check_libraries(nil) }.to raise_error(
-        Inferno::Exceptions::AssertionException, /Response is null or not a valid type./
-      )
+    describe 'static questionnaire package libraries test' do
+      let(:runnable) { group.tests.find { |test| test.id.to_s.end_with? 'static_form_libraries_test' } }
+
+      it 'passes if questionnaire package has libraries' do
+        result = run(runnable, test_session, scratch:, access_token:, retrieval_method:)
+        expect(result.result).to eq('pass'), result.result_message
+      end
     end
 
-    it 'no libraries should raise exception' do
-      expect { test.check_libraries(output_params_no_lib) }.to raise_error(
-        Inferno::Exceptions::AssertionException, /No Libraries found./
-      )
+    describe 'static questionnaire extensions check' do
+      let(:runnable) { group.tests.find { |test| test.id.to_s.end_with? 'static_form_expressions_test' } }
+
+      it 'passes if questionnaire package has valid extensions' do
+        result = run(runnable, test_session, scratch:, access_token:, retrieval_method:)
+        expect(result.result).to eq('pass'), result.result_message
+      end
     end
   end
 
-  describe 'given a good response' do
-    let(:output_params) do
-      FHIR.from_contents(File.read(File.join(
-                                     __dir__, '..',
-                                     'fixtures', 'questionnaire_package_output_params_non_conformant.json'
-                                   )))
+  context 'when output is invalid' do
+    let(:scratch) do
+      { output_parameters: FHIR.from_contents(
+        File.read(File.join(__dir__, '..', 'fixtures',
+                            'questionnaire_package_output_params_non_conformant.json'))
+      ) }
     end
 
-    it 'test should pass' do
-      expect(test.check_libraries(output_params)).to equal(nil)
+    describe 'static questionnaire package has no libraries test' do
+      let(:runnable) { group.tests.find { |test| test.id.to_s.end_with? 'static_form_libraries_test' } }
+
+      it 'fails if questionnaire package has no libraries' do
+        result = run(runnable, test_session, scratch:, access_token:, retrieval_method:)
+        expect(result.result).to eq('fail'), result.result_message
+      end
+    end
+
+    describe 'static questionnaire extensions check' do
+      let(:runnable) { group.tests.find { |test| test.id.to_s.end_with? 'static_form_expressions_test' } }
+
+      it 'fails if questionnaire package has invalid extensions' do
+        result = run(runnable, test_session, scratch:, access_token:, retrieval_method:)
+        expect(result.result).to eq('fail'), result.result_message
+      end
     end
   end
 end

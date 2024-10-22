@@ -1,7 +1,8 @@
 RSpec.shared_context('when running standard tests') do |group,
                                                         suite_id,
                                                         questionnaire_package_url,
-                                                        retrieval_method, url|
+                                                        retrieval_method,
+                                                        url|
   def app
     Inferno::Web.app
   end
@@ -26,6 +27,10 @@ RSpec.shared_context('when running standard tests') do |group,
         type: 'textarea'
       )
     end
-    Inferno::TestRunner.new(test_session:, test_run:).run(runnable)
+    if inputs.key?(:scratch)
+      Inferno::TestRunner.new(test_session:, test_run:).run(runnable, inputs[:scratch])
+    else
+      Inferno::TestRunner.new(test_session:, test_run:).run(runnable)
+    end
   end
 end
