@@ -2,7 +2,7 @@ name: Ruby
 
 on:
   push:
-    branches: [main, fi-3270-add-ci]
+    branches: [main]
   pull_request:
     branches: [main]
 
