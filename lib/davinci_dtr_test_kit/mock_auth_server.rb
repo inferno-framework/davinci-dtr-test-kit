@@ -1,7 +1,29 @@
+# frozen_string_literal: true
+
 require_relative 'urls'
 
 module DaVinciDTRTestKit
   module MockAuthServer
+    AUTHORIZED_PRACTITIONER_ID = 'pra1234' # Must exist on the FHIR_REFERENCE_SERVER (env var)
+
+    RSA_PRIVATE_KEY = OpenSSL::PKey::RSA.generate(2048)
+    RSA_PUBLIC_KEY = RSA_PRIVATE_KEY.public_key
+
+    def auth_server_jwks(_env)
+      response_body = {
+        keys: [
+          {
+            alg: 'RSA',
+            mod: Base64.urlsafe_encode64(RSA_PUBLIC_KEY.n.to_s(2), padding: false),
+            exp: Base64.urlsafe_encode64(RSA_PUBLIC_KEY.e.to_s(2), padding: false),
+            use: 'sig'
+          }
+        ]
+      }.to_json
+
+      [200, { 'Content-Type' => 'application/json', 'Access-Control-Allow-Origin' => '*' }, [response_body]]
+    end
+
     def ehr_smart_config(env)
       protocol = env['rack.url_scheme']
       host = env['HTTP_HOST']
@@ -10,12 +32,13 @@ module DaVinciDTRTestKit
       base_url = "#{protocol}://#{host + path}"
       response_body =
         {
+          jwks_uri: base_url + JKWS_PATH,
           authorization_endpoint: base_url + EHR_AUTHORIZE_PATH,
           token_endpoint: base_url + EHR_TOKEN_PATH,
           token_endpoint_auth_methods_supported: ['private_key_jwt'],
           token_endpoint_auth_signing_alg_values_supported: ['RS256'],
           grant_types_supported: ['authorization_code'],
-          scopes_supported: ['launch', 'patient/*.rs', 'user/*.rs', 'offline_access'],
+          scopes_supported: ['launch', 'patient/*.rs', 'user/*.rs', 'offline_access', 'openid', 'fhirUser'],
           response_types_supported: ['code'],
           code_challenge_methods_supported: ['S256'],
           capabilities: [
@@ -54,8 +77,24 @@ module DaVinciDTRTestKit
 
     def ehr_token_response(request, _test = nil, test_result = nil)
       client_id = extract_client_id_from_token_request(request)
-      token = JWT.encode({ inferno_client_id: client_id }, nil, 'none')
-      response = { access_token: token, token_type: 'bearer', expires_in: 3600 }
+      access_token = JWT.encode({ inferno_client_id: client_id }, nil, 'none')
+
+      # No point in mocking an identity provider, just always use known Practitioner as the authorized user
+      suite_base_url = request.url.split(EHR_TOKEN_PATH).first
+      id_token = JWT.encode(
+        {
+          fhirUser: "#{suite_base_url}/fhir/Practitioner/#{AUTHORIZED_PRACTITIONER_ID}",
+          iss: suite_base_url,
+          sub: AUTHORIZED_PRACTITIONER_ID,
+          aud: client_id,
+          exp: Time.now.to_i + (24 * 60 * 60), # 24 hrs
+          iat: Time.now.to_i
+        },
+        RSA_PRIVATE_KEY,
+        'RS256'
+      )
+
+      response = { access_token:, id_token:, token_type: 'bearer', expires_in: 3600 }
 
       fhir_context_input = find_test_input(test_result, 'smart_fhir_context')
       fhir_context_input_value = fhir_context_input['value'] if fhir_context_input
