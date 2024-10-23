@@ -5,6 +5,7 @@
       "resource": {
         "resourceType": "Questionnaire",
         "id": "DinnerOrderAdaptive",
+        "url": "urn:inferno:dtr-test-kit:dinner-order-adaptive",
         "meta": {
           "profile": [
             "http://hl7.org/fhir/StructureDefinition/cqf-questionnaire",
@@ -23,7 +24,6 @@
         ],
         "name": "DinnerOrderAdaptive",
         "title": "Dinner Order (Adaptive)",
-        "url": "urn:inferno:dtr-test-kit:dinner-order-adaptive",
         "status": "draft",
         "subjectType": [
           "Patient"

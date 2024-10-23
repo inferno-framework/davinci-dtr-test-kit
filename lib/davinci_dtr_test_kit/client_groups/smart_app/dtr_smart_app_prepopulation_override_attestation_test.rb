@@ -1,10 +1,10 @@
 require_relative '../../urls'
 
 module DaVinciDTRTestKit
-  class DTRSmartAppStaticDinnerPrepopulationOverrideAttestationTest < Inferno::Test
+  class DTRSmartAppPrepopulationOverrideAttestationTest < Inferno::Test
     include URLs
 
-    id :dtr_smart_app_dinner_static_prepopulation_override_attestation
+    id :dtr_smart_app_prepopulation_override_attestation
     title 'Validate the user can override pre-populated data (Attestation)'
     description %(
       Validate that the user can edit a pre-populated item and replace it with another value.
