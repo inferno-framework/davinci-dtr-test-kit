@@ -24,14 +24,16 @@ module DaVinciDTRTestKit
       },
       {
         group_ids: [
-          'dtr_full_ehr_adaptive_questionnaire_retrieval'
+          'dtr_full_ehr_adaptive_questionnaire_retrieval',
+          'dtr_smart_app_adaptive_questionnaire_retrieval'
         ],
         questionnaire_package: File.join('dinner_adaptive', 'questionnaire_dinner_order_adaptive.json'),
         next_question: File.join('dinner_adaptive', 'dinner_order_adaptive_next_question_initial.json')
       },
       {
         group_ids: [
-          'dtr_full_ehr_adaptive_questionnaire_followup_questions'
+          'dtr_full_ehr_adaptive_questionnaire_followup_questions',
+          'dtr_smart_app_adaptive_questionnaire_followup_questions'
         ],
         next_question: {
           bean_burrito: File.join('dinner_adaptive', 'dinner_order_adaptive_next_question_burrito.json'),

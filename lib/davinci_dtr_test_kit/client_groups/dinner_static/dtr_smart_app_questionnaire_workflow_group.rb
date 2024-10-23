@@ -1,8 +1,8 @@
 require_relative 'dtr_smart_app_dinner_questionnaire_package_request_test'
 require_relative '../shared/dtr_questionnaire_package_request_validation_test'
-require_relative 'dtr_smart_app_prepopulation_attestation_test'
-require_relative 'dtr_smart_app_prepopulation_override_attestation_test'
-require_relative 'dtr_smart_app_rendering_enabled_questions_attestation_test'
+require_relative '../smart_app/dtr_smart_app_prepopulation_attestation_test'
+require_relative '../smart_app/dtr_smart_app_prepopulation_override_attestation_test'
+require_relative '../smart_app/dtr_smart_app_rendering_enabled_questions_attestation_test'
 require_relative 'dtr_smart_app_questionnaire_response_save_test'
 require_relative '../shared/dtr_questionnaire_response_basic_conformance_test'
 require_relative '../shared/dtr_questionnaire_response_pre_population_test'
@@ -32,7 +32,7 @@ module DaVinciDTRTestKit
       description %(
         Inferno will wait for the client system to request a questionnaire using the
         $questionnaire-package operation and will return a static questionnaire for the
-        tester to complete. Inferno will then validate the the conformance of the request.
+        tester to complete. Inferno will then validate the conformance of the request.
       )
       run_as_group
 
@@ -58,11 +58,11 @@ module DaVinciDTRTestKit
       # since the questionnaire asks them to
       # TODO: once Tom has gotten the reference server hooked up
       # Test 2: attest to the pre-population of the name fields
-      test from: :dtr_smart_app_dinner_static_rendering_prepopulation_attestation
+      test from: :dtr_smart_app_prepopulation_attestation
       # Test 3: attest to the pre-population and edit of the location field
-      test from: :dtr_smart_app_dinner_static_prepopulation_override_attestation
+      test from: :dtr_smart_app_prepopulation_override_attestation
       # Test 4: attest to the display of the toppings questions only when a dinner answer is selected
-      test from: :dtr_smart_app_dinner_static_rendering_enabledQs_attestation
+      test from: :dtr_smart_app_rendering_enabled_questions_attestation
     end
 
     group do

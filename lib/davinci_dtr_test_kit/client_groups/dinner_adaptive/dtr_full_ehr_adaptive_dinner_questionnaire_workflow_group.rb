@@ -1,6 +1,7 @@
 require_relative '../full_ehr/dtr_full_ehr_adaptive_questionnaire_initial_retrieval_group'
 require_relative '../full_ehr/dtr_full_ehr_questionnaire_rendering_group'
-require_relative '../shared/dtr_adaptive_questionnaire_next_question_retieval_group'
+require_relative '../shared/dtr_adaptive_questionnaire_next_question_retrieval_group'
+require_relative '../shared/dtr_adaptive_questionnaire_completion_group'
 
 module DaVinciDTRTestKit
   class DTRFullEHRAdaptiveDinnerQuestionnaireWorkflowGroup < Inferno::TestGroup
@@ -14,7 +15,6 @@ module DaVinciDTRTestKit
       1. Fetch the adaptive questionnaire package
         ([DinnerOrderAdaptive](https://github.com/inferno-framework/davinci-dtr-test-kit/blob/main/lib/davinci_dtr_test_kit/fixtures/dinner_adaptive/questionnaire_dinner_order_adaptive.json))
       2. Fetch the first set of questions and render and pre-populate them appropriately, including:
-         - fetch additional data needed for pre-population
          - pre-populate data as directed by the questionnaire
          - display questions only when they are enabled
       3. Answer the initial questions and request additional questions
@@ -65,24 +65,6 @@ module DaVinciDTRTestKit
       group from: :dtr_full_ehr_questionnaire_rendering
     end
 
-    group do
-      id :dtr_full_ehr_adaptive_questionnaire_completion
-      title 'Completing the Adaptive Questionnaire'
-      description %(
-        The client makes a final $next-question call, including the answers to all required questions asked so far.
-        Inferno will validate that the request conforms to the [next question operation input parameters profile](http://hl7.org/fhir/uv/sdc/StructureDefinition/parameters-questionnaire-next-question-in)
-        and will update the status of the QuestionnaireResponse resource parameter to `complete`.
-        Inferno will also validate the completed QuestionnaireResponse conformance.
-      )
-
-      config(
-        options: {
-          next_question_prompt_title: 'Last Next Question Request'
-        }
-      )
-      run_as_group
-
-      group from: :dtr_adaptive_questionnaire_next_question_retrieval
-    end
+    group from: :dtr_adaptive_questionnaire_completion
   end
 end

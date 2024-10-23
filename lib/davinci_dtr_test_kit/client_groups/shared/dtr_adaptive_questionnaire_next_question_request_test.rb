@@ -15,6 +15,18 @@ module DaVinciDTRTestKit
 
     input :access_token
 
+    def example_client_jwt_payload_part
+      Base64.strict_encode64({ inferno_client_id: access_token }.to_json).delete('=')
+    end
+
+    def request_identification
+      if config.options[:smart_app]
+        "eyJhbGciOiJub25lIn0.#{example_client_jwt_payload_part}"
+      else
+        access_token
+      end
+    end
+
     run do
       next_question_prompt_title = config.options[:next_question_prompt_title]
       prompt_cont = if next_question_prompt_title&.include?('Initial')
@@ -45,7 +57,7 @@ module DaVinciDTRTestKit
           an `Authorization` header with value:
 
           ```
-          Bearer #{access_token}
+          Bearer #{request_identification}
           ```
         )
       )
