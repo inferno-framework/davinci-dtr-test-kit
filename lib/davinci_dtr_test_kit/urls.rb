@@ -2,6 +2,7 @@
 
 module DaVinciDTRTestKit
   SMART_CONFIG_PATH = '/fhir/.well-known/smart-configuration'
+  JKWS_PATH = '/fhir/.well-known/jwks.json'
   EHR_AUTHORIZE_PATH = '/mock_ehr_auth/authorize'
   EHR_TOKEN_PATH = '/mock_ehr_auth/token'
   PAYER_TOKEN_PATH = '/mock_payer_auth/token'
