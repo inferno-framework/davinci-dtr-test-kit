@@ -50,11 +50,13 @@ module DaVinciDTRTestKit
     end
 
     allow_cors QUESTIONNAIRE_PACKAGE_PATH, QUESTIONNAIRE_RESPONSE_PATH, FHIR_RESOURCE_PATH, FHIR_SEARCH_PATH,
-               EHR_AUTHORIZE_PATH, EHR_TOKEN_PATH
+               EHR_AUTHORIZE_PATH, EHR_TOKEN_PATH, JKWS_PATH
 
     route(:get, '/fhir/metadata', method(:metadata_handler))
 
     route(:get, SMART_CONFIG_PATH, method(:ehr_smart_config))
+
+    route(:get, JKWS_PATH, method(:auth_server_jwks))
 
     record_response_route :get, EHR_AUTHORIZE_PATH, 'dtr_smart_app_ehr_authorize', method(:ehr_authorize),
                           resumes: ->(_) { false } do |request|
