@@ -1,3 +1,4 @@
+require 'securerandom'
 require_relative '../../urls'
 
 module DaVinciDTRTestKit
@@ -9,19 +10,18 @@ module DaVinciDTRTestKit
     description %(
       Validate that pre-population of patient name information occurs as expected.
     )
-    input :client_id
-
     run do
+      random_id = SecureRandom.uuid
       wait(
-        identifier: client_id,
+        identifier: random_id,
         message: %(
           I attest that the client application pre-populates the following questions with the respective values:
           - Last Name: Oster
           - First Name: William
 
-          [Click here](#{resume_pass_url}?client_id=#{client_id}) if the above statement is **true**.
+          [Click here](#{resume_pass_url}?client_id=#{random_id}) if the above statement is **true**.
 
-          [Click here](#{resume_fail_url}?client_id=#{client_id}) if the above statement is **false**.
+          [Click here](#{resume_fail_url}?client_id=#{random_id}) if the above statement is **false**.
         )
       )
     end

@@ -7,8 +7,8 @@ module DaVinciDTRTestKit
     id :dtr_questionnaire_rendering_attestation
     title 'Check that the client renders the questionnaire (Attestation)'
     description %(
-      Thist test provides the tester an opportunity to observe their client application following the receipt of the
-      questionnaire pacakage and attest that the application renders the questionnaire.
+      This test provides the tester an opportunity to observe their client application following the receipt of the
+      questionnaire package and attest that the application renders the questionnaire.
     )
     input :client_id
 
