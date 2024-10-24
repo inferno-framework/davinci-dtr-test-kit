@@ -42,7 +42,7 @@ RSpec.describe DaVinciDTRTestKit::DTRPayerServerQuestionnairePackageGroup do
           run do
             resource_is_valid?(resource:, profile_url: 'http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/dtr-qpackage-input-parameters|2.0.1')
             errors_found = messages.any? { |message| message[:type] == 'error' }
-            skip_if errors_found, "Resource does not conform to the profile http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/dtr-qpackage-input-parameters|2.0.1"
+            skip_if errors_found, 'Resource does not conform to the profile http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/dtr-qpackage-input-parameters|2.0.1'
           end
         end
       end
@@ -72,9 +72,8 @@ RSpec.describe DaVinciDTRTestKit::DTRPayerServerQuestionnairePackageGroup do
         end
 
         it 'skips if questionnaire request is not conformant' do
-          
-
-          result = run(input_validation_test, test_session, access_token:, retrieval_method:, initial_static_questionnaire_request:)
+          result = run(input_validation_test, test_session, access_token:, retrieval_method:,
+                                                            initial_static_questionnaire_request:)
           expect(result.result).to eq('skip'), result.result_message
         end
       end
@@ -168,7 +167,7 @@ RSpec.describe DaVinciDTRTestKit::DTRPayerServerQuestionnairePackageGroup do
         allow_any_instance_of(DaVinciDTRTestKit::URLs).to(receive(:questionnaire_package_url).and_return(
                                                             questionnaire_package_url
                                                           ))
-        
+
         result = repo_create(:result, test_session_id: test_session.id)
         repo_create(:request, result_id: result.id, name: 'questionnaire_package', url: questionnaire_package_url,
                               request_body: request_body_non_conformant, test_session_id: test_session.id,

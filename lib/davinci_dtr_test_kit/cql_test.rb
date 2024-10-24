@@ -14,23 +14,19 @@ module DaVinciDTRTestKit
     end
 
     def cqf_reference_libraries
-      @cqf_reference_libraries ||= Set.new
+      scratch[:cqf_reference_libraries] ||= Set.new
     end
 
     def library_urls
-      @@library_urls ||= Set.new
+      scratch[:library_urls] ||= Set.new
     end
 
     def library_names
-      @@library_names ||= Set.new
+      scratch[:library_names] ||= Set.new
     end
 
     def found_questionnaire
       @found_questionnaire ||= false
-    end
-
-    def found_bad_library_reference
-      @@found_bad_library_reference ||= false
     end
 
     def found_duplicate_library_name
@@ -52,37 +48,50 @@ module DaVinciDTRTestKit
       extension_presence.each_key { |k| extension_presence[k] = false }
     end
 
+    def evaluate_responses_extensions(resource)
+      found_questionnaire = false
+      resource.each do |individual_resource|
+        next unless individual_resource.resourceType == 'QuestionnaireResponse'
+
+        individual_resource.contained.each_with_index do |questionnaire, q_index|
+          # Do out put parameters have a bundle?
+          next unless questionnaire.resourceType == 'Questionnaire'
+
+          # check the libraries first so references in questionnaires can be checked after
+          found_questionnaire = true
+          check_questionnaire_extensions(questionnaire, q_index)
+        end
+      end
+      found_questionnaire
+    end
+
+    def evaluate_parameters_extensions(resource)
+      found_questionnaire = false
+      resource.parameter.each do |param|
+        # Do out put parameters have a bundle?
+        next unless param.resource.resourceType == 'Bundle'
+
+        param.resource.entry.each_with_index do |entry, q_index|
+          # check questionnaire extensions
+          next unless entry.resource.resourceType == 'Questionnaire'
+
+          found_questionnaire = true
+          check_questionnaire_extensions(entry.resource, q_index)
+          ## NEED TO FIGURE OUT HOW TO FAIL TEST WHEN POORLY FORMATTED EXPRESSIONS FOUND
+        end
+      end
+      found_questionnaire
+    end
+
+    # extensions
     def questionnaire_extensions_test(response)
       resource = process_response(response)
       assert !resource.nil?, 'Response is null or not a valid type.'
       found_questionnaire = false
       if resource.instance_of? Array
-        resource.each do |individual_resource|
-          next unless individual_resource.resourceType == 'QuestionnaireResponse'
-
-          individual_resource.contained.each_with_index do |questionnaire, q_index|
-            # Do out put parameters have a bundle?
-            next unless questionnaire.resourceType == 'Questionnaire'
-
-            # check the libraries first so references in questionnaires can be checked after
-            found_questionnaire = true
-            check_questionnaire_extensions(questionnaire, q_index)
-          end
-        end
+        found_questionnaire = evaluate_responses_extensions(resource)
       elsif resource.resourceType == 'Parameters'
-        resource.parameter.each do |param|
-          # Do out put parameters have a bundle?
-          next unless param.resource.resourceType == 'Bundle'
-
-          param.resource.entry.each_with_index do |entry, q_index|
-            # check questionnaire extensions
-            next unless entry.resource.resourceType == 'Questionnaire'
-
-            found_questionnaire = true
-            check_questionnaire_extensions(entry.resource, q_index)
-            ## NEED TO FIGURE OUT HOW TO FAIL TEST WHEN POORLY FORMATTED EXPRESSIONS FOUND
-          end
-        end
+        found_questionnaire = evaluate_parameters_extensions(resource)
       end
       check_library_references
       assert found_questionnaire, 'No questionnaires found.'
@@ -92,57 +101,10 @@ module DaVinciDTRTestKit
       assert cql_presence['pop_context'], 'Population context expression logic not written in CQL.'
     end
 
-    def questionnaire_items_test(response, final_cql_test)
-      resource = process_response(response)
-      assert !resource.nil?, 'Response is null or not a valid type.'
-      found_bundle = found_questionnaire = false
-      # are extensions present in any questionnaire?
-      if resource.instance_of? Array
-        resource.each_with_index do |individual_resource, q_index|
-          next unless individual_resource.resourceType == 'QuestionnaireResponse'
-
-          individual_resource.contained.each do |questionnaire|
-            # Do out put parameters have a bundle?
-            next unless questionnaire.resourceType == 'Questionnaire'
-
-            # check the libraries first so references in questionnaires can be checked after
-            found_questionnaire = true
-            check_questionnaire_items(questionnaire, q_index)
-          end
-        end
-      elsif resource.resourceType == 'Parameters'
-        resource.parameter.each do |param|
-          # Do out put parameters have a bundle?
-          next unless param.resource.resourceType == 'Bundle'
-
-          found_bundle = true
-          # check the libraries first so references in questionnaires can be checked after
-          param.resource.entry.each_with_index do |entry, q_index|
-            if entry.resource.resourceType == 'Questionnaire'
-              found_questionnaire = true
-              check_questionnaire_items(entry.resource, q_index)
-            end
-          end
-        end
-        assert found_bundle, 'No questionnaire bundles found.'
-      end
-      begin
-        assert found_questionnaire, 'No questionnaires found.'
-        assert !found_non_cql_expression, 'Found non-cql expression.'
-        assert !found_bad_library_reference, 'Found expression with no or incorrect reference to library name.'
-        assert extension_presence.value?(true), 'No extensions found. Questionnaire must demonstrate prepopulation.'
-        assert cql_presence['init_expression'], 'Initial expression logic not written in CQL.'
-        assert cql_presence['candidate_expression'], 'Candidate expression logic not written in CQL.'
-        assert cql_presence['context_expression'], 'Context expression logic not written in CQL.'
-      ensure
-        reset_cql_tests if final_cql_test
-      end
-    end
-
     def check_questionnaire_extensions(questionnaire, q_index)
       # are extensions present in this questionnaire?
       found_launch_context = found_variable = found_pop_context = found_cqf_lib = false
-      cqf_count = 0
+      cqf_count = total_cqf_libs(questionnaire.extension)
       misformatted_expressions = []
       questionnaire.extension.each_with_index do |extension, index|
         if extension.url == 'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-launchContext'
@@ -165,13 +127,77 @@ module DaVinciDTRTestKit
         end
         next unless extension.url == 'http://hl7.org/fhir/StructureDefinition/cqf-library'
 
-        cqf_count += 1
         cqf_reference_libraries.add(extension.valueCanonical)
         found_cqf_lib = true
         extension_presence['found_min_cqf_lib'] = true
 
         check_for_cql(extension, '', index, q_index, extension.url)
       end
+      add_launch_context_messages(found_launch_context, found_variable, found_pop_context, found_cqf_lib, q_index)
+      return if cqf_count < 1
+
+      add_formatting_messages(misformatted_expressions, q_index)
+      assert misformatted_expressions.compact.empty?, 'Expression in questionnaire misformatted.'
+    end
+
+    # items
+    def evaluate_responses_items(resource)
+      found_questionnaire = false
+      resource.each_with_index do |individual_resource, q_index|
+        next unless individual_resource.resourceType == 'QuestionnaireResponse'
+
+        individual_resource.contained.each do |questionnaire|
+          next unless questionnaire.resourceType == 'Questionnaire'
+
+          # check the libraries first so references in questionnaires can be checked after
+          found_questionnaire = true
+          check_questionnaire_items(questionnaire, q_index)
+        end
+      end
+      found_questionnaire
+    end
+
+    def evaluate_parameters_items(resource)
+      found_bundle = found_questionnaire = false
+      resource.parameter.each do |param|
+        next unless param.resource.resourceType == 'Bundle'
+
+        found_bundle = true
+        # check the libraries first so references in questionnaires can be checked after
+        param.resource.entry.each_with_index do |entry, q_index|
+          if entry.resource.resourceType == 'Questionnaire'
+            found_questionnaire = true
+            check_questionnaire_items(entry.resource, q_index)
+          end
+        end
+      end
+      [found_bundle, found_questionnaire]
+    end
+
+    def questionnaire_items_test(response, final_cql_test)
+      resource = process_response(response)
+      assert !resource.nil?, 'Response is null or not a valid type.'
+      found_questionnaire = false
+      # are extensions present in any questionnaire?
+      if resource.instance_of? Array
+        found_questionnaire = evaluate_responses_items(resource)
+      elsif resource.resourceType == 'Parameters'
+        found_bundle, found_questionnaire = evaluate_parameters_items(resource)
+        assert found_bundle, 'No questionnaire bundles found.'
+      end
+      begin
+        assert found_questionnaire, 'No questionnaires found.'
+        assert !found_non_cql_expression, 'Found non-cql expression.'
+        assert extension_presence.value?(true), 'No extensions found. Questionnaire must demonstrate prepopulation.'
+        assert cql_presence['init_expression'], 'Initial expression logic not written in CQL.'
+        assert cql_presence['candidate_expression'], 'Candidate expression logic not written in CQL.'
+        assert cql_presence['context_expression'], 'Context expression logic not written in CQL.'
+      ensure
+        reset_cql_tests if final_cql_test
+      end
+    end
+
+    def add_launch_context_messages(found_launch_context, found_variable, found_pop_context, found_cqf_lib, q_index)
       unless found_launch_context
         messages << { type: 'info',
                       message: format_markdown("[questionnaire #{q_index + 1}] included no launch context.") }
@@ -186,19 +212,44 @@ module DaVinciDTRTestKit
                       message: format_markdown("[questionnaire #{q_index + 1}]
                        included no item population context.") }
       end
-      unless found_cqf_lib
-        messages << { type: 'info',
-                      message: format_markdown("[questionnaire #{q_index + 1}]
-                      included no cqf library.") }
-      end
-      return if cqf_count < 1
+      return if found_cqf_lib
 
+      messages << { type: 'info',
+                    message: format_markdown("[questionnaire #{q_index + 1}]
+                      included no cqf library.") }
+    end
+
+    def add_formatting_messages(misformatted_expressions, q_index)
       misformatted_expressions.compact.each do |idx|
         messages << { type: 'info',
                       message: format_markdown("[expression #{idx + 1}] in [questionnaire #{q_index + 1}]
                       does not begin with a reference to an included library name.") }
       end
-      assert misformatted_expressions.compact.empty?, 'Expression in questionnaire misformatted.'
+    end
+
+    def total_cqf_libs(extensions)
+      cqf_count = 0
+      extensions.each do |extension|
+        next unless extension.url == 'http://hl7.org/fhir/StructureDefinition/cqf-library'
+
+        cqf_count += 1
+      end
+      cqf_count
+    end
+
+    def add_item_messages(found_item_expressions, q_index)
+      unless found_item_expressions['found_candidate_expression']
+        messages << { type: 'info',
+                      message: format_markdown("[questionnaire #{q_index + 1}] included no candidate expression.") }
+      end
+      unless found_item_expressions['found_init_expression']
+        messages << { type: 'info',
+                      message: format_markdown("[questionnaire #{q_index + 1}] included no initial expression.") }
+      end
+      return if found_item_expressions['found_context_expression']
+
+      messages << { type: 'info',
+                    message: format_markdown("[questionnaire #{q_index + 1}] included no context expression.") }
     end
 
     def check_questionnaire_items(questionnaire, q_index)
@@ -206,13 +257,9 @@ module DaVinciDTRTestKit
       found_item_expressions = { 'found_init_expression' => false,
                                  'found_candidate_expression' => false,
                                  'found_context_expression' => false }
-      cqf_count = 0
+      cqf_count = total_cqf_libs(questionnaire.extension)
       misformatted_expressions = []
-      questionnaire.extension.each do |extension|
-        next unless extension.url == 'http://hl7.org/fhir/StructureDefinition/cqf-library'
 
-        cqf_count += 1
-      end
       # check questionnaire items
       questionnaire.item.each_with_index do |item, index|
         misformatted_expressions.concat(check_nested_items(item, index, q_index, found_item_expressions, item.linkId))
@@ -222,18 +269,8 @@ module DaVinciDTRTestKit
                                                            index, q_index, found_item_expressions, item.linkId)
         end
       end
-      unless found_item_expressions['found_candidate_expression']
-        messages << { type: 'info',
-                      message: format_markdown("[questionnaire #{q_index + 1}] included no candidate expression.") }
-      end
-      unless found_item_expressions['found_init_expression']
-        messages << { type: 'info',
-                      message: format_markdown("[questionnaire #{q_index + 1}] included no initial expression.") }
-      end
-      unless found_item_expressions['found_context_expression']
-        messages << { type: 'info',
-                      message: format_markdown("[questionnaire #{q_index + 1}] included no context expression.") }
-      end
+      add_item_messages(found_item_expressions, q_index)
+      # only care about formatting when there are multiple cqf libs
       return if cqf_count < 1
 
       misformatted_expressions.compact.to_set.each do |idx|
@@ -242,6 +279,33 @@ module DaVinciDTRTestKit
                       contains expression that does not begin with a reference to an included library name.") }
       end
       assert misformatted_expressions.compact.to_set.empty?, 'Expression in questionnaire misformatted.'
+    end
+
+    def evaluate_library(entry, lib_index)
+      found_cql = found_elm = false
+      entry.resource.content.each do |content|
+        if content.data.nil?
+          messages << { type: 'info',
+                        message: format_markdown("[library #{lib_index + 1}] content element included no data.") }
+        end
+        if content.contentType == 'text/cql'
+          found_cql = true
+        elsif content.contentType == 'application/elm+json'
+          found_elm = true
+        else
+          messages << { type: 'info',
+                        message: format_markdown("[library #{lib_index + 1}] has non-cql/elm content.") }
+          true
+        end
+        next unless library_names.include? entry.resource.name
+
+        found_duplicate_library_name = true
+        messages << { type: 'info', message: format_markdown("[library #{lib_index + 1}] has a name,
+         #{entry.resource.name}, that is already included in the bundle.") }
+        assert !found_duplicate_library_name, 'Found duplicate library names - all names must be unique.'
+      end
+      assert found_cql, "[library #{lib_index + 1}] does not include CQL."
+      assert found_elm, "[library #{lib_index + 1}] does not include ELM."
     end
 
     def check_libraries(payer_response)
@@ -259,32 +323,9 @@ module DaVinciDTRTestKit
           next unless entry.resource.resourceType == 'Library'
 
           found_libraries = true
-          found_cql = found_elm = false
           library_urls.add(entry.resource.url) unless entry.resource.url.nil?
-          entry.resource.content.each do |content|
-            if content.data.nil?
-              messages << { type: 'info',
-                            message: format_markdown("[library #{index + 1}] content element included no data.") }
-            end
-            if content.contentType == 'text/cql'
-              found_cql = true
-            elsif content.contentType == 'application/elm+json'
-              found_elm = true
-            else
-              messages << { type: 'info',
-                            message: format_markdown("[library #{index + 1}] has non-cql/elm content.") }
-              true
-            end
-            next unless library_names.include? entry.resource.name
-
-            found_duplicate_library_name = true
-            messages << { type: 'info', message: format_markdown("[library #{index + 1}] has a name,
-             #{entry.resource.name}, that is already included in the bundle.") }
-            assert !found_duplicate_library_name, 'Found duplicate library names - all names must be unique.'
-          end
+          evaluate_library(entry, index)
           library_names.add(entry.resource.name)
-          assert found_cql, "[library #{index + 1}] does not include CQL."
-          assert found_elm, "[library #{index + 1}] does not include ELM."
         end
         assert found_libraries, 'No Libraries found.'
       end
@@ -364,21 +405,25 @@ module DaVinciDTRTestKit
                   end
     end
 
+    def q_responses(response)
+      questionnaire_responses = []
+      response.each do |resource|
+        fhir_resource = FHIR.from_contents(resource.response_body)
+        questionnaire_responses << fhir_resource if fhir_resource.resourceType == 'QuestionnaireResponse'
+        next unless resource.instance_of? Inferno::Entities::Request
+
+        if fhir_resource.resourceType == 'Questionnaire' || fhir_resource.resourceType == 'Parameters'
+          return fhir_resource
+        end
+      end
+      questionnaire_responses
+    end
+
     def process_response(response)
       if response.instance_of?(FHIR::Parameters) || response.instance_of?(FHIR::QuestionnaireResponse)
         return response
       elsif response.instance_of? Array
-        questionnaire_responses = []
-        response.each do |resource|
-          fhir_resource = FHIR.from_contents(resource.response_body)
-          questionnaire_responses << fhir_resource if fhir_resource.resourceType == 'QuestionnaireResponse'
-          next unless resource.instance_of? Inferno::Entities::Request
-
-          if fhir_resource.resourceType == 'Questionnaire' || fhir_resource.resourceType == 'Parameters'
-            return fhir_resource
-          end
-        end
-        return questionnaire_responses
+        return q_responses(response)
       end
 
       nil

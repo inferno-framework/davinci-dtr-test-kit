@@ -1,7 +1,8 @@
 RSpec.shared_context('when running standard tests') do |group,
                                                         suite_id,
                                                         questionnaire_package_url,
-                                                        retrieval_method, url|
+                                                        retrieval_method,
+                                                        url|
   def app
     Inferno::Web.app
   end
@@ -16,7 +17,6 @@ RSpec.shared_context('when running standard tests') do |group,
   let(:validation_url) { "#{ENV.fetch('FHIR_RESOURCE_VALIDATOR_URL')}/validate" }
 
   def run(runnable, test_session, inputs = {})
-
     test_run_params = { test_session_id: test_session.id }.merge(runnable.reference_hash)
     test_run = Inferno::Repositories::TestRuns.new.create(test_run_params)
     inputs.each do |name, value|
@@ -27,6 +27,10 @@ RSpec.shared_context('when running standard tests') do |group,
         type: 'textarea'
       )
     end
-    Inferno::TestRunner.new(test_session:, test_run:).run(runnable)
+    if inputs.key?(:scratch)
+      Inferno::TestRunner.new(test_session:, test_run:).run(runnable, inputs[:scratch])
+    else
+      Inferno::TestRunner.new(test_session:, test_run:).run(runnable)
+    end
   end
 end
