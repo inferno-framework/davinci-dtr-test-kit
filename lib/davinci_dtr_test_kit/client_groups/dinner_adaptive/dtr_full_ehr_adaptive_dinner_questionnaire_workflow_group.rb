@@ -1,6 +1,8 @@
 require_relative '../full_ehr/dtr_full_ehr_adaptive_questionnaire_initial_retrieval_group'
-require_relative '../full_ehr/dtr_full_ehr_questionnaire_rendering_group'
-require_relative '../shared/dtr_adaptive_questionnaire_next_question_retrieval_group'
+require_relative '../full_ehr/dtr_full_ehr_prepopulation_attestation_test'
+require_relative '../full_ehr/dtr_full_ehr_rendering_enabled_questions_attestation_test'
+require_relative '../full_ehr/dtr_full_ehr_prepopulation_override_attestation_test'
+require_relative '../shared/dtr_adaptive_questionnaire_followup_questions_group'
 require_relative '../shared/dtr_adaptive_questionnaire_completion_group'
 
 module DaVinciDTRTestKit
@@ -38,31 +40,31 @@ module DaVinciDTRTestKit
       run_as_group
 
       group from: :dtr_full_ehr_adaptive_questionnaire_initial_retrieval
-      group from: :dtr_full_ehr_questionnaire_rendering
+      group do
+        id :dtr_full_ehr_questionnaire_rendering
+        title 'Filling Out the Questionnaire'
+        description %(
+          The tester will interact with the questionnaire within their client system
+          such that pre-population steps are taken, the qustionnaire is rendered, and
+          they are able to fill it out. The tester will attest that questionnaire pre-population
+          and rendering directives were followed.
+        )
+
+        # Test 1: attest to the pre-population of the name fields
+        test from: :dtr_full_ehr_prepopulation_attestation
+        # Test 2: attest to the pre-population and edit of the first name field
+        test from: :dtr_full_ehr_prepopulation_override_attestation
+      end
     end
 
-    group do
-      id :dtr_full_ehr_adaptive_questionnaire_followup_questions
-      title 'Retrieving the Next Question'
-      description %(
-        The client makes a subsequent call to request the next question or set of questions
-        using the $next-question operation, and including the answers to all required questions
-        in the questionnaire to this point.
-        Inferno will validate that the request conforms to the [next question operation input parameters profile](http://hl7.org/fhir/uv/sdc/StructureDefinition/parameters-questionnaire-next-question-in)
-        and will provide the next questions accordingly for the tester to complete and attest to pre-population
-        and questionnaire rendering.
-      )
+    group from: :dtr_adaptive_questionnaire_followup_questions do
+      group do
+        id :dtr_full_ehr_questionnaire_rendering
+        title 'Filling Out the Questionnaire'
 
-      config(
-        options: {
-          next_question_prompt_title: 'Follow-up Next Question Request'
-        }
-      )
-
-      run_as_group
-
-      group from: :dtr_adaptive_questionnaire_next_question_retrieval
-      group from: :dtr_full_ehr_questionnaire_rendering
+        # Test: attest to the display of the toppings questions only when a dinner answer is selected
+        test from: :dtr_full_ehr_rendering_enabled_questions_attestation
+      end
     end
 
     group from: :dtr_adaptive_questionnaire_completion

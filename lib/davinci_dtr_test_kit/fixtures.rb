@@ -32,8 +32,7 @@ module DaVinciDTRTestKit
       },
       {
         group_ids: [
-          'dtr_full_ehr_adaptive_questionnaire_followup_questions',
-          'dtr_smart_app_adaptive_questionnaire_followup_questions'
+          'dtr_adaptive_questionnaire_followup_questions'
         ],
         next_question: {
           bean_burrito: File.join('dinner_adaptive', 'dinner_order_adaptive_next_question_burrito.json'),
