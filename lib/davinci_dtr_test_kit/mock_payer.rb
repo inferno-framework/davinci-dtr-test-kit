@@ -79,11 +79,20 @@ module DaVinciDTRTestKit
       input_parameters = parse_request_body(request)
       return input_parameters if input_parameters.is_a?(FHIR::OperationOutcome)
 
-      questionnaire_response_param = find_questionnaire_response(input_parameters)
-      return questionnaire_response_param if questionnaire_response_param.is_a?(FHIR::OperationOutcome)
+      if input_parameters.is_a?(FHIR::Parameters)
+        questionnaire_response_param = find_questionnaire_response(input_parameters)
+        return questionnaire_response_param if questionnaire_response_param.is_a?(FHIR::OperationOutcome)
 
-      questionnaire_response = questionnaire_response_param.resource
-      return invalid_next_question_param_resource_outcome unless valid_questionnaire_response?(questionnaire_response)
+        questionnaire_response = questionnaire_response_param.resource
+        return invalid_next_question_param_resource_outcome unless valid_questionnaire_response?(questionnaire_response)
+      elsif input_parameters.is_a?(FHIR::QuestionnaireResponse)
+        questionnaire_response = input_parameters
+        questionnaire_response_param = FHIR::Parameters::Parameter.new
+        questionnaire_response_param.name = 'questionnaire-response'
+        questionnaire_response_param.resource = questionnaire_response
+      else
+        return operation_outcome('error', 'invalid', 'wrong resource type submitted for $next-question request.')
+      end
 
       if questionnaire_last_dinner_order_question_present?(questionnaire_response)
         # change the questionnaire response status to complete and return the parameters
@@ -105,7 +114,7 @@ module DaVinciDTRTestKit
         return build_parameters([questionnaire_response_param, outcome_param])
       end
 
-      build_parameters([questionnaire_response_param])
+      questionnaire_response
     end
 
     def parse_request_body(request)
@@ -136,7 +145,9 @@ module DaVinciDTRTestKit
     end
 
     def find_questionnaire_response(input_parameters)
-      questionnaire_response_param = input_parameters.parameter.find { |param| param.name == 'questionnaire-response' }
+      questionnaire_response_param = input_parameters&.parameter&.find do |param|
+        param.name == 'questionnaire-response'
+      end
       return questionnaire_response_param if questionnaire_response_param
 
       operation_outcome('error', 'business-rule',
