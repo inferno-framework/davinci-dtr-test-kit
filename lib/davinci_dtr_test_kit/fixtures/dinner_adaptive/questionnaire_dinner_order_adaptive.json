@@ -9,7 +9,8 @@
         "meta": {
           "profile": [
             "http://hl7.org/fhir/StructureDefinition/cqf-questionnaire",
-            "http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/dtr-questionnaire-adapt-search"
+            "http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/dtr-questionnaire-adapt-search",
+            "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-adapt"
           ]
         },
         "extension": [
