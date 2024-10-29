@@ -1,10 +1,10 @@
 {
 	"info": {
-		"_postman_id": "53717a07-9778-43ae-a28a-b436d74ba1b2",
+		"_postman_id": "7541fc56-d4d2-4126-b100-60416d01c5d5",
 		"name": "DTR SMART App Tests Postman Demo",
 		"description": "The variables tab in this collection controls port for inferno and token used to establish a session.\n\n- url_prefix: points to a running instance of inferno. Typical values will be\n    \n    - Inferno production: [https://inferno.healthit.gov/suites](https://inferno.healthit.gov/suites)\n        \n    - Inferno QA: [https://inferno-qa.healthit.gov/suites](https://inferno-qa.healthit.gov/suites)\n        \n    - Local docker: [http://localhost](http://localhost)\n        \n    - Local development: [http://localhost:4657](http://localhost:4657)\n        \n- jwt_with_inferno_client_id: a non-standard jwt with the client_id value for the test present in the \"inferno_client_id\" entry of the payload. See [https://jwt.io/#debugger-io?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpbmZlcm5vX2NsaWVudF9pZCI6InRlc3QifQ.VvPENMXJqEfG3ShJ4hp4MQblfxcwJuX5o-3wSrGXEi0](https://jwt.io/#debugger-io?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpbmZlcm5vX2NsaWVudF9pZCI6InRlc3QifQ.VvPENMXJqEfG3ShJ4hp4MQblfxcwJuX5o-3wSrGXEi0) for an example where the client id is `sample` (NOTE: no other details matter). Sent on all questionnaire and clinical requests in the Authorization header as a bearer token (Bearer {{jwt_with_inferno_client_id}} - configured on the Authorization tab).",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "32597978"
+		"_exporter_id": "2481890"
 	},
 	"item": [
 		{
@@ -29,6 +29,48 @@
 								"fhir",
 								".well-known",
 								"smart-configuration"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "OpenID Configuration",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/custom/dtr_smart_app/fhir/.well-known/openid-configuration",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"custom",
+								"dtr_smart_app",
+								"fhir",
+								".well-known",
+								"openid-configuration"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "JWKS",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/custom/dtr_smart_app/fhir/.well-known/jwks.json",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"custom",
+								"dtr_smart_app",
+								"fhir",
+								".well-known",
+								"jwks.json"
 							]
 						}
 					},
@@ -152,13 +194,14 @@
 							]
 						},
 						"url": {
-							"raw": "{{base_url}}/custom/dtr_smart_app/mock_ehr_auth/authorize",
+							"raw": "{{base_url}}/custom/dtr_smart_app/fhir/mock_ehr_auth/authorize",
 							"host": [
 								"{{base_url}}"
 							],
 							"path": [
 								"custom",
 								"dtr_smart_app",
+								"fhir",
 								"mock_ehr_auth",
 								"authorize"
 							]
@@ -213,13 +256,14 @@
 							]
 						},
 						"url": {
-							"raw": "{{base_url}}/custom/dtr_smart_app/mock_ehr_auth/token",
+							"raw": "{{base_url}}/custom/dtr_smart_app/fhir/mock_ehr_auth/token",
 							"host": [
 								"{{base_url}}"
 							],
 							"path": [
 								"custom",
 								"dtr_smart_app",
+								"fhir",
 								"mock_ehr_auth",
 								"token"
 							]

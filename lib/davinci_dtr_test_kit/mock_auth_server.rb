@@ -8,14 +8,16 @@ module DaVinciDTRTestKit
 
     RSA_PRIVATE_KEY = OpenSSL::PKey::RSA.generate(2048)
     RSA_PUBLIC_KEY = RSA_PRIVATE_KEY.public_key
+    SUPPORTED_SCOPES = ['launch', 'patient/*.rs', 'user/*.rs', 'offline_access', 'openid', 'fhirUser'].freeze
 
     def auth_server_jwks(_env)
       response_body = {
         keys: [
           {
-            alg: 'RSA',
-            mod: Base64.urlsafe_encode64(RSA_PUBLIC_KEY.n.to_s(2), padding: false),
-            exp: Base64.urlsafe_encode64(RSA_PUBLIC_KEY.e.to_s(2), padding: false),
+            kty: 'RSA',
+            alg: 'RS256',
+            n: Base64.urlsafe_encode64(RSA_PUBLIC_KEY.n.to_s(2), padding: false),
+            e: Base64.urlsafe_encode64(RSA_PUBLIC_KEY.e.to_s(2), padding: false),
             use: 'sig'
           }
         ]
@@ -25,20 +27,15 @@ module DaVinciDTRTestKit
     end
 
     def ehr_smart_config(env)
-      protocol = env['rack.url_scheme']
-      host = env['HTTP_HOST']
-      path = env['REQUEST_PATH'] || env['PATH_INFO']
-      path.gsub!(%r{#{SMART_CONFIG_PATH}(/)?}, '')
-      base_url = "#{protocol}://#{host + path}"
+      base_url = env_base_url(env, SMART_CONFIG_PATH)
       response_body =
         {
-          jwks_uri: base_url + JKWS_PATH,
           authorization_endpoint: base_url + EHR_AUTHORIZE_PATH,
           token_endpoint: base_url + EHR_TOKEN_PATH,
           token_endpoint_auth_methods_supported: ['private_key_jwt'],
           token_endpoint_auth_signing_alg_values_supported: ['RS256'],
           grant_types_supported: ['authorization_code'],
-          scopes_supported: ['launch', 'patient/*.rs', 'user/*.rs', 'offline_access', 'openid', 'fhirUser'],
+          scopes_supported: SUPPORTED_SCOPES,
           response_types_supported: ['code'],
           code_challenge_methods_supported: ['S256'],
           capabilities: [
@@ -51,6 +48,20 @@ module DaVinciDTRTestKit
           ]
         }.to_json
 
+      [200, { 'Content-Type' => 'application/json', 'Access-Control-Allow-Origin' => '*' }, [response_body]]
+    end
+
+    def ehr_openid_config(env)
+      base_url = env_base_url(env, OPENID_CONFIG_PATH)
+      response_body = {
+        issuer: base_url + FHIR_BASE_PATH,
+        authorization_endpoint: base_url + EHR_AUTHORIZE_PATH,
+        token_endpoint: base_url + EHR_TOKEN_PATH,
+        jwks_uri: base_url + JKWS_PATH,
+        response_types_supported: ['id_token'],
+        subject_types_supported: ['public'],
+        id_token_signing_alg_values_supported: ['RS256']
+      }.to_json
       [200, { 'Content-Type' => 'application/json', 'Access-Control-Allow-Origin' => '*' }, [response_body]]
     end
 
@@ -84,7 +95,7 @@ module DaVinciDTRTestKit
       id_token = JWT.encode(
         {
           fhirUser: "#{suite_base_url}/fhir/Practitioner/#{AUTHORIZED_PRACTITIONER_ID}",
-          iss: suite_base_url,
+          iss: suite_base_url + FHIR_BASE_PATH,
           sub: AUTHORIZED_PRACTITIONER_ID,
           aud: client_id,
           exp: Time.now.to_i + (24 * 60 * 60), # 24 hrs
@@ -94,7 +105,7 @@ module DaVinciDTRTestKit
         'RS256'
       )
 
-      response = { access_token:, id_token:, token_type: 'bearer', expires_in: 3600 }
+      response = { access_token:, id_token:, scope: SUPPORTED_SCOPES.join(' '), token_type: 'bearer', expires_in: 3600 }
 
       fhir_context_input = find_test_input(test_result, 'smart_fhir_context')
       fhir_context_input_value = fhir_context_input['value'] if fhir_context_input
@@ -110,7 +121,11 @@ module DaVinciDTRTestKit
       response.merge!({ patient: smart_patient_input_value }) if smart_patient_input_value
 
       request.response_body = response.to_json
-      request.response_headers = { 'Access-Control-Allow-Origin' => '*' }
+      request.response_headers = {
+        'Cache-Control' => 'no-store',
+        'Pragma' => 'no-cache',
+        'Access-Control-Allow-Origin' => '*'
+      }
       request.status = 200
     end
 
@@ -179,6 +194,14 @@ module DaVinciDTRTestKit
 
     def find_test_input(test_result, input_name)
       JSON.parse(test_result.input_json)&.find { |input| input['name'] == input_name }
+    end
+
+    def env_base_url(env, endpoint_path)
+      protocol = env['rack.url_scheme']
+      host = env['HTTP_HOST']
+      path = env['REQUEST_PATH'] || env['PATH_INFO']
+      path.gsub!(%r{#{endpoint_path}(/)?}, '')
+      "#{protocol}://#{host + path}"
     end
   end
 end

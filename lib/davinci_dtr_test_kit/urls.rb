@@ -1,18 +1,20 @@
 # frozen_string_literal: true
 
 module DaVinciDTRTestKit
-  SMART_CONFIG_PATH = '/fhir/.well-known/smart-configuration'
-  JKWS_PATH = '/fhir/.well-known/jwks.json'
-  EHR_AUTHORIZE_PATH = '/mock_ehr_auth/authorize'
-  EHR_TOKEN_PATH = '/mock_ehr_auth/token'
-  PAYER_TOKEN_PATH = '/mock_payer_auth/token'
-  QUESTIONNAIRE_PACKAGE_PATH = '/fhir/Questionnaire/$questionnaire-package'
-  NEXT_PATH = '/fhir/Questionnaire/$next-question'
-  QUESTIONNAIRE_RESPONSE_PATH = '/fhir/QuestionnaireResponse'
+  FHIR_BASE_PATH = '/fhir'
+  SMART_CONFIG_PATH = "#{FHIR_BASE_PATH}/.well-known/smart-configuration".freeze
+  OPENID_CONFIG_PATH = "#{FHIR_BASE_PATH}/.well-known/openid-configuration".freeze
+  JKWS_PATH = "#{FHIR_BASE_PATH}/.well-known/jwks.json".freeze
+  EHR_AUTHORIZE_PATH = "#{FHIR_BASE_PATH}/mock_ehr_auth/authorize".freeze
+  EHR_TOKEN_PATH = "#{FHIR_BASE_PATH}/mock_ehr_auth/token".freeze
+  PAYER_TOKEN_PATH = "#{FHIR_BASE_PATH}/mock_payer_auth/token".freeze
+  QUESTIONNAIRE_PACKAGE_PATH = "#{FHIR_BASE_PATH}/Questionnaire/$questionnaire-package".freeze
+  NEXT_PATH = "#{FHIR_BASE_PATH}/Questionnaire/$next-question".freeze
+  QUESTIONNAIRE_RESPONSE_PATH = "#{FHIR_BASE_PATH}/QuestionnaireResponse".freeze
+  FHIR_RESOURCE_PATH = "#{FHIR_BASE_PATH}/:resource/:id".freeze
+  FHIR_SEARCH_PATH = "#{FHIR_BASE_PATH}/:resource".freeze
   RESUME_PASS_PATH = '/resume_pass'
   RESUME_FAIL_PATH = '/resume_fail'
-  FHIR_RESOURCE_PATH = '/fhir/:resource/:id'
-  FHIR_SEARCH_PATH = '/fhir/:resource'
 
   module URLs
     def base_url
@@ -44,7 +46,7 @@ module DaVinciDTRTestKit
     end
 
     def fhir_base_url
-      @fhir_base_url ||= "#{base_url}/fhir"
+      @fhir_base_url ||= base_url + FHIR_BASE_PATH
     end
 
     def resume_pass_url
