@@ -5,4 +5,5 @@ module DaVinciDTRTestKit
   NEXT_TAG = 'payer_server_adaptive_questionnaire_package'
   QUESTIONNAIRE_PACKAGE_TAG = 'dtr_questionnaire_package'
   SMART_APP_EHR_REQUEST_TAG = 'dtr_smart_app_ehr_request'
+  EHR_AUTHORIZE_TAG = 'dtr_smart_app_ehr_authorize'
 end

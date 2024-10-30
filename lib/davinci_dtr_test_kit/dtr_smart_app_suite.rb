@@ -59,12 +59,12 @@ module DaVinciDTRTestKit
 
     route(:get, JKWS_PATH, method(:auth_server_jwks))
 
-    record_response_route :get, EHR_AUTHORIZE_PATH, 'dtr_smart_app_ehr_authorize', method(:ehr_authorize),
+    record_response_route :get, EHR_AUTHORIZE_PATH, EHR_AUTHORIZE_TAG, method(:ehr_authorize),
                           resumes: ->(_) { false } do |request|
       DTRSmartAppSuite.extract_client_id_from_query_params(request)
     end
 
-    record_response_route :post, EHR_AUTHORIZE_PATH, 'dtr_smart_app_ehr_authorize', method(:ehr_authorize),
+    record_response_route :post, EHR_AUTHORIZE_PATH, EHR_AUTHORIZE_TAG, method(:ehr_authorize),
                           resumes: ->(_) { false } do |request|
       DTRSmartAppSuite.extract_client_id_from_form_params(request)
     end

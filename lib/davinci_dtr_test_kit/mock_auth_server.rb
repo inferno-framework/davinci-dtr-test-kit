@@ -10,6 +10,10 @@ module DaVinciDTRTestKit
     RSA_PUBLIC_KEY = RSA_PRIVATE_KEY.public_key
     SUPPORTED_SCOPES = ['launch', 'patient/*.rs', 'user/*.rs', 'offline_access', 'openid', 'fhirUser'].freeze
 
+    def requests_repo
+      @requests_repo ||= Inferno::Repositories::Requests.new
+    end
+
     def auth_server_jwks(_env)
       response_body = {
         keys: [
@@ -67,7 +71,7 @@ module DaVinciDTRTestKit
 
     def ehr_authorize(request, _test = nil, _test_result = nil)
       # Authorization requests can bet GET or POST
-      params = request.verb == 'get' ? request.query_parameters : URI.decode_www_form(request.request_body)&.to_h
+      params = params_hash(request)
       if params['redirect_uri'].present?
         redirect_uri = "#{params['redirect_uri']}?" \
                        "code=#{SecureRandom.hex}&" \
@@ -89,23 +93,13 @@ module DaVinciDTRTestKit
     def ehr_token_response(request, _test = nil, test_result = nil)
       client_id = extract_client_id_from_token_request(request)
       access_token = JWT.encode({ inferno_client_id: client_id }, nil, 'none')
+      granted_scopes = SUPPORTED_SCOPES & requested_scopes(test_result.test_session_id)
 
-      # No point in mocking an identity provider, just always use known Practitioner as the authorized user
-      suite_base_url = request.url.split(EHR_TOKEN_PATH).first
-      id_token = JWT.encode(
-        {
-          fhirUser: "#{suite_base_url}/fhir/Practitioner/#{AUTHORIZED_PRACTITIONER_ID}",
-          iss: suite_base_url + FHIR_BASE_PATH,
-          sub: AUTHORIZED_PRACTITIONER_ID,
-          aud: client_id,
-          exp: Time.now.to_i + (24 * 60 * 60), # 24 hrs
-          iat: Time.now.to_i
-        },
-        RSA_PRIVATE_KEY,
-        'RS256'
-      )
+      response = { access_token:, scope: granted_scopes.join(' '), token_type: 'bearer', expires_in: 3600 }
 
-      response = { access_token:, id_token:, scope: SUPPORTED_SCOPES.join(' '), token_type: 'bearer', expires_in: 3600 }
+      if granted_scopes.include?('openid')
+        response.merge!(id_token: create_id_token(request, client_id, fhir_user: granted_scopes.include?('fhirUser')))
+      end
 
       fhir_context_input = find_test_input(test_result, 'smart_fhir_context')
       fhir_context_input_value = fhir_context_input['value'] if fhir_context_input
@@ -114,11 +108,11 @@ module DaVinciDTRTestKit
       rescue StandardError
         fhir_context = nil
       end
-      response.merge!({ fhirContext: fhir_context }) if fhir_context
+      response.merge!(fhirContext: fhir_context) if fhir_context
 
       smart_patient_input = find_test_input(test_result, 'smart_patient_id')
       smart_patient_input_value = smart_patient_input['value'] if smart_patient_input.present?
-      response.merge!({ patient: smart_patient_input_value }) if smart_patient_input_value
+      response.merge!(patient: smart_patient_input_value) if smart_patient_input_value
 
       request.response_body = response.to_json
       request.response_headers = {
@@ -192,8 +186,35 @@ module DaVinciDTRTestKit
       request.query_parameters['token']
     end
 
+    def create_id_token(request, client_id, fhir_user: false)
+      # No point in mocking an identity provider, just always use known Practitioner as the authorized user
+      suite_base_url = request.url.split(EHR_TOKEN_PATH).first
+      id_token_hash = {
+        iss: suite_base_url + FHIR_BASE_PATH,
+        sub: AUTHORIZED_PRACTITIONER_ID,
+        aud: client_id,
+        exp: Time.now.to_i + (24 * 60 * 60), # 24 hrs
+        iat: Time.now.to_i
+      }
+      id_token_hash.merge!(fhirUser: "#{suite_base_url}/fhir/Practitioner/#{AUTHORIZED_PRACTITIONER_ID}") if fhir_user
+
+      JWT.encode(id_token_hash, RSA_PRIVATE_KEY, 'RS256')
+    end
+
+    def requested_scopes(test_session_id)
+      auth_request = requests_repo.tagged_requests(test_session_id, [EHR_AUTHORIZE_TAG]).last
+      return [] unless auth_request
+
+      scope_str = params_hash(auth_request)&.dig('scope')
+      scope_str ? URI.decode_www_form_component(scope_str).split : []
+    end
+
     def find_test_input(test_result, input_name)
       JSON.parse(test_result.input_json)&.find { |input| input['name'] == input_name }
+    end
+
+    def params_hash(request)
+      request.verb == 'get' ? request.query_parameters : URI.decode_www_form(request.request_body)&.to_h
     end
 
     def env_base_url(env, endpoint_path)
