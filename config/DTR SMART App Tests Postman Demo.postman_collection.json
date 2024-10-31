@@ -85,7 +85,7 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{base_url}}/custom/dtr_smart_app/fhir/mock_auth/authorize?response_type=code&client_id=sample&redirect_uri=http://localhost&launch=1234&scope=launch+patient%2F%2A.rs&state=394a5f8b-735c-4930-8f11-8f4034e3a483&aud={{base_url}}/custom/dtr_smart_app&code_challenge=59acb885e0a8b485df1a48c4d61544e5a0e6aa0209fe131bc64a336cb12aa95f&code_challenge_method=S256",
+							"raw": "{{base_url}}/custom/dtr_smart_app/fhir/mock_ehr_auth/authorize?response_type=code&client_id=sample&redirect_uri=http://localhost&launch=1234&scope=launch+patient%2F%2A.rs&state=394a5f8b-735c-4930-8f11-8f4034e3a483&aud={{base_url}}/custom/dtr_smart_app&code_challenge=59acb885e0a8b485df1a48c4d61544e5a0e6aa0209fe131bc64a336cb12aa95f&code_challenge_method=S256",
 							"host": [
 								"{{base_url}}"
 							],
@@ -93,7 +93,7 @@
 								"custom",
 								"dtr_smart_app",
 								"fhir",
-								"mock_auth",
+								"mock_ehr_auth",
 								"authorize"
 							],
 							"query": [
@@ -153,7 +153,7 @@
 								},
 								{
 									"key": "client_id",
-									"value": "1",
+									"value": "sample",
 									"type": "text"
 								},
 								{
@@ -168,7 +168,7 @@
 								},
 								{
 									"key": "scope",
-									"value": "openid+user%2F%2A.rs+launch%2Fpatient",
+									"value": "openid+user%2F%2A.rs+launch%2Fpatient+fhirUser",
 									"type": "text"
 								},
 								{
@@ -250,7 +250,7 @@
 								},
 								{
 									"key": "client_id",
-									"value": "1",
+									"value": "sample",
 									"type": "text"
 								}
 							]
