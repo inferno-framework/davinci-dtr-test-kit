@@ -39,7 +39,8 @@ module DaVinciDTRTestKit
             Launch. These references help determine the behavior of the app. Referenced instances
             may be provided in the "EHR-available resources" input.
           ),
-          default: JSON.pretty_generate(['Coverage/cov015', 'DeviceRequest/devreqe0470'])
+          default: JSON.pretty_generate([{ reference: 'Coverage/cov015' },
+                                         { reference: 'DeviceRequest/devreqe0470' }])
     input :ehr_bundle,
           optional: true,
           title: 'EHR-available resources (Dinner Static)',
