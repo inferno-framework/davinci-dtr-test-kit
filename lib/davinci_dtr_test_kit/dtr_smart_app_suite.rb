@@ -50,18 +50,21 @@ module DaVinciDTRTestKit
     end
 
     allow_cors QUESTIONNAIRE_PACKAGE_PATH, QUESTIONNAIRE_RESPONSE_PATH, FHIR_RESOURCE_PATH, FHIR_SEARCH_PATH,
-               EHR_AUTHORIZE_PATH, EHR_TOKEN_PATH
+               EHR_AUTHORIZE_PATH, EHR_TOKEN_PATH, JKWS_PATH, OPENID_CONFIG_PATH
 
     route(:get, '/fhir/metadata', method(:metadata_handler))
 
     route(:get, SMART_CONFIG_PATH, method(:ehr_smart_config))
+    route(:get, OPENID_CONFIG_PATH, method(:ehr_openid_config))
 
-    record_response_route :get, EHR_AUTHORIZE_PATH, 'dtr_smart_app_ehr_authorize', method(:ehr_authorize),
+    route(:get, JKWS_PATH, method(:auth_server_jwks))
+
+    record_response_route :get, EHR_AUTHORIZE_PATH, EHR_AUTHORIZE_TAG, method(:ehr_authorize),
                           resumes: ->(_) { false } do |request|
       DTRSmartAppSuite.extract_client_id_from_query_params(request)
     end
 
-    record_response_route :post, EHR_AUTHORIZE_PATH, 'dtr_smart_app_ehr_authorize', method(:ehr_authorize),
+    record_response_route :post, EHR_AUTHORIZE_PATH, EHR_AUTHORIZE_TAG, method(:ehr_authorize),
                           resumes: ->(_) { false } do |request|
       DTRSmartAppSuite.extract_client_id_from_form_params(request)
     end
