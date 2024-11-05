@@ -12,6 +12,8 @@ Gem::Specification.new do |spec|
   spec.add_dependency 'inferno_core', '~> 0.5.0'
   spec.add_dependency 'jwt', '~> 2.6'
   spec.add_dependency 'smart_app_launch_test_kit', '~> 0.4.4'
+  spec.add_dependency 'tls_test_kit', '0.2.2'
+  spec.add_dependency 'us_core_test_kit', '0.8.2'
   spec.required_ruby_version = Gem::Requirement.new('>= 3.1.2')
   spec.metadata['homepage_uri'] = spec.homepage
   spec.metadata['source_code_uri'] = spec.homepage

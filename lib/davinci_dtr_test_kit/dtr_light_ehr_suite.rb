@@ -1,6 +1,30 @@
+require_relative 'ext/inferno_core/runnable'
+require_relative 'ext/inferno_core/record_response_route'
+require_relative 'ext/inferno_core/request'
+require 'us_core_test_kit'
 require 'tls_test_kit'
 require_relative 'version'
 require_relative 'dtr_options'
+require_relative 'profiles/coverage/coverage_read'
+require_relative 'profiles/coverage/coverage_validation'
+require_relative 'profiles/coverage/coverage_context_search'
+require_relative 'profiles/coverage/coverage_patient_search'
+require_relative 'profiles/communication_request/communication_request_read'
+require_relative 'profiles/communication_request/communication_request_validation'
+require_relative 'profiles/device_request/device_request_read'
+require_relative 'profiles/device_request/device_request_validation'
+require_relative 'profiles/encounter/encounter_read'
+require_relative 'profiles/encounter/encounter_validation'
+require_relative 'profiles/medication_request/medication_request_read'
+require_relative 'profiles/medication_request/medication_request_validation'
+require_relative 'profiles/nutrition_order/nutrition_order_read'
+require_relative 'profiles/nutrition_order/nutrition_order_validation'
+require_relative 'profiles/service_request/service_request_read'
+require_relative 'profiles/service_request/service_request_validation'
+require_relative 'profiles/task/task_read'
+require_relative 'profiles/task/task_validation'
+require_relative 'profiles/vision_prescription/vision_prescription_read'
+require_relative 'profiles/vision_prescription/vision_prescription_validation'
 require 'smart_app_launch/smart_stu1_suite'
 require 'smart_app_launch/smart_stu2_suite'
 
@@ -34,6 +58,15 @@ module DaVinciDTRTestKit
     input :url,
           title: 'FHIR Endpoint',
           description: 'URL of the DTR FHIR server'
+
+    # Hl7 Validator Wrapper:
+    fhir_resource_validator do
+      igs('hl7.fhir.us.davinci-dtr#2.0.1', 'hl7.fhir.us.davinci-cdex#2.0.0')
+
+      exclude_message do |message|
+        message.message.match?(/\A\S+: \S+: URL value '.*' does not resolve/)
+      end
+    end
 
     group do
       title 'Authorization'
@@ -70,6 +103,108 @@ module DaVinciDTRTestKit
       group from: :smart_standalone_launch_stu2,
             required_suite_options: DTROptions::SMART_2_REQUIREMENT,
             run_as_group: true
+    end
+
+    group do
+      title 'FHIR API'
+
+      group from: :'us_core_v311-us_core_v311_fhir_api',
+            run_as_group: true
+    end
+
+    group do
+      title 'DTR Light EHR Profiles'
+
+      input :credentials,
+            title: 'OAuth Credentials',
+            type: :oauth_credentials,
+            optional: true
+
+      # All FHIR requests in this suite will use this FHIR client
+      fhir_client do
+        url :url
+        oauth_credentials :credentials
+      end
+
+      group do
+        title 'CRD Coverage'
+
+        input :coverage_ids
+
+        test from: :coverage_read
+        test from: :coverage_validation
+        test from: :coverage_context_search
+        test from: :coverage_patient_search
+      end
+
+      group do
+        title 'CRD CommunicationRequest'
+        input :communication_request_ids
+
+        test from: :communication_request_read
+        test from: :communication_request_validation
+      end
+
+      group do
+        title 'CRD DeviceRequest'
+        input :device_request_ids
+
+        test from: :device_request_read
+        test from: :device_request_validation
+      end
+
+      group do
+        title 'CRD Encounter'
+
+        input :encounter_ids
+
+        test from: :encounter_read
+        test from: :encounter_validation
+      end
+
+      group do
+        title 'CRD MedicationRequest'
+
+        input :medication_request_ids
+
+        test from: :medication_request_read
+        test from: :medication_request_validation
+      end
+
+      group do
+        title 'CRD NutritionOrder'
+
+        input :nutrition_order_ids
+
+        test from: :nutrition_order_read
+        test from: :nutrition_order_validation
+      end
+
+      group do
+        title 'CRD ServiceRequest'
+
+        input :service_request_ids
+
+        test from: :service_request_read
+        test from: :service_request_validation
+      end
+
+      group do
+        title 'CDex Task'
+
+        input :task_ids
+
+        test from: :task_read
+        test from: :task_validation
+      end
+
+      group do
+        title 'CRD VisionPrescription'
+        input :vision_prescription_ids
+
+        test from: :vision_prescription_read
+        test from: :vision_prescription_validation
+      end
     end
   end
 end
