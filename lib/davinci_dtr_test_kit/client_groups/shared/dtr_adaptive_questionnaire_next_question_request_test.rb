@@ -27,6 +27,16 @@ module DaVinciDTRTestKit
       end
     end
 
+    def cont_test_description
+      <<~DESCRIPTION
+        ### Continuing the Tests
+
+        When the DTR application has finished loading the Questionnaire,
+        including any clinical data requests to support pre-population,
+        [Click here](#{resume_pass_url}?client_id=#{access_token}) to continue.
+      DESCRIPTION
+    end
+
     run do
       next_question_prompt_title = config.options[:next_question_prompt_title]
       prompt_cont = if next_question_prompt_title&.include?('Initial')
@@ -41,7 +51,7 @@ module DaVinciDTRTestKit
 
       wait(
         identifier: access_token,
-        message: %(
+        message: <<~MESSAGE
           ### #{next_question_prompt_title}
 
           Inferno will wait for the client to invoke the $next-question operation by sending a POST
@@ -59,7 +69,9 @@ module DaVinciDTRTestKit
           ```
           Bearer #{request_identification}
           ```
-        )
+
+          #{cont_test_description if config.options[:accepts_multiple_requests]}
+        MESSAGE
       )
     end
   end

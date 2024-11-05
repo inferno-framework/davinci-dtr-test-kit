@@ -47,7 +47,7 @@ module DaVinciDTRTestKit
 
       group from: :dtr_smart_app_adaptive_questionnaire_initial_retrieval
       group do
-        id :dtr_smart_app_questionnaire_rendering
+        id :dtr_smart_app_initial_questionnaire_rendering
         title 'Filling Out the Questionnaire'
         description %(
           The tester will interact with the questionnaire within their client system
@@ -65,6 +65,7 @@ module DaVinciDTRTestKit
 
     group from: :dtr_adaptive_questionnaire_followup_questions do
       config(
+        options: { accepts_multiple_requests: true },
         inputs: {
           access_token: { name: :client_id }
         }
@@ -80,6 +81,7 @@ module DaVinciDTRTestKit
 
     group from: :dtr_adaptive_questionnaire_completion,
           config: {
+            options: { accepts_multiple_requests: true },
             inputs: {
               access_token: { name: :client_id }
             }
