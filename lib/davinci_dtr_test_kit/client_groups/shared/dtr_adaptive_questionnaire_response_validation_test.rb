@@ -38,9 +38,14 @@ module DaVinciDTRTestKit
       input_params = FHIR.from_contents(request.request_body)
       skip_if input_params.blank?, 'Request does not contain a recognized FHIR object'
 
-      questionnaire_response = input_params.try(:parameter)&.find do |param|
-                                 param.name == 'questionnaire-response'
-                               end&.resource
+      questionnaire_response = nil
+      if input_params.is_a?(FHIR::QuestionnaireResponse)
+        questionnaire_response = input_params
+      elsif input_params.is_a?(FHIR::Parameters)
+        questionnaire_response = input_params.parameter&.find do |param|
+          param.name == 'questionnaire-response'
+        end&.resource
+      end
 
       skip_if questionnaire_response.nil?, 'QuestionnaireResponse resource not provided.'
       verify_basic_conformance(questionnaire_response.to_json, profile_url)
