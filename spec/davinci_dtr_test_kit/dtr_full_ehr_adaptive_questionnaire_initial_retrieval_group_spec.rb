@@ -115,7 +115,7 @@ RSpec.describe DaVinciDTRTestKit::DTRFullEHRAdaptiveQuestionnaireInitialRetrieva
 
       result = run(runnable, test_session)
       expect(result.result).to eq('fail')
-      expect(result.result_message).to match(/Unexpected resource type: expected Parameters/)
+      expect(result.result_message).to match(/Expected Parameters or QuestionnaireResponse/)
     end
 
     it 'fails if next question input parameters resource does not have a questionnaire-response param' do
