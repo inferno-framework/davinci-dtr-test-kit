@@ -95,7 +95,7 @@ module DaVinciDTRTestKit
 
       next_questionnaire = nil
       if questionnaire_last_dinner_order_question_present?(questionnaire_response)
-        # change the questionnaire response status to complete and return the parameters
+        # change the questionnaire response status to completed and return the parameters
         return handle_last_dinner_order(questionnaire_response)
       elsif questionnaire_dinner_order_selection_present?(questionnaire_response)
         # Retrieve the selected option from the response and determine the next set of questions
@@ -214,7 +214,7 @@ module DaVinciDTRTestKit
         questionnaire_response.contained.reject! { |resource| resource.resourceType == 'Questionnaire' }
         questionnaire_response.contained << next_questionnaire
       else
-        questionnaire_response.status = 'complete'
+        questionnaire_response.status = 'completed'
       end
     end
 
