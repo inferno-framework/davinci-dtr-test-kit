@@ -5,7 +5,7 @@ module DaVinciDTRTestKit
     include DaVinciDTRTestKit::ReadTest
 
     title 'Server returns correct Task resource from Task read interaction'
-    description 'A server SHALL support the Task read interaction.'
+    description 'A server SHOULD support the Task read interaction.'
 
     id :task_read
     output :task_resources

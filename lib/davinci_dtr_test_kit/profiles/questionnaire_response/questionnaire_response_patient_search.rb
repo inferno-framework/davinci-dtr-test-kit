@@ -1,14 +1,13 @@
-require_relative '../../search_test'
-require_relative '../../group_metadata'
+require 'us_core_test_kit'
 
 module DaVinciDTRTestKit
-  class CoveragePatientSearchTest < Inferno::Test
-    include DaVinciDTRTestKit::SearchTest
+  class QuestionnaireResponsePatientSearchTest < Inferno::Test
+    include USCoreTestKit::SearchTest
 
-    title 'Server returns valid results for Coverage search by patient'
+    title 'Server returns valid results for QuestionnaireResponse search by patient'
     description %(
 A server SHALL support searching by
-patient on the Coverage resource. This test
+patient on the QuestionnaireResponse resource. This test
 will pass if resources are returned and match the search criteria. If
 none are returned, the test is skipped.
 
@@ -24,32 +23,31 @@ Additionally, this test will check that GET and POST search methods
 return the same number of results. Search by POST is required by the
 FHIR R4 specification, and these tests interpret search by GET as a
 requirement of US Core v3.1.1.
-
-[US Core Server CapabilityStatement](http://hl7.org/fhir/us/core/STU3.1.1/CapabilityStatement-us-core-server.html)
-
       )
 
-    id :coverage_patient_search
+    id :questionnaire_response_patient_search
     input :patient_ids,
           title: 'Patient IDs',
           description: 'Comma separated list of patient IDs that in sum contain all MUST SUPPORT elements'
 
     def self.properties
-      @properties ||= SearchTestProperties.new(
+      @properties ||= USCoreTestKit::SearchTestProperties.new(
         first_search: true,
-        resource_type: 'Coverage',
+        resource_type: 'QuestionnaireResponse',
         search_param_names: ['patient'],
+        saves_delayed_references: true,
         test_reference_variants: true,
         test_post_search: true
       )
     end
 
     def self.metadata
-      @metadata ||= Generator::GroupMetadata.new(YAML.load_file(File.join(__dir__, 'metadata.yml'), aliases: true))
+      @metadata ||= USCoreTestKit::Generator::GroupMetadata.new(YAML.load_file(File.join(__dir__, 'metadata.yml'),
+                                                                               aliases: true))
     end
 
     def scratch_resources
-      scratch[:coverage_resources] ||= {}
+      scratch[:questionnaire_response_resources] ||= {}
     end
 
     run do

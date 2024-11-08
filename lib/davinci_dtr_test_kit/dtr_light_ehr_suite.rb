@@ -5,10 +5,12 @@ require 'us_core_test_kit'
 require 'tls_test_kit'
 require_relative 'version'
 require_relative 'dtr_options'
+require_relative 'profiles/questionnaire_response/questionnaire_response_patient_search'
+require_relative 'profiles/questionnaire_response/questionnaire_response_context_search'
+require_relative 'profiles/questionnaire_response/questionnaire_response_read'
+require_relative 'profiles/questionnaire_response/questionnaire_response_validation'
 require_relative 'profiles/coverage/coverage_read'
 require_relative 'profiles/coverage/coverage_validation'
-require_relative 'profiles/coverage/coverage_context_search'
-require_relative 'profiles/coverage/coverage_patient_search'
 require_relative 'profiles/communication_request/communication_request_read'
 require_relative 'profiles/communication_request/communication_request_validation'
 require_relative 'profiles/device_request/device_request_read'
@@ -127,14 +129,21 @@ module DaVinciDTRTestKit
       end
 
       group do
+        title 'DTR QuestionnaireResponse'
+
+        test from: :questionnaire_response_patient_search
+        test from: :questionnaire_response_context_search
+        test from: :questionnaire_response_read
+        test from: :questionnaire_response_validation
+      end
+
+      group do
         title 'CRD Coverage'
 
         input :coverage_ids
 
         test from: :coverage_read
         test from: :coverage_validation
-        test from: :coverage_context_search
-        test from: :coverage_patient_search
       end
 
       group do

@@ -5,7 +5,7 @@ module DaVinciDTRTestKit
     include DaVinciDTRTestKit::ReadTest
 
     title 'Server returns correct DeviceRequest resource from DeviceRequest read interaction'
-    description 'A server SHALL support the DeviceRequest read interaction.'
+    description 'A server SHOULD support the DeviceRequest read interaction.'
 
     id :device_request_read
     output :device_request_resources

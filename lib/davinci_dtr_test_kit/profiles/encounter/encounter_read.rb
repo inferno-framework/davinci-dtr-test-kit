@@ -5,7 +5,7 @@ module DaVinciDTRTestKit
     include DaVinciDTRTestKit::ReadTest
 
     title 'Server returns correct Encounter resource from Encounter read interaction'
-    description 'A server SHALL support the Encounter read interaction.'
+    description 'A server SHOULD support the Encounter read interaction.'
 
     id :encounter_read
     output :encounter_resources

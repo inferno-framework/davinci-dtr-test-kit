@@ -5,7 +5,7 @@ module DaVinciDTRTestKit
     include DaVinciDTRTestKit::ReadTest
 
     title 'Server returns correct MedicationRequest resource from MedicationRequest read interaction'
-    description 'A server SHALL support the MedicationRequest read interaction.'
+    description 'A server SHOULD support the MedicationRequest read interaction.'
 
     id :medication_request_read
     output :medication_request_resources

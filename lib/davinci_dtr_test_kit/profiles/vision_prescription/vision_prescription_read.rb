@@ -5,7 +5,7 @@ module DaVinciDTRTestKit
     include DaVinciDTRTestKit::ReadTest
 
     title 'Server returns correct VisionPrescription resource from VisionPrescription read interaction'
-    description 'A server SHALL support the VisionPrescription read interaction.'
+    description 'A server SHOULD support the VisionPrescription read interaction.'
 
     id :vision_prescription_read
     output :vision_prescription_resources

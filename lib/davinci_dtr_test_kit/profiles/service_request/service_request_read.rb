@@ -5,7 +5,7 @@ module DaVinciDTRTestKit
     include DaVinciDTRTestKit::ReadTest
 
     title 'Server returns correct ServiceRequest resource from ServiceRequest read interaction'
-    description 'A server SHALL support the ServiceRequest read interaction.'
+    description 'A server SHOULD support the ServiceRequest read interaction.'
 
     id :service_request_read
     output :service_request_resources

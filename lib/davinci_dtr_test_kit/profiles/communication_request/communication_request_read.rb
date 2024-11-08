@@ -5,7 +5,7 @@ module DaVinciDTRTestKit
     include DaVinciDTRTestKit::ReadTest
 
     title 'Server returns correct CommunicationRequest resource from CommunicationRequest read interaction'
-    description 'A server SHALL support the CommunicationRequest read interaction.'
+    description 'A server SHOULD support the CommunicationRequest read interaction.'
 
     id :communication_request_read
     output :communication_request_resources

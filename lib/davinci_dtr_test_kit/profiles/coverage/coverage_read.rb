@@ -1,7 +1,7 @@
 require_relative '../../read_test'
 
 module DaVinciDTRTestKit
-  class CoverageReadTEst < Inferno::Test
+  class CoverageReadTest < Inferno::Test
     include DaVinciDTRTestKit::ReadTest
 
     title 'Server returns correct Coverage resource from Coverage read interaction'
