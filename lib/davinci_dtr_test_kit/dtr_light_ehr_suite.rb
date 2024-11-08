@@ -130,6 +130,7 @@ module DaVinciDTRTestKit
 
       group do
         title 'DTR QuestionnaireResponse'
+        run_as_group
 
         test from: :questionnaire_response_patient_search
         test from: :questionnaire_response_context_search
