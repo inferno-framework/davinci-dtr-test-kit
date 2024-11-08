@@ -1,5 +1,3 @@
-require 'us_core_test_kit'
-
 module DaVinciDTRTestKit
   class QuestionnaireResponseContextSearchTest < Inferno::Test
     include USCoreTestKit::SearchTest

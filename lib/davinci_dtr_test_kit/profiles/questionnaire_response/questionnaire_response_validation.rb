@@ -1,5 +1,3 @@
-require 'us_core_test_kit'
-
 module DaVinciDTRTestKit
   class QuestionnaireResponseValidationTest < Inferno::Test
     include USCoreTestKit::ValidationTest
