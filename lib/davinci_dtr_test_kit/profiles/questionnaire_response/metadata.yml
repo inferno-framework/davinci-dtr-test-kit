@@ -6,7 +6,7 @@
 :resource: QuestionnaireResponse
 :profile_url: http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/dtr-questionnaireresponse
 :profile_name: DTR Questionnaire Response
-:profile_version: 2.1.0
+:profile_version: 2.0.1
 :title: DTR Questionnaire Response
 :short_description: Verify support for the server capabilities required by the DTR
   Questionnaire Response.
@@ -62,9 +62,6 @@
   - :id: QuestionnaireResponse.extension:signature
     :path: extension
     :url: http://hl7.org/fhir/StructureDefinition/questionnaireresponse-signature
-  - :id: QuestionnaireResponse.extension:coverage-information
-    :path: extension
-    :url: http://hl7.org/fhir/us/davinci-crd/StructureDefinition/ext-coverage-information
   - :id: QuestionnaireResponse.questionnaire.extension:questionnaireDisplay
     :path: questionnaire.extension
     :url: http://hl7.org/fhir/StructureDefinition/display
@@ -89,7 +86,7 @@
     :types:
     - Reference
     :target_profiles:
-    - http://hl7.org/fhir/us/davinci-crd/StructureDefinition/profile-patient
+    - http://hl7.org/fhir/us/core/StructureDefinition/us-core-patient
   - :path: authored
   - :path: author
     :types:
@@ -128,17 +125,17 @@
   - http://hl7.org/fhir/StructureDefinition/Procedure
 - :path: QuestionnaireResponse.subject
   :profiles:
-  - http://hl7.org/fhir/us/davinci-crd/StructureDefinition/profile-patient
+  - http://hl7.org/fhir/us/core/StructureDefinition/us-core-patient
 - :path: QuestionnaireResponse.encounter
   :profiles:
   - http://hl7.org/fhir/StructureDefinition/Encounter
 - :path: QuestionnaireResponse.author
   :profiles:
   - http://hl7.org/fhir/StructureDefinition/Device
-  - http://hl7.org/fhir/us/davinci-crd/StructureDefinition/profile-patient
+  - http://hl7.org/fhir/us/core/StructureDefinition/us-core-patient
   - http://hl7.org/fhir/us/core/StructureDefinition/us-core-practitioner
-  - http://hl7.org/fhir/us/davinci-hrex/StructureDefinition/hrex-practitionerrole
-  - http://hl7.org/fhir/us/davinci-crd/StructureDefinition/profile-organization
+  - http://hl7.org/fhir/us/core/StructureDefinition/us-core-practitionerrole
+  - http://hl7.org/fhir/us/core/StructureDefinition/us-core-organization
   - http://hl7.org/fhir/StructureDefinition/RelatedPerson
 - :path: QuestionnaireResponse.source
   :profiles:
@@ -165,3 +162,5 @@
 - :path: author
   :resources:
   - Practitioner
+  - PractitionerRole
+  - Organization
