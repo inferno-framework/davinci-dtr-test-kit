@@ -3,9 +3,7 @@ require_relative '../shared/dtr_questionnaire_package_request_validation_test'
 require_relative '../smart_app/dtr_smart_app_prepopulation_attestation_test'
 require_relative '../smart_app/dtr_smart_app_prepopulation_override_attestation_test'
 require_relative '../smart_app/dtr_smart_app_rendering_enabled_questions_attestation_test'
-require_relative 'dtr_smart_app_questionnaire_response_save_test'
-require_relative '../shared/dtr_questionnaire_response_basic_conformance_test'
-require_relative '../shared/dtr_questionnaire_response_pre_population_test'
+require_relative '../smart_app/dtr_smart_app_saving_questionnaire_response_group'
 
 module DaVinciDTRTestKit
   class DTRSmartAppStaticDinnerQuestionnaireWorkflowGroup < Inferno::TestGroup
@@ -65,26 +63,6 @@ module DaVinciDTRTestKit
       test from: :dtr_smart_app_rendering_enabled_questions_attestation
     end
 
-    group do
-      id :dtr_smart_app_static_questionnaire_response
-      title 'Saving the QuestionnaireResponse'
-      description %(
-        The tester will complete the questionnaire such that a QuestionnaireResponse is stored
-        back into Inferno's EHR endpoint. The stored QuestionnaireResponse will be evaluated for
-        conformance, completeness, and correct indicators on pre-populated and manually-overriden
-        items.
-      )
-      run_as_group
-
-      # Test 1: wait for a QuestionnaireResponse
-      test from: :dtr_smart_app_static_dinner_questionnaire_response_save,
-           receives_request: :questionnaire_response_save
-      # Test 2: validate basic conformance of the QuestionnaireResponse
-      test from: :dtr_questionnaire_response_basic_conformance,
-           uses_request: :questionnaire_response_save
-      # Test 3: validate workflow-specific details such as pre-population and overrides
-      test from: :dtr_questionnaire_response_pre_population,
-           uses_request: :questionnaire_response_save
-    end
+    group from: :dtr_smart_app_saving_questionnaire_response
   end
 end

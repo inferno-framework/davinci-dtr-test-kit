@@ -86,5 +86,12 @@ module DaVinciDTRTestKit
               access_token: { name: :client_id }
             }
           }
+    group from: :dtr_smart_app_saving_questionnaire_response,
+          config: {
+            options: {
+              adaptive: true,
+              qr_profile_url: 'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaireresponse-adapt'
+            }
+          }
   end
 end
