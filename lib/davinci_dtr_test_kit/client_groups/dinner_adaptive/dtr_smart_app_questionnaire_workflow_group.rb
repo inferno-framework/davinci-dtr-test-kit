@@ -1,7 +1,6 @@
 require_relative '../smart_app/dtr_smart_app_adaptive_questionnaire_initial_retrieval_group'
 require_relative '../smart_app/dtr_smart_app_prepopulation_attestation_test'
 require_relative '../smart_app/dtr_smart_app_prepopulation_override_attestation_test'
-require_relative '../smart_app/dtr_smart_app_rendering_enabled_questions_attestation_test'
 require_relative '../shared/dtr_adaptive_questionnaire_followup_questions_group'
 require_relative '../shared/dtr_adaptive_questionnaire_completion_group'
 
@@ -63,21 +62,13 @@ module DaVinciDTRTestKit
       end
     end
 
-    group from: :dtr_adaptive_questionnaire_followup_questions do
-      config(
-        options: { accepts_multiple_requests: true },
-        inputs: {
-          access_token: { name: :client_id }
-        }
-      )
-      group do
-        id :dtr_smart_app_questionnaire_rendering
-        title 'Filling Out the Questionnaire'
-
-        # Test: attest to the display of the toppings questions only when a dinner answer is selected
-        test from: :dtr_smart_app_rendering_enabled_questions_attestation
-      end
-    end
+    group from: :dtr_adaptive_questionnaire_followup_questions,
+          config: {
+            options: { accepts_multiple_requests: true },
+            inputs: {
+              access_token: { name: :client_id }
+            }
+          }
 
     group from: :dtr_adaptive_questionnaire_completion,
           config: {
