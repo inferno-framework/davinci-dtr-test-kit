@@ -1,10 +1,10 @@
 require_relative '../../urls'
 
 module DaVinciDTRTestKit
-  class DTRFullEHRStaticDinnerStoreAttestationTest < Inferno::Test
+  class DTRFullEHRStoreAttestationTest < Inferno::Test
     include URLs
 
-    id :dtr_full_ehr_dinner_static_store_attestation
+    id :dtr_full_ehr_store_attestation
     title 'Complete and Store the QuestionnaireResponse (Attestation)'
     description %(
       Attest that the questionnaire has been completed and the response has been persisted

@@ -2,6 +2,7 @@ require_relative '../full_ehr/dtr_full_ehr_adaptive_questionnaire_initial_retrie
 require_relative '../full_ehr/dtr_full_ehr_prepopulation_attestation_test'
 require_relative '../full_ehr/dtr_full_ehr_rendering_enabled_questions_attestation_test'
 require_relative '../full_ehr/dtr_full_ehr_prepopulation_override_attestation_test'
+require_relative '../full_ehr/dtr_full_ehr_saving_questionnaire_response_group'
 require_relative '../shared/dtr_adaptive_questionnaire_followup_questions_group'
 require_relative '../shared/dtr_adaptive_questionnaire_completion_group'
 
@@ -41,7 +42,7 @@ module DaVinciDTRTestKit
 
       group from: :dtr_full_ehr_adaptive_questionnaire_initial_retrieval
       group do
-        id :dtr_full_ehr_questionnaire_rendering
+        id :dtr_full_ehr_initial_questionnaire_rendering
         title 'Filling Out the Questionnaire'
         description %(
           The tester will interact with the questionnaire within their client system
@@ -68,5 +69,18 @@ module DaVinciDTRTestKit
     end
 
     group from: :dtr_adaptive_questionnaire_completion
+    group from: :dtr_full_ehr_saving_questionnaire_response,
+          config: {
+            options: {
+              adaptive: true,
+              qr_profile_url: 'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaireresponse-adapt'
+            },
+            inputs: {
+              questionnaire_response: {
+                name: :adaptive_questionnaire_response,
+                title: 'Completed Adaptive QuestionnaireResponse'
+              }
+            }
+          }
   end
 end
