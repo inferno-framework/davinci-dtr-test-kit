@@ -79,30 +79,17 @@ module DaVinciDTRTestKit
       input_parameters = parse_request_body(request)
       return input_parameters if input_parameters.is_a?(FHIR::OperationOutcome)
 
-      questionnaire_response = nil
-      if input_parameters.is_a?(FHIR::Parameters)
-        questionnaire_response_param = find_questionnaire_response(input_parameters)
-        return questionnaire_response_param if questionnaire_response_param.is_a?(FHIR::OperationOutcome)
+      questionnaire_response = extract_questionnaire_response(input_parameters)
+      return questionnaire_response if questionnaire_response.is_a?(FHIR::OperationOutcome)
 
-        questionnaire_response = questionnaire_response_param.resource
-        return invalid_next_question_param_resource_outcome unless valid_questionnaire_response?(questionnaire_response)
-      elsif input_parameters.is_a?(FHIR::QuestionnaireResponse)
-        questionnaire_response = input_parameters
-        questionnaire_response_param = FHIR::Parameters::Parameter.new(name: 'return', resource: questionnaire_response)
-      else
-        return operation_outcome('error', 'invalid', 'wrong resource type submitted for $next-question request.')
-      end
+      questionnaire_response_param = FHIR::Parameters::Parameter.new(name: 'return', resource: questionnaire_response)
 
-      next_questionnaire = nil
       if questionnaire_last_dinner_order_question_present?(questionnaire_response)
         # change the questionnaire response status to completed and return the parameters
         return handle_last_dinner_order(questionnaire_response)
-      elsif questionnaire_dinner_order_selection_present?(questionnaire_response)
-        # Retrieve the selected option from the response and determine the next set of questions
-        next_questionnaire = dinner_question_from_selection(questionnaire_response, test_id)
-      else
-        next_questionnaire = Fixtures.next_question_for_test(test_id)
       end
+
+      next_questionnaire = determine_next_questionnaire(questionnaire_response, test_id)
 
       return missing_next_questionnaire_outcome(test_id) unless next_questionnaire
 
@@ -116,6 +103,31 @@ module DaVinciDTRTestKit
       end
 
       questionnaire_response
+    end
+
+    def extract_questionnaire_response(input_parameters)
+      if input_parameters.is_a?(FHIR::Parameters)
+        questionnaire_response_param = find_questionnaire_response(input_parameters)
+        return questionnaire_response_param if questionnaire_response_param.is_a?(FHIR::OperationOutcome)
+
+        questionnaire_response = questionnaire_response_param.resource
+        return invalid_next_question_param_resource_outcome unless valid_questionnaire_response?(questionnaire_response)
+
+        questionnaire_response
+      elsif input_parameters.is_a?(FHIR::QuestionnaireResponse)
+        input_parameters
+      else
+        operation_outcome('error', 'invalid', 'wrong resource type submitted for $next-question request.')
+      end
+    end
+
+    def determine_next_questionnaire(questionnaire_response, test_id)
+      # Retrieve the selected option from the response and determine the next set of questions
+      if questionnaire_dinner_order_selection_present?(questionnaire_response)
+        dinner_question_from_selection(questionnaire_response, test_id)
+      else
+        Fixtures.next_question_for_test(test_id)
+      end
     end
 
     def parse_request_body(request)
