@@ -140,6 +140,7 @@ module DaVinciDTRTestKit
 
       group do
         title 'CRD Coverage'
+        run_as_group
 
         input :coverage_ids
 
@@ -149,6 +150,8 @@ module DaVinciDTRTestKit
 
       group do
         title 'CRD CommunicationRequest'
+        run_as_group
+
         input :communication_request_ids
 
         test from: :communication_request_read
@@ -157,6 +160,8 @@ module DaVinciDTRTestKit
 
       group do
         title 'CRD DeviceRequest'
+        run_as_group
+
         input :device_request_ids
 
         test from: :device_request_read
@@ -165,6 +170,7 @@ module DaVinciDTRTestKit
 
       group do
         title 'CRD Encounter'
+        run_as_group
 
         input :encounter_ids
 
@@ -174,6 +180,7 @@ module DaVinciDTRTestKit
 
       group do
         title 'CRD MedicationRequest'
+        run_as_group
 
         input :medication_request_ids
 
@@ -183,6 +190,7 @@ module DaVinciDTRTestKit
 
       group do
         title 'CRD NutritionOrder'
+        run_as_group
 
         input :nutrition_order_ids
 
@@ -192,6 +200,7 @@ module DaVinciDTRTestKit
 
       group do
         title 'CRD ServiceRequest'
+        run_as_group
 
         input :service_request_ids
 
@@ -201,6 +210,7 @@ module DaVinciDTRTestKit
 
       group do
         title 'CDex Task'
+        run_as_group
 
         input :task_ids
 
@@ -210,6 +220,8 @@ module DaVinciDTRTestKit
 
       group do
         title 'CRD VisionPrescription'
+        run_as_group
+
         input :vision_prescription_ids
 
         test from: :vision_prescription_read
