@@ -1,8 +1,8 @@
-require_relative '../smart_app/dtr_smart_app_adaptive_questionnaire_initial_retrieval_group'
+require_relative 'dtr_smart_app_adaptive_questionnaire_initial_retrieval_group'
 require_relative '../smart_app/dtr_smart_app_prepopulation_attestation_test'
 require_relative '../smart_app/dtr_smart_app_prepopulation_override_attestation_test'
-require_relative '../shared/dtr_adaptive_questionnaire_followup_questions_group'
-require_relative '../shared/dtr_adaptive_questionnaire_completion_group'
+require_relative 'dtr_adaptive_questionnaire_followup_questions_group'
+require_relative 'dtr_adaptive_questionnaire_completion_group'
 
 module DaVinciDTRTestKit
   class DTRSmartAppAdaptiveDinnerQuestionnaireWorkflowGroup < Inferno::TestGroup
