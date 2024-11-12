@@ -16,7 +16,7 @@ module DaVinciDTRTestKit
     # Test 1: wait for the $next-question request
     test from: :dtr_adaptive_questionnaire_next_question_request
     # Test 2: validate the $next-question request
-    test from: :dtr_adaptive_questionnaire_next_question_request_validation
+    test from: :dtr_next_question_request_validation
     # Test 3: validate the QuestionnaireResponse in the input parameter
     test from: :dtr_adaptive_questionnaire_response_validation
   end

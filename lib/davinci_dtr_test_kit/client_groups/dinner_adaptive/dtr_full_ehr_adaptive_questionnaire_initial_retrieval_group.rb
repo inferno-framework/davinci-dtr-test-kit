@@ -18,7 +18,7 @@ module DaVinciDTRTestKit
     # Test 2: validate the $questionnaire-package request body
     test from: :dtr_questionnaire_package_request_validation
     # Test 3: validate the $next-question request body
-    test from: :dtr_adaptive_questionnaire_next_question_request_validation
+    test from: :dtr_next_question_request_validation
     # Test 4: validate the QuestionnaireResponse in the input parameter
     test from: :dtr_adaptive_questionnaire_response_validation
   end

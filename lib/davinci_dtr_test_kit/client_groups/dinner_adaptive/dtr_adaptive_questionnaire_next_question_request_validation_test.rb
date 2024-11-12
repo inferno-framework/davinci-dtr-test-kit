@@ -4,7 +4,7 @@ module DaVinciDTRTestKit
   class DTRAdaptiveQuestionnaireNextQuestionRequestValidationTest < Inferno::Test
     include URLs
 
-    id :dtr_adaptive_questionnaire_next_question_request_validation
+    id :dtr_next_question_request_validation
     title '$next-question request is valid'
     description %(
       This test validates the conformance of the client's request to the
