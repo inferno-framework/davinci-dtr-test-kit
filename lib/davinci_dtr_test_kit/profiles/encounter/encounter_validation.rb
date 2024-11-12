@@ -7,7 +7,7 @@ module DaVinciDTRTestKit
     title 'Encounter resources returned during previous tests conform to the CRD Encounter'
     description %(
 This test verifies resources returned from the first read conform to
-the [CRD Encounter](http://hl7.org/fhir/us/davinci-crd/StructureDefinition/profile-encounter).
+the [CRD Encounter](http://hl7.org/fhir/us/davinci-crd/STU2/StructureDefinition/profile-encounter).
 Systems must demonstrate at least one valid example in order to pass this test.
 
 It verifies the presence of mandatory elements and that elements with
@@ -28,7 +28,7 @@ fail if their code/system are not found in the valueset.
     run do
       perform_request_validation_test(encounter_resources, resource_type,
                                       'http://hl7.org/fhir/us/davinci-crd/StructureDefinition/profile-encounter',
-                                      '', true)
+                                      '2.0.1', true)
     end
   end
 end

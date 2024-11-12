@@ -7,7 +7,7 @@ module DaVinciDTRTestKit
     title 'Task resources returned during previous tests conform to the CDex Task'
     description %(
 This test verifies resources returned from the first read conform to
-the [CDex Task](http://hl7.org/fhir/us/davinci-cdex/StructureDefinition/cdex-task-attachment-request).
+the [CDex Task](https://hl7.org/fhir/us/davinci-cdex/STU2/StructureDefinition-cdex-task-attachment-request).
 Systems must demonstrate at least one valid example in order to pass this test.
 
 It verifies the presence of mandatory elements and that elements with
@@ -28,7 +28,7 @@ fail if their code/system are not found in the valueset.
     run do
       perform_request_validation_test(task_resources, resource_type,
                                       'http://hl7.org/fhir/us/davinci-cdex/StructureDefinition/cdex-task-attachment-request',
-                                      '', true)
+                                      '2.0.0', true)
     end
   end
 end

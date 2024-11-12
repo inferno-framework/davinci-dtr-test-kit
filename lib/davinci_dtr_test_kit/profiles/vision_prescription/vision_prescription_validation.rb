@@ -7,7 +7,7 @@ module DaVinciDTRTestKit
     title 'VisionPrescription resources returned during previous tests conform to the CRD VisionPrescription'
     description %(
 This test verifies resources returned from the first read conform to
-the [CRD VisionPrescription](http://hl7.org/fhir/us/davinci-crd/StructureDefinition/profile-visionprescription).
+the [CRD VisionPrescription](https://hl7.org/fhir/us/davinci-crd/STU2/StructureDefinition-profile-visionprescription).
 Systems must demonstrate at least one valid example in order to pass this test.
 
 It verifies the presence of mandatory elements and that elements with
@@ -28,7 +28,7 @@ fail if their code/system are not found in the valueset.
     run do
       perform_request_validation_test(vision_prescription_resources, resource_type,
                                       'http://hl7.org/fhir/us/davinci-crd/StructureDefinition/profile-visionprescription',
-                                      '', true)
+                                      '2.0.1', true)
     end
   end
 end

@@ -6,7 +6,7 @@ module DaVinciDTRTestKit
     title 'QuestionnaireResponse resources returned during previous tests conform to the DTR Questionnaire Response'
     description %(
 This test verifies resources returned from the first search conform to
-the [DTR Questionnaire Response](http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/dtr-questionnaireresponse).
+the [DTR Questionnaire Response](https://hl7.org/fhir/us/davinci-dtr/STU2/StructureDefinition-dtr-questionnaireresponse).
 Systems must demonstrate at least one valid example in order to pass this test.
 
 It verifies the presence of mandatory elements and that elements with
