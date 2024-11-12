@@ -39,18 +39,19 @@ module DaVinciDTRTestKit
 
         if origin_source.nil?
           add_message('error', "Required `origin.source` extension not present on answer to item `#{link_id}`")
-        elsif expected_overrides.include?(link_id)
-          if origin_source != 'override'
-            add_message('error', %(`origin.source` extension on item `#{link_id}` contains unexpected value. Expected:
-                                   override. Found: #{origin_source}))
-          end
-        elsif is_cql_expression && !['auto', 'override'].include?(origin_source)
-          add_message('error', %(`origin.source` extension on item `#{link_id}` contains unexpected value. Expected:
-                                 auto or override. Found: #{origin_source}))
-        elsif !is_cql_expression && origin_source != 'manual'
-          add_message('error', %(`origin.source` extension on item `#{link_id}` contains unexpected value. Expected:
-                                 manual. Found: #{origin_source}))
+        else
+          check_origin_source(origin_source, link_id, is_cql_expression, override: expected_overrides.include?(link_id))
         end
+      end
+    end
+
+    def check_origin_source(origin_source, link_id, is_cql_expression, override: false)
+      if override
+        origin_source_error(link_id, ['override'], origin_source) unless origin_source == 'override'
+      elsif is_cql_expression && !['auto', 'override'].include?(origin_source)
+        origin_source_error(link_id, 'auto or override', origin_source)
+      elsif !is_cql_expression && origin_source != 'manual'
+        origin_source_error(link_id, 'manual', origin_source)
       end
     end
 
@@ -87,45 +88,42 @@ module DaVinciDTRTestKit
                                              questionnaire_cql_expression_link_ids,
                                              template_prepopulation_expectations,
                                              template_override_expectations)
-      validation_errors = []
+
       validate_cql_executed(questionnaire_response.item, questionnaire_cql_expression_link_ids,
-                            template_prepopulation_expectations, template_override_expectations, validation_errors)
+                            template_prepopulation_expectations, template_override_expectations)
 
       if template_prepopulation_expectations.size.positive?
-        validation_errors << 'Items expected to be pre-populated not found: ' \
-                             "#{template_prepopulation_expectations.keys.join(', ')}"
+        add_message('error', %(Items expected to be pre-populated not found:
+                               #{template_prepopulation_expectations.keys.join(', ')}))
       end
 
       if template_override_expectations.size.positive?
-        validation_errors << 'Items expected to be pre-poplated and overridden not found: ' \
-                             "#{template_override_expectations.keys.join(', ')}"
+        add_message('error', %(Items expected to be pre-poplated and overridden not found:
+                               #{template_override_expectations.keys.join(', ')}))
       end
 
-      validation_errors.each { |msg| messages << { type: 'error', message: msg } }
-      assert validation_errors.blank?, 'QuestionnaireResponse is not conformant. Check messages for issues found.'
+      assert(messages.none? { |m| m[:type] == 'error' },
+             'QuestionnaireResponse is not conformant. Check messages for issues found.')
     end
 
     def validate_cql_executed(actual_items, questionnaire_cql_expression_link_ids, template_prepopulation_expectations,
-                              template_override_expectations, error_messages)
+                              template_override_expectations)
 
       actual_items&.each do |item_to_validate|
         link_id = item_to_validate.linkId
         if questionnaire_cql_expression_link_ids.include?(link_id)
           if template_prepopulation_expectations.key?(link_id)
-            check_item_prepopulation(item_to_validate, template_prepopulation_expectations.delete(link_id),
-                                     error_messages, false)
+            check_item_prepopulation(item_to_validate, template_prepopulation_expectations.delete(link_id), false)
           elsif template_override_expectations.include?(link_id)
-            check_item_prepopulation(item_to_validate, template_override_expectations.delete(link_id), error_messages,
-                                     true)
+            check_item_prepopulation(item_to_validate, template_override_expectations.delete(link_id), true)
           else
             raise "template missing expectation for question `#{link_id}`"
           end
         end
 
         validate_cql_executed(item_to_validate.item, questionnaire_cql_expression_link_ids,
-                              template_prepopulation_expectations, template_override_expectations, error_messages)
+                              template_prepopulation_expectations, template_override_expectations)
       end
-      error_messages
     end
 
     def extract_expected_answers_from_template(template_questionnaire_response,
@@ -158,33 +156,42 @@ module DaVinciDTRTestKit
       end
     end
 
-    def check_item_prepopulation(item, expected_answer, error_list, override)
+    def check_item_prepopulation(item, expected_answer, override)
       answer = item.answer.first
-      if answer&.value&.present?
-        # check answer
-        if override && answer_value_equal?(expected_answer, answer)
-          error_list << "Answer to item `#{item.linkId}` was not overriden from the pre-populated value. " \
-                        "Found #{expected_answer}, but should be different"
-        elsif !override && !answer_value_equal?(expected_answer, answer)
-          error_list << "answer to item `#{item.linkId}` contains unexpected value. Expected: \
-          #{value_for_display(expected_answer)}. Found #{value_for_display(answer)}"
-        end
+      link_id = item.linkId
 
-        # check origin.source extension
-        origin_source = find_origin_source(item)
+      unless answer&.value&.present?
+        add_message('error', "No answer for item `#{link_id}`")
+        return
+      end
 
-        if origin_source.present?
-          expected_source_value = override ? 'override' : 'auto'
-          if origin_source != expected_source_value
-            error_list << "`origin.source` extension on item `#{item.linkId}` contains unexpected value. Expected: " \
-                          "#{expected_source_value}. Found #{origin_source}"
-          end
-        else
-          error_list << "Required `origin.source` extension not present on answer to item `#{item.linkId}`"
+      check_answer(link_id, override, expected_answer, answer)
+
+      origin_source = find_origin_source(item)
+      expected_origin_source = override ? 'override' : 'auto'
+
+      if origin_source.present?
+        unless origin_source == expected_origin_source
+          origin_source_error(link_id, expected_origin_source, origin_source)
         end
       else
-        error_list << "No answer for item `#{item.linkId}`"
+        add_message('error', "Required `origin.source` extension not present on answer to item `#{item.linkId}`")
       end
+    end
+
+    def check_answer(link_id, override, expected_answer, answer)
+      if override && answer_value_equal?(expected_answer, answer)
+        add_message('error', %(Answer to item `#{link_id}` was not overriden from the pre-populated value.
+                               Found #{expected_answer}, but should be different))
+      elsif !override && !answer_value_equal?(expected_answer, answer)
+        add_message('error', %(Answer to item `#{link_id}` contains unexpected value. Expected:
+                               #{value_for_display(expected_answer)}. Found #{value_for_display(answer)}))
+      end
+    end
+
+    def origin_source_error(link_id, expected, actual)
+      add_message('error', %(`origin.source` extension on item `#{link_id}` contains unexpected value.
+                             Expected: #{expected}. Found: #{actual}))
     end
 
     def find_item_by_link_id(items, link_id)

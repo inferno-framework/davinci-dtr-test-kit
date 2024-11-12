@@ -89,7 +89,6 @@ RSpec.describe DaVinciDTRTestKit::DTRPayerServerQuestionnairePackageGroup do
           .with(query: {
                   profile: 'http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/dtr-qpackage-output-parameters|2.0.1'
                 })
-          .with(body: output_params_non_conformant)
           .to_return(status: 200, body: FHIR::OperationOutcome.new(issue: { severity: 'error' }).to_json)
 
         result = run(output_validation_test, test_session, url:, access_token:, retrieval_method:,

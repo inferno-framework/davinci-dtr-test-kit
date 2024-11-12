@@ -17,6 +17,7 @@ RSpec.describe DaVinciDTRTestKit::DTRQuestionnaireResponseValidation do
     Inferno::TestRunner.new(test_session:, test_run:).run(runnable)
   end
 
+  # rubocop:disable RSpec/EmptyExampleGroup
   describe '#validate_questionnaire_pre_population' do
     let(:test) do
       Class.new(Inferno::Test) do
@@ -66,7 +67,8 @@ RSpec.describe DaVinciDTRTestKit::DTRQuestionnaireResponseValidation do
     #   it 'fails' do
     #     allow_any_instance_of(test).to receive(:assert_valid_resource).and_return(true)
     #     repo_create(:request, name: 'questionnaire_response_save', url: questionnaire_response_url,
-    #                           request_body: questionnaire_response_cql_answer_missing, test_session_id: test_session.id)
+    #                           request_body: questionnaire_response_cql_answer_missing,
+    #                           test_session_id: test_session.id)
     #     result = run(test)
     #     expect(result.result).to eq('fail')
     #   end
@@ -102,4 +104,5 @@ RSpec.describe DaVinciDTRTestKit::DTRQuestionnaireResponseValidation do
     #   end
     # end
   end
+  # rubocop:enable RSpec/EmptyExampleGroup
 end

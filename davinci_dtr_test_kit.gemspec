@@ -9,8 +9,9 @@ Gem::Specification.new do |spec|
   spec.description   = 'Test Kit for the Da Vinci Documentation Templates and Rules (DTR) FHIR Implementation Guide'
   spec.homepage      = 'https://github.com/inferno-framework/davinci-dtr-test-kit'
   spec.license       = 'Apache-2.0'
-  spec.add_dependency 'inferno_core', '~> 0.4.42'
+  spec.add_dependency 'inferno_core', '~> 0.5.0'
   spec.add_dependency 'jwt', '~> 2.6'
+  spec.add_dependency 'smart_app_launch_test_kit', '~> 0.4.4'
   spec.required_ruby_version = Gem::Requirement.new('>= 3.1.2')
   spec.metadata['homepage_uri'] = spec.homepage
   spec.metadata['source_code_uri'] = spec.homepage

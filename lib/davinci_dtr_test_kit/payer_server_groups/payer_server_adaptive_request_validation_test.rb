@@ -22,7 +22,8 @@ module DaVinciDTRTestKit
       if initial_adaptive_questionnaire_request.nil?
         requests = load_tagged_requests(QUESTIONNAIRE_TAG)
         skip_if requests.blank?, 'No request resource received from the client.'
-        # making the assumption that only one request was made here - if there were multiple, we are only validating the first
+        # making the assumption that only one request was made here - if there were multiple, we are only validating the
+        # first
         resource_is_valid?(resource: FHIR.from_contents(requests[0].request[:body]), profile_url: profile_with_version)
       else
         request = FHIR.from_contents(initial_adaptive_questionnaire_request)

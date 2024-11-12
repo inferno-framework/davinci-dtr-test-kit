@@ -1,0 +1,26 @@
+{
+  "title": "Inferno Reference Server",
+  "id": "smart_stu2_reference_server",
+  "test_suite_id": "dtr_light_ehr",
+  "inputs": [
+    {
+      "name": "url",
+      "description": "URL of the FHIR endpoint used by SMART applications",
+      "title": "FHIR Endpoint",
+      "type": "text",
+      "value": "https://inferno-qa.healthit.gov/reference-server/r4"
+    },
+    {
+      "name": "ehr_client_id",
+      "description": "Client ID provided during registration of Inferno as an EHR launch application",
+      "title": "EHR Launch Client ID",
+      "type": "text",
+      "value": "SAMPLE_PUBLIC_CLIENT_ID"
+    },
+    {
+      "name": "standalone_client_id",
+      "type": "text",
+      "value": "SAMPLE_PUBLIC_CLIENT_ID"
+    }
+  ]
+}

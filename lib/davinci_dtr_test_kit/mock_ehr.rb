@@ -27,16 +27,10 @@ module DaVinciDTRTestKit
     end
 
     def get_fhir_resource(request, _test = nil, test_result = nil)
-      resource_type, id = resource_type_and_id_from_url(request.url)
+      fhir_class, id = fhir_class_and_id_from_url(request.url)
       request.response_headers = RESPONSE_HEADERS
 
-      begin
-        fhir_class = FHIR.const_get(resource_type)
-      rescue NameError
-        resource_type = nil
-      end
-
-      if resource_type.blank?
+      if fhir_class.nil?
         request.status = 400
         request.response_headers = { 'Content-Type': 'application/json' }
         request.response_body = FHIR::OperationOutcome.new(
@@ -49,18 +43,9 @@ module DaVinciDTRTestKit
       end
 
       # Respond with user-inputted resource if there is one that matches the request
-      begin
-        ehr_bundle_input = JSON.parse(test_result.input_json).find { |input| input['name'] == 'ehr_bundle' }
-        ehr_bundle_input_value = ehr_bundle_input_value = ehr_bundle_input['value'] if ehr_bundle_input.present?
-        ehr_bundle = FHIR.from_contents(ehr_bundle_input_value) if ehr_bundle_input_value.present?
-      rescue StandardError
-        ehr_bundle = nil
-      end
-
-      if id.present? && ehr_bundle.present? && ehr_bundle.is_a?(FHIR::Bundle)
-        matching_resource = ehr_bundle.entry&.find do |entry|
-          entry.resource.is_a?(fhir_class) && entry.resource&.id == id
-        end&.resource
+      ehr_bundle = ehr_input_bundle(test_result)
+      if id.present? && ehr_bundle.present?
+        matching_resource = find_resource_in_bundle(ehr_bundle, fhir_class, id)
         if matching_resource.present?
           request.status = 200
           request.response_headers = { 'Content-Type': 'application/json' }
@@ -85,13 +70,36 @@ module DaVinciDTRTestKit
       request.response_body = request.request_body
     end
 
-    # Pull resource type and ID from url
-    # e.g. http://example.org/fhir/Patient/123 -> ['Patient', '123']
+    def ehr_input_bundle(test_result)
+      ehr_bundle_input = JSON.parse(test_result.input_json).find { |input| input['name'] == 'ehr_bundle' }
+      ehr_bundle_input_value = ehr_bundle_input_value = ehr_bundle_input['value'] if ehr_bundle_input.present?
+      ehr_bundle = FHIR.from_contents(ehr_bundle_input_value) if ehr_bundle_input_value.present?
+      ehr_bundle if ehr_bundle.is_a?(FHIR::Bundle)
+    rescue StandardError
+      nil
+    end
+
+    def find_resource_in_bundle(bundle, fhir_class, id)
+      bundle.entry&.find do |entry|
+        entry.resource.is_a?(fhir_class) && entry.resource&.id == id
+      end&.resource
+    end
+
+    # Pull resource type class and ID from url
+    # e.g. http://example.org/fhir/Patient/123 -> [FHIR::Patient, '123']
     # @private
-    def resource_type_and_id_from_url(url)
+    def fhir_class_and_id_from_url(url)
       path = url.split('?').first.split('/fhir/').second
       path.sub!(%r{/$}, '')
-      path.split('/')
+      resource_type, id = path.split('/')
+
+      begin
+        fhir_class = FHIR.const_get(resource_type)
+      rescue NameError
+        fhir_class = nil
+      end
+
+      [fhir_class, id]
     end
   end
 end
