@@ -26,9 +26,8 @@ fail if their code/system are not found in the valueset.
     end
 
     run do
-      perform_request_validation_test(task_resources, resource_type,
-                                      'http://hl7.org/fhir/us/davinci-cdex/StructureDefinition/cdex-task-attachment-request',
-                                      '2.0.0', true)
+      perform_profile_validation_test(task_resources, resource_type,
+                                      'http://hl7.org/fhir/us/davinci-cdex/StructureDefinition/cdex-task-attachment-request|2.0.0')
     end
   end
 end

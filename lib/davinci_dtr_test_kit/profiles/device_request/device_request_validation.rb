@@ -26,9 +26,8 @@ fail if their code/system are not found in the valueset.
     end
 
     run do
-      perform_request_validation_test(device_request_resources, resource_type,
-                                      'http://hl7.org/fhir/us/davinci-crd/StructureDefinition/profile-devicerequest',
-                                      '2.0.1', true)
+      perform_profile_validation_test(device_request_resources, resource_type,
+                                      'http://hl7.org/fhir/us/davinci-crd/StructureDefinition/profile-devicerequest|2.0.1')
     end
   end
 end
