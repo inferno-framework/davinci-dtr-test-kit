@@ -11,20 +11,30 @@ module DaVinciDTRTestKit
     )
     input :client_id
 
-    run do
-      wait(
-        identifier: client_id,
-        message: %(
+    def prompt
+      if config.options[:adaptive]
+        'Store the completed questionnaire back into the EHR.'
+      else
+        <<~DESCRIPTION
           Complete the questionnaire, leaving the following items unmodified, because a subsequent test will expect
           their pre-populated values:
 
           - First Name
           - Last Name
+        DESCRIPTION
+      end
+    end
+
+    run do
+      wait(
+        identifier: client_id,
+        message: <<~MESSAGE
+          #{prompt}
 
           Inferno will wait for a POST request at:
 
           `#{questionnaire_response_url}`
-        )
+        MESSAGE
       )
     end
   end
