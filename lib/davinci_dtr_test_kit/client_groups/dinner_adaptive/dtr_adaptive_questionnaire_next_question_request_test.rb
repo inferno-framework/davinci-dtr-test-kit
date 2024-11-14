@@ -37,25 +37,40 @@ module DaVinciDTRTestKit
       DESCRIPTION
     end
 
-    run do
-      next_question_prompt_title = config.options[:next_question_prompt_title]
-      prompt_cont = if next_question_prompt_title&.include?('Initial')
-                      %(Upon receipt, Inferno will provide the first set of questions to complete.)
-                    elsif next_question_prompt_title&.include?('Last')
-                      %(Upon receipt, Inferno will update the status of the QuestionnaireResponse
-                      resource parameter to `complete`.)
-                    else
-                      %(Upon receipt, Inferno will provide the next set of questions to complete
-                      based on previous answers.)
-                    end
+    def next_question_prompt_title
+      config.options[:next_question_prompt_title]
+    end
 
+    def next_question_prompt
+      if next_question_prompt_title&.include?('Initial')
+        'Invoke the $next-question operation by sending a POST request to'
+      elsif next_question_prompt_title&.include?('Last')
+        'Answer the remaining questions and then make a final next-question request by sending a POST request to'
+      else
+        "Answer the 'What do you want for dinner' question and then make a next-question request by sending a POST " \
+          'request to'
+      end
+    end
+
+    def prompt_cont
+      if next_question_prompt_title&.include?('Initial')
+        %(Upon receipt, Inferno will provide the first set of questions to complete.)
+      elsif next_question_prompt_title&.include?('Last')
+        %(Upon receipt, Inferno will update the status of the QuestionnaireResponse
+        resource parameter to `complete`.)
+      else
+        %(Upon receipt, Inferno will provide the next set of questions to complete
+        based on previous answers.)
+      end
+    end
+
+    run do
       wait(
         identifier: access_token,
         message: <<~MESSAGE
           ### #{next_question_prompt_title}
 
-          Inferno will wait for the client to invoke the $next-question operation by sending a POST
-          request to
+          #{next_question_prompt}
 
           `#{next_url}`
 
