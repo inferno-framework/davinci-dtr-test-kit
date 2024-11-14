@@ -1,7 +1,6 @@
 require_relative 'dtr_full_ehr_adaptive_questionnaire_initial_retrieval_group'
 require_relative '../full_ehr/dtr_full_ehr_prepopulation_attestation_test'
 require_relative '../full_ehr/dtr_full_ehr_prepopulation_override_attestation_test'
-require_relative '../full_ehr/dtr_full_ehr_saving_questionnaire_response_group'
 require_relative 'dtr_adaptive_questionnaire_followup_questions_group'
 require_relative 'dtr_adaptive_questionnaire_completion_group'
 
@@ -60,18 +59,5 @@ module DaVinciDTRTestKit
     group from: :dtr_adaptive_questionnaire_followup_questions
 
     group from: :dtr_adaptive_questionnaire_completion
-    group from: :dtr_full_ehr_saving_questionnaire_response,
-          config: {
-            options: {
-              adaptive: true,
-              qr_profile_url: 'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaireresponse-adapt'
-            },
-            inputs: {
-              questionnaire_response: {
-                name: :adaptive_questionnaire_response,
-                title: 'Completed Adaptive QuestionnaireResponse'
-              }
-            }
-          }
   end
 end
