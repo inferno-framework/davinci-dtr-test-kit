@@ -29,6 +29,7 @@ module DaVinciDTRTestKit
         smart_app: true
       }
     )
+    run_as_group
 
     group do
       id :dtr_smart_app_adaptive_questionnaire_retrieval

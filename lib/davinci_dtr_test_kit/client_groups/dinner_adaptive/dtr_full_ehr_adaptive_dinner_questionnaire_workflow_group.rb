@@ -22,6 +22,7 @@ module DaVinciDTRTestKit
       4. Complete the questionnaire and provide the completed QuestionnaireResponse
          with appropriate indicators for pre-populated and manually-entered data.
     )
+    run_as_group
 
     group do
       id :dtr_full_ehr_adaptive_questionnaire_retrieval
