@@ -7,12 +7,27 @@ module DaVinciDTRTestKit
     id :dtr_next_question_request_validation
     title '$next-question request is valid'
     description %(
-      This test validates the conformance of the client's request to the
-      [SDC Next Question Input Parameters](http://hl7.org/fhir/uv/sdc/StructureDefinition/parameters-questionnaire-next-question-in)
-      structure.
+      Per the [OperationDefinition: Adaptive questionnaire next question](https://build.fhir.org/ig/HL7/sdc/OperationDefinition-Questionnaire-next-question.html#root)
+      section in the [Structured Data Capture IG](http://hl7.org/fhir/uv/sdc/ImplementationGuide/hl7.fhir.uv.sdc),
+      the request body for the `$next-question` operation should be a FHIR Parameters resource containing a
+      single parameter with:
+        - name: `questionnaire-response`
+        - resource: A `QuestionnaireResponse` resource
 
-      It verifies the presence of mandatory elements and that elements with required bindings contain appropriate
-      values.
+      As outlined in the [FHIR Operation Request](https://hl7.org/fhir/r4/operations.html#request) section of the
+      FHIR specification, if an operation has exactly one input parameter of type Resource, it can also be invoked via
+      a POST request using that resource as the body (with no additional URL parameters).
+
+      This test validates the structure of the `$next-question` request body. It confirms that the body is either a
+      Parameters resource or a QuestionnaireResponse resource.
+
+      If it is a Parameters resource, it must contain one parameter named `questionnaire-response`
+      with a `resource` attribute set to a FHIR QuestionnaireResponse instance, as specified above.
+      Additionally, this test checks that the Parameters resource conforms to the [SDC Next Question Input Parameters](http://hl7.org/fhir/uv/sdc/StructureDefinition/parameters-questionnaire-next-question-in)
+      profile.
+
+      If the request body is a QuestionnaireResponse resource, its structure and conformance will be validated
+      in the following test ('Adaptive QuestionnaireResponse is valid').
     )
 
     def assert_valid_resource_type(resource)
@@ -43,11 +58,6 @@ module DaVinciDTRTestKit
 
         questionnaire_response =  questionnaire_response_params.first.resource
         assert_resource_type(:questionnaire_response, resource: questionnaire_response)
-      else
-        assert_valid_resource(
-          resource: input_params,
-          profile_url: 'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaireresponse-adapt'
-        )
       end
     end
   end
