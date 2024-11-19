@@ -100,11 +100,11 @@ module DaVinciDTRTestKit
     end
 
     resume_test_route :get, RESUME_PASS_PATH do |request|
-      DTRSmartAppSuite.extract_client_id_from_query_params(request)
+      DTRSmartAppSuite.extract_token_from_query_params(request)
     end
 
     resume_test_route :get, RESUME_FAIL_PATH, result: 'fail' do |request|
-      DTRSmartAppSuite.extract_client_id_from_query_params(request)
+      DTRSmartAppSuite.extract_token_from_query_params(request)
     end
 
     # TODO: Update based on SMART Launch changes. Do we even want to have this group now?
