@@ -23,10 +23,8 @@ module DaVinciDTRTestKit
 
       If it is a Parameters resource, it must contain one parameter named `questionnaire-response`
       with a `resource` attribute set to a FHIR QuestionnaireResponse instance, as specified above.
-      Additionally, this test checks that the Parameters resource conforms to the [SDC Next Question Input Parameters](http://hl7.org/fhir/uv/sdc/StructureDefinition/parameters-questionnaire-next-question-in)
-      profile.
 
-      If the request body is a QuestionnaireResponse resource, its structure and conformance will be validated
+      The QuestionnaireResponse resource's structure and conformance will be validated
       in the following test ('Adaptive QuestionnaireResponse is valid').
     )
 
@@ -47,10 +45,6 @@ module DaVinciDTRTestKit
       assert_valid_resource_type(input_params)
 
       if input_params.is_a?(FHIR::Parameters)
-        assert_valid_resource(
-          resource: input_params,
-          profile_url: 'http://hl7.org/fhir/uv/sdc/StructureDefinition/parameters-questionnaire-next-question-in'
-        )
         questionnaire_response_params = input_params.parameter.select { |param| param.name == 'questionnaire-response' }
         qr_params_count = questionnaire_response_params.length
         assert qr_params_count == 1,
