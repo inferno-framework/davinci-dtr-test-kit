@@ -12,7 +12,7 @@ module DaVinciDTRTestKit
       questionnaire package and attest that the application renders the questionnaire.
     )
 
-    config(options: {token: SecureRandom.uuid})
+    config(options: { token: SecureRandom.uuid })
 
     def token
       config.options[:token]
