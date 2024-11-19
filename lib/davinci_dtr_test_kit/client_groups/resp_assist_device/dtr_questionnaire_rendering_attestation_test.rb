@@ -1,3 +1,4 @@
+require 'securerandom'
 require_relative '../../urls'
 
 module DaVinciDTRTestKit
@@ -11,8 +12,10 @@ module DaVinciDTRTestKit
       questionnaire package and attest that the application renders the questionnaire.
     )
 
+    config(options: {token: SecureRandom.uuid})
+
     def token
-      SecureRandom.uuid
+      config.options[:token]
     end
 
     run do
