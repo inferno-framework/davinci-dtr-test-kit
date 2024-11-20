@@ -28,8 +28,10 @@ module Inferno
       end
 
       # @private
-      def tags
-        self.class.singleton_class.instance_variable_get(:@tags)
+      def tags(test)
+        raw_tags = self.class.singleton_class.instance_variable_get(:@tags)
+        evaluated_tags = raw_tags.is_a?(String) ? raw_tags : instance_exec(test, &raw_tags)
+        Array.wrap(evaluated_tags)
       end
 
       # @private
@@ -59,7 +61,7 @@ module Inferno
             test_session_id: test_run.test_session_id,
             result_id: waiting_result.id,
             name: test.config.request_name(test.incoming_request_name),
-            tags:
+            tags: tags(test)
           )
         )
       end

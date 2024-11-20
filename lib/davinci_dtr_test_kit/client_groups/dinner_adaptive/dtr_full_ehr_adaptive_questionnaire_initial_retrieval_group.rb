@@ -1,3 +1,4 @@
+require_relative '../../tags'
 require_relative '../full_ehr/dtr_full_ehr_launch_attestation_test'
 require_relative 'dtr_full_ehr_adaptive_questionnaire_request_test'
 require_relative '../shared/dtr_questionnaire_package_request_validation_test'
@@ -9,6 +10,7 @@ module DaVinciDTRTestKit
     id :dtr_full_ehr_adaptive_questionnaire_initial_retrieval
     title 'Adaptive Questionnaire Package and Initial Questions Retrieval'
 
+    config(options: { next_tag: "initial_#{CLIENT_NEXT_TAG}" })
     run_as_group
 
     # Test 0: attest to launch

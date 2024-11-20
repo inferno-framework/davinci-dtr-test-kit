@@ -17,6 +17,7 @@ RSpec.describe DaVinciDTRTestKit::DTRFullEHRAdaptiveQuestionnaireInitialRetrieva
   let(:next_question_request_body_nonconformant) do
     File.read(File.join(__dir__, '..', 'fixtures', 'next_question_initial_input_params_nonconformant.json'))
   end
+  let(:next_tag) { "initial#{DaVinciDTRTestKit::CLIENT_NEXT_TAG}" }
 
   def run(runnable, test_session, inputs = {})
     test_run_params = { test_session_id: test_session.id }.merge(runnable.reference_hash)
@@ -35,7 +36,7 @@ RSpec.describe DaVinciDTRTestKit::DTRFullEHRAdaptiveQuestionnaireInitialRetrieva
   def build_next_request(request_body)
     result = repo_create(:result, test_session_id: test_session.id)
     repo_create(:request, result_id: result.id, url: next_url, request_body:,
-                          test_session_id: test_session.id, tags: [DaVinciDTRTestKit::CLIENT_NEXT_TAG])
+                          test_session_id: test_session.id, tags: [next_tag])
   end
 
   describe 'questionnaire package request and initial next question request test' do
@@ -79,6 +80,7 @@ RSpec.describe DaVinciDTRTestKit::DTRFullEHRAdaptiveQuestionnaireInitialRetrieva
         receive(:next_url).and_return(next_url)
       )
       allow_any_instance_of(runnable).to receive(:assert_valid_resource).and_return(true)
+      allow_any_instance_of(runnable).to receive(:next_request_tag).and_return(next_tag)
     end
 
     it 'passes if next question input parameters are conformant' do
@@ -148,6 +150,7 @@ RSpec.describe DaVinciDTRTestKit::DTRFullEHRAdaptiveQuestionnaireInitialRetrieva
         receive(:next_url).and_return(next_url)
       )
       allow_any_instance_of(runnable).to receive(:assert_valid_resource).and_return(true)
+      allow_any_instance_of(runnable).to receive(:next_request_tag).and_return(next_tag)
     end
 
     it 'passes if QuestionnaireResponse is conformant' do

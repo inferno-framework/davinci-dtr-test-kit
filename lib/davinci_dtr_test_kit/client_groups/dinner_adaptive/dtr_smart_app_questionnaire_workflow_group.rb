@@ -1,3 +1,4 @@
+require_relative '../../tags'
 require_relative 'dtr_smart_app_adaptive_questionnaire_initial_retrieval_group'
 require_relative '../smart_app/dtr_smart_app_prepopulation_attestation_test'
 require_relative '../smart_app/dtr_smart_app_prepopulation_override_attestation_test'
@@ -29,7 +30,6 @@ module DaVinciDTRTestKit
         smart_app: true
       }
     )
-    run_as_group
 
     group do
       id :dtr_smart_app_adaptive_questionnaire_retrieval
@@ -65,7 +65,10 @@ module DaVinciDTRTestKit
 
     group from: :dtr_adaptive_questionnaire_followup_questions,
           config: {
-            options: { accepts_multiple_requests: true },
+            options: {
+              accepts_multiple_requests: true,
+              next_tag: "followup_#{CLIENT_NEXT_TAG}"
+            },
             inputs: {
               access_token: { name: :client_id }
             }
@@ -73,7 +76,10 @@ module DaVinciDTRTestKit
 
     group from: :dtr_adaptive_questionnaire_completion,
           config: {
-            options: { accepts_multiple_requests: true },
+            options: {
+              accepts_multiple_requests: true,
+              next_tag: "completion_#{CLIENT_NEXT_TAG}"
+            },
             inputs: {
               access_token: { name: :client_id }
             }

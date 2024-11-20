@@ -1,3 +1,4 @@
+require_relative '../../tags'
 require_relative 'dtr_full_ehr_adaptive_questionnaire_initial_retrieval_group'
 require_relative '../full_ehr/dtr_full_ehr_prepopulation_attestation_test'
 require_relative '../full_ehr/dtr_full_ehr_prepopulation_override_attestation_test'
@@ -22,7 +23,6 @@ module DaVinciDTRTestKit
       4. Complete the questionnaire and provide the completed QuestionnaireResponse
          with appropriate indicators for pre-populated and manually-entered data.
     )
-    run_as_group
 
     group do
       id :dtr_full_ehr_adaptive_questionnaire_retrieval
@@ -57,8 +57,14 @@ module DaVinciDTRTestKit
       end
     end
 
-    group from: :dtr_adaptive_questionnaire_followup_questions
+    group from: :dtr_adaptive_questionnaire_followup_questions,
+          config: {
+            options: { next_tag: "followup_#{CLIENT_NEXT_TAG}" }
+          }
 
-    group from: :dtr_adaptive_questionnaire_completion
+    group from: :dtr_adaptive_questionnaire_completion,
+          config: {
+            options: { next_tag: "completion_#{CLIENT_NEXT_TAG}" }
+          }
   end
 end

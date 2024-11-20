@@ -29,8 +29,12 @@ module DaVinciDTRTestKit
       'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaireresponse-adapt'
     end
 
+    def next_request_tag
+      config.options[:next_tag]
+    end
+
     run do
-      load_tagged_requests CLIENT_NEXT_TAG
+      load_tagged_requests next_request_tag
       skip_if request.blank?, 'A $next-question request must be made prior to running this test'
 
       assert request.url == next_url, "Request made to wrong URL: #{request.url}. Should instead be to #{next_url}"

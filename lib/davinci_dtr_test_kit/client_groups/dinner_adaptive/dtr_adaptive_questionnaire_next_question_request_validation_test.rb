@@ -34,8 +34,12 @@ module DaVinciDTRTestKit
       assert valid, "Request body not valid. Expected Parameters or QuestionnaireResponse, got #{type}"
     end
 
+    def next_request_tag
+      config.options[:next_tag]
+    end
+
     run do
-      load_tagged_requests CLIENT_NEXT_TAG
+      load_tagged_requests next_request_tag
       skip_if request.blank?, 'A $next-question request must be made prior to running this test'
 
       assert request.url == next_url, "Request made to wrong URL: #{request.url}. Should instead be to #{next_url}"

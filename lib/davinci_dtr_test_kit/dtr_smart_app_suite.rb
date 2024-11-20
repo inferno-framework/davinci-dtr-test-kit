@@ -56,6 +56,10 @@ module DaVinciDTRTestKit
       !test.config.options[:accepts_multiple_requests]
     end
 
+    def self.next_request_tag(test)
+      test.config.options[:next_tag]
+    end
+
     route(:get, '/fhir/metadata', method(:metadata_handler))
 
     route(:get, SMART_CONFIG_PATH, method(:ehr_smart_config))
@@ -88,7 +92,7 @@ module DaVinciDTRTestKit
       DTRSmartAppSuite.extract_client_id_from_bearer_token(request)
     end
 
-    record_response_route :post, NEXT_PATH, CLIENT_NEXT_TAG, method(:client_questionnaire_next_response),
+    record_response_route :post, NEXT_PATH, method(:next_request_tag), method(:client_questionnaire_next_response),
                           resumes: method(:test_resumes?) do |request|
       DTRSmartAppSuite.extract_client_id_from_bearer_token(request)
     end
