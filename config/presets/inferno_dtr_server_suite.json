@@ -32,12 +32,12 @@
     {
       "name": "patient_ids",
       "type": "text",
-      "value": "pat001"
+      "value": "pat015"
     },
     {
       "name": "coverage_ids",
       "type": "text",
-      "value": "coverage-example1"
+      "value": "cov015"
     },
     {
       "name": "communication_request_ids",
@@ -47,12 +47,12 @@
     {
       "name": "device_request_ids",
       "type": "text",
-      "value": "devicerequest-example1"
+      "value": "devreqe0470"
     },
     {
       "name": "encounter_ids",
       "type": "text",
-      "value": "encounter-example1"
+      "value": "pat015-rad-encounter"
     },
     {
       "name": "medication_request_ids",
@@ -67,7 +67,7 @@
     {
       "name": "service_request_ids",
       "type": "text",
-      "value": "servicerequest-example1"
+      "value": "servreq-g0180-1"
     },
     {
       "name": "task_ids",
@@ -77,7 +77,7 @@
     {
       "name": "vision_prescription_ids",
       "type": "text",
-      "value": "visionprescription-example,visionprescription-example2"
+      "value": "visionprescription-example1,visionprescription-example2"
     }
   ]
 }
