@@ -12,8 +12,9 @@ module DaVinciDTRTestKit
 
     run do
       skip_if retrieval_method == 'Adaptive', 'Performing only adaptive flow tests - only one flow is required.'
-      skip_if scratch[:output_parameters].nil?, 'No questionnaire bundle returned.'
-      questionnaire_extensions_test(scratch[:output_parameters])
+      skip_if scratch[:static_questionnaire_bundles].nil?, 'No questionnaire bundle returned.'
+      questionnaires = extract_questionnaires_from_bundles(scratch[:static_questionnaire_bundles])
+      verify_questionnaire_extensions(questionnaires)
     end
   end
 end

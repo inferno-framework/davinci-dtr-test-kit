@@ -20,20 +20,24 @@ module DaVinciDTRTestKit
 
     run do
       skip_if retrieval_method == 'Static', 'Performing only static flow tests - only one flow is required.'
-      if next_question_requests.nil?
-        resources = load_tagged_requests(NEXT_TAG)
-      else
-        json_requests = JSON.parse(next_question_requests)
-        resources = json_requests.map do |resource|
-          fhir_operation("#{url}/Questionnaire/$next-question",
-                         body: resource,
-                         headers: { 'Content-Type': 'application/json' })
-        end
+      reqs = if next_question_requests.nil?
+               load_tagged_requests(NEXT_TAG)
+             else
+               json_requests = JSON.parse(next_question_requests)
+               json_requests.map do |resource|
+                 fhir_operation("#{url}/Questionnaire/$next-question",
+                                body: resource,
+                                headers: { 'Content-Type': 'application/json' })
+               end
+             end
+      assert !reqs.nil?, 'No requests to validate.'
+      scratch[:next_question_questionnaire_responses] = reqs.map do |req|
+        assert_response_status([200, 202], request: req)
+        FHIR.from_contents(req.response_body)
       end
-      assert !resources.nil?, 'No resources to validate.'
-      scratch[:next_responses] = resources
+
       perform_response_validation_test(
-        resources,
+        scratch[:next_question_questionnaire_responses],
         :questionnaireResponse,
         'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaireresponse'
       )
