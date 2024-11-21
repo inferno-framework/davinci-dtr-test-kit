@@ -4,7 +4,7 @@ module DaVinciDTRTestKit
     include DaVinciDTRTestKit::CQLTest
 
     id :dtr_v201_payer_static_form_extensions_test
-    title 'Questionnaire(s) contains extensions necessary for pre-population'
+    title 'Static questionnaire(s) contain extensions necessary for pre-population'
     description %(
       Inferno checks that the payer server response has appropriate extensions and references to libraries within
       those extensions.
@@ -12,8 +12,9 @@ module DaVinciDTRTestKit
 
     run do
       skip_if retrieval_method == 'Adaptive', 'Performing only adaptive flow tests - only one flow is required.'
-      skip_if scratch[:output_parameters].nil?, 'No questionnaire bundle returned.'
-      questionnaire_extensions_test(scratch[:output_parameters])
+      skip_if scratch[:static_questionnaire_bundles].nil?, 'No questionnaire bundle returned.'
+      questionnaires = extract_questionnaires_from_bundles(scratch[:static_questionnaire_bundles])
+      verify_questionnaire_extensions(questionnaires)
     end
   end
 end

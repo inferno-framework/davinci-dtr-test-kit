@@ -43,7 +43,7 @@ RSpec.describe DaVinciDTRTestKit::DTRPayerServerQuestionnairePackageGroup do
             assert_response_status([200, 201], response: request.response)
             assert_resource_type(:parameters, resource:)
             perform_response_validation_test(
-              [request],
+              [resource],
               :parameters,
               'http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/dtr-qpackage-output-parameters|2.0.1'
             )

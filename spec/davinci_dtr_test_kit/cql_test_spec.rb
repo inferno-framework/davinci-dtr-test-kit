@@ -10,10 +10,9 @@ RSpec.describe DaVinciDTRTestKit::CQLTest do
 
   context 'when output is valid' do
     let(:scratch) do
-      { output_parameters: FHIR.from_contents(
-        File.read(File.join(__dir__, '..', 'fixtures',
-                            'questionnaire_package_output_params_conformant.json'))
-      ) }
+      output_params = FHIR.from_contents(File.read(File.join(__dir__, '..', 'fixtures',
+                                                             'questionnaire_package_output_params_conformant.json')))
+      { static_questionnaire_bundles: [output_params.parameter.first.resource] }
     end
 
     describe 'static questionnaire package libraries test' do
@@ -37,10 +36,11 @@ RSpec.describe DaVinciDTRTestKit::CQLTest do
 
   context 'when output is invalid' do
     let(:scratch) do
-      { output_parameters: FHIR.from_contents(
+      output_params = FHIR.from_contents(
         File.read(File.join(__dir__, '..', 'fixtures',
                             'questionnaire_package_output_params_non_conformant.json'))
-      ) }
+      )
+      { static_questionnaire_bundles: [output_params.parameter.first.resource] }
     end
 
     describe 'static questionnaire package has no libraries test' do

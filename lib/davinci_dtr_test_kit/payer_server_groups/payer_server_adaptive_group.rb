@@ -81,8 +81,8 @@ module DaVinciDTRTestKit
 
     # pass request to payer server, validate adaptive questionnaire response
     test from: :payer_server_next_response_validation_test
-    test from: :dtr_v201_payer_adaptive_next_form_extensions_test
-    test from: :dtr_v201_payer_adaptive_next_form_expressions_test
+    test from: :dtr_v201_payer_adaptive_next_question_extensions_test
+    test from: :dtr_v201_payer_adaptive_next_question_expressions_test
     test from: :payer_server_adaptive_completion_test
   end
 end
