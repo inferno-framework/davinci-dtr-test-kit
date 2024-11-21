@@ -8,10 +8,9 @@ module DaVinciDTRTestKit
 
     run do
       skip_if retrieval_method == 'Static', 'Performing only static flow tests - only one flow is required.'
-      assert !scratch[:next_responses].nil?, 'No resources to validate.'
-      assert scratch[:next_responses].any? { |r|
-               JSON.parse(r.response_body)['status'] == 'completed'
-             }, 'Next request sequence did not result in a completed questionnaire.'
+      assert !scratch[:next_question_questionnaire_responses].nil?, 'No resources to validate.'
+      assert scratch[:next_question_questionnaire_responses].any? { |qr| qr.status == 'completed' },
+             'Next request sequence did not result in a completed questionnaire.'
     end
   end
 end
