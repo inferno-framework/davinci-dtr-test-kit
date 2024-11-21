@@ -166,6 +166,11 @@ module DaVinciDTRTestKit
       request.query_parameters['client_id']
     end
 
+    def extract_query_param_value(request)
+      extract_client_id_from_query_params(request) ||
+        extract_token_from_query_params(request)
+    end
+
     def extract_client_id_from_bearer_token(request)
       token = extract_bearer_token(request)
       jwt =
