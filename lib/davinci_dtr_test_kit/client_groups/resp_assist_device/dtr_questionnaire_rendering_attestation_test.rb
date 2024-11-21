@@ -12,15 +12,10 @@ module DaVinciDTRTestKit
       questionnaire package and attest that the application renders the questionnaire.
     )
 
-    config(options: { token: SecureRandom.uuid })
-
-    def token
-      config.options[:token]
-    end
-
     run do
       load_tagged_requests QUESTIONNAIRE_PACKAGE_TAG
       skip_if request.blank?, 'A Questionnaire Package request must be made prior to running this test'
+      token = SecureRandom.uuid
 
       wait(
         identifier: token,
