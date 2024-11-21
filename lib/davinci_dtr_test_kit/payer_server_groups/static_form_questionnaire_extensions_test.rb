@@ -4,7 +4,7 @@ module DaVinciDTRTestKit
     include DaVinciDTRTestKit::CQLTest
 
     id :dtr_v201_payer_static_form_extensions_test
-    title 'Questionnaire(s) contains extensions necessary for pre-population'
+    title 'Static questionnaire(s) contain extensions necessary for pre-population'
     description %(
       Inferno checks that the payer server response has appropriate extensions and references to libraries within
       those extensions.

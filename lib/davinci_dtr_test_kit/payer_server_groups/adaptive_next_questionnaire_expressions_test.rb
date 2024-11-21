@@ -1,10 +1,10 @@
 require_relative '../cql_test'
 module DaVinciDTRTestKit
-  class PayerStaticFormExpressionsTest < Inferno::Test
+  class PayerAdaptiveNextQuestionExpressionsTest < Inferno::Test
     include DaVinciDTRTestKit::CQLTest
 
-    id :dtr_v201_payer_adaptive_next_form_expressions_test
-    title 'Questionnaire(s) contains items with expressions necessary for pre-population'
+    id :dtr_v201_payer_adaptive_next_question_expressions_test
+    title 'Adaptive Next Question questionnaire(s) contain items with expressions necessary for pre-population'
     description %(
       Inferno checks that the payer server response to $next-question operation has appropriate expressions and that
       expressions are written in cql.

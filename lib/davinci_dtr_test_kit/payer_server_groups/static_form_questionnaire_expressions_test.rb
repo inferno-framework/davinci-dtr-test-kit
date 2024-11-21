@@ -4,7 +4,7 @@ module DaVinciDTRTestKit
     include DaVinciDTRTestKit::CQLTest
 
     id :dtr_v201_payer_static_form_expressions_test
-    title 'Questionnaire(s) contains items with expressions necessary for pre-population'
+    title 'Static questionnaire(s) contain items with expressions necessary for pre-population'
     description %(
       Inferno checks that the payer server response has appropriate expressions and that expressions are
        written in cql.

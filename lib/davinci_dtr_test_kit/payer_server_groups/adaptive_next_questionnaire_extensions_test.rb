@@ -1,10 +1,10 @@
 require_relative '../cql_test'
 module DaVinciDTRTestKit
-  class PayerStaticFormExtensionsTest < Inferno::Test
+  class PayerAdaptiveNexQuestionExtensionsTest < Inferno::Test
     include DaVinciDTRTestKit::CQLTest
 
-    id :dtr_v201_payer_adaptive_next_form_extensions_test
-    title 'Questionnaire(s) contains extensions necessary for pre-population'
+    id :dtr_v201_payer_adaptive_next_question_extensions_test
+    title 'Adaptive Next Question questionnaire(s) contain extensions necessary for pre-population'
     description %(
       Inferno checks that the payer server response has appropriate extensions and references to libraries within
       those extensions.
