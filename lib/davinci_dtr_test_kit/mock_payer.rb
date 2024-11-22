@@ -17,11 +17,16 @@ module DaVinciDTRTestKit
     end
 
     def payer_questionnaire_response(request, _test = nil, test_result = nil)
-      endpoint_input = JSON.parse(test_result.input_json).find { |input| input['name'] == 'custom_endpoint' }
-      url_input = JSON.parse(test_result.input_json).find { |input| input['name'] == 'url' }
-      client = FHIR::Client.new(url_input['value'])
+      session_id = test_result.test_session_id
+      session_data = Inferno::Repositories::SessionData.new
+      endpoint_input = session_data.load(test_session_id: session_id, name: 'custom_endpoint')
+      url_input = session_data.load(test_session_id: session_id, name: 'url')
+      credentials_input = session_data.load(test_session_id: session_id, name: 'credentials', type: 'oauth_credentials')
+
+      client = FHIR::Client.new(url_input)
       client.default_json
-      endpoint = endpoint_input.to_h['value'].nil? ? '/Questionnaire/$questionnaire-package' : endpoint_input['value']
+      client.set_bearer_token(credentials_input.access_token) if credentials_input.access_token
+      endpoint = endpoint_input.nil? ? '/Questionnaire/$questionnaire-package' : endpoint_input
       payer_response = client.send(:post, endpoint, JSON.parse(request.request_body),
                                    { 'Content-Type' => 'application/json' })
 
@@ -31,9 +36,14 @@ module DaVinciDTRTestKit
     end
 
     def questionnaire_next_response(request, _test = nil, test_result = nil)
-      url_endpoint = JSON.parse(test_result.input_json).find { |input| input['name'] == 'url' }
-      client = FHIR::Client.new(url_endpoint['value'])
+      session_id = test_result.test_session_id
+      session_data = Inferno::Repositories::SessionData.new
+      url_input = session_data.load(test_session_id: session_id, name: 'url')
+      credentials_input = session_data.load(test_session_id: session_id, name: 'credentials', type: 'oauth_credentials')
+
+      client = FHIR::Client.new(url_input)
       client.default_json
+      client.set_bearer_token(credentials_input.access_token) if credentials_input.access_token
       payer_response = client.send(:post, '/Questionnaire/$next-question', JSON.parse(request.request_body),
                                    { 'Content-Type' => 'application/json' })
 
