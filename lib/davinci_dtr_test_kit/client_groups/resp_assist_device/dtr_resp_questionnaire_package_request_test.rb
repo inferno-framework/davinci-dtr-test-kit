@@ -117,7 +117,7 @@ module DaVinciDTRTestKit
           an `Authorization` header with value:
 
           ```
-          Bearer eyJhbGcmOiJub25lIn0.#{example_client_jwt_payload_part}.
+          Bearer eyJhbGciOiJub25lIn0.#{example_client_jwt_payload_part}.
           ```
 
           ### Continuing the Tests
