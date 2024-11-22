@@ -11,6 +11,7 @@ module DaVinciDTRTestKit
       assert !scratch[:next_question_questionnaire_responses].nil?, 'No resources to validate.'
       assert scratch[:next_question_questionnaire_responses].any? { |qr| qr.status == 'completed' },
              'Next request sequence did not result in a completed questionnaire.'
+      scratch[:next_question_questionnaire_responses] = nil
     end
   end
 end
