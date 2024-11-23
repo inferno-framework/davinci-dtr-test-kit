@@ -9,6 +9,8 @@ require_relative 'profiles/questionnaire_response/questionnaire_response_patient
 require_relative 'profiles/questionnaire_response/questionnaire_response_context_search'
 require_relative 'profiles/questionnaire_response/questionnaire_response_read'
 require_relative 'profiles/questionnaire_response/questionnaire_response_validation'
+require_relative 'profiles/questionnaire_response/questionnaire_response_create'
+require_relative 'profiles/questionnaire_response/questionnaire_response_update'
 require_relative 'profiles/coverage/coverage_read'
 require_relative 'profiles/coverage/coverage_validation'
 require_relative 'profiles/communication_request/communication_request_read'
@@ -25,6 +27,8 @@ require_relative 'profiles/service_request/service_request_read'
 require_relative 'profiles/service_request/service_request_validation'
 require_relative 'profiles/task/task_read'
 require_relative 'profiles/task/task_validation'
+require_relative 'profiles/task/task_create'
+require_relative 'profiles/task/task_update'
 require_relative 'profiles/vision_prescription/vision_prescription_read'
 require_relative 'profiles/vision_prescription/vision_prescription_validation'
 require 'smart_app_launch/smart_stu1_suite'
@@ -136,6 +140,8 @@ module DaVinciDTRTestKit
         test from: :questionnaire_response_context_search
         test from: :questionnaire_response_read
         test from: :questionnaire_response_validation
+        test from: :questionnaire_response_create
+        test from: :questionnaire_response_update
       end
 
       group do
@@ -216,6 +222,8 @@ module DaVinciDTRTestKit
 
         test from: :task_read
         test from: :task_validation
+        test from: :task_create
+        test from: :task_update
       end
 
       group do
