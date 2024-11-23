@@ -8,7 +8,7 @@
       "description": "URL of the FHIR endpoint used by SMART applications",
       "title": "FHIR Endpoint",
       "type": "text",
-      "value": "https://inferno-qa.healthit.gov/reference-server/r4"
+      "value": "http://localhost:8080/reference-server/r4"
     },
     {
       "name": "ehr_client_id",
@@ -21,6 +21,63 @@
       "name": "standalone_client_id",
       "type": "text",
       "value": "SAMPLE_PUBLIC_CLIENT_ID"
+    },
+    {
+      "name": "smart_credentials",
+      "type": "oauth_credentials",
+      "title": "OAuth Credentials",
+      "optional": true,
+      "value": "{\"access_token\":\"SAMPLE_TOKEN\"}"
+    },
+    {
+      "name": "patient_ids",
+      "type": "text",
+      "value": "pat015"
+    },
+    {
+      "name": "coverage_ids",
+      "type": "text",
+      "value": "cov015"
+    },
+    {
+      "name": "communication_request_ids",
+      "type": "text",
+      "value": "communicationrequest-example1"
+    },
+    {
+      "name": "device_request_ids",
+      "type": "text",
+      "value": "devreqe0470"
+    },
+    {
+      "name": "encounter_ids",
+      "type": "text",
+      "value": "pat015-rad-encounter"
+    },
+    {
+      "name": "medication_request_ids",
+      "type": "text",
+      "value": "medicationrequest-example1"
+    },
+    {
+      "name": "nutrition_order_ids",
+      "type": "text",
+      "value": "nutritionorder-example1"
+    },
+    {
+      "name": "service_request_ids",
+      "type": "text",
+      "value": "servreq-g0180-1"
+    },
+    {
+      "name": "task_ids",
+      "type": "text",
+      "value": "cdex-task-example19"
+    },
+    {
+      "name": "vision_prescription_ids",
+      "type": "text",
+      "value": "visionprescription-example1,visionprescription-example2"
     }
   ]
 }

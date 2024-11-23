@@ -1,0 +1,166 @@
+---
+:name: dtr_questionnaireresponse
+:class_name: DtrQuestionnaireresponseSequence
+:version: v3.1.1
+:reformatted_version: v311
+:resource: QuestionnaireResponse
+:profile_url: http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/dtr-questionnaireresponse
+:profile_name: DTR Questionnaire Response
+:profile_version: 2.0.1
+:title: DTR Questionnaire Response
+:short_description: Verify support for the server capabilities required by the DTR
+  Questionnaire Response.
+:is_delayed: false
+:interactions:
+- :code: read
+  :expectation: SHALL
+- :code: create
+  :expectation: SHALL
+- :code: update
+  :expectation: SHALL
+- :code: search-type
+  :expectation: SHALL
+:operations: []
+:searches:
+- :names:
+  - patient
+  :expectation: SHALL
+  :names_not_must_support_or_mandatory: []
+  :must_support_or_mandatory: true
+- :names:
+  - context
+  :expectation: SHALL
+  :names_not_must_support_or_mandatory:
+  - context
+  :must_support_or_mandatory: false
+:search_definitions:
+  :context:
+    :paths:
+    - extension.where(url='http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/qr-context').value
+    :full_paths:
+    - QuestionnaireResponse.extension.where(url='http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/qr-context').value
+    :comparators: {}
+    :values: []
+    :type: reference
+    :contains_multiple: false
+    :multiple_or: MAY
+  :patient:
+    :paths:
+    - subject
+    :full_paths:
+    - QuestionnaireResponse.subject
+    :comparators: {}
+    :values: []
+    :type: Reference
+    :contains_multiple: false
+    :multiple_or: MAY
+:include_params: []
+:revincludes: []
+:required_concepts: []
+:must_supports:
+  :extensions:
+  - :id: QuestionnaireResponse.extension:signature
+    :path: extension
+    :url: http://hl7.org/fhir/StructureDefinition/questionnaireresponse-signature
+  - :id: QuestionnaireResponse.questionnaire.extension:questionnaireDisplay
+    :path: questionnaire.extension
+    :url: http://hl7.org/fhir/StructureDefinition/display
+  - :id: QuestionnaireResponse.item.extension:ItemSignature
+    :path: item.extension
+    :url: http://hl7.org/fhir/StructureDefinition/questionnaireresponse-signature
+  - :id: QuestionnaireResponse.item.answer.extension:itemAnswerMedia
+    :path: item.answer.extension
+    :url: http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-itemAnswerMedia
+  - :id: QuestionnaireResponse.item.answer.extension:ordinalValue
+    :path: item.answer.extension
+    :url: http://hl7.org/fhir/StructureDefinition/ordinalValue
+  - :id: QuestionnaireResponse.item.answer.extension:origin
+    :path: item.answer.extension
+    :url: http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/information-origin
+  :slices: []
+  :elements:
+  - :path: identifier
+  - :path: questionnaire
+  - :path: status
+  - :path: subject
+    :types:
+    - Reference
+    :target_profiles:
+    - http://hl7.org/fhir/us/core/StructureDefinition/us-core-patient
+  - :path: authored
+  - :path: author
+    :types:
+    - Reference
+  - :path: item
+  - :path: item.linkId
+  - :path: item.text
+  - :path: item.answer
+  - :path: item.answer.value[x]
+    :types:
+    - Reference
+  - :path: item.answer.item
+  - :path: item.item
+:mandatory_elements:
+- QuestionnaireResponse.extension
+- QuestionnaireResponse.questionnaire
+- QuestionnaireResponse.status
+- QuestionnaireResponse.subject
+- QuestionnaireResponse.authored
+- QuestionnaireResponse.item
+- QuestionnaireResponse.item.linkId
+- QuestionnaireResponse.item.answer.extension
+:bindings:
+- :type: code
+  :strength: required
+  :system: http://hl7.org/fhir/ValueSet/questionnaire-answers-status
+  :path: status
+:references:
+- :path: QuestionnaireResponse.basedOn
+  :profiles:
+  - http://hl7.org/fhir/StructureDefinition/CarePlan
+  - http://hl7.org/fhir/StructureDefinition/ServiceRequest
+- :path: QuestionnaireResponse.partOf
+  :profiles:
+  - http://hl7.org/fhir/StructureDefinition/Observation
+  - http://hl7.org/fhir/StructureDefinition/Procedure
+- :path: QuestionnaireResponse.subject
+  :profiles:
+  - http://hl7.org/fhir/us/core/StructureDefinition/us-core-patient
+- :path: QuestionnaireResponse.encounter
+  :profiles:
+  - http://hl7.org/fhir/StructureDefinition/Encounter
+- :path: QuestionnaireResponse.author
+  :profiles:
+  - http://hl7.org/fhir/StructureDefinition/Device
+  - http://hl7.org/fhir/us/core/StructureDefinition/us-core-patient
+  - http://hl7.org/fhir/us/core/StructureDefinition/us-core-practitioner
+  - http://hl7.org/fhir/us/core/StructureDefinition/us-core-practitionerrole
+  - http://hl7.org/fhir/us/core/StructureDefinition/us-core-organization
+  - http://hl7.org/fhir/StructureDefinition/RelatedPerson
+- :path: QuestionnaireResponse.source
+  :profiles:
+  - http://hl7.org/fhir/StructureDefinition/Patient
+  - http://hl7.org/fhir/StructureDefinition/Practitioner
+  - http://hl7.org/fhir/StructureDefinition/PractitionerRole
+  - http://hl7.org/fhir/StructureDefinition/RelatedPerson
+:tests:
+- :id: us_core_v311_questionnaire_response_patient_search_test
+  :file_name: questionnaire_response_patient_search_test.rb
+- :id: us_core_v311_questionnaire_response_context_search_test
+  :file_name: questionnaire_response_context_search_test.rb
+- :id: us_core_v311_questionnaire_response_read_test
+  :file_name: questionnaire_response_read_test.rb
+- :id: us_core_v311_questionnaire_response_validation_test
+  :file_name: questionnaire_response_validation_test.rb
+- :id: us_core_v311_questionnaire_response_must_support_test
+  :file_name: questionnaire_response_must_support_test.rb
+- :id: us_core_v311_questionnaire_response_reference_resolution_test
+  :file_name: questionnaire_response_reference_resolution_test.rb
+:id: us_core_v311_questionnaire_response
+:file_name: questionnaire_response_group.rb
+:delayed_references:
+- :path: author
+  :resources:
+  - Practitioner
+  - PractitionerRole
+  - Organization

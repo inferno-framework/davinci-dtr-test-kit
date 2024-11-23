@@ -25,6 +25,23 @@ module DaVinciDTRTestKit
       true
     end
 
+    def perform_profile_validation_test(
+      resources,
+      resource_type,
+      profile_url
+    )
+      resources = JSON.parse(resources)
+      resources = [resources] unless resources.is_a?(Array)
+      resources.each do |resource|
+        fhir_resource = FHIR.from_contents(resource.to_json)
+
+        assert fhir_resource.present?, 'Resource does not contain a recognized FHIR object'
+        assert_resource_type(resource_type, resource: fhir_resource)
+        assert_valid_resource(resource: fhir_resource,
+                              profile_url:)
+      end
+    end
+
     def perform_request_validation_test(
       resources,
       resource_type,
