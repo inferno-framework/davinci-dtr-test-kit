@@ -30,6 +30,13 @@
       "value": "{\"access_token\":\"SAMPLE_TOKEN\"}"
     },
     {
+      "name": "credentials",
+      "type": "oauth_credentials",
+      "title": "OAuth Credentials",
+      "optional": true,
+      "value": "{\"access_token\":\"SAMPLE_TOKEN\"}"
+    },
+    {
       "name": "patient_ids",
       "type": "text",
       "value": "pat015"
