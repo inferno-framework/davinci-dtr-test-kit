@@ -8,7 +8,10 @@ module DaVinciDTRTestKit
     description 'A server SHOULD support the Task create interaction'
 
     id :task_create
-    input :create_task_resources
+    input :create_task_resources,
+          type: 'textarea',
+          description:
+          'Provide a list of Task resources to create. e.g., [json_resource_1, json_resource_2]'
 
     def resource_type
       'Task'
