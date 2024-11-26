@@ -7,7 +7,7 @@ module DaVinciDTRTestKit
     RESOURCE_SERVER_BASE = ENV.fetch('FHIR_REFERENCE_SERVER')
     RESOURCE_SERVER_BEARER_TOKEN = 'SAMPLE_TOKEN'
 
-    RESPONSE_HEADERS = { 'Content-Type' => 'application/json', 'Access-Control-Allow-Origin' => '*' }.freeze
+    RESPONSE_HEADERS = { 'Content-Type' => 'application/fhir+json', 'Access-Control-Allow-Origin' => '*' }.freeze
 
     def resource_server_client
       return @resource_server_client if @resource_server_client
@@ -32,7 +32,7 @@ module DaVinciDTRTestKit
 
       if fhir_class.nil?
         request.status = 400
-        request.response_headers = { 'Content-Type': 'application/json' }
+        request.response_headers = { 'Content-Type': 'application/fhir+json' }
         request.response_body = FHIR::OperationOutcome.new(
           issue: FHIR::OperationOutcome::Issue.new(severity: 'warning', code: 'not-supported',
                                                    details: FHIR::CodeableConcept.new(
@@ -48,7 +48,7 @@ module DaVinciDTRTestKit
         matching_resource = find_resource_in_bundle(ehr_bundle, fhir_class, id)
         if matching_resource.present?
           request.status = 200
-          request.response_headers = { 'Content-Type': 'application/json' }
+          request.response_headers = { 'Content-Type': 'application/fhir+json' }
           request.response_body = matching_resource.to_json
           return
         end

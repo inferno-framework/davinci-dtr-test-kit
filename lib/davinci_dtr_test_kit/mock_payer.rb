@@ -4,7 +4,7 @@ require_relative 'fixtures'
 
 module DaVinciDTRTestKit
   module MockPayer
-    RESPONSE_HEADERS = { 'Content-Type' => 'application/json', 'Access-Control-Allow-Origin' => '*' }.freeze
+    RESPONSE_HEADERS = { 'Content-Type' => 'application/fhir+json', 'Access-Control-Allow-Origin' => '*' }.freeze
 
     def questionnaire_package_response(request, _test = nil, test_result = nil)
       request.status = 200
@@ -19,7 +19,7 @@ module DaVinciDTRTestKit
       client.default_json
       endpoint = endpoint_input.to_h['value'].nil? ? '/Questionnaire/$questionnaire-package' : endpoint_input['value']
       payer_response = client.send(:post, endpoint, JSON.parse(request.request_body),
-                                   { 'Content-Type' => 'application/json' })
+                                   { 'Content-Type' => 'application/fhir+json' })
 
       request.status = 200
       request.response_headers = RESPONSE_HEADERS
@@ -31,7 +31,7 @@ module DaVinciDTRTestKit
       client = FHIR::Client.new(url_endpoint['value'])
       client.default_json
       payer_response = client.send(:post, '/Questionnaire/$next-question', JSON.parse(request.request_body),
-                                   { 'Content-Type' => 'application/json' })
+                                   { 'Content-Type' => 'application/fhir+json' })
 
       request.status = 200
       request.response_headers = RESPONSE_HEADERS
