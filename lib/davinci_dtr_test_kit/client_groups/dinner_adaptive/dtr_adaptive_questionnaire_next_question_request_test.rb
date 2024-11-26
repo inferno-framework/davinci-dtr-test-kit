@@ -33,7 +33,7 @@ module DaVinciDTRTestKit
 
         When the DTR application has finished loading the Questionnaire,
         including any clinical data requests to support pre-population,
-        [Click here](#{resume_pass_url}?client_id=#{access_token}) to continue.
+        [Click here](#{resume_pass_url}?token=#{access_token}) to continue.
       DESCRIPTION
     end
 

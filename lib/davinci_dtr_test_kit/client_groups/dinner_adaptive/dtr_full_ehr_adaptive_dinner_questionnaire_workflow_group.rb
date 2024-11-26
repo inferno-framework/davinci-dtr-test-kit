@@ -59,12 +59,18 @@ module DaVinciDTRTestKit
 
     group from: :dtr_adaptive_questionnaire_followup_questions,
           config: {
-            options: { next_tag: "followup_#{CLIENT_NEXT_TAG}" }
+            options: {
+              accepts_multiple_requests: true,
+              next_tag: "followup_#{CLIENT_NEXT_TAG}"
+            }
           }
 
     group from: :dtr_adaptive_questionnaire_completion,
           config: {
-            options: { next_tag: "completion_#{CLIENT_NEXT_TAG}" }
+            options: {
+              accepts_multiple_requests: true,
+              next_tag: "completion_#{CLIENT_NEXT_TAG}"
+            }
           }
   end
 end
