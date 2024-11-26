@@ -44,6 +44,15 @@ module DaVinciDTRTestKit
 
           Inferno will wait for both of these requests to be made.
 
+          ### Request Identification
+
+          In order to identify requests for this session, Inferno will look for
+          an `Authorization` header with value:
+
+          ```
+          Bearer #{access_token}
+          ```
+
           ### Continuing the Tests
 
           When both requests have been made, [Click here](#{resume_pass_url}?token=#{access_token}) to continue.
