@@ -5,6 +5,9 @@ require_relative 'auth_groups/oauth2_authentication_group'
 require_relative 'client_groups/resp_assist_device/dtr_smart_app_questionnaire_workflow_group'
 require_relative 'client_groups/dinner_static/dtr_smart_app_questionnaire_workflow_group'
 require_relative 'client_groups/dinner_adaptive/dtr_smart_app_questionnaire_workflow_group'
+require_relative 'endpoints/mock_authorization/handlers'
+require_relative 'endpoints/mock_authorization/authorize_endpoint'
+require_relative 'endpoints/mock_authorization/token_endpoint'
 require_relative 'mock_payer'
 require_relative 'mock_ehr'
 require_relative 'version'
@@ -62,25 +65,12 @@ module DaVinciDTRTestKit
 
     route(:get, '/fhir/metadata', method(:metadata_handler))
 
-    route(:get, SMART_CONFIG_PATH, method(:ehr_smart_config))
-    route(:get, OPENID_CONFIG_PATH, method(:ehr_openid_config))
-
-    route(:get, JKWS_PATH, method(:auth_server_jwks))
-
-    record_response_route :get, EHR_AUTHORIZE_PATH, EHR_AUTHORIZE_TAG, method(:ehr_authorize),
-                          resumes: ->(_) { false } do |request|
-      DTRSmartAppSuite.extract_client_id_from_query_params(request)
-    end
-
-    record_response_route :post, EHR_AUTHORIZE_PATH, EHR_AUTHORIZE_TAG, method(:ehr_authorize),
-                          resumes: ->(_) { false } do |request|
-      DTRSmartAppSuite.extract_client_id_from_form_params(request)
-    end
-
-    record_response_route :post, EHR_TOKEN_PATH, 'dtr_smart_app_ehr_token', method(:ehr_token_response),
-                          resumes: ->(_) { false } do |request|
-      DTRSmartAppSuite.extract_client_id_from_token_request(request)
-    end
+    route(:get, SMART_CONFIG_PATH, MockAuthorization.method(:ehr_smart_config))
+    route(:get, OPENID_CONFIG_PATH, MockAuthorization.method(:ehr_openid_config))
+    route(:get, JKWS_PATH, MockAuthorization.method(:auth_server_jwks))
+    suite_endpoint :get, EHR_AUTHORIZE_PATH, MockAuthorization::AuthorizeEndpoint
+    suite_endpoint :post, EHR_AUTHORIZE_PATH, MockAuthorization::AuthorizeEndpoint
+    suite_endpoint :post, EHR_TOKEN_PATH, MockAuthorization::TokenEndpoint
 
     record_response_route :post, PAYER_TOKEN_PATH, 'dtr_smart_app_payer_token',
                           method(:payer_token_response) do |request|
