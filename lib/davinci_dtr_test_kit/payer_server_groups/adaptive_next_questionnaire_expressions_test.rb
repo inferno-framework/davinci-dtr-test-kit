@@ -15,7 +15,6 @@ module DaVinciDTRTestKit
       skip_if scratch[:next_question_questionnaire_responses].nil?, 'No questionnaires returned.'
       questionnaires = extract_contained_questionnaires(scratch[:next_question_questionnaire_responses])
       verify_questionnaire_items(questionnaires, final_cql_test: true)
-      scratch[:next_question_questionnaire_responses] = nil
     end
   end
 end

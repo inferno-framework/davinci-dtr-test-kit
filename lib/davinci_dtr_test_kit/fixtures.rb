@@ -21,6 +21,23 @@ module DaVinciDTRTestKit
         ],
         questionnaire_package: File.join('dinner_static', 'questionnaire_dinner_order_static.json'),
         questionnaire_response: File.join('dinner_static', 'questionnaire_response_dinner_order_static.json')
+      },
+      {
+        group_ids: [
+          'dtr_full_ehr_adaptive_questionnaire_retrieval',
+          'dtr_smart_app_adaptive_questionnaire_retrieval'
+        ],
+        questionnaire_package: File.join('dinner_adaptive', 'questionnaire_dinner_order_adaptive.json'),
+        next_question: File.join('dinner_adaptive', 'dinner_order_adaptive_next_question_initial.json')
+      },
+      {
+        group_ids: [
+          'dtr_adaptive_questionnaire_followup_questions'
+        ],
+        next_question: {
+          bean_burrito: File.join('dinner_adaptive', 'dinner_order_adaptive_next_question_burrito.json'),
+          hamburger: File.join('dinner_adaptive', 'dinner_order_adaptive_next_question_hamburger.json')
+        }
       }
     ].freeze
 
@@ -29,6 +46,11 @@ module DaVinciDTRTestKit
     # full_test_id needs to be the long inferno-generated ID that includes hyphenated ancestor IDs
     def questionnaire_package_for_test(full_test_id)
       get_fixture(full_test_id, :questionnaire_package)
+    end
+
+    # full_test_id needs to be the long inferno-generated ID that includes hyphenated ancestor IDs
+    def next_question_for_test(full_test_id, option = nil)
+      get_fixture(full_test_id, :next_question, option)
     end
 
     # full_test_id needs to be the long inferno-generated ID that includes hyphenated ancestor IDs
@@ -43,10 +65,11 @@ module DaVinciDTRTestKit
 
     private
 
-    def get_fixture(full_test_id, fixture_type)
+    def get_fixture(full_test_id, fixture_type, option = nil)
       fixture_path = extract_group_ids(full_test_id).filter_map do |group_id|
         FIXTURE_CONFIG.find { |fc| fc[:group_ids].include?(group_id) }&.dig(fixture_type)
       end&.first
+      fixture_path = fixture_path[option.to_sym] if option && fixture_path.is_a?(Hash)
 
       FixtureLoader.instance[fixture_path]
     end

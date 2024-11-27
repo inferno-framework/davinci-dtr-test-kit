@@ -1,0 +1,278 @@
+{
+  "resourceType": "Parameters",
+  "id": "next-question-final-request",
+  "meta": {
+    "profile": [
+      "http://hl7.org/fhir/uv/sdc/StructureDefinition/parameters-questionnaire-next-question-in"
+    ]
+  },
+  "parameter": [
+    {
+      "name": "questionnaire-response",
+      "resource": {
+        "resourceType": "QuestionnaireResponse",
+        "id": "adaptive-dinner-response",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaireresponse-adapt"
+          ]
+        },
+        "status": "in-progress",
+        "questionnaire": "#DinnerOrderAdaptive",
+        "subject": {
+          "reference": "Patient/example"
+        },
+        "authored": "2024-10-10T00:00:00Z",
+        "contained": [
+          {
+            "resourceType": "Questionnaire",
+            "id": "DinnerOrderAdaptive",
+            "meta": {
+              "profile": [
+                "http://hl7.org/fhir/StructureDefinition/cqf-questionnaire",
+                "http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/dtr-questionnaire-adapt"
+              ]
+            },
+            "text": {
+              "status": "generated",
+              "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\">This is an adaptive questionnaire used to determine what a patient would like for dinner, including pre-populated patient information.</div>"
+            },
+            "extension": [
+              {
+                "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-questionnaireAdaptive",
+                "valueBoolean": true
+              },
+              {
+                "url": "http://hl7.org/fhir/StructureDefinition/cqf-library",
+                "valueCanonical": "https://madie.cms.gov/Library/DTRTest"
+              }
+            ],
+            "name": "DinnerOrderAdaptive",
+            "title": "Dinner Order (Adaptive)",
+            "derivedFrom": [
+              "urn:inferno:dtr-test-kit:dinner-order-adaptive"
+            ],
+            "status": "draft",
+            "subjectType": [
+              "Patient"
+            ],
+            "date": "2024-05-06",
+            "publisher": "Inferno",
+            "item": [
+              {
+                "extension": [
+                  {
+                    "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+                    "valueCodeableConcept": {
+                      "coding": [
+                        {
+                          "system": "http://hl7.org/fhir/questionnaire-item-control",
+                          "code": "gtable"
+                        }
+                      ]
+                    }
+                  }
+                ],
+                "linkId": "PBD",
+                "text": "Patient Information",
+                "type": "group",
+                "item": [
+                  {
+                    "extension": [
+                      {
+                        "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-initialExpression",
+                        "valueExpression": {
+                          "language": "text/cql",
+                          "expression": "\"DTRTest\".LastName"
+                        }
+                      }
+                    ],
+                    "linkId": "PBD.1",
+                    "text": "Last Name:",
+                    "type": "string",
+                    "required": true
+                  },
+                  {
+                    "extension": [
+                      {
+                        "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-initialExpression",
+                        "valueExpression": {
+                          "language": "text/cql",
+                          "expression": "\"DTRTest\".FirstName"
+                        }
+                      }
+                    ],
+                    "linkId": "PBD.2",
+                    "text": "First Name:",
+                    "type": "string",
+                    "required": true
+                  }
+                ]
+              },
+              {
+                "linkId": "LOC",
+                "text": "Patient's Location",
+                "type": "group",
+                "item": [
+                  {
+                    "extension": [
+                      {
+                        "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-initialExpression",
+                        "valueExpression": {
+                          "language": "text/cql",
+                          "expression": "\"DTRTest\".FirstLocationDescription"
+                        }
+                      }
+                    ],
+                    "linkId": "LOC.1",
+                    "text": "Location",
+                    "type": "string",
+                    "required": true
+                  }
+                ]
+              },
+              {
+                "linkId": "3",
+                "text": "Dinner Order",
+                "type": "group",
+                "item": [
+                  {
+                    "linkId": "3.1",
+                    "text": "What would you like for dinner?",
+                    "type": "choice",
+                    "required": true,
+                    "answerOption": [
+                      {
+                        "valueCoding": {
+                          "code": "Hamburger"
+                        }
+                      },
+                      {
+                        "valueCoding": {
+                          "code": "Bean Burrito"
+                        }
+                      }
+                    ]
+                  },
+                  {
+                    "linkId": "3.2.b",
+                    "text": "What would you like on your bean burrito?",
+                    "type": "choice",
+                    "required": false,
+                    "repeats": true,
+                    "answerOption": [
+                      {
+                        "valueCoding": {
+                          "code": "Cheese"
+                        }
+                      },
+                      {
+                        "valueCoding": {
+                          "code": "Pico de Gallo"
+                        }
+                      },
+                      {
+                        "valueCoding": {
+                          "code": "Guacamole"
+                        }
+                      }
+                    ]
+                  },
+                  {
+                    "linkId": "3.3",
+                    "text": "Any special requests?",
+                    "type": "string",
+                    "required": false
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "item": [
+          {
+            "linkId": "PBD",
+            "text": "Patient Information",
+            "item": [
+              {
+                "linkId": "PBD.1",
+                "text": "Last Name:",
+                "answer": [
+                  {
+                    "valueString": "Smith"
+                  }
+                ]
+              },
+              {
+                "linkId": "PBD.2",
+                "text": "First Name:",
+                "answer": [
+                  {
+                    "valueString": "John"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "linkId": "LOC",
+            "text": "Patient's Location",
+            "item": [
+              {
+                "linkId": "LOC.1",
+                "text": "Location",
+                "answer": [
+                  {
+                    "valueString": "Home"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "linkId": "3",
+            "text": "Dinner Order",
+            "item": [
+              {
+                "linkId": "3.1",
+                "text": "What would you like for dinner?",
+                "answer": [
+                  {
+                    "valueCoding": {
+                      "code": "Bean Burrito"
+                    }
+                  }
+                ]
+              },
+              {
+                "linkId": "3.2.b",
+                "text": "What would you like on your bean burrito?",
+                "answer": [
+                  {
+                    "valueCoding": {
+                      "code": "Cheese"
+                    }
+                  },
+                  {
+                    "valueCoding": {
+                      "code": "Guacamole"
+                    }
+                  }
+                ]
+              },
+              {
+                "linkId": "3.3",
+                "text": "Any special requests?",
+                "answer": [
+                  {
+                    "valueString": "Extra napkins, please."
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}

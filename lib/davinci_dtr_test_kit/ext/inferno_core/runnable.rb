@@ -24,7 +24,7 @@ module Inferno
         route_class = Class.new(Inferno::DSL::RecordResponseRoute) do |klass|
           klass.singleton_class.instance_variable_set(:@build_response_block, build_response)
           klass.singleton_class.instance_variable_set(:@test_run_identifier_block, block)
-          klass.singleton_class.instance_variable_set(:@tags, Array.wrap(tags))
+          klass.singleton_class.instance_variable_set(:@tags, tags)
           klass.singleton_class.instance_variable_set(:@resumes, resumes)
         end
 

@@ -1,23 +1,22 @@
 require_relative '../../tags'
-require_relative 'dtr_smart_app_adaptive_questionnaire_initial_retrieval_group'
-require_relative '../smart_app/dtr_smart_app_prepopulation_attestation_test'
-require_relative '../smart_app/dtr_smart_app_prepopulation_override_attestation_test'
+require_relative 'dtr_full_ehr_adaptive_questionnaire_initial_retrieval_group'
+require_relative '../full_ehr/dtr_full_ehr_prepopulation_attestation_test'
+require_relative '../full_ehr/dtr_full_ehr_prepopulation_override_attestation_test'
 require_relative 'dtr_adaptive_questionnaire_followup_questions_group'
 require_relative 'dtr_adaptive_questionnaire_completion_group'
 
 module DaVinciDTRTestKit
-  class DTRSmartAppAdaptiveDinnerQuestionnaireWorkflowGroup < Inferno::TestGroup
-    id :dtr_smart_app_adaptive_dinner_questionnaire_workflow
+  class DTRFullEHRAdaptiveDinnerQuestionnaireWorkflowGroup < Inferno::TestGroup
+    id :dtr_full_ehr_adaptive_dinner_questionnaire_workflow
     title 'Adaptive Questionnaire Workflow'
     description %(
-      This test validates that a DTR SMART App client can perform a full DTR Adaptive Questionnaire workflow
+      This test validates that a DTR Full EHR client can perform a full DTR Adaptive Questionnaire workflow
       using a mocked questionnaire requesting what a patient wants for dinner. The client system must
       demonstrate their ability to:
 
       1. Fetch the adaptive questionnaire package
         ([DinnerOrderAdaptive](https://github.com/inferno-framework/davinci-dtr-test-kit/blob/main/lib/davinci_dtr_test_kit/fixtures/dinner_adaptive/questionnaire_dinner_order_adaptive.json))
       2. Fetch the first set of questions and render and pre-populate them appropriately, including:
-         - fetch additional data needed for pre-population
          - pre-populate data as directed by the questionnaire
          - display questions only when they are enabled
       3. Answer the initial questions and request additional questions
@@ -25,29 +24,24 @@ module DaVinciDTRTestKit
          with appropriate indicators for pre-populated and manually-entered data.
     )
 
-    config(
-      options: {
-        smart_app: true
-      }
-    )
-
     group do
-      id :dtr_smart_app_adaptive_questionnaire_retrieval
+      id :dtr_full_ehr_adaptive_questionnaire_retrieval
       title 'Retrieving the Adaptive Questionnaire'
       description %(
-        Inferno will wait for the client system to request a questionnaire using the
+        After DTR launch, Inferno will wait for the client system to request a questionnaire using the
         $questionnaire-package operation and follow up with an initial $next-question request to retrieve
         the first set of questions.
 
-        The initial set of questions will be returned for the tester to complete.
+        The initial set of questions will be returned for the tester to complete and attest to pre-population
+        and questionnaire rendering.
 
-        Inferno will then validate the conformance of the requests.
+        Inferno will also validate the conformance of the requests.
       )
       run_as_group
 
-      group from: :dtr_smart_app_adaptive_questionnaire_initial_retrieval
+      group from: :dtr_full_ehr_adaptive_questionnaire_initial_retrieval
       group do
-        id :dtr_smart_app_initial_questionnaire_rendering
+        id :dtr_full_ehr_initial_questionnaire_rendering
         title 'Filling Out the Questionnaire'
         description %(
           The tester will interact with the questionnaire within their client system
@@ -57,9 +51,9 @@ module DaVinciDTRTestKit
         )
 
         # Test 1: attest to the pre-population of the name fields
-        test from: :dtr_smart_app_prepopulation_attestation
-        # Test 2: attest to the pre-population and edit of the location field
-        test from: :dtr_smart_app_prepopulation_override_attestation
+        test from: :dtr_full_ehr_prepopulation_attestation
+        # Test 2: attest to the pre-population and edit of the first name field
+        test from: :dtr_full_ehr_prepopulation_override_attestation
       end
     end
 
@@ -68,9 +62,6 @@ module DaVinciDTRTestKit
             options: {
               accepts_multiple_requests: true,
               next_tag: "followup_#{CLIENT_NEXT_TAG}"
-            },
-            inputs: {
-              access_token: { name: :client_id }
             }
           }
 
@@ -79,16 +70,6 @@ module DaVinciDTRTestKit
             options: {
               accepts_multiple_requests: true,
               next_tag: "completion_#{CLIENT_NEXT_TAG}"
-            },
-            inputs: {
-              access_token: { name: :client_id }
-            }
-          }
-    group from: :dtr_smart_app_saving_questionnaire_response,
-          config: {
-            options: {
-              adaptive: true,
-              qr_profile_url: 'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaireresponse-adapt'
             }
           }
   end

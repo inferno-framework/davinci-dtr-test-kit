@@ -50,7 +50,15 @@ module DaVinciDTRTestKit
     end
 
     allow_cors QUESTIONNAIRE_PACKAGE_PATH, QUESTIONNAIRE_RESPONSE_PATH, FHIR_RESOURCE_PATH, FHIR_SEARCH_PATH,
-               EHR_AUTHORIZE_PATH, EHR_TOKEN_PATH, JKWS_PATH, OPENID_CONFIG_PATH
+               EHR_AUTHORIZE_PATH, EHR_TOKEN_PATH, JKWS_PATH, OPENID_CONFIG_PATH, NEXT_PATH
+
+    def self.test_resumes?(test)
+      !test.config.options[:accepts_multiple_requests]
+    end
+
+    def self.next_request_tag(test)
+      test.config.options[:next_tag]
+    end
 
     route(:get, '/fhir/metadata', method(:metadata_handler))
 
@@ -81,6 +89,11 @@ module DaVinciDTRTestKit
 
     record_response_route :post, QUESTIONNAIRE_PACKAGE_PATH, QUESTIONNAIRE_PACKAGE_TAG,
                           method(:questionnaire_package_response), resumes: ->(_) { false } do |request|
+      DTRSmartAppSuite.extract_client_id_from_bearer_token(request)
+    end
+
+    record_response_route :post, NEXT_PATH, method(:next_request_tag), method(:client_questionnaire_next_response),
+                          resumes: method(:test_resumes?) do |request|
       DTRSmartAppSuite.extract_client_id_from_bearer_token(request)
     end
 
@@ -118,7 +131,7 @@ module DaVinciDTRTestKit
       )
 
       group from: :dtr_smart_app_static_dinner_questionnaire_workflow
-      # group from: :dtr_smart_app_adaptive_dinner_questionnaire_workflow - TODO
+      group from: :dtr_smart_app_adaptive_dinner_questionnaire_workflow
     end
     group do
       id :dtr_smart_app_questionnaire_functionality

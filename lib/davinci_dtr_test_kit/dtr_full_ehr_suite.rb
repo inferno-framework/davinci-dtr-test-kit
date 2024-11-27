@@ -2,6 +2,7 @@ require_relative 'ext/inferno_core/runnable'
 require_relative 'ext/inferno_core/record_response_route'
 require_relative 'ext/inferno_core/request'
 require_relative 'client_groups/dinner_static/dtr_full_ehr_questionnaire_workflow_group'
+require_relative 'client_groups/dinner_adaptive/dtr_full_ehr_adaptive_dinner_questionnaire_workflow_group'
 require_relative 'auth_groups/oauth2_authentication_group'
 require_relative 'mock_payer'
 require_relative 'version'
@@ -45,7 +46,15 @@ module DaVinciDTRTestKit
       end
     end
 
-    allow_cors QUESTIONNAIRE_PACKAGE_PATH
+    allow_cors QUESTIONNAIRE_PACKAGE_PATH, NEXT_PATH
+
+    def self.test_resumes?(test)
+      !test.config.options[:accepts_multiple_requests]
+    end
+
+    def self.next_request_tag(test)
+      test.config.options[:next_tag]
+    end
 
     record_response_route :post, PAYER_TOKEN_PATH, 'dtr_full_ehr_payer_token',
                           method(:payer_token_response) do |request|
@@ -53,7 +62,12 @@ module DaVinciDTRTestKit
     end
 
     record_response_route :post, QUESTIONNAIRE_PACKAGE_PATH, QUESTIONNAIRE_PACKAGE_TAG,
-                          method(:questionnaire_package_response) do |request|
+                          method(:questionnaire_package_response), resumes: method(:test_resumes?) do |request|
+      DTRFullEHRSuite.extract_bearer_token(request)
+    end
+
+    record_response_route :post, NEXT_PATH, method(:next_request_tag), method(:client_questionnaire_next_response),
+                          resumes: method(:test_resumes?) do |request|
       DTRFullEHRSuite.extract_bearer_token(request)
     end
 
@@ -67,5 +81,6 @@ module DaVinciDTRTestKit
 
     group from: :oauth2_authentication
     group from: :dtr_full_ehr_static_dinner_questionnaire_workflow
+    group from: :dtr_full_ehr_adaptive_dinner_questionnaire_workflow
   end
 end

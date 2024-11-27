@@ -2,10 +2,10 @@ require 'securerandom'
 require_relative '../../urls'
 
 module DaVinciDTRTestKit
-  class DTRFullEHRStaticDinnerRenderingAttestationTest < Inferno::Test
+  class DTRSmartAppRenderingEnabledQuestionsAttestationTest < Inferno::Test
     include URLs
 
-    id :dtr_full_ehr_dinner_static_rendering_enabledQs_attestation
+    id :dtr_smart_app_rendering_enabled_questions_attestation
     title 'Check that the client renders enabled questions appropriately (Attestation)'
     description %(
       Validate that the rendering of the questionnaire includes only the "What would you like on..."
@@ -20,9 +20,9 @@ module DaVinciDTRTestKit
           questions until I have selected a dinner choice and then only displays the
           "What would you like on..." question relevant for the dinner request:
 
-          [Click here](#{resume_pass_url}?token=#{random_id}) if the above statement is **true**.
+          [Click here](#{resume_pass_url}?client_id=#{random_id}) if the above statement is **true**.
 
-          [Click here](#{resume_fail_url}?token=#{random_id}) if the above statement is **false**.
+          [Click here](#{resume_fail_url}?client_id=#{random_id}) if the above statement is **false**.
         )
       )
     end

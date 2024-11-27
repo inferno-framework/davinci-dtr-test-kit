@@ -20,10 +20,10 @@ module DaVinciDTRTestKit
       assert_resource_type(:questionnaire_response, resource: questionnaire_response)
     end
 
-    def verify_basic_conformance(questionnaire_response_json)
+    def verify_basic_conformance(questionnaire_response_json, profile_url = nil)
+      profile_url ||= 'http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/dtr-questionnaireresponse|2.0.1'
       check_is_questionnaire_response(questionnaire_response_json)
-      assert_valid_resource(resource: FHIR.from_contents(questionnaire_response_json),
-                            profile_url: 'http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/dtr-questionnaireresponse|2.0.1')
+      assert_valid_resource(resource: FHIR.from_contents(questionnaire_response_json), profile_url:)
     end
 
     # This only checks answers in the questionnaire response, meaning it does not catch missing answers
@@ -55,14 +55,22 @@ module DaVinciDTRTestKit
       end
     end
 
-    # This checks presence of all answers if link_ids is nil
-    def check_answer_presence(items, link_ids: nil)
-      items.each do |item|
-        check_answer_presence(item.item, link_ids:)
-
-        if !item.answer&.first&.value.present? && (link_ids.nil? || link_ids.include?(item.linkId))
-          add_message('error', "No answer for item #{item.linkId}")
+    # Ensures that all required questions have been answered.
+    # If required_link_ids not provided, all questions are treated as optional.
+    def check_answer_presence(response_items, required_link_ids = [])
+      required_link_ids.each do |link_id|
+        item = find_item_by_link_id(response_items, link_id)
+        unless item&.answer&.any? { |answer| answer.value.present? }
+          add_message('error', "No answer for item #{link_id}")
         end
+      end
+    end
+
+    def extract_required_link_ids(questionnaire_items)
+      questionnaire_items.each_with_object([]) do |item, required_link_ids|
+        required_link_ids << item.linkId if item.required
+
+        required_link_ids.concat(extract_required_link_ids(item.item)) if item.item.present?
       end
     end
 

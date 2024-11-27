@@ -14,11 +14,15 @@ module DaVinciDTRTestKit
       to the DTR Questionnaire Response resource profile.
     )
 
+    def profile_url
+      config.options[:qr_profile_url]
+    end
+
     run do
       assert request.url == questionnaire_response_url,
              "Request made to wrong URL: #{request.url}. Should instead be to #{questionnaire_response_url}"
 
-      verify_basic_conformance(request.request_body)
+      verify_basic_conformance(request.request_body, profile_url)
     end
   end
 end
