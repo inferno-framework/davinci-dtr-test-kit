@@ -22,9 +22,10 @@ module DaVinciDTRTestKit
 
     ## Profile Validation
     Each resource returned from the first read is expected to conform to
-    the [CRD CommunicationRequest Profile](http://hl7.org/fhir/us/davinci-crd/StructureDefinition/profile-communicationrequest). Each
-    element is checked against terminology binding and cardinality requirements.
-          )
+    the [CRD CommunicationRequest Profile](http://hl7.org/fhir/us/davinci-crd/StructureDefinition/profile-communicationrequest).
+    Each element is checked against terminology binding and cardinality requirements.
+
+    )
     id :communication_request_group
     run_as_group
 

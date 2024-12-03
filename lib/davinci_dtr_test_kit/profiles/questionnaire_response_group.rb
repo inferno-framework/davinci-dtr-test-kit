@@ -50,8 +50,8 @@ module DaVinciDTRTestKit
 
     ## Profile Validation
     Each resource returned from the first read is expected to conform to
-    the [DTR QuestionnaireResponse Profile](http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/dtr-questionnaireresponse). Each
-    element is checked against terminology binding and cardinality requirements.
+    the [DTR QuestionnaireResponse Profile](http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/dtr-questionnaireresponse).
+    Each element is checked against terminology binding and cardinality requirements.
 
     ## Create
     This test sequence will perform create interactions with the provided json
