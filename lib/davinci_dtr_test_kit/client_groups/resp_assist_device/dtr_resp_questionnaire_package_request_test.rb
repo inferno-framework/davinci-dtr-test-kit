@@ -20,38 +20,34 @@ module DaVinciDTRTestKit
     input :launch_uri,
           optional: true,
           description: 'Required if "Launch from Inferno" is selected'
-    input :smart_patient_id,
+    input :resp_smart_patient_id,
           optional: true,
           title: 'SMART App Launch Patient ID (Respiratory Assist Device)',
           type: 'text',
           description: %(
-            Patient instance `id` to be provided by Inferno as the `patient` as a part of the SMART App
-            Launch.
+            Patient instance ID to be provided by Inferno as the patient as a part of the SMART App Launch.
           ),
           default: 'pat015'
-    input :smart_fhir_context,
+    input :resp_smart_fhir_context,
           optional: true,
           title: 'SMART App Launch fhirContext (Respiratory Assist Device)',
           type: 'textarea',
           description: %(
-            References to be provided by Inferno as the `fhirContext` as a part of the SMART App
+            References to be provided by Inferno as the fhirContext as a part of the SMART App
             Launch. These references help determine the behavior of the app. Referenced instances
             may be provided in the "EHR-available resources" input.
           ),
           default: JSON.pretty_generate([{ reference: 'Coverage/cov015' },
                                          { reference: 'DeviceRequest/devreqe0470' }])
-    input :ehr_bundle,
+    input :resp_ehr_bundle,
           optional: true,
           title: 'EHR-available resources (Respiratory Assist Device)',
           type: 'textarea',
           description: %(
             Resources available from the EHR needed to drive the respiratory assist device workflow.
-            Formatted as a FHIR bundle that contains resources, each with an `id` property populated. Each
-            instance present will be available for retrieval from Inferno at the endpoint
-
-            ```
-            [fhir-base]/[resource type]/[instance id]
-            ```
+            Formatted as a FHIR bundle that contains resources, each with an ID property populated. Each
+            instance present will be available for retrieval from Inferno at the endpoint:
+            <fhir-base>/<resource type>/<instance id>
           )
 
     def example_client_jwt_payload_part
@@ -61,19 +57,19 @@ module DaVinciDTRTestKit
     run do
       # validate relevant inputs and provide warnings if they are bad
       warning do
-        if smart_fhir_context
-          assert_valid_json(smart_fhir_context,
+        if resp_smart_fhir_context
+          assert_valid_json(resp_smart_fhir_context,
                             'The **SMART App Launch fhirContext** input is not valid JSON, so it will not be included in
                             the access token response.')
         end
       end
 
       warning do
-        if ehr_bundle
-          assert_valid_json(ehr_bundle,
+        if resp_ehr_bundle
+          assert_valid_json(resp_ehr_bundle,
                             'The **EHR-available resources** input is not valid JSON, so no tester-specified instances
                               will be available to access from Inferno.')
-          assert(FHIR.from_contents(ehr_bundle).is_a?(FHIR::Bundle),
+          assert(FHIR.from_contents(resp_ehr_bundle).is_a?(FHIR::Bundle),
                  'The **EHR-available resources** input does not contain a FHIR Bundle, so no tester-specified instances
                  will be available to access from Inferno.')
         end

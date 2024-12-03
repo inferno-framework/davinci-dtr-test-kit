@@ -90,7 +90,7 @@ module DaVinciDTRTestKit
       end
     end
 
-    def ehr_token_response(request, _test = nil, test_result = nil)
+    def ehr_token_response(request, test = nil, test_result = nil)
       client_id = extract_client_id_from_token_request(request)
       access_token = JWT.encode({ inferno_client_id: client_id }, nil, 'none')
       granted_scopes = SUPPORTED_SCOPES & requested_scopes(test_result.test_session_id)
@@ -101,7 +101,7 @@ module DaVinciDTRTestKit
         response.merge!(id_token: create_id_token(request, client_id, fhir_user: granted_scopes.include?('fhirUser')))
       end
 
-      fhir_context_input = find_test_input(test_result, 'smart_fhir_context')
+      fhir_context_input = find_test_input(test_result, "#{input_group_prefix(test)}_smart_fhir_context")
       fhir_context_input_value = fhir_context_input['value'] if fhir_context_input
       begin
         fhir_context = JSON.parse(fhir_context_input_value)
@@ -110,7 +110,7 @@ module DaVinciDTRTestKit
       end
       response.merge!(fhirContext: fhir_context) if fhir_context
 
-      smart_patient_input = find_test_input(test_result, 'smart_patient_id')
+      smart_patient_input = find_test_input(test_result, "#{input_group_prefix(test)}_smart_patient_id")
       smart_patient_input_value = smart_patient_input['value'] if smart_patient_input.present?
       response.merge!(patient: smart_patient_input_value) if smart_patient_input_value
 
@@ -212,6 +212,16 @@ module DaVinciDTRTestKit
 
       scope_str = params_hash(auth_request)&.dig('scope')
       scope_str ? URI.decode_www_form_component(scope_str).split : []
+    end
+
+    def input_group_prefix(test)
+      if test.id.include?('static')
+        'static'
+      elsif test.id.include?('adaptive')
+        'adaptive'
+      else
+        'resp'
+      end
     end
 
     def find_test_input(test_result, input_name)

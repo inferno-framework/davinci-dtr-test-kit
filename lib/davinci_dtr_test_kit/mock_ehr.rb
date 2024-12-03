@@ -26,7 +26,7 @@ module DaVinciDTRTestKit
       end
     end
 
-    def get_fhir_resource(request, _test = nil, test_result = nil)
+    def get_fhir_resource(request, test = nil, test_result = nil)
       fhir_class, id = fhir_class_and_id_from_url(request.url)
       request.response_headers = RESPONSE_HEADERS
 
@@ -43,7 +43,7 @@ module DaVinciDTRTestKit
       end
 
       # Respond with user-inputted resource if there is one that matches the request
-      ehr_bundle = ehr_input_bundle(test_result)
+      ehr_bundle = ehr_input_bundle(test, test_result)
       if id.present? && ehr_bundle.present?
         matching_resource = find_resource_in_bundle(ehr_bundle, fhir_class, id)
         if matching_resource.present?
@@ -70,13 +70,24 @@ module DaVinciDTRTestKit
       request.response_body = request.request_body
     end
 
-    def ehr_input_bundle(test_result)
-      ehr_bundle_input = JSON.parse(test_result.input_json).find { |input| input['name'] == 'ehr_bundle' }
+    def ehr_input_bundle(test, test_result)
+      input_name = "#{input_group_prefix(test)}_ehr_bundle"
+      ehr_bundle_input = JSON.parse(test_result.input_json).find { |input| input['name'] == input_name }
       ehr_bundle_input_value = ehr_bundle_input_value = ehr_bundle_input['value'] if ehr_bundle_input.present?
       ehr_bundle = FHIR.from_contents(ehr_bundle_input_value) if ehr_bundle_input_value.present?
       ehr_bundle if ehr_bundle.is_a?(FHIR::Bundle)
     rescue StandardError
       nil
+    end
+
+    def input_group_prefix(test)
+      if test.id.include?('static')
+        'static'
+      elsif test.id.include?('adaptive')
+        'adaptive'
+      else
+        'resp'
+      end
     end
 
     def find_resource_in_bundle(bundle, fhir_class, id)
