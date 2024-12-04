@@ -29,7 +29,9 @@ module DaVinciDTRTestKit
     id :nutrition_order_group
     run_as_group
 
-    input :nutrition_order_ids
+    input :nutrition_order_ids,
+          title: 'Nutrition Order IDs',
+          description: 'Comma separated list of NutritionOrder IDs'
 
     test from: :nutrition_order_read
     test from: :nutrition_order_validation

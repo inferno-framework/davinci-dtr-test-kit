@@ -29,7 +29,9 @@ module DaVinciDTRTestKit
     id :medication_request_group
     run_as_group
 
-    input :medication_request_ids
+    input :medication_request_ids,
+          title: 'Medication Request IDs',
+          description: 'Comma separated list of MedicationRequest IDs'
 
     test from: :medication_request_read
     test from: :medication_request_validation

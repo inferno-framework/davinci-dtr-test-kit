@@ -29,7 +29,9 @@ module DaVinciDTRTestKit
     id :vision_prescription_group
     run_as_group
 
-    input :vision_prescription_ids
+    input :vision_prescription_ids,
+          title: 'Vision Prescription IDs',
+          description: 'Comma separated list of VisionPrescription IDs'
 
     test from: :vision_prescription_read
     test from: :vision_prescription_validation

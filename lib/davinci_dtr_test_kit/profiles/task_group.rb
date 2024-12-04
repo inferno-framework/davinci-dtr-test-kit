@@ -40,7 +40,9 @@ module DaVinciDTRTestKit
     id :task_group
     run_as_group
 
-    input :task_ids
+    input :task_ids,
+          title: 'Task IDs',
+          description: 'Comma separated list of Task IDs'
 
     test from: :task_read
     test from: :task_validation

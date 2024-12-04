@@ -29,7 +29,9 @@ module DaVinciDTRTestKit
     id :service_request_group
     run_as_group
 
-    input :service_request_ids
+    input :service_request_ids,
+          title: 'Service Request IDs',
+          description: 'Comma separated list of ServiceRequest IDs'
 
     test from: :service_request_read
     test from: :service_request_validation

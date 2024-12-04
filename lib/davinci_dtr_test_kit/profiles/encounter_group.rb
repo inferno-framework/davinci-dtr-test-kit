@@ -29,7 +29,9 @@ module DaVinciDTRTestKit
     id :encounter_group
     run_as_group
 
-    input :encounter_ids
+    input :encounter_ids,
+          title: 'Encounter IDs',
+          description: 'Comma separated list of Encounter IDs'
 
     test from: :encounter_read
     test from: :encounter_validation

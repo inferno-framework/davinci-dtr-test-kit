@@ -29,7 +29,9 @@ module DaVinciDTRTestKit
     id :coverage_group
     run_as_group
 
-    input :coverage_ids
+    input :coverage_ids,
+          title: 'Coverage IDs',
+          description: 'Comma separated list of Coverage IDs'
 
     test from: :coverage_read
     test from: :coverage_validation
