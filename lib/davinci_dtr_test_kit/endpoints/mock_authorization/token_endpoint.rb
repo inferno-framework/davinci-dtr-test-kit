@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require_relative '../../urls'
-require_relative 'common'
+require_relative 'mock_authorization'
 
 module DaVinciDTRTestKit
   module MockAuthorization

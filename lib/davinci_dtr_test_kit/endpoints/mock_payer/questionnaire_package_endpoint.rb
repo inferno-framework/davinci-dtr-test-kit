@@ -1,11 +1,11 @@
-require_relative '../mock_authorization/common'
+require_relative '../mock_authorization/mock_authorization'
 require_relative '../../fixtures'
-require_relative 'utils'
+require_relative 'mock_payer'
 
 module DaVinciDTRTestKit
   module MockPayer
     class QuestionnairePackageEndpoint < Inferno::DSL::SuiteEndpoint
-      include Utils
+      include MockPayer
 
       def test_run_identifier
         MockAuthorization.extract_client_id_from_bearer_token(request)
