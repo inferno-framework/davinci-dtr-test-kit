@@ -10,15 +10,17 @@ require_relative 'endpoints/mock_authorization/authorize_endpoint'
 require_relative 'endpoints/mock_authorization/token_endpoint'
 require_relative 'endpoints/mock_payer/questionnaire_package_endpoint'
 require_relative 'endpoints/mock_payer/next_question_endpoint'
+require_relative 'endpoints/mock_ehr/mock_ehr'
+require_relative 'endpoints/mock_ehr/questionnaire_response_endpoint'
+require_relative 'endpoints/mock_ehr/fhir_get_endpoint'
 require_relative 'mock_auth_server'
-require_relative 'mock_ehr'
 require_relative 'version'
 
 module DaVinciDTRTestKit
   class DTRSmartAppSuite < Inferno::TestSuite
     extend MockAuthServer
-    extend MockEHR
 
+    Inferno::Application['logger'].level = Logger::ERROR
     id :dtr_smart_app
     title 'Da Vinci DTR SMART App Test Suite'
     description File.read(File.join(__dir__, 'docs', 'dtr_smart_app_suite_description_v201.md'))
@@ -64,7 +66,7 @@ module DaVinciDTRTestKit
       test.config.options[:next_tag]
     end
 
-    route(:get, '/fhir/metadata', method(:metadata_handler))
+    route(:get, '/fhir/metadata', MockEHR.method(:metadata))
 
     route(:get, SMART_CONFIG_PATH, MockAuthorization.method(:ehr_smart_config))
     route(:get, OPENID_CONFIG_PATH, MockAuthorization.method(:ehr_openid_config))
@@ -76,20 +78,9 @@ module DaVinciDTRTestKit
     suite_endpoint :post, QUESTIONNAIRE_PACKAGE_PATH, MockPayer::QuestionnairePackageEndpoint
     suite_endpoint :post, NEXT_PATH, MockPayer::NextQuestionEndpoint
 
-    record_response_route :post, QUESTIONNAIRE_RESPONSE_PATH, 'dtr_smart_app_questionnaire_response',
-                          method(:questionnaire_response_response) do |request|
-      DTRSmartAppSuite.extract_client_id_from_bearer_token(request)
-    end
-
-    record_response_route :get, FHIR_RESOURCE_PATH, SMART_APP_EHR_REQUEST_TAG, method(:get_fhir_resource),
-                          resumes: ->(_) { false } do |request|
-      DTRSmartAppSuite.extract_client_id_from_bearer_token(request)
-    end
-
-    record_response_route :get, FHIR_SEARCH_PATH, SMART_APP_EHR_REQUEST_TAG, method(:get_fhir_resource),
-                          resumes: ->(_) { false } do |request|
-      DTRSmartAppSuite.extract_client_id_from_bearer_token(request)
-    end
+    suite_endpoint :post, QUESTIONNAIRE_RESPONSE_PATH, MockEHR::QuestionnaireResponseEndpoint
+    suite_endpoint :get, FHIR_RESOURCE_PATH, MockEHR::FHIRGetEndpoint
+    suite_endpoint :get, FHIR_SEARCH_PATH, MockEHR::FHIRGetEndpoint
 
     resume_test_route :get, RESUME_PASS_PATH do |request|
       DTRSmartAppSuite.extract_query_param_value(request)
