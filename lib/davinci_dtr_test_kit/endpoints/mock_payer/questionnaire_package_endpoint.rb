@@ -1,6 +1,6 @@
-require_relative '../mock_authorization/mock_authorization'
+require_relative '../mock_authorization'
+require_relative '../mock_payer'
 require_relative '../../fixtures'
-require_relative 'mock_payer'
 
 module DaVinciDTRTestKit
   module MockPayer

@@ -1,5 +1,5 @@
-require_relative '../mock_authorization/mock_authorization'
-require_relative 'mock_ehr'
+require_relative '../mock_authorization'
+require_relative '../mock_ehr'
 
 module DaVinciDTRTestKit
   module MockEHR
