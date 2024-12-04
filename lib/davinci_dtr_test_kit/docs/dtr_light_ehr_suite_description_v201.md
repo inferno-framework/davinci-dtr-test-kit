@@ -20,7 +20,7 @@ Once the connection between the DTR SMART App and the DTR Light EHR is establish
 
 If you would like to try out the tests but don't have a DTR Light EHR implementation, you can run these tests against the [public instance of the Inferno Reference Server](https://inferno.healthit.gov/reference-server/r4/) by using the Inferno Reference Server preset in the test suite.
 
-In order to get the Inferno QA Reference Server to do an EHR launch, navigate to https://inferno.healthit.gov/reference-server/app/app-launch and use https://inferno.healthit.gov/custom/smart/launch as the App Launch URL.
+In order to get the Inferno Reference Server to do an EHR launch, navigate to https://inferno.healthit.gov/reference-server/app/app-launch and use https://inferno.healthit.gov/custom/smart/launch as the App Launch URL.
 
 ## Limitations
 
@@ -28,7 +28,11 @@ The DTR IG is a complex specification and these tests currently validate conform
 a subset of IG requirements. Future versions of the test suite will test further
 features.
 
-Additionally, the DTR IG has two notable discrepancies in the 2.0.1 version, particularly in the RESTful capabilities by Resource/Profile section. First,
-v2.0.1's section on Coverage appears to be inconsistent with whether `context`
-and `patient` search parameters are supported by the CRD Coverage Profile or the
-DTR QuestionnaireResponse profile. The [CRD Coverage Profile](http://hl7.org/fhir/us/davinci-crd/StructureDefinition/profile-coverage) does not define search parameters, so this test suite tests for `read` capability of the CRD Coverage profile ONLY. Instead, this test suite tests for `read`, `create`, `update`, and `search-type` capabilities of the [DTR QuestionnaireResponse](http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/dtr-questionnaireresponse) profile. Second, v2.0.1's section on Task capabilities does not appear to include a Supported Profile. For this test suite, the [CDex Task Profile](http://hl7.org/fhir/us/davinci-cdex/StructureDefinition/cdex-task-attachment-request) is used for validation.
+## DTR 2.0.1 Corrections
+
+The DTR 2.0.1 version of the Light EHR CapabilityStatement includes two pieces of missing or misleading information that have been corrected:
+
+- The 2.0.1 CapabilityStatement indicates that support for the [Coverage resource type](https://hl7.org/fhir/us/davinci-dtr/STU2/CapabilityStatement-light-dtr-ehr.html#coverage) is required when the [QuestionnaireResponse resource type was intended](https://build.fhir.org/ig/HL7/davinci-dtr/CapabilityStatement-light-dtr-ehr-311.html#questionnaireresponse) (note specifically that the `context` search parameters are not present on the Coverage resource type but is on the QuestionnaireResponse resource type).
+- The 2.0.1 CapabilityStatement does not indicate a target profile for the [Task resource type](https://hl7.org/fhir/us/davinci-dtr/STU2/CapabilityStatement-light-dtr-ehr.html#task) but the current version [clarifies](https://build.fhir.org/ig/HL7/davinci-dtr/CapabilityStatement-light-dtr-ehr-311.html#task) that the [PAS Task Profile](http://hl7.org/fhir/us/davinci-pas/StructureDefinition/profile-task) is intended.
+
+This test suite verifies systems according to these corrections. Additionally, it verifies the `read` interaction for the Coverage resource type.

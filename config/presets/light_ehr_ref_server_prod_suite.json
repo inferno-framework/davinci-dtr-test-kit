@@ -79,7 +79,7 @@
     {
       "name": "task_ids",
       "type": "text",
-      "value": "cdex-task-example19"
+      "value": "AdditionalInformationTaskExample"
     },
     {
       "name": "vision_prescription_ids",

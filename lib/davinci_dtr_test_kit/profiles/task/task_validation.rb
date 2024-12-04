@@ -4,10 +4,10 @@ module DaVinciDTRTestKit
   class TaskValidationTest < Inferno::Test
     include DaVinciDTRTestKit::ValidationTest
 
-    title 'Task resources returned during previous tests conform to the CDex Task'
+    title 'Task resources returned during previous tests conform to the PAS Task'
     description %(
 This test verifies resources returned from the first read conform to
-the [CDex Task](https://hl7.org/fhir/us/davinci-cdex/STU2/StructureDefinition-cdex-task-attachment-request).
+the [PAS Task](http://hl7.org/fhir/us/davinci-pas/StructureDefinition/profile-task).
 Systems must demonstrate at least one valid example in order to pass this test.
 
 It verifies the presence of mandatory elements and that elements with
@@ -27,7 +27,7 @@ fail if their code/system are not found in the valueset.
 
     run do
       perform_profile_validation_test(task_resources, resource_type,
-                                      'http://hl7.org/fhir/us/davinci-cdex/StructureDefinition/cdex-task-attachment-request|2.0.0')
+                                      'http://hl7.org/fhir/us/davinci-pas/StructureDefinition/profile-task|2.0.1')
     end
   end
 end

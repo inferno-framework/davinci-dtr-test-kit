@@ -51,7 +51,7 @@ module DaVinciDTRTestKit
 
     # Hl7 Validator Wrapper:
     fhir_resource_validator do
-      igs('hl7.fhir.us.davinci-dtr#2.0.1', 'hl7.fhir.us.davinci-cdex#2.0.0', 'hl7.fhir.us.davinci-crd#2.0.1')
+      igs('hl7.fhir.us.davinci-dtr#2.0.1', 'hl7.fhir.us.davinci-pas#2.0.1', 'hl7.fhir.us.davinci-crd#2.0.1')
 
       exclude_message do |message|
         message.message.match?(/\A\S+: \S+: URL value '.*' does not resolve/)

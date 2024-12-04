@@ -5,15 +5,15 @@ require_relative 'task/task_update'
 
 module DaVinciDTRTestKit
   class TaskGroup < Inferno::TestGroup
-    title 'CDex Task Tests'
-    short_description 'Verify support for the server capabilities required by the CDex Task Profile'
+    title 'PAS Task Tests'
+    short_description 'Verify support for the server capabilities required by the PAS Task Profile'
     description %(
       # Background
 
-    The CDex Task sequence verifies that the system under test is
+    The PAS Task sequence verifies that the system under test is
     able to provide correct responses for Task queries. These queries
-    must contain resources conforming to the CDex Task Profile as
-    specified in the DaVinci Clinical Data Exchange (CDex) v2.0.0
+    must contain resources conforming to the PAS Task Profile as
+    specified in the DaVinci Prior Authorization Support (PAS) v2.0.1
     Implementation Guide.
 
     # Testing Methodology
@@ -24,7 +24,7 @@ module DaVinciDTRTestKit
 
     ## Profile Validation
     Each resource returned from the first read is expected to conform to
-    the [CDex Task Profile](http://hl7.org/fhir/us/davinci-cdex/StructureDefinition/cdex-task-attachment-request). Each
+    the [PAS Task Profile](http://hl7.org/fhir/us/davinci-pas/StructureDefinition/profile-task). Each
     element is checked against terminology binding and cardinality requirements.
 
     ## Create
