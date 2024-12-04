@@ -16,12 +16,12 @@ module DaVinciDTRTestKit
 
     # Testing Methodology
     ## Read
-    This test sequence will first perform the required read associated
-    with this resource. The server SHOULD be capable of returning a
+    First, Inferno will attempt to read each NutritionOrder resource id provided in
+    the NutritionOrder ids input. The server SHOULD be capable of returning a
     NutritionOrder resource using the read interaction.
 
     ## Profile Validation
-    Each resource returned from the first read is expected to conform to
+    Each resource returned from the read step SHALL to
     the [CRD NutritionOrder Profile](http://hl7.org/fhir/us/davinci-crd/StructureDefinition/profile-nutritionorder).
     Each element is checked against terminology binding and cardinality requirements.
 

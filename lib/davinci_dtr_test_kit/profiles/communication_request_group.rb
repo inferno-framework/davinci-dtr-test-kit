@@ -16,12 +16,12 @@ module DaVinciDTRTestKit
 
     # Testing Methodology
     ## Read
-    This test sequence will first perform the required read associated
-    with this resource. The server SHOULD be capable of returning a
+    First, Inferno will attempt to read each CommunicationRequest resource id provided in
+    the CommunicationRequest ids input. The server SHOULD be capable of returning a
     CommunicationRequest resource using the read interaction.
 
     ## Profile Validation
-    Each resource returned from the first read is expected to conform to
+    Each resource returned from the read step SHALL conform to
     the [CRD CommunicationRequest Profile](http://hl7.org/fhir/us/davinci-crd/StructureDefinition/profile-communicationrequest).
     Each element is checked against terminology binding and cardinality requirements.
 

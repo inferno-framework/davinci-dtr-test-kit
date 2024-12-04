@@ -18,12 +18,12 @@ module DaVinciDTRTestKit
 
     # Testing Methodology
     ## Read
-    This test sequence will first perform the required read associated
-    with this resource. The server SHOULD be capable of returning a
+    First, Inferno will attempt to read each Task resource id provided in
+    the Task ids input. The server SHOULD be capable of returning a
     Task resource using the read interaction.
 
     ## Profile Validation
-    Each resource returned from the first read is expected to conform to
+    Each resource returned from the read step SHALL conform to
     the [PAS Task Profile](http://hl7.org/fhir/us/davinci-pas/StructureDefinition/profile-task). Each
     element is checked against terminology binding and cardinality requirements.
 
