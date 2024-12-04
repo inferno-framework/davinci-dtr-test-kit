@@ -1,6 +1,7 @@
 module DaVinciDTRTestKit
   module CreateTest
     def perform_create_test(create_resources, resource_type)
+      skip_if(create_resources.blank?, 'No resources to create provided, skipping test.')
       assert_valid_json(create_resources)
       create_resources_list = JSON.parse(create_resources)
       skip_if(!create_resources_list.is_a?(Array), 'Resources to create not inputted in list format, skipping test.')

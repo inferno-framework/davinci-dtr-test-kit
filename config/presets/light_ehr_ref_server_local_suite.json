@@ -1,6 +1,6 @@
 {
-  "title": "Inferno Reference Server",
-  "id": "smart_stu2_reference_server",
+  "title": "Inferno Reference Server (Local)",
+  "id": "light_ehr_ref_server_local",
   "test_suite_id": "dtr_light_ehr",
   "inputs": [
     {

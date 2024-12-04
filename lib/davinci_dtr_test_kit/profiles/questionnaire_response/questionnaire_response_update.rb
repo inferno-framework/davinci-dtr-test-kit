@@ -8,10 +8,12 @@ module DaVinciDTRTestKit
     description 'A server SHALL support the QuestionnaireResponse update interaction'
 
     id :questionnaire_response_update
+    optional
     input :update_questionnaire_resources,
           type: 'textarea',
           description:
-          'Provide a list of QuestionnaireResponse resources to update. e.g., [json_resource_1, json_resource_2]'
+          'Provide a list of QuestionnaireResponse resources to update. e.g., [json_resource_1, json_resource_2]',
+          optional: true
 
     def resource_type
       'QuestionnaireResponse'
