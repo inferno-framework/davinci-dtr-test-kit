@@ -8,7 +8,9 @@ require_relative 'client_groups/dinner_adaptive/dtr_smart_app_questionnaire_work
 require_relative 'endpoints/mock_authorization/handlers'
 require_relative 'endpoints/mock_authorization/authorize_endpoint'
 require_relative 'endpoints/mock_authorization/token_endpoint'
-require_relative 'mock_payer'
+require_relative 'endpoints/mock_payer/questionnaire_package_endpoint'
+require_relative 'endpoints/mock_payer/next_question_endpoint'
+require_relative 'mock_auth_server'
 require_relative 'mock_ehr'
 require_relative 'version'
 
@@ -16,7 +18,6 @@ module DaVinciDTRTestKit
   class DTRSmartAppSuite < Inferno::TestSuite
     extend MockAuthServer
     extend MockEHR
-    extend MockPayer
 
     id :dtr_smart_app
     title 'Da Vinci DTR SMART App Test Suite'
@@ -72,20 +73,8 @@ module DaVinciDTRTestKit
     suite_endpoint :post, EHR_AUTHORIZE_PATH, MockAuthorization::AuthorizeEndpoint
     suite_endpoint :post, EHR_TOKEN_PATH, MockAuthorization::TokenEndpoint
 
-    record_response_route :post, PAYER_TOKEN_PATH, 'dtr_smart_app_payer_token',
-                          method(:payer_token_response) do |request|
-      DTRSmartAppSuite.extract_client_id_from_client_assertion(request)
-    end
-
-    record_response_route :post, QUESTIONNAIRE_PACKAGE_PATH, QUESTIONNAIRE_PACKAGE_TAG,
-                          method(:questionnaire_package_response), resumes: ->(_) { false } do |request|
-      DTRSmartAppSuite.extract_client_id_from_bearer_token(request)
-    end
-
-    record_response_route :post, NEXT_PATH, method(:next_request_tag), method(:client_questionnaire_next_response),
-                          resumes: method(:test_resumes?) do |request|
-      DTRSmartAppSuite.extract_client_id_from_bearer_token(request)
-    end
+    suite_endpoint :post, QUESTIONNAIRE_PACKAGE_PATH, MockPayer::QuestionnairePackageEndpoint
+    suite_endpoint :post, NEXT_PATH, MockPayer::NextQuestionEndpoint
 
     record_response_route :post, QUESTIONNAIRE_RESPONSE_PATH, 'dtr_smart_app_questionnaire_response',
                           method(:questionnaire_response_response) do |request|

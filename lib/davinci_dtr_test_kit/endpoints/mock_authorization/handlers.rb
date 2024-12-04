@@ -1,5 +1,5 @@
 require_relative '../../urls'
-require_relative 'constants'
+require_relative 'common'
 
 module DaVinciDTRTestKit
   module MockAuthorization
