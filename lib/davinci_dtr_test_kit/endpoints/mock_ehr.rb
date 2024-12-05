@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module DaVinciDTRTestKit
   module MockEHR
     RESOURCE_SERVER_BASE = ENV.fetch('FHIR_REFERENCE_SERVER')

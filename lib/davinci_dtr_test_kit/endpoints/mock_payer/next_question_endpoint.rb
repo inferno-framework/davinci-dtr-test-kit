@@ -149,7 +149,8 @@ module DaVinciDTRTestKit
         # LinkId = 3.1 for the What would you like for dinner? question
         path = "item.where(linkId = '3').item.where(linkId = '3.1').answer.where(value is Coding).value.code"
         eval_result = evaluate_fhirpath(questionnaire_response, path)
-        eval_result.first&.dig('element')&.parameterize&.underscore
+        elem = eval_result.first&.dig('element')
+        elem&.parameterize&.underscore
       end
 
       # Wrapper around evaluator call. The SuiteEndpoint isn't a runnable, so we just instantiate a dummy runnable
