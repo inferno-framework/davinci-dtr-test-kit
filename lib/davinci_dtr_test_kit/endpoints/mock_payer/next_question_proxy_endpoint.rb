@@ -20,10 +20,10 @@ module DaVinciDTRTestKit
         client.default_json
         client.set_bearer_token(credentials_input.access_token) if credentials_input.access_token
         payer_response = client.send(:post, '/Questionnaire/$next-question', JSON.parse(request.body.string),
-                                     { 'Content-Type' => 'application/json' })
+                                     { 'Content-Type' => 'application/fhir+json' })
 
         response.status = 200
-        response.format = :json
+        response.format = 'application/fhir+json'
         response.headers['Access-Control-Allow-Origin'] = '*'
         response.body = payer_response.response[:body].to_s
       end

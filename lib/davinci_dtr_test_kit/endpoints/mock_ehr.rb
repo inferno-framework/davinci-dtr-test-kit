@@ -16,7 +16,7 @@ module DaVinciDTRTestKit
     def metadata(_env)
       cs = resource_server_client.capability_statement
       if cs.present?
-        [200, { 'Content-Type' => 'application/json', 'Access-Control-Allow-Origin' => '*' }, [cs.to_json]]
+        [200, { 'Content-Type' => 'application/fhir+json', 'Access-Control-Allow-Origin' => '*' }, [cs.to_json]]
       else
         [500, { 'Access-Control-Allow-Origin' => '*' }, ['Unexpected error occurred while fetching metadata']]
       end

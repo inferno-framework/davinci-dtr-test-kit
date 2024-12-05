@@ -18,7 +18,7 @@ module DaVinciDTRTestKit
           response.headers['Location'] = redirect_uri
         else
           response.status = 400
-          response.format = :json
+          response.format = 'application/fhir+json'
           response.body = FHIR::OperationOutcome.new(
             issue: FHIR::OperationOutcome::Issue.new(severity: 'fatal', code: 'required',
                                                      details: FHIR::CodeableConcept.new(

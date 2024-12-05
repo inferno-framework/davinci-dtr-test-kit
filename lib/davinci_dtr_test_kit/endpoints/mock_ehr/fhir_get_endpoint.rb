@@ -12,7 +12,7 @@ module DaVinciDTRTestKit
 
       def make_response
         fhir_class, id = fhir_class_and_id_from_url(request.url)
-        response.format = :json
+        response.format = 'application/fhir+json'
         response.headers['Access-Control-Allow-Origin'] = '*'
 
         if fhir_class.nil?

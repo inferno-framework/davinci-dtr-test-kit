@@ -17,7 +17,7 @@ module DaVinciDTRTestKit
 
       def make_response
         response.status = 200
-        response.format = :json
+        response.format = 'application/fhir+json'
         response.headers['Access-Control-Allow-Origin'] = '*'
         response.body = build_questionnaire_next_response.to_json
       end
