@@ -14,8 +14,8 @@ module DaVinciDTRTestKit
 
     The DTR QuestionnaireResponse sequence verifies that the system under test is
     able to provide correct responses for QuestionnaireResponse queries. These queries
-    must contain resources conforming to the DTR QuestionnaireResponse Profile as
-    specified in the DaVinci Documentation Templates and Rules (DTR) v2.0.1
+    must return resources conforming to the [DTR QuestionnaireResponse Profile](http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/dtr-questionnaireresponse)
+    as specified in the DaVinci Documentation Templates and Rules (DTR) v2.0.1
     Implementation Guide.
 
     # Testing Methodology
@@ -24,12 +24,11 @@ module DaVinciDTRTestKit
     with this resource. This sequence will perform searches with the
     following parameters:
 
-    * patient + context
+    * patient
 
     ### Search Parameters
-    The search step uses the selected patient(s) from the prior launch
-    sequence. Any subsequent searches will look for its parameter values
-    from the results of the search step. For example, the `identifier`
+    The first search uses the patient(s) from the patient_ids input. Any subsequent searches will look for its parameter
+    values from the results of the first search. For example, the `identifier`
     search in the patient sequence is performed by looking for an existing
     `Patient.identifier` from any of the resources returned in the `_id`
     search. If a value cannot be found this way, the search is skipped.
@@ -44,9 +43,8 @@ module DaVinciDTRTestKit
     patient.
 
     ## Read
-    This test sequence will first perform the required read associated
-    with this resource. The server SHALL be capable of returning a
-    QuestionnaireResponse resource using the read interaction.
+    The id of each resource returned from the first search is then used to verify that the system under test is able to
+    return the correct QuestionnaireResponse resource using the read interaction.
 
     ## Profile Validation
     Each resource returned from the read step SHALL conform to
@@ -55,12 +53,12 @@ module DaVinciDTRTestKit
 
     ## Create
     This test sequence will perform create interactions with the provided json
-    QuestionnaireResponse resources. The server SHALL be capable of creating a
+    QuestionnaireResponse resources. The server SHOULD be capable of creating a
     QuestionnaireResponse resource using the create interaction.
 
     ## Update
     This test sequence will perform update interactions with the provided json
-    QuestionnaireResponse resources. The server SHALL be capable of creating a
+    QuestionnaireResponse resources. The server SHOULD be capable of creating a
     QuestionnaireResponse resource using the update interaction.
           )
     id :questionnaire_response_group

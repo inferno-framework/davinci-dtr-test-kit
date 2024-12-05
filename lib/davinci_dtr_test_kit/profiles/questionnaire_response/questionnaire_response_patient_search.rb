@@ -14,7 +14,7 @@ the form `patient=[id]` as well as `patient=Patient/[id]`. The two
 different forms are expected to return the same number of results. US
 Core requires that both forms are supported by US Core responders.
 
-Because this is the search step of the sequence, resources in the
+Because this is the first search of the sequence, resources in the
 response will be used for subsequent tests.
 
 Additionally, this test will check that GET and POST search methods
