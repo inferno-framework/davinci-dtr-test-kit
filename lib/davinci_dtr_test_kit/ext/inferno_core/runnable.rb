@@ -1,5 +1,3 @@
-require_relative 'record_response_route'
-
 module Inferno
   module DSL
     module Runnable

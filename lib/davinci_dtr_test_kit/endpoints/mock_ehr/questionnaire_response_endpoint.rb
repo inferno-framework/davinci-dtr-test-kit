@@ -11,7 +11,7 @@ module DaVinciDTRTestKit
         response.status = 201
         response.format = :json
         response['Access-Control-Allow-Origin'] = '*'
-        response.body = request.body
+        response.body = request.body.string
       end
 
       def update_result
