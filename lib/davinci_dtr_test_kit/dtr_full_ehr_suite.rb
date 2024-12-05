@@ -1,6 +1,4 @@
 require_relative 'ext/inferno_core/runnable'
-require_relative 'ext/inferno_core/record_response_route'
-require_relative 'ext/inferno_core/request'
 require_relative 'client_groups/dinner_static/dtr_full_ehr_questionnaire_workflow_group'
 require_relative 'client_groups/dinner_adaptive/dtr_full_ehr_adaptive_dinner_questionnaire_workflow_group'
 require_relative 'auth_groups/oauth2_authentication_group'

@@ -1,6 +1,4 @@
 require_relative 'ext/inferno_core/runnable'
-require_relative 'ext/inferno_core/record_response_route'
-require_relative 'ext/inferno_core/request'
 require_relative 'payer_server_groups/payer_server_static_group'
 require_relative 'payer_server_groups/payer_server_adaptive_group'
 require_relative 'tags'
