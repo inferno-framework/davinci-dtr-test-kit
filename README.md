@@ -81,7 +81,7 @@ You can run the DTR test kit via the [ONC Inferno](https://inferno.healthit.gov/
 - In the terminal, run `run.sh`.
 - Use a web browser to navigate to `http://localhost`.
 
-## FHIR Server Simulation for the DTR SMART App Suite
+## FHIR Server Simulation for the DTR SMART App Suite and DTR Light EHR Suite Demonstration
 
 The DTR SMART App test suite needs to be able to return responses to FHIR read and search APIs.
 These responses can be complex and so the suite relies on a full FHIR server to provide
@@ -91,10 +91,12 @@ with the [Inferno Reference Server](https://github.com/inferno-framework/inferno
 - loaded with [patient pat015](https://github.com/inferno-framework/inferno-reference-server/blob/main/resources/dtr_bundle_patient_pat015.json)
 - accepting bearer token `SAMPLE_TOKEN` for read access.
 
+This same DTR-specific patient file in the Inferno Reference Server can be used to demonstrate the DTR Light EHR suite capabilities in the absence of a DTR Light EHR implementation.
+
 ### Simulation Server Configuration For Local Test Kit Execution
 
 The test kit can be configured to point to either a local instance of the reference server or
-to a public instance. The location of the The following are valid configuration approaches:
+to a public instance. The location of the following are valid configuration approaches:
 
 1. Point to a public instance of the Inferno reference server at either
    `https://inferno.healthit.gov/reference-server/r4/` or
