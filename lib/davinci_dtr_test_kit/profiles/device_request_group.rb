@@ -10,9 +10,7 @@ module DaVinciDTRTestKit
 
     The CRD DeviceRequest sequence verifies that the system under test is
     able to provide correct responses for DeviceRequest queries. These queries
-    must return resources conforming to the [CRD DeviceRequest Profile](http://hl7.org/fhir/us/davinci-crd/StructureDefinition/profile-devicerequest)
-    as specified in the DaVinci Coverage Requirements Discovery (CRD) v2.0.1
-    Implementation Guide.
+    must return resources conforming to the [CRD DeviceRequest Profile](http://hl7.org/fhir/us/davinci-crd/StructureDefinition/profile-devicerequest).
 
     # Testing Methodology
     ## Read

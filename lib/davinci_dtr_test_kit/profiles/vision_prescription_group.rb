@@ -10,9 +10,7 @@ module DaVinciDTRTestKit
 
     The CRD VisionPrescription sequence verifies that the system under test is
     able to provide correct responses for VisionPrescription queries. These queries
-    must return resources conforming to the [CRD VisionPrescription Profile](http://hl7.org/fhir/us/davinci-crd/StructureDefinition/profile-visionprescription)
-    as specified in the DaVinci Coverage Requirements Discovery (CRD) v2.0.1
-    Implementation Guide.
+    must return resources conforming to the [CRD VisionPrescription Profile](http://hl7.org/fhir/us/davinci-crd/StructureDefinition/profile-visionprescription).
 
     # Testing Methodology
     ## Read

@@ -10,9 +10,7 @@ module DaVinciDTRTestKit
 
     The CRD MedicationRequest sequence verifies that the system under test is
     able to provide correct responses for MedicationRequest queries. These queries
-    must return resources conforming to the [CRD MedicationRequest Profile](http://hl7.org/fhir/us/davinci-crd/StructureDefinition/profile-medicationrequest)
-    as specified in the DaVinci Coverage Requirements Discovery (CRD) v2.0.1
-    Implementation Guide.
+    must return resources conforming to the [CRD MedicationRequest Profile](http://hl7.org/fhir/us/davinci-crd/StructureDefinition/profile-medicationrequest).
 
     # Testing Methodology
     ## Read

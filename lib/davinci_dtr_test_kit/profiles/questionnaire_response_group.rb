@@ -14,9 +14,7 @@ module DaVinciDTRTestKit
 
     The DTR QuestionnaireResponse sequence verifies that the system under test is
     able to provide correct responses for QuestionnaireResponse queries. These queries
-    must return resources conforming to the [DTR QuestionnaireResponse Profile](http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/dtr-questionnaireresponse)
-    as specified in the DaVinci Documentation Templates and Rules (DTR) v2.0.1
-    Implementation Guide.
+    must return resources conforming to the [DTR QuestionnaireResponse Profile](http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/dtr-questionnaireresponse).
 
     # Testing Methodology
     ## Searching

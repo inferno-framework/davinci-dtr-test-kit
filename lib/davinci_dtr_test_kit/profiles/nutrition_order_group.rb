@@ -10,9 +10,7 @@ module DaVinciDTRTestKit
 
     The CRD NutritionOrder sequence verifies that the system under test is
     able to provide correct responses for NutritionOrder queries. These queries
-    must return resources conforming to the [CRD NutritionOrder Profile](http://hl7.org/fhir/us/davinci-crd/StructureDefinition/profile-nutritionorder)
-    as specified in the DaVinci Coverage Requirements Discovery (CRD) v2.0.1
-    Implementation Guide.
+    must return resources conforming to the [CRD NutritionOrder Profile](http://hl7.org/fhir/us/davinci-crd/StructureDefinition/profile-nutritionorder).
 
     # Testing Methodology
     ## Read
