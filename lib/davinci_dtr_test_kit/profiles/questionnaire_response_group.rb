@@ -12,52 +12,46 @@ module DaVinciDTRTestKit
     description %(
       # Background
 
-    The DTR QuestionnaireResponse sequence verifies that the system under test is
-    able to provide correct responses for QuestionnaireResponse queries. These queries
-    must return resources conforming to the [DTR QuestionnaireResponse Profile](http://hl7.org/fhir/us/davinci-dtr/STU2/StructureDefinition-dtr-questionnaireresponse.html).
+    The DTR QuestionnaireResponse sequences verifies that the system under test is able to create and update
+    QuestionnaireResponse instances and provide correct responses for QuestionnaireResponse queries. These queries must
+    return resources conforming to the [DTR QuestionnaireResponse Profile](http://hl7.org/fhir/us/davinci-dtr/STU2/StructureDefinition-dtr-questionnaireresponse.html).
 
     # Testing Methodology
     ## Searching
-    This test sequence will first perform each required search associated
-    with this resource. This sequence will perform searches with the
-    following parameters:
+    This test sequence will first perform each required search associated with this resource. This sequence will perform
+    searches with the following parameters:
 
-    * patient
+    * `patient`
+    * `context`
 
     ### Search Parameters
-    The first search uses the patient(s) from the Patient IDs input. Any subsequent searches will look for its parameter
-    values from the results of the first search. For example, the `identifier`
-    search in the patient sequence is performed by looking for an existing
-    `Patient.identifier` from any of the resources returned in the `_id`
-    search. If a value cannot be found this way, the search is skipped.
+    The first search uses the patient(s) from the *Patient IDs* input. Subsequent searches will look for its parameter
+    values from the results of the first search. For example, the `context` search in this sequence is performed by
+    looking for an existing `context` extension from any of the resources returned in the `patient` search. If a value
+    cannot be found this way, the search is skipped.
 
     ### Search Validation
-    Inferno will retrieve up to the first 20 bundle pages of the reply for
-    QuestionnaireResponse resources and save them for subsequent tests. Each of
-    these resources is then checked to see if it matches the searched
-    parameters in accordance with [FHIR search
-    guidelines](https://www.hl7.org/fhir/search.html). The test will fail,
-    for example, if a Patient search for `gender=male` returns a `female`
-    patient.
+    Inferno will retrieve up to the first 20 bundle pages of the reply for QuestionnaireResponse resources and save them
+    for subsequent tests. Each of these resources is then checked to see if it matches the searched parameters in
+    accordance with [FHIR search guidelines](https://www.hl7.org/fhir/search.html). The test will fail, for example, if
+    a search for `context=Coverage/cov015` returns a QuestionnaireResponse without a link to Coverage `cov015` in the
+    `context` extension.
 
     ## Read
-    The id of each resource returned from the first search is then used to verify that the system under test is able to
+    The ids of each resource returned from the searches are then used to verify that the system under test is able to
     return the correct QuestionnaireResponse resource using the read interaction.
 
     ## Profile Validation
-    Each resource returned from the read step SHALL conform to
-    the [DTR QuestionnaireResponse Profile](http://hl7.org/fhir/us/davinci-dtr/STU2/StructureDefinition-dtr-questionnaireresponse.html).
+    Each resource returned from the search step SHALL conform to the [DTR QuestionnaireResponse Profile](http://hl7.org/fhir/us/davinci-dtr/STU2/StructureDefinition-dtr-questionnaireresponse.html).
     Each element is checked against terminology binding and cardinality requirements.
 
     ## Create
-    This test sequence will perform create interactions with the provided json
-    QuestionnaireResponse resources. The server SHOULD be capable of creating a
-    QuestionnaireResponse resource using the create interaction.
+    This test sequence will perform create interactions with the provided json QuestionnaireResponse resources. The
+    server SHALL be capable of creating a QuestionnaireResponse resource using the create interaction.
 
     ## Update
-    This test sequence will perform update interactions with the provided json
-    QuestionnaireResponse resources. The server SHOULD be capable of creating a
-    QuestionnaireResponse resource using the update interaction.
+    This test sequence will perform update interactions with the provided json QuestionnaireResponse resources. The
+    server SHALL be capable of creating a QuestionnaireResponse resource using the update interaction.
           )
     id :questionnaire_response_group
     run_as_group
