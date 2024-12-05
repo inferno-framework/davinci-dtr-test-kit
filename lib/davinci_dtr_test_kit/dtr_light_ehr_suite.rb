@@ -1,6 +1,3 @@
-require_relative 'ext/inferno_core/runnable'
-require_relative 'ext/inferno_core/record_response_route'
-require_relative 'ext/inferno_core/request'
 require 'us_core_test_kit'
 require 'tls_test_kit'
 require_relative 'version'

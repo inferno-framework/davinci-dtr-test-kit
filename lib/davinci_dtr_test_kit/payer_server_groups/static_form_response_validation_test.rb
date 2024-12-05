@@ -32,7 +32,8 @@ module DaVinciDTRTestKit
                              headers: { 'Content-Type': 'application/json' })
             end
 
-      assert_response_status([200, 201], response: request.response)
+      skip_if req.nil?, 'No request resource received from the client.'
+      assert_response_status([200, 201], response: req.response)
 
       resource = FHIR.from_contents(req.response_body)
       if resource&.resourceType == 'Parameters'
