@@ -49,7 +49,7 @@
     {
       "name": "communication_request_ids",
       "type": "text",
-      "value": "communicationrequest-example1"
+      "value": "comreq015"
     },
     {
       "name": "device_request_ids",
@@ -64,12 +64,12 @@
     {
       "name": "medication_request_ids",
       "type": "text",
-      "value": "medicationrequest-example1"
+      "value": "medreq015"
     },
     {
       "name": "nutrition_order_ids",
       "type": "text",
-      "value": "nutritionorder-example1"
+      "value": "nutord015"
     },
     {
       "name": "service_request_ids",
@@ -79,7 +79,7 @@
     {
       "name": "task_ids",
       "type": "text",
-      "value": "AdditionalInformationTaskExample"
+      "value": "tas015"
     },
     {
       "name": "create_questionnaire_resources",
@@ -94,17 +94,17 @@
     {
       "name": "create_task_resources",
       "type": "textarea",
-      "value": "[{\"resourceType\":\"Task\",\"id\":\"AdditionalInformationTaskExample-2\",\"meta\":{\"profile\":[\"http://hl7.org/fhir/us/davinci-pas/StructureDefinition/profile-task\"]},\"identifier\":[{\"system\":\"http://inferno.healthit.gov/reference-server/r4/ITEM_TRACE_NUMBER\",\"value\":\"1122334\"}],\"status\":\"requested\",\"intent\":\"order\",\"code\":{\"coding\":[{\"system\":\"http://hl7.org/fhir/us/davinci-pas/CodeSystem/PASTempCodes\",\"code\":\"attachment-request-code\"}]},\"for\":{\"reference\":\"Patient/pat015\"},\"requester\":{\"identifier\":{\"system\":\"http://hl7.org/fhir/sid/us-npi\",\"value\":\"789312\"}},\"owner\":{\"identifier\":{\"system\":\"http://hl7.org/fhir/sid/us-npi\",\"value\":\"789312\"}},\"reasonCode\":{\"coding\":[{\"system\":\"http://hl7.org/fhir/us/davinci-pas/CodeSystem/PASTempCodes\",\"code\":\"priorAuthorization\"}]},\"reasonReference\":{\"reference\":\"Claim/MedicalServicesAuthorizationExample\"},\"input\":[{\"type\":{\"coding\":[{\"system\":\"http://hl7.org/fhir/us/davinci-pas/CodeSystem/PASTempCodes\",\"code\":\"payer-url\"}]},\"valueUrl\":\"http://inferno.healthit.gov/reference-server/r4/payerURL\"},{\"extension\":[{\"url\":\"http://hl7.org/fhir/us/davinci-pas/StructureDefinition/extension-paLineNumber\",\"valueInteger\":1}],\"type\":{\"coding\":[{\"system\":\"http://hl7.org/fhir/us/davinci-pas/CodeSystem/PASTempCodes\",\"code\":\"attachments-needed\"}]},\"valueCodeableConcept\":{\"coding\":[{\"system\":\"http://loinc.org\",\"code\":\"26443-2\"}]}}]}]"
+      "value": "[{\"resourceType\":\"Task\",\"id\":\"tas0152\",\"meta\":{\"profile\":[\"http://hl7.org/fhir/us/davinci-pas/StructureDefinition/profile-task\"]},\"identifier\":[{\"system\":\"http://inferno.healthit.gov/reference-server/r4/ITEM_TRACE_NUMBER\",\"value\":\"1122334\"}],\"status\":\"requested\",\"intent\":\"order\",\"code\":{\"coding\":[{\"system\":\"http://hl7.org/fhir/us/davinci-pas/CodeSystem/PASTempCodes\",\"code\":\"attachment-request-code\"}]},\"for\":{\"reference\":\"Patient/pat015\"},\"requester\":{\"identifier\":{\"system\":\"http://hl7.org/fhir/sid/us-npi\",\"value\":\"789312\"}},\"owner\":{\"identifier\":{\"system\":\"http://hl7.org/fhir/sid/us-npi\",\"value\":\"789312\"}},\"reasonCode\":{\"coding\":[{\"system\":\"http://hl7.org/fhir/us/davinci-pas/CodeSystem/PASTempCodes\",\"code\":\"priorAuthorization\"}]},\"reasonReference\":{\"reference\":\"Claim/cla015\"},\"input\":[{\"type\":{\"coding\":[{\"system\":\"http://hl7.org/fhir/us/davinci-pas/CodeSystem/PASTempCodes\",\"code\":\"payer-url\"}]},\"valueUrl\":\"http://inferno.healthit.gov/reference-server/r4/payerURL\"},{\"extension\":[{\"url\":\"http://hl7.org/fhir/us/davinci-pas/StructureDefinition/extension-paLineNumber\",\"valueInteger\":1}],\"type\":{\"coding\":[{\"system\":\"http://hl7.org/fhir/us/davinci-pas/CodeSystem/PASTempCodes\",\"code\":\"attachments-needed\"}]},\"valueCodeableConcept\":{\"coding\":[{\"system\":\"http://loinc.org\",\"code\":\"26443-2\"}]}}]}]"
     },
     {
       "name": "update_task_resources",
       "type": "textarea",
-      "value": "[{\"resourceType\":\"Task\",\"id\":\"AdditionalInformationTaskExample-2\",\"meta\":{\"profile\":[\"http://hl7.org/fhir/us/davinci-pas/StructureDefinition/profile-task\"]},\"identifier\":[{\"system\":\"http://inferno.healthit.gov/reference-server/r4/ITEM_TRACE_NUMBER\",\"value\":\"1122335\"}],\"status\":\"requested\",\"intent\":\"order\",\"code\":{\"coding\":[{\"system\":\"http://hl7.org/fhir/us/davinci-pas/CodeSystem/PASTempCodes\",\"code\":\"attachment-request-code\"}]},\"for\":{\"reference\":\"Patient/pat015\"},\"requester\":{\"identifier\":{\"system\":\"http://hl7.org/fhir/sid/us-npi\",\"value\":\"789312\"}},\"owner\":{\"identifier\":{\"system\":\"http://hl7.org/fhir/sid/us-npi\",\"value\":\"789312\"}},\"reasonCode\":{\"coding\":[{\"system\":\"http://hl7.org/fhir/us/davinci-pas/CodeSystem/PASTempCodes\",\"code\":\"priorAuthorization\"}]},\"reasonReference\":{\"reference\":\"Claim/MedicalServicesAuthorizationExample\"},\"input\":[{\"type\":{\"coding\":[{\"system\":\"http://hl7.org/fhir/us/davinci-pas/CodeSystem/PASTempCodes\",\"code\":\"payer-url\"}]},\"valueUrl\":\"http://inferno.healthit.gov/reference-server/r4/payerURL\"},{\"extension\":[{\"url\":\"http://hl7.org/fhir/us/davinci-pas/StructureDefinition/extension-paLineNumber\",\"valueInteger\":1}],\"type\":{\"coding\":[{\"system\":\"http://hl7.org/fhir/us/davinci-pas/CodeSystem/PASTempCodes\",\"code\":\"attachments-needed\"}]},\"valueCodeableConcept\":{\"coding\":[{\"system\":\"http://loinc.org\",\"code\":\"26443-2\"}]}}]}]"
+      "value": "[{\"resourceType\":\"Task\",\"id\":\"tas0152\",\"meta\":{\"profile\":[\"http://hl7.org/fhir/us/davinci-pas/StructureDefinition/profile-task\"]},\"identifier\":[{\"system\":\"http://inferno.healthit.gov/reference-server/r4/ITEM_TRACE_NUMBER\",\"value\":\"1122335\"}],\"status\":\"requested\",\"intent\":\"order\",\"code\":{\"coding\":[{\"system\":\"http://hl7.org/fhir/us/davinci-pas/CodeSystem/PASTempCodes\",\"code\":\"attachment-request-code\"}]},\"for\":{\"reference\":\"Patient/pat015\"},\"requester\":{\"identifier\":{\"system\":\"http://hl7.org/fhir/sid/us-npi\",\"value\":\"789312\"}},\"owner\":{\"identifier\":{\"system\":\"http://hl7.org/fhir/sid/us-npi\",\"value\":\"789312\"}},\"reasonCode\":{\"coding\":[{\"system\":\"http://hl7.org/fhir/us/davinci-pas/CodeSystem/PASTempCodes\",\"code\":\"priorAuthorization\"}]},\"reasonReference\":{\"reference\":\"Claim/cla015\"},\"input\":[{\"type\":{\"coding\":[{\"system\":\"http://hl7.org/fhir/us/davinci-pas/CodeSystem/PASTempCodes\",\"code\":\"payer-url\"}]},\"valueUrl\":\"http://inferno.healthit.gov/reference-server/r4/payerURL\"},{\"extension\":[{\"url\":\"http://hl7.org/fhir/us/davinci-pas/StructureDefinition/extension-paLineNumber\",\"valueInteger\":1}],\"type\":{\"coding\":[{\"system\":\"http://hl7.org/fhir/us/davinci-pas/CodeSystem/PASTempCodes\",\"code\":\"attachments-needed\"}]},\"valueCodeableConcept\":{\"coding\":[{\"system\":\"http://loinc.org\",\"code\":\"26443-2\"}]}}]}]"
     },
     {
       "name": "vision_prescription_ids",
       "type": "text",
-      "value": "visionprescription-example1,visionprescription-example2"
+      "value": "vispre0151,vispre0152"
     }
   ]
 }

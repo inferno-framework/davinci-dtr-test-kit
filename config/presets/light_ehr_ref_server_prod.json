@@ -1,5 +1,5 @@
 {
-  "title": "Inferno Reference Server (Production)",
+  "title": "Inferno Reference Server",
   "id": "light_ehr_ref_server_prod",
   "test_suite_id": "dtr_light_ehr",
   "inputs": [
@@ -49,7 +49,7 @@
     {
       "name": "communication_request_ids",
       "type": "text",
-      "value": "communicationrequest-example1"
+      "value": "comreq015"
     },
     {
       "name": "device_request_ids",
@@ -64,12 +64,12 @@
     {
       "name": "medication_request_ids",
       "type": "text",
-      "value": "medicationrequest-example1"
+      "value": "medreq015"
     },
     {
       "name": "nutrition_order_ids",
       "type": "text",
-      "value": "nutritionorder-example1"
+      "value": "nutord015"
     },
     {
       "name": "service_request_ids",
@@ -79,12 +79,12 @@
     {
       "name": "task_ids",
       "type": "text",
-      "value": "AdditionalInformationTaskExample"
+      "value": "tas015"
     },
     {
       "name": "vision_prescription_ids",
       "type": "text",
-      "value": "visionprescription-example1,visionprescription-example2"
+      "value": "vispre0151,vispre0152"
     }
   ]
 }
