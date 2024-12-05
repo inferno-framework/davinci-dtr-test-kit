@@ -11,6 +11,7 @@ module DaVinciDTRTestKit
     optional
     input :create_task_resources,
           type: 'textarea',
+          title: 'Create Task Resources',
           description:
           'Provide a list of Task resources to create. e.g., [json_resource_1, json_resource_2]',
           optional: true

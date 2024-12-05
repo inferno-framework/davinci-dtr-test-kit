@@ -27,9 +27,9 @@ module DaVinciDTRTestKit
     * patient + context
 
     ### Search Parameters
-    The first search uses the selected patient(s) from the prior launch
+    The search step uses the selected patient(s) from the prior launch
     sequence. Any subsequent searches will look for its parameter values
-    from the results of the first search. For example, the `identifier`
+    from the results of the search step. For example, the `identifier`
     search in the patient sequence is performed by looking for an existing
     `Patient.identifier` from any of the resources returned in the `_id`
     search. If a value cannot be found this way, the search is skipped.
@@ -49,7 +49,7 @@ module DaVinciDTRTestKit
     QuestionnaireResponse resource using the read interaction.
 
     ## Profile Validation
-    Each resource returned from the first read is expected to conform to
+    Each resource returned from the read step SHALL conform to
     the [DTR QuestionnaireResponse Profile](http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/dtr-questionnaireresponse).
     Each element is checked against terminology binding and cardinality requirements.
 

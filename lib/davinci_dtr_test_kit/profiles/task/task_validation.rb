@@ -6,7 +6,7 @@ module DaVinciDTRTestKit
 
     title 'Task resources returned during previous tests conform to the PAS Task'
     description %(
-This test verifies resources returned from the first read conform to
+This test verifies resources returned from the read step conform to
 the [PAS Task](http://hl7.org/fhir/us/davinci-pas/StructureDefinition/profile-task).
 Systems must demonstrate at least one valid example in order to pass this test.
 

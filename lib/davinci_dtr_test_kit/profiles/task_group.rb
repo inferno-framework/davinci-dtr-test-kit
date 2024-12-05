@@ -12,8 +12,8 @@ module DaVinciDTRTestKit
 
     The PAS Task sequence verifies that the system under test is
     able to provide correct responses for Task queries. These queries
-    must contain resources conforming to the PAS Task Profile as
-    specified in the DaVinci Prior Authorization Support (PAS) v2.0.1
+    must contain resources conforming to the [PAS Task Profile](http://hl7.org/fhir/us/davinci-pas/StructureDefinition/profile-task)
+    as specified in the DaVinci Prior Authorization Support (PAS) v2.0.1
     Implementation Guide.
 
     # Testing Methodology

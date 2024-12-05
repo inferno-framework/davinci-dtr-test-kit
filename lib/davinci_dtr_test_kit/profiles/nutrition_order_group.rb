@@ -21,7 +21,7 @@ module DaVinciDTRTestKit
     NutritionOrder resource using the read interaction.
 
     ## Profile Validation
-    Each resource returned from the read step SHALL to
+    Each resource returned from the read step SHALL conform to
     the [CRD NutritionOrder Profile](http://hl7.org/fhir/us/davinci-crd/StructureDefinition/profile-nutritionorder).
     Each element is checked against terminology binding and cardinality requirements.
 

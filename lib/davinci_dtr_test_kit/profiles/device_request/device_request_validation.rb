@@ -6,7 +6,7 @@ module DaVinciDTRTestKit
 
     title 'DeviceRequest resources returned during previous tests conform to the CRD DeviceRequest'
     description %(
-This test verifies resources returned from the first read conform to
+This test verifies resources returned from the read step conform to
 the [CRD DeviceRequest](https://hl7.org/fhir/us/davinci-crd/STU2/StructureDefinition-profile-devicerequest).
 Systems must demonstrate at least one valid example in order to pass this test.
 

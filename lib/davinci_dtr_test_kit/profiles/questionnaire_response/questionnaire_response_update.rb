@@ -11,6 +11,7 @@ module DaVinciDTRTestKit
     optional
     input :update_questionnaire_resources,
           type: 'textarea',
+          title: 'Update QuestionnaireResponse Resources',
           description:
           'Provide a list of QuestionnaireResponse resources to update. e.g., [json_resource_1, json_resource_2]',
           optional: true

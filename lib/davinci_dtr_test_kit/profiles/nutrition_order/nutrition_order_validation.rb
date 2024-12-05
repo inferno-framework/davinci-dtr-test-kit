@@ -6,7 +6,7 @@ module DaVinciDTRTestKit
 
     title 'NutritionOrder resources returned during previous tests conform to the CRD NutritionOrder'
     description %(
-This test verifies resources returned from the first read conform to
+This test verifies resources returned from the read step conform to
 the [CRD NutritionOrder](https://hl7.org/fhir/us/davinci-crd/STU2/StructureDefinition-profile-nutritionorder).
 Systems must demonstrate at least one valid example in order to pass this test.
 
