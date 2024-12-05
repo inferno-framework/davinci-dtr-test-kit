@@ -8,6 +8,11 @@ module DaVinciDTRTestKit
     description 'A server SHOULD support the DeviceRequest read interaction.'
 
     id :device_request_read
+    optional
+    input :device_request_ids,
+          title: 'Device Request IDs',
+          description: 'Comma separated list of DeviceRequest IDs',
+          optional: true
     output :device_request_resources
 
     def resource_type
@@ -17,7 +22,7 @@ module DaVinciDTRTestKit
     def device_request_id_list
       return [nil] unless respond_to? :device_request_ids
 
-      device_request_ids.split(',').map(&:strip)
+      device_request_ids&.split(',')&.map(&:strip)
     end
 
     run do

@@ -31,7 +31,8 @@ module DaVinciDTRTestKit
 
     input :nutrition_order_ids,
           title: 'Nutrition Order IDs',
-          description: 'Comma separated list of NutritionOrder IDs'
+          description: 'Comma separated list of NutritionOrder IDs',
+          optional: true
 
     test from: :nutrition_order_read
     test from: :nutrition_order_validation

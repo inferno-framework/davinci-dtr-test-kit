@@ -8,6 +8,7 @@ module DaVinciDTRTestKit
     description 'A server SHOULD support the CommunicationRequest read interaction.'
 
     id :communication_request_read
+    optional
     output :communication_request_resources
 
     def resource_type
@@ -17,7 +18,7 @@ module DaVinciDTRTestKit
     def communication_request_id_list
       return [nil] unless respond_to? :communication_request_ids
 
-      communication_request_ids.split(',').map(&:strip)
+      communication_request_ids&.split(',')&.map(&:strip)
     end
 
     run do

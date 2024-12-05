@@ -31,7 +31,8 @@ module DaVinciDTRTestKit
 
     input :communication_request_ids,
           title: 'Communication Request IDs',
-          description: 'Comma separated list of CommunicationRequest IDs'
+          description: 'Comma separated list of CommunicationRequest IDs',
+          optional: true
 
     test from: :communication_request_read
     test from: :communication_request_validation

@@ -19,7 +19,9 @@ fail if their code/system are not found in the valueset.
     )
 
     id :medication_request_validation
-    input :medication_request_resources
+    optional
+    input :medication_request_resources,
+          optional: true
 
     def resource_type
       'MedicationRequest'

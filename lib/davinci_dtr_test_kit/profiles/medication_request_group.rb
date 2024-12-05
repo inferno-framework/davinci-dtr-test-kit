@@ -31,7 +31,8 @@ module DaVinciDTRTestKit
 
     input :medication_request_ids,
           title: 'Medication Request IDs',
-          description: 'Comma separated list of MedicationRequest IDs'
+          description: 'Comma separated list of MedicationRequest IDs',
+          optional: true
 
     test from: :medication_request_read
     test from: :medication_request_validation

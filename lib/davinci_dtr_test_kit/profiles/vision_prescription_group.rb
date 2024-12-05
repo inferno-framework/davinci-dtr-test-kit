@@ -31,7 +31,8 @@ module DaVinciDTRTestKit
 
     input :vision_prescription_ids,
           title: 'Vision Prescription IDs',
-          description: 'Comma separated list of VisionPrescription IDs'
+          description: 'Comma separated list of VisionPrescription IDs',
+          optional: true
 
     test from: :vision_prescription_read
     test from: :vision_prescription_validation

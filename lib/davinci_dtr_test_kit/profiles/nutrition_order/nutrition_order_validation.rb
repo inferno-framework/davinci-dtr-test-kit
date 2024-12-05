@@ -19,7 +19,9 @@ fail if their code/system are not found in the valueset.
     )
 
     id :nutrition_order_validation
-    input :nutrition_order_resources
+    optional
+    input :nutrition_order_resources,
+          optional: true
 
     def resource_type
       'NutritionOrder'

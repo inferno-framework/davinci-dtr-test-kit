@@ -8,6 +8,7 @@ module DaVinciDTRTestKit
     description 'A server SHOULD support the MedicationRequest read interaction.'
 
     id :medication_request_read
+    optional
     output :medication_request_resources
 
     def resource_type
@@ -17,7 +18,7 @@ module DaVinciDTRTestKit
     def medication_request_id_list
       return [nil] unless respond_to? :medication_request_ids
 
-      medication_request_ids.split(',').map(&:strip)
+      medication_request_ids&.split(',')&.map(&:strip)
     end
 
     run do

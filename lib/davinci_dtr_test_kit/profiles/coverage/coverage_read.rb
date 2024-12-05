@@ -17,7 +17,7 @@ module DaVinciDTRTestKit
     def coverage_id_list
       return [nil] unless respond_to? :coverage_ids
 
-      coverage_ids.split(',').map(&:strip)
+      coverage_ids&.split(',')&.map(&:strip)
     end
 
     run do

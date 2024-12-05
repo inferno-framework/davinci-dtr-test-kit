@@ -31,7 +31,8 @@ module DaVinciDTRTestKit
 
     input :coverage_ids,
           title: 'Coverage IDs',
-          description: 'Comma separated list of Coverage IDs'
+          description: 'Comma separated list of Coverage IDs',
+          optional: true
 
     test from: :coverage_read
     test from: :coverage_validation

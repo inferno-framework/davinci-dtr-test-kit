@@ -19,7 +19,9 @@ fail if their code/system are not found in the valueset.
     )
 
     id :service_request_validation
-    input :service_request_resources
+    optional
+    input :service_request_resources,
+          optional: true
 
     def resource_type
       'ServiceRequest'

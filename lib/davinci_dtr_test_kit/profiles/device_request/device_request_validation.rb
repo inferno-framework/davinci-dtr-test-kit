@@ -19,7 +19,9 @@ fail if their code/system are not found in the valueset.
     )
 
     id :device_request_validation
-    input :device_request_resources
+    optional
+    input :device_request_resources,
+          optional: true
 
     def resource_type
       'DeviceRequest'

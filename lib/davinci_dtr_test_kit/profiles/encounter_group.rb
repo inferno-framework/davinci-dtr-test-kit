@@ -31,7 +31,8 @@ module DaVinciDTRTestKit
 
     input :encounter_ids,
           title: 'Encounter IDs',
-          description: 'Comma separated list of Encounter IDs'
+          description: 'Comma separated list of Encounter IDs',
+          optional: true
 
     test from: :encounter_read
     test from: :encounter_validation

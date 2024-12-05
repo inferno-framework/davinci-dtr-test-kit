@@ -19,7 +19,8 @@ fail if their code/system are not found in the valueset.
     )
 
     id :coverage_validation
-    input :coverage_resources
+    input :coverage_resources,
+          optional: true
 
     def resource_type
       'Coverage'

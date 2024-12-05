@@ -19,7 +19,9 @@ fail if their code/system are not found in the valueset.
     )
 
     id :encounter_validation
-    input :encounter_resources
+    optional
+    input :encounter_resources,
+          optional: true
 
     def resource_type
       'Encounter'

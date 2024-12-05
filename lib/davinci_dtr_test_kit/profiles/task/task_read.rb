@@ -8,6 +8,7 @@ module DaVinciDTRTestKit
     description 'A server SHOULD support the Task read interaction.'
 
     id :task_read
+    optional
     output :task_resources
 
     def resource_type
@@ -17,7 +18,7 @@ module DaVinciDTRTestKit
     def task_id_list
       return [nil] unless respond_to? :task_ids
 
-      task_ids.split(',').map(&:strip)
+      task_ids&.split(',')&.map(&:strip)
     end
 
     run do

@@ -1,7 +1,7 @@
 module DaVinciDTRTestKit
   module UpdateTest
     def perform_update_test(update_resources, resource_type)
-      skip_if(update_resources.blank?, 'No resources to update provided, skipping test.')
+      skip_if(update_resources.blank?, "No `#{resource_type}` resources to update provided, skipping test.")
       assert_valid_json(update_resources)
       update_resources_list = JSON.parse(update_resources)
       skip_if(!update_resources_list.is_a?(Array), 'Resources to update not inputted in list format, skipping test.')

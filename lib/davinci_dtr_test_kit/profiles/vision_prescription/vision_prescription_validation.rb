@@ -19,7 +19,9 @@ fail if their code/system are not found in the valueset.
     )
 
     id :vision_prescription_validation
-    input :vision_prescription_resources
+    optional
+    input :vision_prescription_resources,
+          optional: true
 
     def resource_type
       'VisionPrescription'

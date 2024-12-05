@@ -19,7 +19,9 @@ fail if their code/system are not found in the valueset.
     )
 
     id :communication_request_validation
-    input :communication_request_resources
+    optional
+    input :communication_request_resources,
+          optional: true
 
     def resource_type
       'CommunicationRequest'

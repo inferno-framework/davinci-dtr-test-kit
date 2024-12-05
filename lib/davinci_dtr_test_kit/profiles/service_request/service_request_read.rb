@@ -8,6 +8,7 @@ module DaVinciDTRTestKit
     description 'A server SHOULD support the ServiceRequest read interaction.'
 
     id :service_request_read
+    optional
     output :service_request_resources
 
     def resource_type
@@ -17,7 +18,7 @@ module DaVinciDTRTestKit
     def service_request_id_list
       return [nil] unless respond_to? :service_request_ids
 
-      service_request_ids.split(',').map(&:strip)
+      service_request_ids&.split(',')&.map(&:strip)
     end
 
     run do

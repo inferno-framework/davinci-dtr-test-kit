@@ -31,7 +31,8 @@ module DaVinciDTRTestKit
 
     input :service_request_ids,
           title: 'Service Request IDs',
-          description: 'Comma separated list of ServiceRequest IDs'
+          description: 'Comma separated list of ServiceRequest IDs',
+          optional: true
 
     test from: :service_request_read
     test from: :service_request_validation

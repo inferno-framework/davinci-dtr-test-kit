@@ -42,7 +42,8 @@ module DaVinciDTRTestKit
 
     input :task_ids,
           title: 'Task IDs',
-          description: 'Comma separated list of Task IDs'
+          description: 'Comma separated list of Task IDs',
+          optional: true
 
     test from: :task_read
     test from: :task_validation

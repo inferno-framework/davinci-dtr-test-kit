@@ -19,7 +19,9 @@ fail if their code/system are not found in the valueset.
     )
 
     id :task_validation
-    input :task_resources
+    optional
+    input :task_resources,
+          optional: true
 
     def resource_type
       'Task'
