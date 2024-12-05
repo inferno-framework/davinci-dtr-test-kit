@@ -17,7 +17,7 @@ module DaVinciDTRTestKit
       jwt&.first&.dig('inferno_client_id')
     end
 
-    def auth_server_jwks(_env)
+    def jwks(_env)
       response_body = {
         keys: [
           {

@@ -13,13 +13,10 @@ require_relative 'endpoints/mock_payer/next_question_endpoint'
 require_relative 'endpoints/mock_ehr'
 require_relative 'endpoints/mock_ehr/questionnaire_response_endpoint'
 require_relative 'endpoints/mock_ehr/fhir_get_endpoint'
-require_relative 'mock_auth_server'
 require_relative 'version'
 
 module DaVinciDTRTestKit
   class DTRSmartAppSuite < Inferno::TestSuite
-    extend MockAuthServer
-
     Inferno::Application['logger'].level = Logger::ERROR
     id :dtr_smart_app
     title 'Da Vinci DTR SMART App Test Suite'
@@ -58,36 +55,30 @@ module DaVinciDTRTestKit
     allow_cors QUESTIONNAIRE_PACKAGE_PATH, QUESTIONNAIRE_RESPONSE_PATH, FHIR_RESOURCE_PATH, FHIR_SEARCH_PATH,
                EHR_AUTHORIZE_PATH, EHR_TOKEN_PATH, JKWS_PATH, OPENID_CONFIG_PATH, NEXT_PATH
 
-    def self.test_resumes?(test)
-      !test.config.options[:accepts_multiple_requests]
-    end
-
-    def self.next_request_tag(test)
-      test.config.options[:next_tag]
-    end
-
-    route(:get, '/fhir/metadata', MockEHR.method(:metadata))
-
+    # Authorization server
     route(:get, SMART_CONFIG_PATH, MockAuthorization.method(:ehr_smart_config))
     route(:get, OPENID_CONFIG_PATH, MockAuthorization.method(:ehr_openid_config))
-    route(:get, JKWS_PATH, MockAuthorization.method(:auth_server_jwks))
+    route(:get, JKWS_PATH, MockAuthorization.method(:jwks))
     suite_endpoint :get, EHR_AUTHORIZE_PATH, MockAuthorization::AuthorizeEndpoint
     suite_endpoint :post, EHR_AUTHORIZE_PATH, MockAuthorization::AuthorizeEndpoint
     suite_endpoint :post, EHR_TOKEN_PATH, MockAuthorization::TokenEndpoint
 
+    # Payer
     suite_endpoint :post, QUESTIONNAIRE_PACKAGE_PATH, MockPayer::QuestionnairePackageEndpoint
     suite_endpoint :post, NEXT_PATH, MockPayer::NextQuestionEndpoint
 
+    # EHR
+    route(:get, '/fhir/metadata', MockEHR.method(:metadata))
     suite_endpoint :post, QUESTIONNAIRE_RESPONSE_PATH, MockEHR::QuestionnaireResponseEndpoint
     suite_endpoint :get, FHIR_RESOURCE_PATH, MockEHR::FHIRGetEndpoint
     suite_endpoint :get, FHIR_SEARCH_PATH, MockEHR::FHIRGetEndpoint
 
     resume_test_route :get, RESUME_PASS_PATH do |request|
-      DTRSmartAppSuite.extract_query_param_value(request)
+      request.query_parameters['client_id'] || request.query_parameters['token']
     end
 
     resume_test_route :get, RESUME_FAIL_PATH, result: 'fail' do |request|
-      DTRSmartAppSuite.extract_query_param_value(request)
+      request.query_parameters['client_id'] || request.query_parameters['token']
     end
 
     # TODO: Update based on SMART Launch changes. Do we even want to have this group now?

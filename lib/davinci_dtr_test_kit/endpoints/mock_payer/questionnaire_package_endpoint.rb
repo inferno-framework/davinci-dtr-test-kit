@@ -22,6 +22,10 @@ module DaVinciDTRTestKit
         response.body = build_questionnaire_package_response.to_json
       end
 
+      def update_result
+        results_repo.update_result(result.id, 'pass') unless test.config.options[:accepts_multiple_requests]
+      end
+
       private
 
       def build_questionnaire_package_response
