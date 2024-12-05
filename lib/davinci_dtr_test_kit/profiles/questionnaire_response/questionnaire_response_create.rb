@@ -8,7 +8,6 @@ module DaVinciDTRTestKit
     description 'A sever SHALL support the QuestionnaireResponse create interaction'
 
     id :questionnaire_response_create
-    optional
     input :create_questionnaire_resources,
           type: 'textarea',
           title: 'Create QuestionnaireResponse Resources',

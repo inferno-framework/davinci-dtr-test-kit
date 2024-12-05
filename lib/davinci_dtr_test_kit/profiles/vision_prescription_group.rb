@@ -10,17 +10,17 @@ module DaVinciDTRTestKit
 
     The CRD VisionPrescription sequence verifies that the system under test is
     able to provide correct responses for VisionPrescription queries. These queries
-    must return resources conforming to the [CRD VisionPrescription Profile](http://hl7.org/fhir/us/davinci-crd/StructureDefinition/profile-visionprescription).
+    must return resources conforming to the [CRD VisionPrescription Profile](https://hl7.org/fhir/us/davinci-crd/STU2/StructureDefinition-profile-visionprescription.html).
 
     # Testing Methodology
     ## Read
     First, Inferno will attempt to read each VisionPrescription resource id provided in
-    the VisionPrescription ids input. The server SHOULD be capable of returning a
+    the VisionPrescription IDs input. The server SHOULD be capable of returning a
     VisionPrescription resource using the read interaction.
 
     ## Profile Validation
     Each resource returned from the read step SHALL conform to
-    the [CRD VisionPrescription Profile](http://hl7.org/fhir/us/davinci-crd/StructureDefinition/profile-visionprescription).
+    the [CRD VisionPrescription Profile](https://hl7.org/fhir/us/davinci-crd/STU2/StructureDefinition-profile-visionprescription.html).
     Each element is checked against terminology binding and cardinality requirements.
 
     )

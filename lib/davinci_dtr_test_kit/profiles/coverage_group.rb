@@ -10,17 +10,17 @@ module DaVinciDTRTestKit
 
     The CRD Coverage sequence verifies that the system under test is
     able to provide correct responses for Coverage queries. These queries
-    must return resources conforming to the [CRD Coverage Profile](http://hl7.org/fhir/us/davinci-crd/StructureDefinition/profile-coverage).
+    must return resources conforming to the [CRD Coverage Profile](https://hl7.org/fhir/us/davinci-crd/STU2/StructureDefinition-profile-coverage.html).
 
     # Testing Methodology
     ## Read
     First, Inferno will attempt to read each Coverage resource id provided in
-    the Coverage ids input. The server SHALL be capable of returning a
+    the Coverage IDs input. The server SHALL be capable of returning a
     Coverage resource using the read interaction.
 
     ## Profile Validation
     Each resource returned from the read step SHALL conform to
-    the [CRD Coverage Profile](http://hl7.org/fhir/us/davinci-crd/StructureDefinition/profile-coverage).
+    the [CRD Coverage Profile](https://hl7.org/fhir/us/davinci-crd/STU2/StructureDefinition-profile-coverage.html).
     Each element is checked against terminology binding and cardinality requirements.
 
     )

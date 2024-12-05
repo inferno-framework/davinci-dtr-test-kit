@@ -14,7 +14,7 @@ module DaVinciDTRTestKit
 
     The DTR QuestionnaireResponse sequence verifies that the system under test is
     able to provide correct responses for QuestionnaireResponse queries. These queries
-    must return resources conforming to the [DTR QuestionnaireResponse Profile](http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/dtr-questionnaireresponse).
+    must return resources conforming to the [DTR QuestionnaireResponse Profile](http://hl7.org/fhir/us/davinci-dtr/STU2/StructureDefinition-dtr-questionnaireresponse.html).
 
     # Testing Methodology
     ## Searching
@@ -25,7 +25,7 @@ module DaVinciDTRTestKit
     * patient
 
     ### Search Parameters
-    The first search uses the patient(s) from the patient_ids input. Any subsequent searches will look for its parameter
+    The first search uses the patient(s) from the Patient IDs input. Any subsequent searches will look for its parameter
     values from the results of the first search. For example, the `identifier`
     search in the patient sequence is performed by looking for an existing
     `Patient.identifier` from any of the resources returned in the `_id`
@@ -46,7 +46,7 @@ module DaVinciDTRTestKit
 
     ## Profile Validation
     Each resource returned from the read step SHALL conform to
-    the [DTR QuestionnaireResponse Profile](http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/dtr-questionnaireresponse).
+    the [DTR QuestionnaireResponse Profile](http://hl7.org/fhir/us/davinci-dtr/STU2/StructureDefinition-dtr-questionnaireresponse.html).
     Each element is checked against terminology binding and cardinality requirements.
 
     ## Create

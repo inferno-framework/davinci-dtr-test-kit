@@ -10,17 +10,17 @@ module DaVinciDTRTestKit
 
     The CRD ServiceRequest sequence verifies that the system under test is
     able to provide correct responses for ServiceRequest queries. These queries
-    must return resources conforming to the [CRD ServiceRequest Profile](http://hl7.org/fhir/us/davinci-crd/StructureDefinition/profile-servicerequest).
+    must return resources conforming to the [CRD ServiceRequest Profile](https://hl7.org/fhir/us/davinci-crd/STU2/StructureDefinition-profile-servicerequest.html).
 
     # Testing Methodology
     ## Read
     First, Inferno will attempt to read each ServiceRequest resource id provided in
-    the ServiceRequest ids input. The server SHOULD be capable of returning a
+    the ServiceRequest IDs input. The server SHOULD be capable of returning a
     ServiceRequest resource using the read interaction.
 
     ## Profile Validation
     Each resource returned from the read step SHALL conform to
-    the [CRD ServiceRequest Profile](http://hl7.org/fhir/us/davinci-crd/StructureDefinition/profile-servicerequest).
+    the [CRD ServiceRequest Profile](https://hl7.org/fhir/us/davinci-crd/STU2/StructureDefinition-profile-servicerequest.html).
     Each element is checked against terminology binding and cardinality requirements.
 
     )

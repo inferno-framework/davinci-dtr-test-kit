@@ -10,17 +10,17 @@ module DaVinciDTRTestKit
 
     The CRD CommunicationRequest sequence verifies that the system under test is
     able to provide correct responses for CommunicationRequest queries. These queries
-    must return resources conforming to the [CRD CommunicationRequest Profile](http://hl7.org/fhir/us/davinci-crd/StructureDefinition/profile-communicationrequest).
+    must return resources conforming to the [CRD CommunicationRequest Profile](https://hl7.org/fhir/us/davinci-crd/STU2/StructureDefinition-profile-communicationrequest.html).
 
     # Testing Methodology
     ## Read
     First, Inferno will attempt to read each CommunicationRequest resource id provided in
-    the CommunicationRequest ids input. The server SHOULD be capable of returning a
+    the CommunicationRequest IDs input. The server SHOULD be capable of returning a
     CommunicationRequest resource using the read interaction.
 
     ## Profile Validation
     Each resource returned from the read step SHALL conform to
-    the [CRD CommunicationRequest Profile](http://hl7.org/fhir/us/davinci-crd/StructureDefinition/profile-communicationrequest).
+    the [CRD CommunicationRequest Profile](https://hl7.org/fhir/us/davinci-crd/STU2/StructureDefinition-profile-communicationrequest.html).
     Each element is checked against terminology binding and cardinality requirements.
 
     )

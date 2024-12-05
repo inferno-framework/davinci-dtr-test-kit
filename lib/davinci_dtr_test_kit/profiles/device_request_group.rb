@@ -10,17 +10,17 @@ module DaVinciDTRTestKit
 
     The CRD DeviceRequest sequence verifies that the system under test is
     able to provide correct responses for DeviceRequest queries. These queries
-    must return resources conforming to the [CRD DeviceRequest Profile](http://hl7.org/fhir/us/davinci-crd/StructureDefinition/profile-devicerequest).
+    must return resources conforming to the [CRD DeviceRequest Profile](https://hl7.org/fhir/us/davinci-crd/STU2/StructureDefinition-profile-devicerequest.html).
 
     # Testing Methodology
     ## Read
     First, Inferno will attempt to read each DeviceRequest resource id provided in
-    the DeviceRequest ids input. The server SHOULD be capable of returning a
+    the DeviceRequest IDs input. The server SHOULD be capable of returning a
     DeviceRequest resource using the read interaction.
 
     ## Profile Validation
     Each resource returned from the read step SHALL conform to
-    the [CRD DeviceRequest Profile](http://hl7.org/fhir/us/davinci-crd/StructureDefinition/profile-devicerequest).
+    the [CRD DeviceRequest Profile](https://hl7.org/fhir/us/davinci-crd/STU2/StructureDefinition-profile-devicerequest.html).
     Each element is checked against terminology binding and cardinality requirements.
 
     )

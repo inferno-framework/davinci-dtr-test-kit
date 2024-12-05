@@ -10,17 +10,17 @@ module DaVinciDTRTestKit
 
     The CRD Encounter sequence verifies that the system under test is
     able to provide correct responses for Encounter queries. These queries
-    must return resources conforming to the [CRD Encounter Profile](http://hl7.org/fhir/us/davinci-crd/StructureDefinition/profile-encounter).
+    must return resources conforming to the [CRD Encounter Profile](https://hl7.org/fhir/us/davinci-crd/STU2/StructureDefinition-profile-encounter.html).
 
     # Testing Methodology
     ## Read
     First, Inferno will attempt to read each Encounter resource id provided in
-    the Encounter ids input. The server SHOULD be capable of returning a
+    the Encounter IDs input. The server SHOULD be capable of returning a
     Encounter resource using the read interaction.
 
     ## Profile Validation
     Each resource returned from the read step SHALL conform to
-    the [CRD Encounter Profile](http://hl7.org/fhir/us/davinci-crd/StructureDefinition/profile-encounter).
+    the [CRD Encounter Profile](https://hl7.org/fhir/us/davinci-crd/STU2/StructureDefinition-profile-encounter.html).
     Each element is checked against terminology binding and cardinality requirements.
 
     )

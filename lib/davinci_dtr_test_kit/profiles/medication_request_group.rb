@@ -10,17 +10,17 @@ module DaVinciDTRTestKit
 
     The CRD MedicationRequest sequence verifies that the system under test is
     able to provide correct responses for MedicationRequest queries. These queries
-    must return resources conforming to the [CRD MedicationRequest Profile](http://hl7.org/fhir/us/davinci-crd/StructureDefinition/profile-medicationrequest).
+    must return resources conforming to the [CRD MedicationRequest Profile](https://hl7.org/fhir/us/davinci-crd/STU2/StructureDefinition-profile-medicationrequest.html).
 
     # Testing Methodology
     ## Read
     First, Inferno will attempt to read each MedicationRequest resource id provided in
-    the MedicationRequest ids input. The server SHOULD be capable of returning a
+    the MedicationRequest IDs input. The server SHOULD be capable of returning a
     MedicationRequest resource using the read interaction.
 
     ## Profile Validation
     Each resource returned from the read step SHALL conform to
-    the [CRD MedicationRequest Profile](http://hl7.org/fhir/us/davinci-crd/StructureDefinition/profile-medicationrequest).
+    the [CRD MedicationRequest Profile](https://hl7.org/fhir/us/davinci-crd/STU2/StructureDefinition-profile-medicationrequest.html).
     Each element is checked against terminology binding and cardinality requirements.
 
     )

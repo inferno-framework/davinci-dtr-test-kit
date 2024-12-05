@@ -10,17 +10,17 @@ module DaVinciDTRTestKit
 
     The CRD NutritionOrder sequence verifies that the system under test is
     able to provide correct responses for NutritionOrder queries. These queries
-    must return resources conforming to the [CRD NutritionOrder Profile](http://hl7.org/fhir/us/davinci-crd/StructureDefinition/profile-nutritionorder).
+    must return resources conforming to the [CRD NutritionOrder Profile](https://hl7.org/fhir/us/davinci-crd/STU2/StructureDefinition-profile-nutritionorder.html).
 
     # Testing Methodology
     ## Read
     First, Inferno will attempt to read each NutritionOrder resource id provided in
-    the NutritionOrder ids input. The server SHOULD be capable of returning a
+    the NutritionOrder IDs input. The server SHOULD be capable of returning a
     NutritionOrder resource using the read interaction.
 
     ## Profile Validation
     Each resource returned from the read step SHALL conform to
-    the [CRD NutritionOrder Profile](http://hl7.org/fhir/us/davinci-crd/StructureDefinition/profile-nutritionorder).
+    the [CRD NutritionOrder Profile](https://hl7.org/fhir/us/davinci-crd/STU2/StructureDefinition-profile-communicationrequest.html).
     Each element is checked against terminology binding and cardinality requirements.
 
     )

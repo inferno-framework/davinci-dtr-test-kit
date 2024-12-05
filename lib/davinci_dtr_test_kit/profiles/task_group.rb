@@ -12,17 +12,17 @@ module DaVinciDTRTestKit
 
     The PAS Task sequence verifies that the system under test is
     able to provide correct responses for Task queries. These queries
-    must contain resources conforming to the [PAS Task Profile](http://hl7.org/fhir/us/davinci-pas/StructureDefinition/profile-task).
+    must contain resources conforming to the [PAS Task Profile](http://hl7.org/fhir/us/davinci-pas/STU2/StructureDefinition-profile-task.html).
 
     # Testing Methodology
     ## Read
     First, Inferno will attempt to read each Task resource id provided in
-    the Task ids input. The server SHOULD be capable of returning a
+    the Task IDs input. The server SHOULD be capable of returning a
     Task resource using the read interaction.
 
     ## Profile Validation
     Each resource returned from the read step SHALL conform to
-    the [PAS Task Profile](http://hl7.org/fhir/us/davinci-pas/StructureDefinition/profile-task). Each
+    the [PAS Task Profile](http://hl7.org/fhir/us/davinci-pas/STU2/StructureDefinition-profile-task.html). Each
     element is checked against terminology binding and cardinality requirements.
 
     ## Create
