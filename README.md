@@ -57,6 +57,7 @@ the test home pages include instructions for trying out the tests, including
 - For payer server testing: running the tests against the DTR SMART App tests in this Test Kit
 - For DTR SMART App testing: a [sample postman collection](config/DTR%20SMART%20App%20Tests%20Postman%20Demo.postman_collection.json)
 - For DTR Full EHR testing: [sample postman collection](config/DTR%20Full%20EHR%20Tests%20Postman%20Demo.postman_collection.json)
+- For DTR Light EHR testing: running the tests against the Inferno Reference Server using [this preset](config/presets/light_ehr_ref_server_prod.json), or a local instance of the Inferno Reference Server using [this preset](config/presets/light_ehr_ref_server_local.json)
 
 Detailed instructions can be found in the suite descriptions when the tests
 are run or within this repository for the
@@ -129,7 +130,7 @@ particularly the instructions on
 To support testing that clients can fetch, populate, and complete various questionnaires with different features, the test kit includes a framework for building different iterations of these tests. At a high-level, the framework includes the ability to associate a set of fixtures with a group of tests including
 
 - a questionnaire that will be sent back when the client makes a $questionnaire-package request
-- a questionnaire response that contains expected pre-populated and overriden items. These are indicated by the origin.source extension on items with link ids corresponding to items in the questionnaire with cql expressions for pre-population. When it is `auto` that is the expected answer based on data Inferno has. When it is `override` that is the answer that would be present if the pre-populated answer were used, but Inferno will check that a different value is present since the tester will be expected to override the answer.
+- a questionnaire response that contains expected pre-populated and overridden items. These are indicated by the origin.source extension on items with link ids corresponding to items in the questionnaire with cql expressions for pre-population. When it is `auto` that is the expected answer based on data Inferno has. When it is `override` that is the answer that would be present if the pre-populated answer were used, but Inferno will check that a different value is present since the tester will be expected to override the answer.
 
 See logic in `mock_payer`, `dtr_questionnaire_response_validation`, and `fixture_loader`, among others.
 
