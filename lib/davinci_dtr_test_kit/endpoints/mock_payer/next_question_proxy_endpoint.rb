@@ -6,7 +6,7 @@ module DaVinciDTRTestKit
       end
 
       def tags
-        [QUESTIONNAIRE_TAG]
+        [NEXT_TAG]
       end
 
       def make_response
