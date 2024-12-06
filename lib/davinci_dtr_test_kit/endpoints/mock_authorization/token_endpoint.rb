@@ -23,7 +23,7 @@ module DaVinciDTRTestKit
           response_hash.merge!(id_token: create_id_token(client_id, fhir_user: granted_scopes.include?('fhirUser')))
         end
 
-        fhir_context_input = find_test_input('smart_fhir_context')
+        fhir_context_input = find_test_input("#{input_group_prefix}_smart_fhir_context")
         begin
           fhir_context = JSON.parse(fhir_context_input)
         rescue StandardError
