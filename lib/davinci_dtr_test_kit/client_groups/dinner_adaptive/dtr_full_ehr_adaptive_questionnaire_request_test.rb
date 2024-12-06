@@ -24,7 +24,7 @@ module DaVinciDTRTestKit
       wait(
         identifier: access_token,
         message: %(
-          ### Questionnaire Retrieval
+          ### Adaptive Questionnaire Retrieval
 
           1. **Questionnaire Package Request**:
             - Invoke the `$questionnaire-package` operation by sending a POST request to the following

@@ -50,12 +50,12 @@ questionnaires from your server, see the _Sample Execution_ section below.
 
 Otherwise, the requests for Inferno to make can be provided in one of two ways:
 
-1. Statically within the Inferno inputs: provide the json request bodies when running
+1. **Statically within the Inferno inputs**: provide the json request bodies when running
    the tests. This approach works very well for testing standard (static) questionnaires
    where there is only one request for Inferno to make (input = _Initial Static Questionnaire Request_). It is less ideal for adaptive
    questionnaires as a sequence of `$next-question` requests (inputs = _Initial Adaptive Questionnaire Request_ and _Next Question Requests_) is required, which is provided as a json list of
    request body objects.
-2. Dynamically during test execution: use a tester-controlled client to provide requests to
+2. **Dynamically during test execution**: use a tester-controlled client to provide requests to
    Inferno while the tests are running. At points that Inferno needs to make a request, execution
    will pause while the request is provided from the client. Inferno uses a bearer token
    provided in the test inputs (input = _Access Token_ for the DTR Client Flow (not the
@@ -97,8 +97,7 @@ using the following steps:
    against the client test session, which will respond with a static questionnaire that the
    these server tests can validate.
 
-At this time, only the standard questionnaire functionality can be tested using this approach as
-the client tests have not implemented an adaptive questionnaire set of tests.
+At this time, only the standard questionnaire functionality can be tested using this approach.
 
 ## Additional Configuration Details
 
