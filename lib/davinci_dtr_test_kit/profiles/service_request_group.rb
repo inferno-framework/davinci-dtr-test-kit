@@ -25,6 +25,7 @@ module DaVinciDTRTestKit
 
     )
     id :service_request_group
+    optional
     run_as_group
 
     input :service_request_ids,

@@ -8,11 +8,6 @@ module DaVinciDTRTestKit
     description 'A server SHOULD support the DeviceRequest read interaction.'
 
     id :device_request_read
-    optional
-    input :device_request_ids,
-          title: 'Device Request IDs',
-          description: 'Comma separated list of DeviceRequest IDs',
-          optional: true
     output :device_request_resources
 
     def resource_type

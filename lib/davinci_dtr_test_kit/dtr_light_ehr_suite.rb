@@ -47,7 +47,7 @@ module DaVinciDTRTestKit
 
     input :url,
           title: 'FHIR Server Base Url',
-          description: 'Required for All Flows'
+          description: 'URL of the target DTR Light EHR'
 
     # Hl7 Validator Wrapper:
     fhir_resource_validator do

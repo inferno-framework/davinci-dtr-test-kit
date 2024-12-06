@@ -8,7 +8,6 @@ module DaVinciDTRTestKit
     description 'A server SHOULD support the Task read interaction.'
 
     id :task_read
-    optional
     output :task_resources
 
     def resource_type

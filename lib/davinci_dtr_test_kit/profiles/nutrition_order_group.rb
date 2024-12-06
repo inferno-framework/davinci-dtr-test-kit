@@ -25,6 +25,7 @@ module DaVinciDTRTestKit
 
     )
     id :nutrition_order_group
+    optional
     run_as_group
 
     input :nutrition_order_ids,

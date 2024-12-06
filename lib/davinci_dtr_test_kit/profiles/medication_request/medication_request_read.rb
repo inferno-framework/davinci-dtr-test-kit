@@ -8,7 +8,6 @@ module DaVinciDTRTestKit
     description 'A server SHOULD support the MedicationRequest read interaction.'
 
     id :medication_request_read
-    optional
     output :medication_request_resources
 
     def resource_type

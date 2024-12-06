@@ -8,7 +8,6 @@ module DaVinciDTRTestKit
     description 'A server SHOULD support the NutritionOrder read interaction.'
 
     id :nutrition_order_read
-    optional
     output :nutrition_order_resources
 
     def resource_type

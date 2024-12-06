@@ -19,7 +19,6 @@ fail if their code/system are not found in the valueset.
     )
 
     id :nutrition_order_validation
-    optional
     input :nutrition_order_resources,
           optional: true
 
@@ -28,6 +27,7 @@ fail if their code/system are not found in the valueset.
     end
 
     run do
+      skip_if(nutrition_order_ids.nil?, "No `#{resource_type}` IDs provided, skipping test.")
       perform_profile_validation_test(nutrition_order_resources, resource_type,
                                       'http://hl7.org/fhir/us/davinci-crd/StructureDefinition/profile-nutritionorder|2.0.1')
     end

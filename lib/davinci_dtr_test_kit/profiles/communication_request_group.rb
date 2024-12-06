@@ -25,6 +25,7 @@ module DaVinciDTRTestKit
 
     )
     id :communication_request_group
+    optional
     run_as_group
 
     input :communication_request_ids,

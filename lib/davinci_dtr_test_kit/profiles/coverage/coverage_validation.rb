@@ -27,6 +27,7 @@ fail if their code/system are not found in the valueset.
     end
 
     run do
+      skip_if(coverage_ids.nil?, "No `#{resource_type}` IDs provided, skipping test.")
       perform_profile_validation_test(coverage_resources, resource_type,
                                       'http://hl7.org/fhir/us/davinci-crd/StructureDefinition/profile-coverage|2.0.1')
     end

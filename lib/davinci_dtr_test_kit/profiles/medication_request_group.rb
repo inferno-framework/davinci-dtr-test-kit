@@ -25,6 +25,7 @@ module DaVinciDTRTestKit
 
     )
     id :medication_request_group
+    optional
     run_as_group
 
     input :medication_request_ids,

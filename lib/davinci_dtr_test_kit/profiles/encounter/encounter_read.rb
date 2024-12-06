@@ -8,7 +8,6 @@ module DaVinciDTRTestKit
     description 'A server SHOULD support the Encounter read interaction.'
 
     id :encounter_read
-    optional
     output :encounter_resources
 
     def resource_type

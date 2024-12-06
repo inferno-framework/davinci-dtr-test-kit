@@ -8,7 +8,6 @@ module DaVinciDTRTestKit
     description 'A server SHOULD support the ServiceRequest read interaction.'
 
     id :service_request_read
-    optional
     output :service_request_resources
 
     def resource_type

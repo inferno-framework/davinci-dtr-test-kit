@@ -19,7 +19,6 @@ fail if their code/system are not found in the valueset.
     )
 
     id :task_validation
-    optional
     input :task_resources,
           optional: true
 
@@ -28,6 +27,7 @@ fail if their code/system are not found in the valueset.
     end
 
     run do
+      skip_if(task_ids.nil?, "No `#{resource_type}` IDs provided, skipping test.")
       perform_profile_validation_test(task_resources, resource_type,
                                       'http://hl7.org/fhir/us/davinci-pas/StructureDefinition/profile-task|2.0.1')
     end

@@ -25,7 +25,13 @@ module DaVinciDTRTestKit
 
     )
     id :device_request_group
+    optional
     run_as_group
+
+    input :device_request_ids,
+          title: 'Device Request IDs',
+          description: 'Comma separated list of DeviceRequest IDs',
+          optional: true
 
     test from: :device_request_read
     test from: :device_request_validation

@@ -8,7 +8,6 @@ module DaVinciDTRTestKit
     description 'A server SHOULD support the CommunicationRequest read interaction.'
 
     id :communication_request_read
-    optional
     output :communication_request_resources
 
     def resource_type

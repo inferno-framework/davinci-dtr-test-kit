@@ -8,7 +8,6 @@ module DaVinciDTRTestKit
     description 'A server SHOULD support the Task update interaction'
 
     id :task_update
-    optional
     input :update_task_resources,
           type: 'textarea',
           title: 'Update Task Resources',

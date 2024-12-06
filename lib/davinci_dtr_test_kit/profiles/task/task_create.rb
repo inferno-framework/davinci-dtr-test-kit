@@ -8,7 +8,6 @@ module DaVinciDTRTestKit
     description 'A server SHOULD support the Task create interaction'
 
     id :task_create
-    optional
     input :create_task_resources,
           type: 'textarea',
           title: 'Create Task Resources',

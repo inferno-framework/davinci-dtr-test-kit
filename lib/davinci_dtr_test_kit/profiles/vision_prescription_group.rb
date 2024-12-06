@@ -25,6 +25,7 @@ module DaVinciDTRTestKit
 
     )
     id :vision_prescription_group
+    optional
     run_as_group
 
     input :vision_prescription_ids,

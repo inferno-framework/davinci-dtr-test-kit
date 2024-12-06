@@ -25,6 +25,7 @@ module DaVinciDTRTestKit
 
     )
     id :encounter_group
+    optional
     run_as_group
 
     input :encounter_ids,

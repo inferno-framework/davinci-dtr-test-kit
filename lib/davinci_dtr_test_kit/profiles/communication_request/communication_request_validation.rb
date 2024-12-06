@@ -19,7 +19,6 @@ fail if their code/system are not found in the valueset.
     )
 
     id :communication_request_validation
-    optional
     input :communication_request_resources,
           optional: true
 
@@ -28,6 +27,7 @@ fail if their code/system are not found in the valueset.
     end
 
     run do
+      skip_if(communication_request_ids.nil?, "No `#{resource_type}` IDs provided, skipping test.")
       perform_profile_validation_test(communication_request_resources, resource_type,
                                       'http://hl7.org/fhir/us/davinci-crd/StructureDefinition/profile-communicationrequest|2.0.1')
     end

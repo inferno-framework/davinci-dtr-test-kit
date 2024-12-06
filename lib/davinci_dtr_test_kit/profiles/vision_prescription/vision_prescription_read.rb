@@ -8,7 +8,6 @@ module DaVinciDTRTestKit
     description 'A server SHOULD support the VisionPrescription read interaction.'
 
     id :vision_prescription_read
-    optional
     output :vision_prescription_resources
 
     def resource_type

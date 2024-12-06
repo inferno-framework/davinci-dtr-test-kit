@@ -19,7 +19,6 @@ fail if their code/system are not found in the valueset.
     )
 
     id :vision_prescription_validation
-    optional
     input :vision_prescription_resources,
           optional: true
 
@@ -28,6 +27,7 @@ fail if their code/system are not found in the valueset.
     end
 
     run do
+      skip_if(vision_prescription_ids.nil?, "No `#{resource_type}` IDs provided, skipping test.")
       perform_profile_validation_test(vision_prescription_resources, resource_type,
                                       'http://hl7.org/fhir/us/davinci-crd/StructureDefinition/profile-visionprescription|2.0.1')
     end

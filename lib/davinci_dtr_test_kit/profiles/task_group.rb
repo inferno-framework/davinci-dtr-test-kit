@@ -36,6 +36,7 @@ module DaVinciDTRTestKit
     using the update interaction.
           )
     id :task_group
+    optional
     run_as_group
 
     input :task_ids,
