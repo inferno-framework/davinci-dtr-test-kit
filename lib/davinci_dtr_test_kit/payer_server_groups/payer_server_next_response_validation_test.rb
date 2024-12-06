@@ -27,7 +27,7 @@ module DaVinciDTRTestKit
                json_requests.map do |resource|
                  fhir_operation("#{url}/Questionnaire/$next-question",
                                 body: resource,
-                                headers: { 'Content-Type': 'application/json' })
+                                headers: { 'Content-Type': 'application/fhir+json' })
                end
              end
       assert !reqs.nil?, 'No requests to validate.'

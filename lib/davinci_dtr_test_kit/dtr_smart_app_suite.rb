@@ -1,19 +1,21 @@
-require_relative 'ext/inferno_core/runnable'
-require_relative 'ext/inferno_core/record_response_route'
-require_relative 'ext/inferno_core/request'
 require_relative 'auth_groups/oauth2_authentication_group'
 require_relative 'client_groups/resp_assist_device/dtr_smart_app_questionnaire_workflow_group'
 require_relative 'client_groups/dinner_static/dtr_smart_app_questionnaire_workflow_group'
 require_relative 'client_groups/dinner_adaptive/dtr_smart_app_questionnaire_workflow_group'
-require_relative 'mock_payer'
-require_relative 'mock_ehr'
+require_relative 'endpoints/cors'
+require_relative 'endpoints/mock_authorization'
+require_relative 'endpoints/mock_authorization/authorize_endpoint'
+require_relative 'endpoints/mock_authorization/token_endpoint'
+require_relative 'endpoints/mock_payer/questionnaire_package_endpoint'
+require_relative 'endpoints/mock_payer/next_question_endpoint'
+require_relative 'endpoints/mock_ehr'
+require_relative 'endpoints/mock_ehr/questionnaire_response_endpoint'
+require_relative 'endpoints/mock_ehr/fhir_get_endpoint'
 require_relative 'version'
 
 module DaVinciDTRTestKit
   class DTRSmartAppSuite < Inferno::TestSuite
-    extend MockAuthServer
-    extend MockEHR
-    extend MockPayer
+    extend CORS
 
     id :dtr_smart_app
     title 'Da Vinci DTR SMART App Test Suite'
@@ -52,72 +54,30 @@ module DaVinciDTRTestKit
     allow_cors QUESTIONNAIRE_PACKAGE_PATH, QUESTIONNAIRE_RESPONSE_PATH, FHIR_RESOURCE_PATH, FHIR_SEARCH_PATH,
                EHR_AUTHORIZE_PATH, EHR_TOKEN_PATH, JKWS_PATH, OPENID_CONFIG_PATH, NEXT_PATH
 
-    def self.test_resumes?(test)
-      !test.config.options[:accepts_multiple_requests]
-    end
+    # Authorization server
+    route(:get, SMART_CONFIG_PATH, MockAuthorization.method(:ehr_smart_config))
+    route(:get, OPENID_CONFIG_PATH, MockAuthorization.method(:ehr_openid_config))
+    route(:get, JKWS_PATH, MockAuthorization.method(:jwks))
+    suite_endpoint :get, EHR_AUTHORIZE_PATH, MockAuthorization::AuthorizeEndpoint
+    suite_endpoint :post, EHR_AUTHORIZE_PATH, MockAuthorization::AuthorizeEndpoint
+    suite_endpoint :post, EHR_TOKEN_PATH, MockAuthorization::TokenEndpoint
 
-    def self.next_request_tag(test)
-      test.config.options[:next_tag]
-    end
+    # Payer
+    suite_endpoint :post, QUESTIONNAIRE_PACKAGE_PATH, MockPayer::QuestionnairePackageEndpoint
+    suite_endpoint :post, NEXT_PATH, MockPayer::NextQuestionEndpoint
 
-    route(:get, '/fhir/metadata', method(:metadata_handler))
-
-    route(:get, SMART_CONFIG_PATH, method(:ehr_smart_config))
-    route(:get, OPENID_CONFIG_PATH, method(:ehr_openid_config))
-
-    route(:get, JKWS_PATH, method(:auth_server_jwks))
-
-    record_response_route :get, EHR_AUTHORIZE_PATH, EHR_AUTHORIZE_TAG, method(:ehr_authorize),
-                          resumes: ->(_) { false } do |request|
-      DTRSmartAppSuite.extract_client_id_from_query_params(request)
-    end
-
-    record_response_route :post, EHR_AUTHORIZE_PATH, EHR_AUTHORIZE_TAG, method(:ehr_authorize),
-                          resumes: ->(_) { false } do |request|
-      DTRSmartAppSuite.extract_client_id_from_form_params(request)
-    end
-
-    record_response_route :post, EHR_TOKEN_PATH, 'dtr_smart_app_ehr_token', method(:ehr_token_response),
-                          resumes: ->(_) { false } do |request|
-      DTRSmartAppSuite.extract_client_id_from_token_request(request)
-    end
-
-    record_response_route :post, PAYER_TOKEN_PATH, 'dtr_smart_app_payer_token',
-                          method(:payer_token_response) do |request|
-      DTRSmartAppSuite.extract_client_id_from_client_assertion(request)
-    end
-
-    record_response_route :post, QUESTIONNAIRE_PACKAGE_PATH, QUESTIONNAIRE_PACKAGE_TAG,
-                          method(:questionnaire_package_response), resumes: ->(_) { false } do |request|
-      DTRSmartAppSuite.extract_client_id_from_bearer_token(request)
-    end
-
-    record_response_route :post, NEXT_PATH, method(:next_request_tag), method(:client_questionnaire_next_response),
-                          resumes: method(:test_resumes?) do |request|
-      DTRSmartAppSuite.extract_client_id_from_bearer_token(request)
-    end
-
-    record_response_route :post, QUESTIONNAIRE_RESPONSE_PATH, 'dtr_smart_app_questionnaire_response',
-                          method(:questionnaire_response_response) do |request|
-      DTRSmartAppSuite.extract_client_id_from_bearer_token(request)
-    end
-
-    record_response_route :get, FHIR_RESOURCE_PATH, SMART_APP_EHR_REQUEST_TAG, method(:get_fhir_resource),
-                          resumes: ->(_) { false } do |request|
-      DTRSmartAppSuite.extract_client_id_from_bearer_token(request)
-    end
-
-    record_response_route :get, FHIR_SEARCH_PATH, SMART_APP_EHR_REQUEST_TAG, method(:get_fhir_resource),
-                          resumes: ->(_) { false } do |request|
-      DTRSmartAppSuite.extract_client_id_from_bearer_token(request)
-    end
+    # EHR
+    route(:get, '/fhir/metadata', MockEHR.method(:metadata))
+    suite_endpoint :post, QUESTIONNAIRE_RESPONSE_PATH, MockEHR::QuestionnaireResponseEndpoint
+    suite_endpoint :get, FHIR_RESOURCE_PATH, MockEHR::FHIRGetEndpoint
+    suite_endpoint :get, FHIR_SEARCH_PATH, MockEHR::FHIRGetEndpoint
 
     resume_test_route :get, RESUME_PASS_PATH do |request|
-      DTRSmartAppSuite.extract_query_param_value(request)
+      request.query_parameters['client_id'] || request.query_parameters['token']
     end
 
     resume_test_route :get, RESUME_FAIL_PATH, result: 'fail' do |request|
-      DTRSmartAppSuite.extract_query_param_value(request)
+      request.query_parameters['client_id'] || request.query_parameters['token']
     end
 
     # TODO: Update based on SMART Launch changes. Do we even want to have this group now?

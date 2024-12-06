@@ -29,10 +29,11 @@ module DaVinciDTRTestKit
             else
               fhir_operation("#{url}/Questionnaire/$questionnaire-package",
                              body: JSON.parse(initial_static_questionnaire_request),
-                             headers: { 'Content-Type': 'application/json' })
+                             headers: { 'Content-Type': 'application/fhir+json' })
             end
 
-      assert_response_status([200, 201], response: request.response)
+      skip_if req.nil?, 'No request resource received from the client.'
+      assert_response_status([200, 201], response: req.response)
 
       resource = FHIR.from_contents(req.response_body)
       if resource&.resourceType == 'Parameters'

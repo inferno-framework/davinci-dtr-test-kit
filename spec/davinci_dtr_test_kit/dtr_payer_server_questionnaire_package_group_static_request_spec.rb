@@ -133,8 +133,6 @@ RSpec.describe DaVinciDTRTestKit::DTRPayerServerQuestionnairePackageGroup do
       post(questionnaire_package_url, request_body_conformant)
       expect(last_response.ok?).to be(true)
 
-      get(resume_pass_url)
-
       result = results_repo.find(result.id)
       expect(result.result).to eq('pass')
     end

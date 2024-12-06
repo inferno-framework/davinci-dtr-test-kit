@@ -32,9 +32,9 @@ module DaVinciDTRTestKit
               load_tagged_requests(QUESTIONNAIRE_TAG)[0]
             else
               fhir_operation("#{url}#{endpoint}", body: JSON.parse(initial_adaptive_questionnaire_request),
-                                                  headers: { 'Content-Type': 'application/json' })
+                                                  headers: { 'Content-Type': 'application/fhir+json' })
             end
-
+      skip_if req.nil?, 'No request resource received from the client.'
       assert_response_status([200, 201], response: req.response)
 
       resource = FHIR.from_contents(req.response_body)

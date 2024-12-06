@@ -10,6 +10,7 @@ module DaVinciDTRTestKit
       Inferno will wait for a DTR questionnaire package request from the client. Upon receipt, Inferno will generate and
       send a response.
     )
+    config options: { accepts_multiple_requests: true }
     input :smart_app_launch,
           type: 'radio',
           title: 'SMART App Launch',

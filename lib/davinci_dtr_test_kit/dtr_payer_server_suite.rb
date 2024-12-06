@@ -1,17 +1,15 @@
-require_relative 'ext/inferno_core/runnable'
-require_relative 'ext/inferno_core/record_response_route'
-require_relative 'ext/inferno_core/request'
 require_relative 'payer_server_groups/payer_server_static_group'
 require_relative 'payer_server_groups/payer_server_adaptive_group'
 require_relative 'tags'
-require_relative 'mock_payer'
-require_relative 'mock_auth_server'
+require_relative 'endpoints/cors'
+require_relative 'endpoints/mock_authorization/simple_token_endpoint'
+require_relative 'endpoints/mock_payer/questionnaire_package_proxy_endpoint'
+require_relative 'endpoints/mock_payer/next_question_proxy_endpoint'
 require_relative 'version'
 
 module DaVinciDTRTestKit
   class DTRPayerServerSuite < Inferno::TestSuite
-    extend MockAuthServer
-    extend MockPayer
+    extend CORS
 
     id :dtr_payer_server
     title 'Da Vinci DTR Payer Server Test Suite'
@@ -106,22 +104,13 @@ module DaVinciDTRTestKit
 
     allow_cors QUESTIONNAIRE_PACKAGE_PATH, NEXT_PATH
 
-    record_response_route :post, PAYER_TOKEN_PATH, 'dtr_payer_auth', method(:payer_token_response) do |request|
-      DTRPayerServerSuite.extract_client_id_from_form_params(request)
-    end
+    suite_endpoint :post, PAYER_TOKEN_PATH, MockAuthorization::SimpleTokenEndpoint
 
-    record_response_route :post, QUESTIONNAIRE_PACKAGE_PATH, QUESTIONNAIRE_TAG,
-                          method(:payer_questionnaire_response), resumes: method(:test_resumes?) do |request|
-      DTRPayerServerSuite.extract_bearer_token(request)
-    end
-
-    record_response_route :post, NEXT_PATH, NEXT_TAG,
-                          method(:questionnaire_next_response), resumes: method(:test_resumes?) do |request|
-      DTRPayerServerSuite.extract_bearer_token(request)
-    end
+    suite_endpoint :post, QUESTIONNAIRE_PACKAGE_PATH, MockPayer::QuestionnairePackageProxyEndpoint
+    suite_endpoint :post, NEXT_PATH, MockPayer::NextQuestionProxyEndpoint
 
     resume_test_route :get, RESUME_PASS_PATH do |request|
-      DTRPayerServerSuite.extract_token_from_query_params(request)
+      request.query_parameters['token']
     end
 
     group from: :payer_server_static_package
