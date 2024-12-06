@@ -35,11 +35,9 @@ module DaVinciDTRTestKit
         response_hash.merge!(patient: smart_patient_input) if smart_patient_input
 
         response.body = response_hash.to_json
-        response.headers.merge(
-          'Cache-Control' => 'no-store',
-          'Pragma' => 'no-cache',
-          'Access-Control-Allow-Origin' => '*'
-        )
+        response.headers['Cache-Control'] = 'no-store'
+        response.headers['Pragma'] = 'no-cache'
+        response.headers['Access-Control-Allow-Origin'] = '*'
         response.status = 200
       end
 
