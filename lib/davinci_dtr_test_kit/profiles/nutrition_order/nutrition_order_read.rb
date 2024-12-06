@@ -17,7 +17,7 @@ module DaVinciDTRTestKit
     def nutrition_order_id_list
       return [nil] unless respond_to? :nutrition_order_ids
 
-      nutrition_order_ids.split(',').map(&:strip)
+      nutrition_order_ids&.split(',')&.map(&:strip)
     end
 
     run do

@@ -1,6 +1,7 @@
 module DaVinciDTRTestKit
   module ReadTest
     def perform_read_test(resource_ids, resource_type)
+      skip_if(resource_ids.nil?, "No `#{resource_type}` IDs provided, skipping test.")
       resources = []
       resource_ids.each do |id|
         fhir_read resource_type, id

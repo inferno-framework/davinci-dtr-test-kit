@@ -17,7 +17,7 @@ module DaVinciDTRTestKit
     def medication_request_id_list
       return [nil] unless respond_to? :medication_request_ids
 
-      medication_request_ids.split(',').map(&:strip)
+      medication_request_ids&.split(',')&.map(&:strip)
     end
 
     run do

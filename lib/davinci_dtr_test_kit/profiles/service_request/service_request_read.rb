@@ -17,7 +17,7 @@ module DaVinciDTRTestKit
     def service_request_id_list
       return [nil] unless respond_to? :service_request_ids
 
-      service_request_ids.split(',').map(&:strip)
+      service_request_ids&.split(',')&.map(&:strip)
     end
 
     run do

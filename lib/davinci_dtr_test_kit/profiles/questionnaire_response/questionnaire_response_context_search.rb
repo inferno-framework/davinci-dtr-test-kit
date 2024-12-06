@@ -11,7 +11,6 @@ none are returned, the test is skipped.
     )
 
     id :questionnaire_response_context_search
-    optional
 
     def self.properties
       @properties ||= USCoreTestKit::SearchTestProperties.new(

@@ -30,6 +30,7 @@ module DaVinciDTRTestKit
       resource_type,
       profile_url
     )
+      skip_if(resources.nil?, "No `#{resource_type}` resources to validate, skipping test.")
       resources = JSON.parse(resources)
       resources = [resources] unless resources.is_a?(Array)
       resources.each do |resource|

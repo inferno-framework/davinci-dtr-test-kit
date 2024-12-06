@@ -17,7 +17,7 @@ module DaVinciDTRTestKit
     def encounter_id_list
       return [nil] unless respond_to? :encounter_ids
 
-      encounter_ids.split(',').map(&:strip)
+      encounter_ids&.split(',')&.map(&:strip)
     end
 
     run do

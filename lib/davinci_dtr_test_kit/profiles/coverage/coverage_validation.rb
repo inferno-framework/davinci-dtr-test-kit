@@ -6,7 +6,7 @@ module DaVinciDTRTestKit
 
     title 'Coverage resources returned during previous tests conform to the CRD Coverage'
     description %(
-This test verifies resources returned from the first read conform to
+This test verifies resources returned from the read step conform to
 the [CRD Coverage](https://hl7.org/fhir/us/davinci-crd/STU2/StructureDefinition-profile-coverage).
 Systems must demonstrate at least one valid example in order to pass this test.
 
@@ -19,13 +19,15 @@ fail if their code/system are not found in the valueset.
     )
 
     id :coverage_validation
-    input :coverage_resources
+    input :coverage_resources,
+          optional: true
 
     def resource_type
       'Coverage'
     end
 
     run do
+      skip_if(coverage_ids.nil?, "No `#{resource_type}` IDs provided, skipping test.")
       perform_profile_validation_test(coverage_resources, resource_type,
                                       'http://hl7.org/fhir/us/davinci-crd/StructureDefinition/profile-coverage|2.0.1')
     end

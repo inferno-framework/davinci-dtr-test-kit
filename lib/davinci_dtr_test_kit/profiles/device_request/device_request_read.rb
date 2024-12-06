@@ -17,7 +17,7 @@ module DaVinciDTRTestKit
     def device_request_id_list
       return [nil] unless respond_to? :device_request_ids
 
-      device_request_ids.split(',').map(&:strip)
+      device_request_ids&.split(',')&.map(&:strip)
     end
 
     run do

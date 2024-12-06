@@ -17,7 +17,7 @@ module DaVinciDTRTestKit
     def vision_prescription_id_list
       return [nil] unless respond_to? :vision_prescription_ids
 
-      vision_prescription_ids.split(',').map(&:strip)
+      vision_prescription_ids&.split(',')&.map(&:strip)
     end
 
     run do

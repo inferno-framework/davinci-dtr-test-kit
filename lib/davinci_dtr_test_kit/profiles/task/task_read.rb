@@ -17,7 +17,7 @@ module DaVinciDTRTestKit
     def task_id_list
       return [nil] unless respond_to? :task_ids
 
-      task_ids.split(',').map(&:strip)
+      task_ids&.split(',')&.map(&:strip)
     end
 
     run do

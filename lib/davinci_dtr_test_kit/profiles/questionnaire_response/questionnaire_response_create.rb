@@ -10,8 +10,10 @@ module DaVinciDTRTestKit
     id :questionnaire_response_create
     input :create_questionnaire_resources,
           type: 'textarea',
+          title: 'Create QuestionnaireResponse Resources',
           description:
-          'Provide a list of QuestionnaireResponse resources to create. e.g., [json_resource_1, json_resource_2]'
+          'Provide a list of QuestionnaireResponse resources to create. e.g., [json_resource_1, json_resource_2]',
+          optional: true
 
     def resource_type
       'QuestionnaireResponse'

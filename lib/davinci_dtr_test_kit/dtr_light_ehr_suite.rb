@@ -5,32 +5,16 @@ require 'us_core_test_kit'
 require 'tls_test_kit'
 require_relative 'version'
 require_relative 'dtr_options'
-require_relative 'profiles/questionnaire_response/questionnaire_response_patient_search'
-require_relative 'profiles/questionnaire_response/questionnaire_response_context_search'
-require_relative 'profiles/questionnaire_response/questionnaire_response_read'
-require_relative 'profiles/questionnaire_response/questionnaire_response_validation'
-require_relative 'profiles/questionnaire_response/questionnaire_response_create'
-require_relative 'profiles/questionnaire_response/questionnaire_response_update'
-require_relative 'profiles/coverage/coverage_read'
-require_relative 'profiles/coverage/coverage_validation'
-require_relative 'profiles/communication_request/communication_request_read'
-require_relative 'profiles/communication_request/communication_request_validation'
-require_relative 'profiles/device_request/device_request_read'
-require_relative 'profiles/device_request/device_request_validation'
-require_relative 'profiles/encounter/encounter_read'
-require_relative 'profiles/encounter/encounter_validation'
-require_relative 'profiles/medication_request/medication_request_read'
-require_relative 'profiles/medication_request/medication_request_validation'
-require_relative 'profiles/nutrition_order/nutrition_order_read'
-require_relative 'profiles/nutrition_order/nutrition_order_validation'
-require_relative 'profiles/service_request/service_request_read'
-require_relative 'profiles/service_request/service_request_validation'
-require_relative 'profiles/task/task_read'
-require_relative 'profiles/task/task_validation'
-require_relative 'profiles/task/task_create'
-require_relative 'profiles/task/task_update'
-require_relative 'profiles/vision_prescription/vision_prescription_read'
-require_relative 'profiles/vision_prescription/vision_prescription_validation'
+require_relative 'profiles/questionnaire_response_group'
+require_relative 'profiles/coverage_group'
+require_relative 'profiles/communication_request_group'
+require_relative 'profiles/device_request_group'
+require_relative 'profiles/encounter_group'
+require_relative 'profiles/medication_request_group'
+require_relative 'profiles/nutrition_order_group'
+require_relative 'profiles/service_request_group'
+require_relative 'profiles/task_group'
+require_relative 'profiles/vision_prescription_group'
 require 'smart_app_launch/smart_stu1_suite'
 require 'smart_app_launch/smart_stu2_suite'
 
@@ -62,12 +46,12 @@ module DaVinciDTRTestKit
     ]
 
     input :url,
-          title: 'FHIR Endpoint',
-          description: 'URL of the DTR FHIR server'
+          title: 'FHIR Server Base Url',
+          description: 'URL of the target DTR Light EHR'
 
     # Hl7 Validator Wrapper:
     fhir_resource_validator do
-      igs('hl7.fhir.us.davinci-dtr#2.0.1', 'hl7.fhir.us.davinci-cdex#2.0.0', 'hl7.fhir.us.davinci-crd#2.0.1')
+      igs('hl7.fhir.us.davinci-dtr#2.0.1', 'hl7.fhir.us.davinci-pas#2.0.1', 'hl7.fhir.us.davinci-crd#2.0.1')
 
       exclude_message do |message|
         message.message.match?(/\A\S+: \S+: URL value '.*' does not resolve/)
@@ -113,6 +97,12 @@ module DaVinciDTRTestKit
 
     group do
       title 'FHIR API'
+      description %(This test group tests systems for their conformance to
+      the US Core v3.1.1 Capability Statement as defined by the DaVinci Documentation
+      Templates and Rules (DTR) v2.0.1 Implementation Guide Light DTR EHR
+      Capability Statement.
+
+      )
 
       group from: :'us_core_v311-us_core_v311_fhir_api',
             run_as_group: true
@@ -120,6 +110,12 @@ module DaVinciDTRTestKit
 
     group do
       title 'DTR Light EHR Profiles'
+      description %(This test group tests system for their conformance to
+      the RESTful capabilities by specified Resources/Profiles as defined by
+      the DaVinci Documentation Templates and Rules (DTR) v2.0,1 Implementation
+      Guide Light DTR EHR Capability Statement.
+
+      )
 
       input :credentials,
             title: 'OAuth Credentials',
@@ -132,109 +128,16 @@ module DaVinciDTRTestKit
         oauth_credentials :credentials
       end
 
-      group do
-        title 'DTR QuestionnaireResponse'
-        run_as_group
-
-        test from: :questionnaire_response_patient_search
-        test from: :questionnaire_response_context_search
-        test from: :questionnaire_response_read
-        test from: :questionnaire_response_validation
-        test from: :questionnaire_response_create
-        test from: :questionnaire_response_update
-      end
-
-      group do
-        title 'CRD Coverage'
-        run_as_group
-
-        input :coverage_ids
-
-        test from: :coverage_read
-        test from: :coverage_validation
-      end
-
-      group do
-        title 'CRD CommunicationRequest'
-        run_as_group
-
-        input :communication_request_ids
-
-        test from: :communication_request_read
-        test from: :communication_request_validation
-      end
-
-      group do
-        title 'CRD DeviceRequest'
-        run_as_group
-
-        input :device_request_ids
-
-        test from: :device_request_read
-        test from: :device_request_validation
-      end
-
-      group do
-        title 'CRD Encounter'
-        run_as_group
-
-        input :encounter_ids
-
-        test from: :encounter_read
-        test from: :encounter_validation
-      end
-
-      group do
-        title 'CRD MedicationRequest'
-        run_as_group
-
-        input :medication_request_ids
-
-        test from: :medication_request_read
-        test from: :medication_request_validation
-      end
-
-      group do
-        title 'CRD NutritionOrder'
-        run_as_group
-
-        input :nutrition_order_ids
-
-        test from: :nutrition_order_read
-        test from: :nutrition_order_validation
-      end
-
-      group do
-        title 'CRD ServiceRequest'
-        run_as_group
-
-        input :service_request_ids
-
-        test from: :service_request_read
-        test from: :service_request_validation
-      end
-
-      group do
-        title 'CDex Task'
-        run_as_group
-
-        input :task_ids
-
-        test from: :task_read
-        test from: :task_validation
-        test from: :task_create
-        test from: :task_update
-      end
-
-      group do
-        title 'CRD VisionPrescription'
-        run_as_group
-
-        input :vision_prescription_ids
-
-        test from: :vision_prescription_read
-        test from: :vision_prescription_validation
-      end
+      group from: :questionnaire_response_group
+      group from: :coverage_group
+      group from: :communication_request_group
+      group from: :device_request_group
+      group from: :encounter_group
+      group from: :medication_request_group
+      group from: :nutrition_order_group
+      group from: :service_request_group
+      group from: :task_group
+      group from: :vision_prescription_group
     end
   end
 end
