@@ -26,7 +26,7 @@ requirement of US Core v3.1.1.
     id :questionnaire_response_patient_search
     input :patient_ids,
           title: 'Patient IDs',
-          description: 'Comma separated list of patient IDs that in sum contain all MUST SUPPORT elements'
+          description: 'Comma separated list of Patient IDs used to search for QuestionnaireResponses'
 
     def self.properties
       @properties ||= USCoreTestKit::SearchTestProperties.new(
