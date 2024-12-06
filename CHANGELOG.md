@@ -1,3 +1,15 @@
+# v0.14.0
+* FI-3222: DTR Client Tests: Use Random Number for Attestation Continuation Links by @degradification in https://github.com/inferno-framework/davinci-dtr-test-kit/pull/20
+* FI-3299: Fix Questionnaire Package verification in Payer suite by @tstrass in https://github.com/inferno-framework/davinci-dtr-test-kit/pull/29
+* Fix typo in bearer token by @tstrass in https://github.com/inferno-framework/davinci-dtr-test-kit/pull/30
+* Add USCore 3.1.1 test group, CRD profile tests by @elsaperelli in https://github.com/inferno-framework/davinci-dtr-test-kit/pull/26
+* Add create and update tests for QuestionnaireResponse and Task by @elsaperelli in https://github.com/inferno-framework/davinci-dtr-test-kit/pull/31
+* FI-3154: Full EHR Adaptive Questionnaire Tests by @vanessuniq in https://github.com/inferno-framework/davinci-dtr-test-kit/pull/22
+* FI-3514: Bug fix for inputs for different workflows by @tstrass in https://github.com/inferno-framework/davinci-dtr-test-kit/pull/34
+* FI-3435: Documentation for DTR Light EHR release by @elsaperelli in https://github.com/inferno-framework/davinci-dtr-test-kit/pull/35
+* FI-3300: Suite Endpoints by @tstrass in https://github.com/inferno-framework/davinci-dtr-test-kit/pull/37
+* FI-3520: update docs to account for new adaptive tests by @karlnaden in https://github.com/inferno-framework/davinci-dtr-test-kit/pull/38
+
 # v0.13.0
 * Fix wording in SMART App Launch description by @tstrass in https://github.com/inferno-framework/davinci-dtr-test-kit/pull/18
 * FI-3069: Full EHR QuestionnaireResponse verification by @tstrass in https://github.com/inferno-framework/davinci-dtr-test-kit/pull/19
