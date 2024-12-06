@@ -1,8 +1,8 @@
-require_relative 'ext/inferno_core/runnable'
 require_relative 'auth_groups/oauth2_authentication_group'
 require_relative 'client_groups/resp_assist_device/dtr_smart_app_questionnaire_workflow_group'
 require_relative 'client_groups/dinner_static/dtr_smart_app_questionnaire_workflow_group'
 require_relative 'client_groups/dinner_adaptive/dtr_smart_app_questionnaire_workflow_group'
+require_relative 'endpoints/cors'
 require_relative 'endpoints/mock_authorization'
 require_relative 'endpoints/mock_authorization/authorize_endpoint'
 require_relative 'endpoints/mock_authorization/token_endpoint'
@@ -15,7 +15,8 @@ require_relative 'version'
 
 module DaVinciDTRTestKit
   class DTRSmartAppSuite < Inferno::TestSuite
-    Inferno::Application['logger'].level = Logger::ERROR
+    extend CORS
+
     id :dtr_smart_app
     title 'Da Vinci DTR SMART App Test Suite'
     description File.read(File.join(__dir__, 'docs', 'dtr_smart_app_suite_description_v201.md'))

@@ -1,7 +1,7 @@
-require_relative 'ext/inferno_core/runnable'
 require_relative 'payer_server_groups/payer_server_static_group'
 require_relative 'payer_server_groups/payer_server_adaptive_group'
 require_relative 'tags'
+require_relative 'endpoints/cors'
 require_relative 'endpoints/mock_authorization/simple_token_endpoint'
 require_relative 'endpoints/mock_payer/questionnaire_package_proxy_endpoint'
 require_relative 'endpoints/mock_payer/next_question_proxy_endpoint'
@@ -9,6 +9,8 @@ require_relative 'version'
 
 module DaVinciDTRTestKit
   class DTRPayerServerSuite < Inferno::TestSuite
+    extend CORS
+
     id :dtr_payer_server
     title 'Da Vinci DTR Payer Server Test Suite'
     description File.read(File.join(__dir__, 'docs', 'dtr_payer_server_suite_description_v201.md'))

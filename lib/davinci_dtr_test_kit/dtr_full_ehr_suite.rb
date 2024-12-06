@@ -1,7 +1,7 @@
-require_relative 'ext/inferno_core/runnable'
 require_relative 'client_groups/dinner_static/dtr_full_ehr_questionnaire_workflow_group'
 require_relative 'client_groups/dinner_adaptive/dtr_full_ehr_adaptive_dinner_questionnaire_workflow_group'
 require_relative 'auth_groups/oauth2_authentication_group'
+require_relative 'endpoints/cors'
 require_relative 'endpoints/mock_authorization/simple_token_endpoint'
 require_relative 'endpoints/mock_payer/full_ehr_questionnaire_package_endpoint'
 require_relative 'endpoints/mock_payer/full_ehr_next_question_endpoint'
@@ -9,6 +9,8 @@ require_relative 'version'
 
 module DaVinciDTRTestKit
   class DTRFullEHRSuite < Inferno::TestSuite
+    extend CORS
+
     id :dtr_full_ehr
     title 'Da Vinci DTR Full EHR Test Suite'
     description File.read(File.join(__dir__, 'docs', 'dtr_full_ehr_suite_description_v201.md'))
