@@ -102,7 +102,7 @@ module DaVinciDTRTestKit
 
           #{inferno_prompt_cont if smart_app_launch == 'ehr'}
 
-          ### Questionnaire Retrieval
+          ### Adaptive Questionnaire Retrieval
 
           1. **Questionnaire Package Request**:
             - Inferno will expect the SMART App to invoke the DTR Questionnaire Package operation by sending a POST

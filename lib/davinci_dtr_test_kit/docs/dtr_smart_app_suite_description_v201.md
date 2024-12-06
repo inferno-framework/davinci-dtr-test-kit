@@ -31,6 +31,8 @@ be conformant. The app will then be asked to complete the questionnaire, includi
 - Rendering the questionnaire for users and allowing them to make additional updates.
   These tests can include specific directions on details to include in the completed
   questionnaire.
+- For adaptive questionnaires only, getting additional questions using the `$next-question`
+  operation until the questionnaire is complete.
 - Storing the completed questionnaire back to the light EHR simulated by Inferno. Inferno
   will validate the stored questionnaire, including pre-populated values (Inferno knows
   the pre-population logic and the data used in calculation) and other conformance details.
@@ -39,11 +41,12 @@ Apps will be required to complete all questionnaires in the suite, which in aggr
 contain all questionnaire features that apps must support. Currently, the suite includes
 two questionnaires:
 
-1. A fictitious "dinner" questionnaire created for these tests. It tests basic
-   item rendering and pre-population.
-2. A Respiratory Assist Device questionnaire pulled from the DTR reference implementation.
+1. Standard and adaptive styles of a fictitious "dinner" questionnaire created for these tests. 
+   They test basic item rendering, control flow, and pre-population.
+1. A Respiratory Assist Device questionnaire pulled from the DTR reference implementation.
    It tests additional features and represents a more realistic questionnaire.
-   Additional questionnaires will be added in the future.
+
+Additional questionnaires will be added in the future.
 
 All requests sent by the app will be checked
 for conformance to the DTR IG requirements individually and used in aggregate to determine
@@ -118,6 +121,11 @@ The following is a list of tests with the Postman requests that can be used with
 - **1.1** _Static Questionnaire Workflow_: use requests in the `Static Dinner` folder
   - **1.1.1.01** _Invoke the DTR Questionnaire Package operation_: submit request `Questionnaire Package for Dinner (Static)` while this test is waiting.
   - **1.1.3.01** _Save the QuestionnaireResponse after completing it_: submit request `Save QuestionnaireResponse for Dinner (Static)` while this test is waiting. If you want to see a failure, submit request `Save QuestionnaireResponse for Dinner (Static) - missing origin extension` instead.
+- **1.2** _Adaptive Questionnaire Workflow_: use requests in the `Adaptive Dinner` folder
+  - **1.2.1.1.01** _Invoke the Questionnaire Package and Initial Next Question Operation_: submit requests `Questionnaire Package for Dinner` and then `Initial Next Question` while this test is waiting.
+  - **1.2.2.1.01** _Invoke the $next-question operation_: submit request `Second Next Question` while this test is waiting.
+  - **1.2.3.1.01** _Invoke the $next-question operation_: submit request `Final Next Question` while this test is waiting.
+  - **1.2.4.01** _Save the QuestionnaireResponse after completing it_: submit request `Save QuestionnaireResponse` while this test is waiting.
 - **2.1** _Respiratory Assist Device Questionnaire Workflow_: use requests in the `Respiratory Assist Device` folder
   - **2.1.1.01** _Invoke the DTR Questionnaire Package operation_: submit request `Questionnaire Package for Resp Assist Device` while this test is waiting.
   - **2.1.3.01** _Save the QuestionnaireResponse after completing it_: submit request `Save Questionnaire Response for Resp Assist Device` while this test is waiting. If you want to see a failure, submit request `Save Questionnaire Response for Resp Assist Device - unexpected override` instead.
@@ -186,5 +194,5 @@ to retrieve questionnaires.
 ### Questionnaire Feature Coverage
 
 Not all questionnaire features that are must support within the DTR IG are currently represented
-in questionnaires tested by the IG. Adaptive questionnaires are a notable omission.
-Additional questionnaires testing additional features will be added in the future.
+in questionnaires tested by the IG. Additional questionnaires testing additional features will
+be added in the future.

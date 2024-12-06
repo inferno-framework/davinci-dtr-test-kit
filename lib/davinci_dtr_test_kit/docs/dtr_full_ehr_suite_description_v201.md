@@ -23,22 +23,26 @@ Tests within this suite are associated with specific questionnaires that the EHR
 demonstrate completion of. In each case, the EHR under test will initiate a request to
 the payer server simulated by Inferno for a questionnaire using the
 `$questionnaire-package` operation. Inferno will always return the specific questionnaire
-for the test being executed regardless of the input provided by the EHR, though it must
-be conformant. The EHR will then be asked to complete the questionnaire, including
+for the test being executed regardless of the input provided by the EHR, though Inferno will
+check that the input is conformant. The EHR will then be asked to complete the questionnaire,
+including:
 
-- Pre-populating answers based on directives in the questionnaire
+- Pre-populating answers based on directives in the questionnaire.
 - Rendering the questionnaire for users and allowing them to make additional updates.
   These tests can include specific directions on details to include in the completed
   questionnaire.
+- For adaptive questionnaires only, getting additional questions using the `$next-question`
+  operation until the questionnaire is complete.
 - Storing the completed questionnaire for future use as a FHIR QuestionnaireResponse.
 
 EHRs will be required to complete all questionnaires in the suite, which in aggregate
 contain all questionnaire features that apps must support. Currently, the suite includes
 one questionnaire:
 
-1. A fictitious "dinner" questionnaire created for these tests. It tests basic
-   item rendering and pre-population.
-   Additional questionnaires will be added in the future.
+1. Standard and adaptive styles of a fictitious "dinner" questionnaire created for these tests. 
+   They test basic item rendering, control flow, and pre-population.
+
+Additional questionnaires covering further features will be added in the future.
 
 All requests sent by the app will be checked
 for conformance to the DTR IG requirements individually and used in aggregate to determine
@@ -87,8 +91,11 @@ to make requests against Inferno. This does not include the capability to render
 questionnaires, but does have samples of correctly and incorrectly completed QuestionnaireResponses.
 To run the tests using this approach:
 
+#### Setup
 1. Install [postman](https://www.postman.com/downloads/).
 1. Import [this Postman collection](https://github.com/inferno-framework/davinci-dtr-test-kit/blob/main/config/DTR%20Full%20EHR%20Tests%20Postman%20Demo.postman_collection.json).
+
+#### Startup
 1. Start a Da Vinci DTR Full EHR Test Suite Session.
 1. Update the postman collection configuration variables found by opening the "DTR Full EHR
    Tests Postman Demo" collection and selecting the "Variables" tab.
@@ -96,7 +103,13 @@ To run the tests using this approach:
      `inferno.healthit.gov`. If running in another location, see guidance on the "Overview" tab
      of the postman collection.
    - **access_token**: note the "Current value" (update if desired) for use later.
-1. Return to Inferno and in the test list at the left, select _2 Static Questionnaire Workflow_.
+
+#### Dinner Questionnaire (Standard)
+
+For the standard (static) questionnaire demo, use the requests in the _Static Dinner_ folder in the 
+Postman collection.
+
+1. Return to the Inferno test session and in the test list at the left, select _2 Static Questionnaire Workflow_.
 1. Click the "Run All Tests" button in the upper right.
 1. Add the **access_token** configured in postman to the Inferno input with the same name
 1. Click the "Submit" button in Inferno.
@@ -109,21 +122,64 @@ To run the tests using this approach:
    with an actual EHR implementation. To see what a valid QuestionnaireResponse looks like, see
    the "Sample QuestionnaireResponse for Dinner (Static) ..." request in postman.
 
+#### Dinner Questionnaire (Adaptive)
+
+For the adaptive questionnaire demo, use the requests in the _Adaptive Dinner_ folder in the 
+Postman collection.
+
+1. Return to the Inferno test session and in the test list at the left, select _3 Adaptive Questionnaire Workflow_.
+1. Click the "Run All Tests" button in the upper right.
+1. Add the **access_token** configured in postman to the Inferno input with the same name (if not already present)
+1. Click the "Submit" button in Inferno.
+1. Attest that the EHR has launched its DTR workflow in Inferno by clicking the link for the **true** response.
+1. Once the **Adaptive Questionnaire Retrieval** wait dialog has appeared within Inferno asking 
+   for `$questionnaire-package` and `$next-question`
+   requests, use postman to submit the "Questionnaire Package for Dinner" request followed by the
+   "Initial Next Question" request. Confirm
+   that the response that looks similar to the "Example Response" in postman
+   and click the link to continue the tests.
+1. Attest to the next several attestation wait dialogs as desired to get a sense for what is involved
+   in testing with an actual EHR implementation.
+1. Once the **Follow-up Next Question Request** wait dialog has appeared within Inferno asking for
+   another `$next-question` request, use postman to submit the "Second Next Question" request. Confirm
+   that the response that looks similar to the "Example Response" in postman
+   and click the link to continue the tests.
+1. Once the **Last Next Question Request** wait dialog has appeared within Inferno asking for
+   another `$next-question` request, use postman to submit the "Final Next Question" request. Confirm
+   that the response that looks similar to the "Example Response" in postman
+   and click the link to continue the tests.
+
 ## Limitations
 
 The DTR IG is a complex specification and these tests currently validate conformance to only
 a subset of IG requirements. Future versions of the test suite will test further
 features. A few specific features of interest are listed below.
 
-### Heavy Reliance on Attestations
+### Questionnaire Response Verification
 
-Currently, these test kits do not have access to the QuestionnaireResponse and so validation
-that the EHR performed CQL calculations and generated a conformant QuestionnaireResponse
-based on pre-population and manual answers is left to a user attestation rather than a
-mechanical check. Some level of mechanical checks are expected to be added in the future.
+Currently, these test kits do not have enough information about the data stored on
+the EHR to evaluate whether CQL evaluation populated data correctly. However, Inferno
+does ask testers to make sure that the target patient meets certain requirements and
+directs them to perform certain actions while filling out forms that allow Inferno to
+check that calculation is occuring and that the system is correctly keeping track of
+items that were pre-populated. This approach may change in future versions of these tests.
+
+### Questionnaire Response Access
+
+For standard (static) questionnaires, Full EHRs are not required by the DTR specification
+to store or expose the completed form as a FHIR QuestionnaireResponse instance, though they
+are required to store the form in some way and be able to send the QuestionnaireResponse
+representation to other systems. Currently, testers are required to provide a
+QuestionnaireResponse as an input to the tests once they have completed their workflow.
+Future versions of these tests will provide additional options for making that information
+available that are more in-line with expected system capabilities.
+
+For adaptive questionnaires, the completed QuestionnaireResponse will be present in the
+last `$next-question` invocation by the EHR, so this limitation does not apply to those
+cases.
 
 ### Questionnaire Feature Coverage
 
 Not all questionnaire features that are must support within the DTR IG are currently represented
-in questionnaires tested by the IG. Adaptive questionnaires are a notable omission.
-Additional questionnaires testing additional features will be added in the future.
+in questionnaires tested by the IG. Additional questionnaires testing additional features will
+be added in the future.
