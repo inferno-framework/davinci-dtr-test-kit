@@ -1,3 +1,6 @@
+# v0.14.1
+* Make us_core_test_kit and tls_test_kit dependencies relative
+
 # v0.14.0
 * FI-3222: DTR Client Tests: Use Random Number for Attestation Continuation Links by @degradification in https://github.com/inferno-framework/davinci-dtr-test-kit/pull/20
 * FI-3299: Fix Questionnaire Package verification in Payer suite by @tstrass in https://github.com/inferno-framework/davinci-dtr-test-kit/pull/29
