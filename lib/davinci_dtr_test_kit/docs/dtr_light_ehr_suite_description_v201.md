@@ -24,6 +24,10 @@ The DTR IG is a complex specification and these tests currently validate conform
 a subset of IG requirements. Future versions of the test suite will test further
 features.
 
+Specific limitations include:
+- *SMART Launch `fhirContext`*: Inferno does not currently verify the use of `fhirContext` to convey details
+  about the DTR SMART App launch.
+
 ## DTR 2.0.1 Corrections
 
 The DTR 2.0.1 version of the [Light EHR CapabilityStatement](http://hl7.org/fhir/us/davinci-dtr/CapabilityStatement/light-dtr-ehr) includes two pieces of missing or misleading information that have been corrected:
