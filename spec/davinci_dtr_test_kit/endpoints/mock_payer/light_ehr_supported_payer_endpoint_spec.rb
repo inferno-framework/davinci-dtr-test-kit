@@ -33,10 +33,14 @@ RSpec.describe DaVinciDTRTestKit::Endpoints::MockPayer::LightEHRSupportedPayerEn
     let(:runnable) { Inferno::Repositories::TestGroups.new.find('light_ehr_supported_payer_endpoint') }
 
     it 'passes when a request is made to the supported payers endpoint' do
-      allow_any_instance_of(DaVinciDTRTestKit::URLs).to(
-        receive(:suite_id).and_return(suite_id)
-      )
+      header 'Accept', 'application/json'
+      get '/supported-payers'
 
+      expect(last_response.status).to eq(200)
+      expect(last_response.content_type).to eq('application/json')
+      expect(JSON.parse(last_response.body)['payers']).to be_an(Array)
+
+      # Additional test logic for asynchronous handling
       result = repo_create(:result, test_session_id: test_session.id)
       repo_create(:request, result_id: result.id, name: 'supported_payers', request_body: nil,
                             test_session_id: test_session.id, tags: ['supported_payers'])
@@ -49,6 +53,13 @@ RSpec.describe DaVinciDTRTestKit::Endpoints::MockPayer::LightEHRSupportedPayerEn
 
       result = results_repo.find(result.id)
       expect(result.result).to eq('pass')
+    end
+
+    it 'returns 406 when Accept header is missing or incorrect' do
+      get '/supported-payers'
+
+      expect(last_response.status).to eq(406)
+      expect(JSON.parse(last_response.body)['error']).to eq('Not Acceptable')
     end
   end
 end
