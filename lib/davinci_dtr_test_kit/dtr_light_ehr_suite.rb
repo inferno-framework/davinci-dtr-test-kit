@@ -12,6 +12,7 @@ require_relative 'profiles/nutrition_order_group'
 require_relative 'profiles/service_request_group'
 require_relative 'profiles/task_group'
 require_relative 'profiles/vision_prescription_group'
+require_relative 'endpoints/mock_payer/light_ehr_supported_payer_endpoint'
 require 'smart_app_launch/smart_stu1_suite'
 require 'smart_app_launch/smart_stu2_suite'
 
@@ -54,6 +55,8 @@ module DaVinciDTRTestKit
         message.message.match?(/\A\S+: \S+: URL value '.*' does not resolve/)
       end
     end
+
+    route :get, '/supported-payers', Endpoints::MockPayer::LightEHRSupportedPayerEndpoint
 
     group do
       title 'Authorization'
