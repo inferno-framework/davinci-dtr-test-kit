@@ -155,6 +155,15 @@ The DTR IG is a complex specification and these tests currently validate conform
 a subset of IG requirements. Future versions of the test suite will test further
 features. A few specific features of interest are listed below.
 
+### Auth
+
+The DTR Full EHR suite includes a set of light-weight auth tests designed to support the
+client under test in identifying itself to Inferno's simulated payer server, which is
+needed so that Inferno can associate requests with the correct test session. These tests
+do not currently verify client conformance to specific auth approaches. They also require
+that client systems generate, provide to inferno, and be configured to use a
+client id or static bearer token when sending requests to Inferno.
+
 ### Questionnaire Response Verification
 
 Currently, these test kits do not have enough information about the data stored on
