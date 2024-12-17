@@ -1,4 +1,5 @@
 require_relative '../../../request_helper'
+require_relative '../../../../lib/davinci_dtr_test_kit/endpoints/mock_payer/light_ehr_supported_payer_endpoint'
 
 RSpec.describe DaVinciDTRTestKit::Endpoints::MockPayer::LightEHRSupportedPayerEndpoint do
   include Rack::Test::Methods
@@ -40,7 +41,6 @@ RSpec.describe DaVinciDTRTestKit::Endpoints::MockPayer::LightEHRSupportedPayerEn
       expect(last_response.content_type).to eq('application/json')
       expect(JSON.parse(last_response.body)['payers']).to be_an(Array)
 
-      # Additional test logic for asynchronous handling
       result = repo_create(:result, test_session_id: test_session.id)
       repo_create(:request, result_id: result.id, name: 'supported_payers', request_body: nil,
                             test_session_id: test_session.id, tags: ['supported_payers'])

@@ -56,8 +56,7 @@ module DaVinciDTRTestKit
       end
     end
 
-    route :get, '/supported-payers', Endpoints::MockPayer::LightEHRSupportedPayerEndpoint
-
+    route :get, '/supported-payers', DaVinciDTRTestKit::Endpoints::MockPayer::LightEHRSupportedPayerEndpoint
     group do
       title 'Authorization'
 

@@ -1,25 +1,36 @@
-require 'json' # TEMP
-require 'sinatra/base' # TEMP
+require_relative '../mock_payer'
 
 module DaVinciDTRTestKit
   module Endpoints
     module MockPayer
-      class LightEHRSupportedPayerEndpoint < Sinatra::Base
-        get '/supported-payers' do
-          if request.env['HTTP_ACCEPT'] == 'application/json'
-            content_type :json
-            status 200
-            {
-              payers: [
-                { id: 'payer1', name: 'Payer One' },
-                { id: 'payer2', name: 'Payer Two' }
-              ]
-            }.to_json
-          else
-            status 406
-            content_type :json
-            { error: 'Not Acceptable', message: 'Accept header must be application/json' }.to_json
+      class LightEHRSupportedPayerEndpoint < Inferno::DSL::SuiteEndpoint
+        include DaVinciDTRTestKit::MockPayer
+
+        def make_response
+          puts "Request method: #{request.request_method}"
+          if request.headers['Accept'] != 'application/json'
+            response.status = 406
+            response.body = { error: 'Not Acceptable', message: 'Accept header must be application/json' }.to_json
+            response.headers['Content-Type'] = 'application/json'
+            return
           end
+
+          response.status = 200
+          response.body = {
+            payers: [
+              { id: 'payer1', name: 'Payer One' },
+              { id: 'payer2', name: 'Payer Two' }
+            ]
+          }.to_json
+          response.headers['Content-Type'] = 'application/json'
+        end
+
+        def tags
+          ['supported_payers']
+        end
+
+        def name
+          'light_ehr_supported_payer_endpoint'
         end
       end
     end
