@@ -62,8 +62,8 @@ module DaVinciDTRTestKit
       base_url = env_base_url(env, OPENID_CONFIG_PATH)
       response_body = {
         issuer: base_url + FHIR_BASE_PATH,
-        authorization_endpoint: base_url + EHR_AUTHORIZE_PATH,
-        token_endpoint: base_url + EHR_TOKEN_PATH,
+        authorization_endpoint: authorization_endpoint(base_url),
+        token_endpoint: token_endpoint(base_url),
         jwks_uri: base_url + JKWS_PATH,
         response_types_supported: ['id_token'],
         subject_types_supported: ['public'],
@@ -78,6 +78,14 @@ module DaVinciDTRTestKit
       path = env['REQUEST_PATH'] || env['PATH_INFO']
       path.gsub!(%r{#{endpoint_path}(/)?}, '')
       "#{protocol}://#{host + path}"
+    end
+
+    def authorization_endpoint(base_url)
+      base_url + EHR_AUTHORIZE_PATH
+    end
+
+    def token_endpoint(base_url)
+      base_url + EHR_TOKEN_PATH
     end
   end
 end

@@ -67,7 +67,7 @@ module DaVinciDTRTestKit
     suite_endpoint :post, NEXT_PATH, MockPayer::NextQuestionEndpoint
 
     # EHR
-    route(:get, '/fhir/metadata', MockEHR.method(:metadata))
+    route(:get, METADATA_PATH, MockEHR.method(:metadata))
     suite_endpoint :post, QUESTIONNAIRE_RESPONSE_PATH, MockEHR::QuestionnaireResponseEndpoint
     suite_endpoint :get, FHIR_RESOURCE_PATH, MockEHR::FHIRGetEndpoint
     suite_endpoint :get, FHIR_SEARCH_PATH, MockEHR::FHIRGetEndpoint
