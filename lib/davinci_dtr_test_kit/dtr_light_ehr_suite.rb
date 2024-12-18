@@ -13,6 +13,7 @@ require_relative 'profiles/service_request_group'
 require_relative 'profiles/task_group'
 require_relative 'profiles/vision_prescription_group'
 require_relative 'endpoints/mock_payer/light_ehr_supported_payer_endpoint'
+require_relative 'client_groups/light_ehr/dtr_light_ehr_supported_endpoints_group'
 require 'smart_app_launch/smart_stu1_suite'
 require 'smart_app_launch/smart_stu2_suite'
 
@@ -56,7 +57,8 @@ module DaVinciDTRTestKit
       end
     end
 
-    route :get, '/supported-payers', DaVinciDTRTestKit::Endpoints::MockPayer::LightEHRSupportedPayerEndpoint
+    suite_endpoint :get, SUPPORTED_PAYER_PATH, MockPayer::LightEHRSupportedPayerEndpoint
+
     group do
       title 'Authorization'
 
@@ -137,6 +139,18 @@ module DaVinciDTRTestKit
       group from: :service_request_group
       group from: :task_group
       group from: :vision_prescription_group
+    end
+
+    group do
+      title 'Supported Endpoints'
+      description %(This test group tests system for their conformance to
+      the supported endpoint capabilities as defined by the DaVinci Documentation
+      Templates and Rules (DTR) v2.0,1 Implementation Guide Light DTR EHR
+      Capability Statement.
+
+      )
+
+      group from: :dtr_light_ehr_supported_endpoints
     end
   end
 end
