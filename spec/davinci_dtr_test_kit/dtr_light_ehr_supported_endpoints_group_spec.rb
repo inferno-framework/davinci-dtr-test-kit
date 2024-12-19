@@ -1,8 +1,8 @@
-require_relative '../../../request_helper'
-require_relative '../../../../lib/davinci_dtr_test_kit/endpoints/mock_payer/light_ehr_supported_payer_endpoint'
+require_relative '../request_helper'
 
-RSpec.describe DaVinciDTRTestKit::Endpoints::MockPayer::LightEHRSupportedPayerEndpoint do
+RSpec.describe DaVinciDTRTestKit::DTRLightEhrSupportedEndpointsGroup do
   include Rack::Test::Methods
+  include RequestHelpers
 
   def app
     Inferno::Web.app

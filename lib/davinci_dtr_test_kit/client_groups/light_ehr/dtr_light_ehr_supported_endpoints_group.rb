@@ -1,9 +1,9 @@
 require_relative 'dtr_light_ehr_supported_payer_endpoint_test'
 
 module DaVinciDTRTestKit
-  class DtrLightEhrSupportedEndpointsGroup < Inferno::TestGroup
+  class DTRLightEhrSupportedEndpointsGroup < Inferno::TestGroup
     id :dtr_light_ehr_supported_endpoints
-    title 'Supported Endpoints'
+    title 'DTR Supported Endpoints'
     description %(
       Demonstrate the ability to access supported endpoints
     )

@@ -142,10 +142,10 @@ module DaVinciDTRTestKit
     end
 
     group do
-      title 'Supported Endpoints'
+      title 'DTR Light EHR Supported Endpoints'
       description %(This test group tests system for their conformance to
       the supported endpoint capabilities as defined by the DaVinci Documentation
-      Templates and Rules (DTR) v2.0,1 Implementation Guide Light DTR EHR
+      Templates and Rules (DTR) v2.0.1 Implementation Guide Light DTR EHR
       Capability Statement.
 
       )
