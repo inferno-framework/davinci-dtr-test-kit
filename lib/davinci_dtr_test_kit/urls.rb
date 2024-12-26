@@ -2,6 +2,7 @@
 
 module DaVinciDTRTestKit
   FHIR_BASE_PATH = '/fhir'
+  METADATA_PATH = "#{FHIR_BASE_PATH}/metadata".freeze
   SMART_CONFIG_PATH = "#{FHIR_BASE_PATH}/.well-known/smart-configuration".freeze
   OPENID_CONFIG_PATH = "#{FHIR_BASE_PATH}/.well-known/openid-configuration".freeze
   JKWS_PATH = "#{FHIR_BASE_PATH}/.well-known/jwks.json".freeze
