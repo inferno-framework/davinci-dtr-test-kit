@@ -1,12 +1,13 @@
 require_relative '../../urls'
 
 module DaVinciDTRTestKit
-  class DtrLightEhrSupportedPayerEndpointTest < Inferno::Test
+  class DTRLightEhrSupportedPayerEndpointTest < Inferno::Test
     include URLs
     id :dtr_light_ehr_supported_payer_endpoint
     title 'Client can retrieve payers from supported payer endpoint'
     description %(
-      Inferno, will wait for a request to return the payer details from the supported endpoint.
+      This test verifies that the app can successfully access the supported payer endpoint via a GET request,
+      including an Accept header set to application/json
     )
     input :access_token,
           description: %(

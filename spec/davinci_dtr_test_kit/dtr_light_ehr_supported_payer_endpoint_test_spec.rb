@@ -1,6 +1,6 @@
 require_relative '../request_helper'
 
-RSpec.describe DaVinciDTRTestKit::DTRLightEhrSupportedEndpointsGroup do
+RSpec.describe DaVinciDTRTestKit::DTRLightEhrSupportedPayerEndpointTest do
   include Rack::Test::Methods
   include RequestHelpers
 
@@ -8,9 +8,11 @@ RSpec.describe DaVinciDTRTestKit::DTRLightEhrSupportedEndpointsGroup do
     Inferno::Web.app
   end
 
+  let(:group) { Inferno::Repositories::TestGroups.new.find('dtr_light_ehr_supported_payer_endpoint') }
   let(:suite_id) { :dtr_light_ehr }
   let(:resume_pass_url) { "/custom/#{suite_id}/resume_pass" }
   let(:resume_fail_url) { "/custom/#{suite_id}/resume_fail" }
+  let(:supported_payer_url) { "/custom/#{suite_id}/supported_payers" }
   let(:session_data_repo) { Inferno::Repositories::SessionData.new }
   let(:test_session) { repo_create(:test_session, test_suite_id: suite_id) }
   let(:test_runs_repo) { Inferno::Repositories::TestRuns.new }
@@ -35,7 +37,7 @@ RSpec.describe DaVinciDTRTestKit::DTRLightEhrSupportedEndpointsGroup do
 
     it 'passes when a request is made to the supported payers endpoint' do
       header 'Accept', 'application/json'
-      get '/supported-payers'
+      get supported_payer_url
 
       expect(last_response.status).to eq(200)
       expect(last_response.content_type).to eq('application/json')
@@ -43,7 +45,7 @@ RSpec.describe DaVinciDTRTestKit::DTRLightEhrSupportedEndpointsGroup do
 
       result = repo_create(:result, test_session_id: test_session.id)
       repo_create(:request, result_id: result.id, name: 'supported_payers', request_body: nil,
-                            test_session_id: test_session.id, tags: ['supported_payers'])
+                            test_session_id: test_session.id, tags: [SUPPORTED_PAYER_TAG])
 
       result = run(runnable, test_session)
       expect(result.result).to eq('wait')
@@ -56,7 +58,7 @@ RSpec.describe DaVinciDTRTestKit::DTRLightEhrSupportedEndpointsGroup do
     end
 
     it 'returns 406 when Accept header is missing or incorrect' do
-      get '/supported-payers'
+      get supported_payer_url
 
       expect(last_response.status).to eq(406)
       expect(JSON.parse(last_response.body)['error']).to eq('Not Acceptable')

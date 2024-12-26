@@ -57,7 +57,7 @@ module DaVinciDTRTestKit
       end
     end
 
-    suite_endpoint :get, SUPPORTED_PAYER_PATH, MockPayer::LightEHRSupportedPayerEndpoint
+    suite_endpoint :get, SUPPORTED_PAYER_PATH, LightEHRSupportedPayerEndpoint
 
     group do
       title 'Authorization'
@@ -141,16 +141,6 @@ module DaVinciDTRTestKit
       group from: :vision_prescription_group
     end
 
-    group do
-      title 'DTR Light EHR Supported Endpoints'
-      description %(This test group tests system for their conformance to
-      the supported endpoint capabilities as defined by the DaVinci Documentation
-      Templates and Rules (DTR) v2.0.1 Implementation Guide Light DTR EHR
-      Capability Statement.
-
-      )
-
-      group from: :dtr_light_ehr_supported_endpoints
-    end
+    group from: :dtr_light_ehr_supported_endpoints
   end
 end
