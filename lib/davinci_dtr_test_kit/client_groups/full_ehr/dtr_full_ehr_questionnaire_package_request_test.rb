@@ -17,6 +17,7 @@ module DaVinciDTRTestKit
             `Authorization` header of each HTTP request to Inferno. Inferno
             will look for this value to associate requests with this session.
           )
+    input :custom_questionnaire_package_response, optional: true
 
     run do
       wait(
