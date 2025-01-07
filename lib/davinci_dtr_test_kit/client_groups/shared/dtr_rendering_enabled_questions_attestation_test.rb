@@ -2,10 +2,10 @@ require 'securerandom'
 require_relative '../../urls'
 
 module DaVinciDTRTestKit
-  class DTRFullEHRRenderingEnabledQuestionsAttestationTest < Inferno::Test
+  class DTRRenderingEnabledQuestionsAttestationTest < Inferno::Test
     include URLs
 
-    id :dtr_full_ehr_rendering_enabled_questions_attestation
+    id :dtr_rendering_enabled_questions_attestation
     title 'Check that the client renders enabled questions appropriately (Attestation)'
     description %(
       'Enabled questions' refer to questions that are active, visible, and ready for

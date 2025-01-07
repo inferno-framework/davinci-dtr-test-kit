@@ -1,9 +1,9 @@
 require_relative '../full_ehr/dtr_full_ehr_launch_attestation_test'
 require_relative '../full_ehr/dtr_full_ehr_questionnaire_package_request_test'
 require_relative '../shared/dtr_questionnaire_package_request_validation_test'
-require_relative '../full_ehr/dtr_full_ehr_prepopulation_attestation_test'
-require_relative '../full_ehr/dtr_full_ehr_rendering_enabled_questions_attestation_test'
-require_relative '../full_ehr/dtr_full_ehr_prepopulation_override_attestation_test'
+require_relative '../shared/dtr_prepopulation_attestation_test'
+require_relative '../shared/dtr_rendering_enabled_questions_attestation_test'
+require_relative '../shared/dtr_prepopulation_override_attestation_test'
 require_relative '../full_ehr/dtr_full_ehr_saving_questionnaire_response_group'
 require_relative 'dtr_custom_questionnaire_package_validation_test'
 require_relative '../../payer_server_groups/static_form_libraries_test'
@@ -15,12 +15,14 @@ module DaVinciDTRTestKit
     id :dtr_full_ehr_static_dinner_questionnaire_workflow
     title 'Static Questionnaire Workflow'
     description %(
-      This test validates that a DTR Full EHR client can perform a full DTR Static Questionnaire workflow
-      using a mocked questionnaire requesting what a patient wants for dinner. The client system must
+      This test validates that a DTR Full EHR client can perform a full DTR Static Questionnaire workflow.
+      Users have the option to either use a mocked questionnaire requesting what a patient wants for dinner
+      or provide a custom questionnaire package of their choice for the test. The client system must
       demonstrate its ability to:
 
       1. Fetch the static questionnaire package
          ([DinnerOrderStatic](https://github.com/inferno-framework/davinci-dtr-test-kit/blob/main/lib/davinci_dtr_test_kit/fixtures/dinner_static/questionnaire_dinner_order_static.json))
+         or the custom questionnaire package
       2. Render and pre-populate the questionnaire appropriately, including:
          - pre-populate data as directed by the questionnaire
          - display questions only when they are enabled by other answers
@@ -92,11 +94,11 @@ module DaVinciDTRTestKit
       run_as_group
 
       # Test 1: attest to the pre-population of the name fields
-      test from: :dtr_full_ehr_prepopulation_attestation
+      test from: :dtr_prepopulation_attestation
       # Test 2: attest to the pre-population and edit of the first name field
-      test from: :dtr_full_ehr_prepopulation_override_attestation
-      # Test 3: attest to the display of the toppings questions only when a dinner answer is selected
-      test from: :dtr_full_ehr_rendering_enabled_questions_attestation
+      test from: :dtr_prepopulation_override_attestation
+      # Test 3: attest to proper display of enabled question(s)
+      test from: :dtr_rendering_enabled_questions_attestation
     end
 
     group from: :dtr_full_ehr_saving_questionnaire_response,

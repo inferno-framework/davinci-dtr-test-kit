@@ -1,21 +1,27 @@
 require_relative 'dtr_smart_app_dinner_questionnaire_package_request_test'
 require_relative '../shared/dtr_questionnaire_package_request_validation_test'
-require_relative '../smart_app/dtr_smart_app_prepopulation_attestation_test'
-require_relative '../smart_app/dtr_smart_app_prepopulation_override_attestation_test'
-require_relative '../smart_app/dtr_smart_app_rendering_enabled_questions_attestation_test'
+require_relative '../shared/dtr_prepopulation_attestation_test'
+require_relative '../shared/dtr_rendering_enabled_questions_attestation_test'
+require_relative '../shared/dtr_prepopulation_override_attestation_test'
 require_relative '../smart_app/dtr_smart_app_saving_questionnaire_response_group'
+require_relative 'dtr_custom_questionnaire_package_validation_test'
+require_relative '../../payer_server_groups/static_form_libraries_test'
+require_relative '../../payer_server_groups/static_form_questionnaire_extensions_test'
+require_relative '../../payer_server_groups/static_form_questionnaire_expressions_test'
 
 module DaVinciDTRTestKit
   class DTRSmartAppStaticDinnerQuestionnaireWorkflowGroup < Inferno::TestGroup
     id :dtr_smart_app_static_dinner_questionnaire_workflow
     title 'Static Questionnaire Workflow'
     description %(
-      This test validates that a DTR SMART App client can perform a full DTR Static Questionnaire workflow
-      using a mocked questionnaire requesting what a patient wants for dinner. The client system must
-      demonstrate their ability to:
+      This test validates that a DTR SMART App client can perform a full DTR Static Questionnaire workflow.
+      Users have the option to either use a mocked questionnaire requesting what a patient wants for dinner
+      or provide a custom questionnaire package of their choice for the test. The client system must
+      demonstrate its ability to:
 
       1. Fetch the static questionnaire package
          ([DinnerOrderStatic](https://github.com/inferno-framework/davinci-dtr-test-kit/blob/main/lib/davinci_dtr_test_kit/fixtures/dinner_static/questionnaire_dinner_order_static.json))
+         or the custom questionnaire package
       2. Render and pre-populate the questionnaire appropriately, including:
          - fetch additional data needed for pre-population
          - pre-populate data as directed by the questionnaire
@@ -34,9 +40,42 @@ module DaVinciDTRTestKit
       )
       run_as_group
 
-      # Test 1: wait for the $questionnaire-package request
+      def retrieval_method
+        'Static'
+      end
+
+      # Test 1: validate the user provided $questionnaire-package response
+      test from: :dtr_custom_questionnaire_package_validation
+      # Test 2: verify the custom response has the necessary libraries for pre-population
+      test from: :dtr_v201_payer_static_form_libraries_test do
+        title 'Custom Questionnaire Package response parameters contain libraries necessary for pre-population'
+        description %(
+           Inferno check that the custom response contains no duplicate library names
+           and that libraries contain cql and elm data.
+         )
+      end
+
+      # Test 3: verify the custom response has the necessaru extensions for pre-population
+      test from: :dtr_v201_payer_static_form_extensions_test do
+        title 'Custom static questionnaire(s) contain extensions necessary for pre-population'
+        description %(
+           Inferno checks that the custom response has appropriate extensions and references to libraries within
+           those extensions.
+         )
+      end
+
+      # Test 4: verify custom response has necessary expressions for pre-population
+      test from: :dtr_v201_payer_static_form_expressions_test do
+        title 'Custom static questionnaire(s) contain items with expressions necessary for pre-population'
+        description %(
+           Inferno checks that the custom response has appropriate expressions and that expressions are
+           written in cql.
+         )
+        config(options: { client: true })
+      end
+      # Test 5: wait for the $questionnaire-package request
       test from: :dtr_smart_app_dinner_questionnaire_package_request
-      # Test 2: validate the $questionnaire-package body
+      # Test 6: validate the $questionnaire-package body
       test from: :dtr_questionnaire_package_request_validation
     end
 
@@ -56,11 +95,11 @@ module DaVinciDTRTestKit
       # since the questionnaire asks them to
       # TODO: once Tom has gotten the reference server hooked up
       # Test 2: attest to the pre-population of the name fields
-      test from: :dtr_smart_app_prepopulation_attestation
+      test from: :dtr_prepopulation_attestation
       # Test 3: attest to the pre-population and edit of the location field
-      test from: :dtr_smart_app_prepopulation_override_attestation
-      # Test 4: attest to the display of the toppings questions only when a dinner answer is selected
-      test from: :dtr_smart_app_rendering_enabled_questions_attestation
+      test from: :dtr_prepopulation_override_attestation
+      # Test 4: attest to proper display of enabled question(s)
+      test from: :dtr_rendering_enabled_questions_attestation
     end
 
     group from: :dtr_smart_app_saving_questionnaire_response
