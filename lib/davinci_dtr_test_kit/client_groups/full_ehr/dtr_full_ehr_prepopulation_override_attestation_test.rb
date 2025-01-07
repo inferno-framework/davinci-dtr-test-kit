@@ -15,7 +15,7 @@ module DaVinciDTRTestKit
       wait(
         identifier: random_id,
         message: %(
-          I attest that I have changed the prepopulated value in the First Name field to a new value.
+          I attest that I have changed the prepopulated value in a questionnaire field to a new value.
 
           [Click here](#{resume_pass_url}?token=#{random_id}) if the above statement is **true**.
 
