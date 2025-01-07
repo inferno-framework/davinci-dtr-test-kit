@@ -1,34 +1,36 @@
 require_relative '../../dtr_questionnaire_response_validation'
+require_relative '../../cql_test'
 
 module DaVinciDTRTestKit
   class DTRFullEHRQuestionnaireResponseCorrectnessTest < Inferno::Test
     include DTRQuestionnaireResponseValidation
+    include DaVinciDTRTestKit::CQLTest
 
     id :dtr_full_ehr_questionnaire_response_correctness
     title 'QuestionnaireResponse is correct for the workflow'
     description %(
-      The QuestionnaireResponse aligns with the following expectations for the workflow. This includes checks for
-      the presence of the following answers and their appropriate origin source extensions:
-
-      - `PBD.1` (Last Name) and `LOC.1` (Location): `auto`
-      - PBD.2 (First Name): `override`
-      - `3` (all nested dinner questions): `manual`
+      This test verifies that all the QuestionnaireResponse.item have the appropriate
+      origin source extensions and that all required questions have been answered.
     )
 
     run do
-      skip_if questionnaire_response.nil?, 'Completed QuestionnaireResponse input was blank'
+      skip_if questionnaire_response.blank?, 'Completed QuestionnaireResponse input was blank'
       check_is_questionnaire_response(questionnaire_response)
 
       qr = FHIR.from_contents(questionnaire_response)
-      questionnaire = if config.options[:adaptive]
-                        qr.contained.find do |res|
-                          res.resourceType == 'Questionnaire'
-                        end
-                      else
+      questionnaire = if scratch[:static_questionnaire_bundles].nil?
                         Fixtures.questionnaire_for_test(id)
+                      else
+                        questionnaires = extract_questionnaires_from_bundles(scratch[:static_questionnaire_bundles])
+                        questionnaires.find { |q| qr.questionnaire.end_with?(q.id) }
                       end
-      # questionnaire = Fixtures.find_questionnaire('DinnerOrderStatic')
-      check_origin_sources(questionnaire.item, qr.item, expected_overrides: ['PBD.2'])
+
+      skip_if questionnaire.blank?, "Couldn't find Questionnaire #{qr.questionnaire} to check the QuestionnaireResponse"
+
+      expected_overrides = scratch[:static_questionnaire_bundles].nil? ? [] : ['PBD.2']
+      scratch[:static_questionnaire_bundles] = nil
+
+      check_origin_sources(questionnaire.item, qr.item, expected_overrides:)
       required_link_ids = extract_required_link_ids(questionnaire.item)
       check_answer_presence(qr.item, required_link_ids)
       assert(messages.none? { |m| m[:type] == 'error' }, 'QuestionnaireResponse is not correct, see error message(s)')

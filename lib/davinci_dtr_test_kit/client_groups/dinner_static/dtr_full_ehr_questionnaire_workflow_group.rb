@@ -72,6 +72,7 @@ module DaVinciDTRTestKit
           Inferno checks that the custom response has appropriate expressions and that expressions are
           written in cql.
         )
+        config(options: { client: true })
       end
       # Test 5: wait for the $questionnaire-package request
       test from: :dtr_full_ehr_questionnaire_package_request

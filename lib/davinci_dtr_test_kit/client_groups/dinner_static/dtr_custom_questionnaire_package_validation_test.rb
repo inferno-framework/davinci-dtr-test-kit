@@ -20,7 +20,7 @@ module DaVinciDTRTestKit
     input :custom_questionnaire_package_response,
           title: 'Custom Questionnaire Package Response JSON',
           description: %(
-            A JSON String may be provided here to replace Inferno's response to the
+            A JSON PackageBundle may be provided here to replace Inferno's response to the
             $questionnaire-package request.
           ),
           type: 'textarea',

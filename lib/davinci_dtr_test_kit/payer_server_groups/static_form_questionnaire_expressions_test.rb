@@ -15,7 +15,7 @@ module DaVinciDTRTestKit
       skip_if scratch[:static_questionnaire_bundles].nil?, 'No questionnaire bundle returned.'
       questionnaires = extract_questionnaires_from_bundles(scratch[:static_questionnaire_bundles])
       verify_questionnaire_items(questionnaires, final_cql_test: true)
-      scratch[:static_questionnaire_bundles] = nil
+      scratch[:static_questionnaire_bundles] = nil unless config.options[:client]
     end
   end
 end
