@@ -37,10 +37,12 @@ module DaVinciDTRTestKit
                           questionnaires = extract_questionnaires_from_bundles(scratch[:static_questionnaire_bundles])
                           questionnaires.find { |q| questionnaire_response.questionnaire.end_with?(q.id) }
                         end
-        skip_if questionnaire.blank?,
-                "Couldn't find Questionnaire #{questionnaire_response.questionnaire} to check the QuestionnaireResponse"
 
-        expected_overrides = ['PBD.2'] if scratch[:static_questionnaire_bundles].present?
+        skip_if questionnaire.blank?,
+                "Couldn't find Questionnaire `#{questionnaire_response.questionnaire}` in the provided
+                 custom questionnaire package to validate the QuestionnaireResponse."
+
+        expected_overrides = ['PBD.2'] if scratch[:static_questionnaire_bundles].blank?
         scratch[:static_questionnaire_bundles] = nil
       end
 
