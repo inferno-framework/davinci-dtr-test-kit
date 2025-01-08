@@ -51,6 +51,7 @@ module DaVinciDTRTestKit
             instance present will be available for retrieval from Inferno at the endpoint:
             <fhir-base>/<resource type>/<instance id>
           )
+    input :custom_questionnaire_package_response, optional: true
 
     def example_client_jwt_payload_part
       Base64.strict_encode64({ inferno_client_id: client_id }.to_json).delete('=')

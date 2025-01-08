@@ -225,7 +225,7 @@ module DaVinciDTRTestKit
     end
 
     def item_is_cql_expression?(item)
-      item.extension&.any? { |ext| CQL_EXPRESSION_EXTENSIONS.include?(ext.url) }
+      item&.extension&.any? { |ext| CQL_EXPRESSION_EXTENSIONS.include?(ext.url) }
     end
 
     def answer_value_equal?(expected, actual)
