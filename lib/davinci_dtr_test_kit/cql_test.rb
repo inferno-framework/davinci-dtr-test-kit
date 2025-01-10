@@ -320,6 +320,33 @@ module DaVinciDTRTestKit
       end&.flatten&.compact
     end
 
+    def extract_questionnaire_bundles(resource)
+      case resource&.resourceType
+      when 'Bundle'
+        [resource]
+      when 'Parameters'
+        extract_bundles_from_parameter(resource)
+      else
+        []
+      end
+    end
+
+    def extract_bundles_from_parameter(parameter)
+      return [] if parameter.blank?
+
+      parameter.parameter&.filter_map do |param|
+        param.resource if param.resource&.resourceType == 'Bundle'
+      end
+    end
+
+    def extract_questionnaire_from_questionnaire_package(questionnaire_pkg_json, questionnaire_id)
+      resource = FHIR.from_contents(questionnaire_pkg_json)
+      questionnaire_bundles = extract_questionnaire_bundles(resource)
+      questionnaires = extract_questionnaires_from_bundles(questionnaire_bundles)
+
+      questionnaires.find { |q| q.id == questionnaire_id }
+    end
+
     def extract_libraries_from_bundles(questionnaire_bundles)
       questionnaire_bundles.filter_map do |qb|
         qb.entry.filter_map { |entry| entry.resource if entry&.resource.is_a?(FHIR::Library) }

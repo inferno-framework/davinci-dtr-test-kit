@@ -1,12 +1,38 @@
-# frozen_string_literal: true
-
+require_relative 'cql_test'
 module DaVinciDTRTestKit
   module DTRQuestionnaireResponseValidation
+    include DaVinciDTRTestKit::CQLTest
+
     CQL_EXPRESSION_EXTENSIONS = [
       'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-initialExpression',
       'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-calculatedExpression',
       'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-candidateExpression'
     ].freeze
+
+    def validate_questionnaire_response_correctness(questionnaire_response_json, custom_response = nil)
+      check_is_questionnaire_response(questionnaire_response_json)
+      qr = FHIR.from_contents(questionnaire_response_json)
+      questionnaire = nil
+      if custom_response.blank?
+        questionnaire = Fixtures.questionnaire_for_test(id)
+      else
+        assert_valid_json custom_response, 'Custom response provided is not a valid JSON'
+        questionnaire_id = qr.questionnaire.split('/').last
+        # Find the questionnaire that is referenced in the QuestionnaireResponse
+        questionnaire = extract_questionnaire_from_questionnaire_package(
+          custom_response, questionnaire_id
+        )
+      end
+
+      skip_if questionnaire.blank?,
+              "Couldn't find Questionnaire #{qr.questionnaire} in the provided custom questionnaire package
+              to validate the QuestionnaireResponse."
+
+      check_origin_sources(questionnaire.item, qr.item)
+      required_link_ids = extract_required_link_ids(questionnaire.item)
+      check_answer_presence(qr.item, required_link_ids)
+      assert(messages.none? { |m| m[:type] == 'error' }, 'QuestionnaireResponse is not correct, see error message(s)')
+    end
 
     def check_is_questionnaire_response(questionnaire_response_json)
       assert_valid_json(questionnaire_response_json)
