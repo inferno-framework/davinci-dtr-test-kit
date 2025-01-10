@@ -54,21 +54,14 @@ RSpec.describe DaVinciDTRTestKit::DTRQuestionnaireResponseGroup do
       end
     end
     let(:request_body) do
-      File.read(File.join(__dir__, '..', 'fixtures', 'dinner_questionnaire_response_conformant.json'))
-    end
-    let(:incorrect_request_body) do
-      File.read(File.join(__dir__, '..', 'fixtures', 'dinner_questionnaire_response_missing_answers.json'))
-    end
-    let(:package_bundle) do
-      File.read(File.join(__dir__, '..', 'fixtures', 'dinner_questionnaire_package.json'))
+      File.read(File.join(__dir__, '..', 'fixtures', 'questionnaire_response_conformant.json'))
     end
 
-    before do
-      allow_any_instance_of(runnable).to receive(:scratch)
-        .and_return({ static_questionnaire_bundles: [FHIR.from_contents(package_bundle)] })
-    end
+    it 'passes if questionnaire response pre-population is conformant' do
+      allow_any_instance_of(DaVinciDTRTestKit::DTRQuestionnaireResponseValidation).to(
+        receive(:validate_questionnaire_pre_population).and_return(nil)
+      )
 
-    it 'passes if questionnaire response pre-population is conformant and all requred questions are answered' do
       repo_create(:request, name: 'questionnaire_response_save', url: questionnaire_response_url,
                             request_body:, test_session_id: test_session.id)
 
@@ -76,9 +69,12 @@ RSpec.describe DaVinciDTRTestKit::DTRQuestionnaireResponseGroup do
       expect(result.result).to eq('pass'), result.result_message
     end
 
-    it 'fails if not all required questions are answered or an origin.source is missing' do
-      repo_create(:request, name: 'questionnaire_response_save', url: questionnaire_response_url,
-                            request_body: incorrect_request_body, test_session_id: test_session.id)
+    it 'fails if questionnaire response input parameters are nonconformant' do
+      allow_any_instance_of(DaVinciDTRTestKit::DTRQuestionnaireResponseValidation).to(
+        receive(:validate_questionnaire_pre_population).and_raise(Inferno::Exceptions::AssertionException)
+      )
+
+      repo_create(:request, name: 'questionnaire_response_save', request_body:, test_session_id: test_session.id)
 
       result = run(runnable, test_session)
       expect(result.result).to eq('fail')

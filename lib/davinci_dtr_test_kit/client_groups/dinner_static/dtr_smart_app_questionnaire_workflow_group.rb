@@ -4,10 +4,11 @@ require_relative '../shared/dtr_prepopulation_attestation_test'
 require_relative '../shared/dtr_rendering_enabled_questions_attestation_test'
 require_relative '../shared/dtr_prepopulation_override_attestation_test'
 require_relative '../smart_app/dtr_smart_app_saving_questionnaire_response_group'
+require_relative '../smart_app/dtr_smart_app_questionnaire_response_correctness_test'
 require_relative 'dtr_custom_questionnaire_package_validation_test'
-require_relative '../../payer_server_groups/static_form_libraries_test'
-require_relative '../../payer_server_groups/static_form_questionnaire_extensions_test'
-require_relative '../../payer_server_groups/static_form_questionnaire_expressions_test'
+require_relative 'dtr_custom_questionnaire_libraries_test'
+require_relative 'dtr_custom_questionnaire_extensions_test'
+require_relative 'dtr_custom_questionnaire_expressions_test'
 
 module DaVinciDTRTestKit
   class DTRSmartAppStaticDinnerQuestionnaireWorkflowGroup < Inferno::TestGroup
@@ -47,32 +48,11 @@ module DaVinciDTRTestKit
       # Test 1: validate the user provided $questionnaire-package response
       test from: :dtr_custom_questionnaire_package_validation
       # Test 2: verify the custom response has the necessary libraries for pre-population
-      test from: :dtr_v201_payer_static_form_libraries_test do
-        title 'Custom Questionnaire Package response parameters contain libraries necessary for pre-population'
-        description %(
-           Inferno check that the custom response contains no duplicate library names
-           and that libraries contain cql and elm data.
-         )
-      end
-
+      test from: :dtr_custom_questionnaire_libraries
       # Test 3: verify the custom response has the necessaru extensions for pre-population
-      test from: :dtr_v201_payer_static_form_extensions_test do
-        title 'Custom static questionnaire(s) contain extensions necessary for pre-population'
-        description %(
-           Inferno checks that the custom response has appropriate extensions and references to libraries within
-           those extensions.
-         )
-      end
-
+      test from: :dtr_custom_questionnaire_extensions
       # Test 4: verify custom response has necessary expressions for pre-population
-      test from: :dtr_v201_payer_static_form_expressions_test do
-        title 'Custom static questionnaire(s) contain items with expressions necessary for pre-population'
-        description %(
-           Inferno checks that the custom response has appropriate expressions and that expressions are
-           written in cql.
-         )
-        config(options: { client: true })
-      end
+      test from: :dtr_custom_questionnaire_expressions
       # Test 5: wait for the $questionnaire-package request
       test from: :dtr_smart_app_dinner_questionnaire_package_request
       # Test 6: validate the $questionnaire-package body
@@ -102,6 +82,9 @@ module DaVinciDTRTestKit
       test from: :dtr_rendering_enabled_questions_attestation
     end
 
-    group from: :dtr_smart_app_saving_questionnaire_response
+    group from: :dtr_smart_app_saving_questionnaire_response do
+      test from: :dtr_smart_app_qr_correctness,
+           uses_request: :questionnaire_response_save
+    end
   end
 end
