@@ -17,7 +17,7 @@
             "valueCanonical": "https://madie.cms.gov/Library/DTRTest"
           }
         ],
-        "url": "urn:inferno:dtr-test-kit:dinner-order-static",
+        "url": "http://localhost:4567/custom/dtr_payer_server/fhir/Questionnaire/DinnerOrderStatic",
         "name": "DinnerOrderStatic",
         "title": "Dinner Order (Static)",
         "status": "draft",

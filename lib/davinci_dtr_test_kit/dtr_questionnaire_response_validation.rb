@@ -17,10 +17,10 @@ module DaVinciDTRTestKit
         questionnaire = Fixtures.questionnaire_for_test(id)
       else
         assert_valid_json custom_response, 'Custom response provided is not a valid JSON'
-        questionnaire_id = qr.questionnaire.split('/').last
+
         # Find the questionnaire that is referenced in the QuestionnaireResponse
         questionnaire = extract_questionnaire_from_questionnaire_package(
-          custom_response, questionnaire_id
+          custom_response, qr.questionnaire
         )
       end
 

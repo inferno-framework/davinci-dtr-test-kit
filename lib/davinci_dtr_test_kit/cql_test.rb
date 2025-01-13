@@ -339,12 +339,12 @@ module DaVinciDTRTestKit
       end
     end
 
-    def extract_questionnaire_from_questionnaire_package(questionnaire_pkg_json, questionnaire_id)
+    def extract_questionnaire_from_questionnaire_package(questionnaire_pkg_json, questionnaire_url)
       resource = FHIR.from_contents(questionnaire_pkg_json)
       questionnaire_bundles = extract_questionnaire_bundles(resource)
       questionnaires = extract_questionnaires_from_bundles(questionnaire_bundles)
 
-      questionnaires.find { |q| q.id == questionnaire_id }
+      questionnaires.find { |q| q.url == questionnaire_url }
     end
 
     def extract_libraries_from_bundles(questionnaire_bundles)
