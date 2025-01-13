@@ -12,6 +12,8 @@ require_relative 'profiles/nutrition_order_group'
 require_relative 'profiles/service_request_group'
 require_relative 'profiles/task_group'
 require_relative 'profiles/vision_prescription_group'
+require_relative 'dtr_smart_standalone_launch'
+require_relative 'dtr_smart_ehr_launch'
 require 'smart_app_launch/smart_stu1_suite'
 require 'smart_app_launch/smart_stu2_suite'
 
@@ -83,11 +85,11 @@ module DaVinciDTRTestKit
         end
       end
 
-      group from: :smart_ehr_launch_stu2,
+      group from: :dtr_smart_standalone_launch,
             required_suite_options: DTROptions::SMART_2_REQUIREMENT,
             run_as_group: true
 
-      group from: :smart_standalone_launch_stu2,
+      group from: :dtr_smart_ehr_launch,
             required_suite_options: DTROptions::SMART_2_REQUIREMENT,
             run_as_group: true
     end
