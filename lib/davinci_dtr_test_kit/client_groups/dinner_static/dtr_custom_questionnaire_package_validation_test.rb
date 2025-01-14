@@ -1,5 +1,8 @@
+require_relative '../../cql_test'
 module DaVinciDTRTestKit
   class DTRCustomQuestionnairePackageValidationTest < Inferno::Test
+    include DaVinciDTRTestKit::CQLTest
+
     id :dtr_custom_questionnaire_package_validation
     title 'Custom Questionnaire Package response is valid'
     description %(
@@ -32,21 +35,8 @@ module DaVinciDTRTestKit
       assert_valid_json custom_questionnaire_package_response
 
       resource = FHIR.from_contents(custom_questionnaire_package_response)
-      if resource&.resourceType == 'Parameters'
-        scratch[:static_questionnaire_bundles] = resource.parameter&.filter_map do |param|
-          param.resource if param.resource&.resourceType == 'Bundle'
-        end
-        assert_valid_resource(resource:,
-                              profile_url: 'http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/dtr-qpackage-output-parameters|2.0.1')
-        questionnaire_bundle = resource.parameter.find { |param| param.resource.resourceType == 'Bundle' }&.resource
-        assert questionnaire_bundle, 'No questionnaire bundle found in the response'
-      elsif resource&.resourceType == 'Bundle'
-        scratch[:static_questionnaire_bundles] = [resource]
-        assert_valid_resource(resource:,
-                              profile_url: 'http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/DTR-QPackageBundle|2.0.1')
-      else
-        assert(false, "Unexpected resourceType: #{resource&.resourceType}. Expected Parameters or Bundle")
-      end
+
+      perform_questionnaire_package_validation(resource, 'static')
     end
   end
 end
