@@ -345,7 +345,7 @@ module DaVinciDTRTestKit
       when 'Bundle'
         assert_valid_resource(resource:, profile_url: questionnaire_package_profile_urls[:"#{form}_bundle"])
       when 'Parameters'
-        assert_valid_resource(resource:, profile_url: uestionnaire_package_profile_urls[:"#{form}_parameter"])
+        assert_valid_resource(resource:, profile_url: questionnaire_package_profile_urls[:"#{form}_parameter"])
       else
         assert(false, "Unexpected resourceType: #{resource&.resourceType}. Expected Parameters or Bundle")
       end
