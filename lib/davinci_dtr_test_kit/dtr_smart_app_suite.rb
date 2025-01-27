@@ -21,8 +21,6 @@ module DaVinciDTRTestKit
     title 'Da Vinci DTR SMART App Test Suite'
     description File.read(File.join(__dir__, 'docs', 'dtr_smart_app_suite_description_v201.md'))
 
-    version VERSION
-
     links [
       {
         label: 'Report Issue',
