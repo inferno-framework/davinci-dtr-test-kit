@@ -1,7 +1,7 @@
 GIT
   remote: git@gitlab.mitre.org:inferno/inferno-core.git
-  revision: 378b140a913b5bc9042d1994af91b26cffc9d2f5
-  branch: fi-3694-fix-presets-loading-and-suite-shared-example-spec
+  revision: 7b32e1de852afd053352cfbe61944e0e8d52853f
+  branch: main
   specs:
     inferno_core (0.6.1)
       activesupport (~> 6.1.7.5)
