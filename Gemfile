@@ -3,7 +3,7 @@
 source "https://rubygems.org"
 
 gemspec
-gem 'inferno_core', git: 'git@gitlab.mitre.org:inferno/inferno-core.git', branch: 'main'
+
 group :development, :test do
   gem 'database_cleaner-sequel', '~> 1.8'
   gem 'factory_bot', '~> 6.1'
