@@ -1,38 +1,14 @@
-require_relative '../request_helper'
-
 RSpec.describe DaVinciDTRTestKit::DTRLightEHRSupportedPayerEndpointTest, :request do
-  def app
-    Inferno::Web.app
-  end
-
-  let(:group) { Inferno::Repositories::TestGroups.new.find('dtr_light_ehr_supported_payer_endpoint') }
+  let(:test) { described_class }
   let(:suite_id) { :dtr_light_ehr }
   let(:unique_url_id) { '12345' }
   let(:supported_payer_url) { "/custom/#{suite_id}/#{unique_url_id}/supported-payers" }
-  let(:session_data_repo) { Inferno::Repositories::SessionData.new }
-  let(:test_session) { repo_create(:test_session, test_suite_id: suite_id) }
-  let(:test_runs_repo) { Inferno::Repositories::TestRuns.new }
   let(:results_repo) { Inferno::Repositories::Results.new }
 
-  def run(runnable, test_session, inputs = {})
-    test_run_params = { test_session_id: test_session.id }.merge(runnable.reference_hash)
-    test_run = Inferno::Repositories::TestRuns.new.create(test_run_params)
-    inputs.each do |name, value|
-      session_data_repo.save(
-        test_session_id: test_session.id,
-        name:,
-        value:,
-        type: runnable.config.input_type(name) || :text
-      )
-    end
-    Inferno::TestRunner.new(test_session:, test_run:).run(runnable)
-  end
-
   describe 'Supported Payers Endpoint' do
-    let(:runnable) { Inferno::Repositories::TestGroups.new.find('light_ehr_supported_payer_endpoint') }
-
     it 'passes when a request is made to the supported payers endpoint' do
-      result = run(runnable, test_session)
+      inputs = { unique_url_id: }
+      result = run(test, inputs)
       expect(result.result).to eq('wait')
 
       header 'Accept', 'application/json'

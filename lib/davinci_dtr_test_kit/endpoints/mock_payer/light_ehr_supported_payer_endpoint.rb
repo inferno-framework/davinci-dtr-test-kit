@@ -7,7 +7,7 @@ module DaVinciDTRTestKit
     end
 
     def test_run_identifier
-      request.params['tester_url_id']
+      request.params[:tester_url_id]
     end
 
     def tags

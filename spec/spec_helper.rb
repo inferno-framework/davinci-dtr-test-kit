@@ -118,6 +118,8 @@ RSpec.configure do |config|
   config.before(:suite) do
     FactoryBot.find_definitions
   end
+
+  config.shared_context_metadata_behavior = :apply_to_host_groups
 end
 
 require 'inferno/config/application'
@@ -127,7 +129,7 @@ Inferno::Utils::Migration.new.run
 require 'inferno'
 Inferno::Application.finalize!
 
-require Inferno::SpecSupport::FACTORY_BOT_SUPPORT_PATH
+Inferno::SpecSupport.require_helpers
 
 FactoryBot.definition_file_paths = [
   Inferno::SpecSupport::FACTORY_PATH
