@@ -1,11 +1,10 @@
 require_relative '../request_helper'
 
-RSpec.describe DaVinciDTRTestKit::DTRLightEHRSupportedPayerEndpointTest, :request do
+RSpec.describe DaVinciDTRTestKit::DTRLightEHRAcceptHeaderTest, :request do
   def app
     Inferno::Web.app
   end
 
-  let(:group) { Inferno::Repositories::TestGroups.new.find('dtr_light_ehr_supported_payer_endpoint') }
   let(:suite_id) { :dtr_light_ehr }
   let(:unique_url_id) { '12345' }
   let(:supported_payer_url) { "/custom/#{suite_id}/#{unique_url_id}/supported-payers" }
@@ -28,22 +27,17 @@ RSpec.describe DaVinciDTRTestKit::DTRLightEHRSupportedPayerEndpointTest, :reques
     Inferno::TestRunner.new(test_session:, test_run:).run(runnable)
   end
 
-  describe 'Supported Payers Endpoint' do
-    let(:runnable) { Inferno::Repositories::TestGroups.new.find('light_ehr_supported_payer_endpoint') }
+  describe 'Accept Header Test' do
+    let(:runnable) { Inferno::Repositories::TestGroups.new.find('dtr_light_ehr_accept_header') }
 
-    it 'passes when a request is made to the supported payers endpoint' do
+    it 'returns 406 when Accept header is missing or incorrect' do
       result = run(runnable, test_session)
       expect(result.result).to eq('wait')
 
-      header 'Accept', 'application/json'
       get supported_payer_url
 
-      expect(last_response.status).to eq(200)
-      expect(last_response.content_type).to eq('application/json')
-      expect(JSON.parse(last_response.body)['payers']).to be_an(Array)
-
-      result = results_repo.find(result.id)
-      expect(result.result).to eq('pass')
+      expect(last_response.status).to eq(406)
+      expect(JSON.parse(last_response.body)['error']).to eq('Not Acceptable')
     end
   end
 end

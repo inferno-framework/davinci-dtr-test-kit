@@ -44,10 +44,6 @@ module DaVinciDTRTestKit
       }
     ]
 
-    input :url,
-          title: 'FHIR Server Base Url',
-          description: 'URL of the target DTR Light EHR'
-
     # Hl7 Validator Wrapper:
     fhir_resource_validator do
       igs('hl7.fhir.us.davinci-dtr#2.0.1', 'hl7.fhir.us.davinci-pas#2.0.1', 'hl7.fhir.us.davinci-crd#2.0.1')
@@ -104,6 +100,10 @@ module DaVinciDTRTestKit
       Capability Statement.
 
       )
+
+      input :url,
+            title: 'FHIR Server Base Url',
+            description: 'URL of the target DTR Light EHR'
 
       group from: :'us_core_v311-us_core_v311_fhir_api',
             run_as_group: true
