@@ -1,4 +1,5 @@
 RSpec.describe DaVinciDTRTestKit::DTRLightEHRAcceptHeaderTest, :request do
+  let(:test) { described_class }
   let(:suite_id) { :dtr_light_ehr }
   let(:unique_url_id) { '12345' }
   let(:supported_payer_url) { "/custom/#{suite_id}/#{unique_url_id}/supported-payers" }
@@ -8,10 +9,8 @@ RSpec.describe DaVinciDTRTestKit::DTRLightEHRAcceptHeaderTest, :request do
   let(:results_repo) { Inferno::Repositories::Results.new }
 
   describe 'Accept Header Test' do
-    let(:runnable) { Inferno::Repositories::TestGroups.new.find('dtr_light_ehr_accept_header') }
-
     it 'returns 406 when Accept header is missing or incorrect' do
-      result = run(runnable)
+      result = run(test)
       expect(result.result).to eq('wait')
 
       get supported_payer_url
