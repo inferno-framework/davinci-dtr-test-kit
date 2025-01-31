@@ -1,0 +1,51 @@
+module DaVinciDTRTestKit
+  class FhirContextReferencesTest < Inferno::Test
+    include DaVinciDTRTestKit::ReadTest
+
+    id :fhir_context_references_test
+    title 'FHIR Context References Test'
+    description %(
+      This test validates that when a DTR is passed a context when launched, that context includes
+      a fhirContext with exactly one of the following references (in addition to one active Coverage resource):
+      - A CRD-type Request or Encounter resource
+      - An existing incomplete QuestionnaireResponse previously created with DTR
+      - A Questionnaire Task
+      This specification can be found in the [Launching DTR](https://hl7.org/fhir/us/davinci-dtr/STU2/specification.html#launching-dtr)
+      section of the DTR IG.
+    )
+
+    uses_request :token
+
+    fhir_client do
+      url :url
+      bearer_token JSON.parse(request.response_body)['access_token']
+    end
+
+    run do
+      token_response_params = JSON.parse(request.response_body)
+
+      assert token_response_params['fhirContext'].present?, 'fhirContext not present on the passed launch context'
+
+      context_reference = token_response_params['fhirContext'].filter do |c|
+        c.split('/')[0] == 'DeviceRequest' || c.split('/')[0] == 'ServiceRequest' ||
+          c.split('/')[0] == 'CommunicationRequest' || c.split('/')[0] == 'MedicationRequest' ||
+          c.split('/')[0] == 'Encounter' || c.split('/')[0] == 'Task' || c.split('/')[0] == 'QuestionnaireResponse'
+      end
+
+      assert context_reference.present?,
+             'fhirContext does not contain a CRD-type request, QuestionnaireResponse, or Task resource'
+
+      warning do
+        context_reference_amount = context_reference.length
+        assert context_reference_amount == 1,
+               'fhirContext should only contain one CRD-type request, QuestionnaireResponse, or Task'
+      end
+
+      crd_request_array = [(context_reference[0]).split('/')[1]]
+      assert crd_request_array.present?,
+             'fhirContext does not contain a CRD-type request, QuestionnaireResponse, or Task resource in proper format'
+
+      perform_read_test(crd_request_array, (context_reference[0]).split('/')[0])
+    end
+  end
+end

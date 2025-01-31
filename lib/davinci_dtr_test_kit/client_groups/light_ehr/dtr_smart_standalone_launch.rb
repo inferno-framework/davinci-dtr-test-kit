@@ -1,6 +1,6 @@
 require_relative 'fhir_launch_context_test'
-require_relative 'coverage_context_read'
-require_relative 'context_references_test'
+require_relative 'fhir_context_coverage_test'
+require_relative 'fhir_context_references_test'
 require 'smart_app_launch/ehr_launch_group_stu2'
 
 module DaVinciDTRTestKit
@@ -10,8 +10,8 @@ module DaVinciDTRTestKit
     id :dtr_smart_standalone_launch
     run_as_group
 
-    test from: :fhir_launch_context
-    test from: :coverage_context_read
-    test from: :fhir_context_references
+    test from: :fhir_launch_context_test
+    test from: :fhir_context_coverage_test
+    test from: :fhir_context_references_test
   end
 end
