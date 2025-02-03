@@ -5,7 +5,7 @@ module DaVinciDTRTestKit
     id :fhir_context_references_test
     title 'FHIR Context References Test'
     description %(
-      This test validates that when a DTR is passed a context when launched, that context includes
+      This test validates that when the light EHR launches a DTR SMART App, the launch context includes
       a fhirContext with exactly one of the following references (in addition to one active Coverage resource):
       - A CRD-type Request or Encounter resource
       - An existing incomplete QuestionnaireResponse previously created with DTR

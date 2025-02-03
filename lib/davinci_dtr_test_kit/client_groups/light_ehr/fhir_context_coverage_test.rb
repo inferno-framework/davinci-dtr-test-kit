@@ -5,7 +5,7 @@ module DaVinciDTRTestKit
     id :fhir_context_coverage_test
     title 'FHIR Context Coverage Test'
     description %(
-      This test validates that when a DTR is passed a context when launched, that context includes
+      This test validates that when the light EHR launches a DTR SMART App, the launch context includes
       a fhirContext with one active Coverage resource.
       This specification can be found in the [Launching DTR](https://hl7.org/fhir/us/davinci-dtr/STU2/specification.html#launching-dtr)
       section of the DTR IG.
