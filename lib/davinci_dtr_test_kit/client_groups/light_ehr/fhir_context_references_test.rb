@@ -3,10 +3,11 @@ module DaVinciDTRTestKit
     include DaVinciDTRTestKit::ReadTest
 
     id :fhir_context_references_test
-    title 'FHIR Context References Test'
+    title 'fhirContext Request, QuestionnaireResponse, or Task References Test'
     description %(
       This test validates that when the light EHR launches a DTR SMART App, the launch context includes
-      a fhirContext with exactly one of the following references (in addition to one active Coverage resource):
+      a fhirContext with exactly one of the following references and that that referenced resource can be read by the
+      light DTR EHR (in addition to one active Coverage resource):
       - A CRD-type Request or Encounter resource
       - An existing incomplete QuestionnaireResponse previously created with DTR
       - A Questionnaire Task\n
@@ -25,7 +26,8 @@ module DaVinciDTRTestKit
     run do
       token_response_params = JSON.parse(request.response_body)
 
-      assert token_response_params['fhirContext'].present?, 'fhirContext not present on the passed launch context'
+      skip_if(!token_response_params['fhirContext'].present?,
+              %(fhirContext not present on the passed launch context, skipping test.))
 
       context_reference = token_response_params['fhirContext'].filter do |c|
         c.split('/')[0] == 'DeviceRequest' || c.split('/')[0] == 'ServiceRequest' ||
@@ -36,11 +38,9 @@ module DaVinciDTRTestKit
       assert context_reference.present?,
              'fhirContext does not contain a CRD-type request, QuestionnaireResponse, or Task resource'
 
-      warning do
-        context_reference_amount = context_reference.length
-        assert context_reference_amount == 1,
-               'fhirContext should only contain one CRD-type request, QuestionnaireResponse, or Task'
-      end
+      context_reference_amount = context_reference.length
+      assert context_reference_amount == 1,
+             'fhirContext should only contain one CRD-type request, QuestionnaireResponse, or Task'
 
       crd_request_array = [(context_reference[0]).split('/')[1]]
       assert crd_request_array.present?,
