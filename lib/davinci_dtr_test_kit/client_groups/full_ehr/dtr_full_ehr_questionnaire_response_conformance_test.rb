@@ -6,6 +6,11 @@ module DaVinciDTRTestKit
 
     id :dtr_full_ehr_questionnaire_response_conformance
     title 'QuestionnaireResponse is conformant'
+    description %(
+      Verify that the provided QuestionnaireResponse is conformant to the [DTR
+      QuestionnaireResponse](https://hl7.org/fhir/us/davinci-dtr/STU2/StructureDefinition-dtr-questionnaireresponse.html)
+      profile.
+    )
 
     def profile_url
       config.options[:qr_profile_url]
