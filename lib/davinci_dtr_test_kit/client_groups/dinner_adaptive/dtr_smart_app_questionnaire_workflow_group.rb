@@ -4,6 +4,7 @@ require_relative '../smart_app/dtr_smart_app_prepopulation_attestation_test'
 require_relative '../smart_app/dtr_smart_app_prepopulation_override_attestation_test'
 require_relative 'dtr_adaptive_questionnaire_followup_questions_group'
 require_relative 'dtr_adaptive_questionnaire_completion_group'
+require_relative '../shared/dtr_questionnaire_response_pre_population_test'
 
 module DaVinciDTRTestKit
   class DTRSmartAppAdaptiveDinnerQuestionnaireWorkflowGroup < Inferno::TestGroup
@@ -84,12 +85,17 @@ module DaVinciDTRTestKit
               access_token: { name: :client_id }
             }
           }
-    group from: :dtr_smart_app_saving_questionnaire_response,
-          config: {
-            options: {
-              adaptive: true,
-              qr_profile_url: 'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaireresponse-adapt'
-            }
-          }
+    group from: :dtr_smart_app_saving_questionnaire_response do
+      config(
+        options: {
+          adaptive: true,
+          qr_profile_url: 'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaireresponse-adapt'
+        }
+      )
+
+      # Test 3: validate workflow-specific details such as pre-population and overrides
+      test from: :dtr_questionnaire_response_pre_population,
+           uses_request: :questionnaire_response_save
+    end
   end
 end

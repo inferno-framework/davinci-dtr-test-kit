@@ -4,11 +4,12 @@ require_relative '../smart_app/dtr_smart_app_prepopulation_attestation_test'
 require_relative '../smart_app/dtr_smart_app_prepopulation_override_attestation_test'
 require_relative '../smart_app/dtr_smart_app_rendering_enabled_questions_attestation_test'
 require_relative '../smart_app/dtr_smart_app_saving_questionnaire_response_group'
+require_relative '../shared/dtr_questionnaire_response_pre_population_test'
 
 module DaVinciDTRTestKit
   class DTRSmartAppStaticDinnerQuestionnaireWorkflowGroup < Inferno::TestGroup
     id :dtr_smart_app_static_dinner_questionnaire_workflow
-    title 'Static Questionnaire Workflow'
+    title 'Dinner Order Static Questionnaire Workflow'
     description %(
       This test validates that a DTR SMART App client can perform a full DTR Static Questionnaire workflow
       using a mocked questionnaire requesting what a patient wants for dinner. The client system must
@@ -63,6 +64,10 @@ module DaVinciDTRTestKit
       test from: :dtr_smart_app_rendering_enabled_questions_attestation
     end
 
-    group from: :dtr_smart_app_saving_questionnaire_response
+    group from: :dtr_smart_app_saving_questionnaire_response do
+      # Test 3: validate workflow-specific details such as pre-population and overrides
+      test from: :dtr_questionnaire_response_pre_population,
+           uses_request: :questionnaire_response_save
+    end
   end
 end
