@@ -9,7 +9,7 @@ module DaVinciDTRTestKit
       a fhirContext with exactly one of the following references (in addition to one active Coverage resource):
       - A CRD-type Request or Encounter resource
       - An existing incomplete QuestionnaireResponse previously created with DTR
-      - A Questionnaire Task
+      - A Questionnaire Task\n
       This specification can be found in the [Launching DTR](https://hl7.org/fhir/us/davinci-dtr/STU2/specification.html#launching-dtr)
       section of the DTR IG.
     )
