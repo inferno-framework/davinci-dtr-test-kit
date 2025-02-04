@@ -9,6 +9,7 @@ module DaVinciDTRTestKit
       includes fhirContext. This specification can be found in the [Launching DTR](https://hl7.org/fhir/us/davinci-dtr/STU2/specification.html#launching-dtr)
       section of the DTR IG.
     )
+    optional
 
     uses_request :token
 
