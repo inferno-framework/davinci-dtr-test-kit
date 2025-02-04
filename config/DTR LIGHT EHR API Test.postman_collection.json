@@ -25,8 +25,11 @@
 				{
 					"listen": "prerequest",
 					"script": {
-						"exec": [],
-						"type": "text/javascript"
+						"exec": [
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
 					}
 				}
 			],
@@ -45,13 +48,14 @@
 					}
 				],
 				"url": {
-					"raw": "{{local_url}}/custom/dtr_light_ehr/supported-payers",
+					"raw": "{{local_url}}/custom/dtr_light_ehr/{{unique_url_id}}/supported-payers",
 					"host": [
 						"{{local_url}}"
 					],
 					"path": [
 						"custom",
 						"dtr_light_ehr",
+						"{{unique_url_id}}",
 						"supported-payers"
 					]
 				},
@@ -61,14 +65,7 @@
 		}
 	],
 	"auth": {
-		"type": "bearer",
-		"bearer": [
-			{
-				"key": "token",
-				"value": "{{access_token}}",
-				"type": "string"
-			}
-		]
+		"type": "bearer"
 	},
 	"event": [
 		{
@@ -101,8 +98,8 @@
 			"type": "string"
 		},
 		{
-			"key": "access_token",
-			"value": "RFRSIHNtYXJ0IGFwcCB0ZXN0cyBwb3N0bWFuIGRlbW8",
+			"key": "unique_url_id",
+			"value": "12345",
 			"type": "string"
 		}
 	]

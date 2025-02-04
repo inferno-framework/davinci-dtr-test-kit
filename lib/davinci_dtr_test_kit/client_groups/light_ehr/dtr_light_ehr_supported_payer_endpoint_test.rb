@@ -6,8 +6,7 @@ module DaVinciDTRTestKit
     id :dtr_light_ehr_supported_payer_endpoint
     title 'Client can retrieve payers from supported payer endpoint'
     description %(
-      This test verifies that the app can successfully access the supported payer endpoint via a GET request,
-      including an Accept header set to application/json
+      This test verifies that the app can successfully access the supported payer endpoint via a GET request
     )
     input :unique_url_id,
           description: %(
