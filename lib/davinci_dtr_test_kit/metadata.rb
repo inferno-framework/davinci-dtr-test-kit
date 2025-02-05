@@ -95,7 +95,7 @@ module DaVinciDTRTestKit
     DESCRIPTION
     suite_ids [:dtr_payer_server, :dtr_smart_app, :dtr_full_ehr, :dtr_light_ehr]
     tags ['Da Vinci', 'DTR']
-    last_updated '2025-01-27'
+    last_updated LAST_UPDATED
     version VERSION
     maturity 'Low'
     authors ['Karl Naden', 'Tom Strassner', 'Robert Passas', 'Vanessa Fotso', 'Elsa Perelli']
