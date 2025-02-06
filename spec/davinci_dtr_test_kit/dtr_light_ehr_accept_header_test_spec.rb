@@ -11,14 +11,12 @@ RSpec.describe DaVinciDTRTestKit::DTRLightEHRAcceptHeaderTest, :request do
       result = run(test, inputs)
       expect(result.result).to eq('wait')
 
-      # Simulate a request with the correct Accept header
       header 'Authorization', unique_url_id
       header 'Accept', 'application/json'
       get supported_payer_url
 
       expect(last_response.status).to eq(200)
 
-      # Verify that the test result is updated to pass
       result = results_repo.find(result.id)
       expect(result.result).to eq('pass')
     end
@@ -28,15 +26,12 @@ RSpec.describe DaVinciDTRTestKit::DTRLightEHRAcceptHeaderTest, :request do
       result = run(test, inputs)
       expect(result.result).to eq('wait')
 
-      # Simulate a request without the Accept header
       header 'Authorization', unique_url_id
       get supported_payer_url
 
-      # Ensure the application logic is set to return 406 for missing/incorrect Accept header
       expect(last_response.status).to eq(406)
       expect(JSON.parse(last_response.body)['error']).to eq('Not Acceptable')
 
-      # Verify that the test result is updated to fail
       result = results_repo.find(result.id)
       expect(result.result).to eq('fail')
     end

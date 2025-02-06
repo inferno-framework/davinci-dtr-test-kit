@@ -1,5 +1,6 @@
-require_relative 'dtr_light_ehr_supported_payer_endpoint_test'
 require_relative 'dtr_light_ehr_accept_header_test'
+require_relative 'dtr_light_ehr_supported_payer_endpoint_test'
+require_relative 'dtr_light_ehr_user_response_test'
 
 module DaVinciDTRTestKit
   class DTRLightEHRSupportedEndpointsGroup < Inferno::TestGroup
@@ -15,5 +16,6 @@ module DaVinciDTRTestKit
 
     test from: :dtr_light_ehr_supported_payer_endpoint
     test from: :dtr_light_ehr_accept_header
+    test from: :dtr_light_ehr_user_response
   end
 end
