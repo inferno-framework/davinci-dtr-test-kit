@@ -9,9 +9,11 @@ module DaVinciDTRTestKit
     id :dtr_questionnaire_response_basic_conformance
     title 'QuestionnaireResponse is conformant'
     description %(
-      This test validates the conformance of QuestionnaireResponse representing the
-      completed questionnaire. It verifies that the QuestionnaireResponse conforms
-      to the DTR Questionnaire Response resource profile.
+      This test validates the conformance of a `QuestionnaireResponse` representing a completed questionnaire.
+      It ensures that the `QuestionnaireResponse` adheres to the appropriate profile based on its type:
+
+      - **Static QuestionnaireResponse:** Must conform to the [DTR Questionnaire Response](https://hl7.org/fhir/us/davinci-dtr/STU2/StructureDefinition-dtr-questionnaireresponse.html) profile.
+      - **Adaptive QuestionnaireResponse:** Must conform to the [Adaptive Questionnaire Response](http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaireresponse-adapt) profile.
     )
 
     def profile_url
