@@ -1,4 +1,5 @@
 require 'erb'
+require_relative '../../lib/davinci_dtr_test_kit/tags'
 
 RSpec.describe DaVinciDTRTestKit::DTRLightEHRUserResponseTest, :request do
   let(:test) { described_class }
@@ -6,67 +7,62 @@ RSpec.describe DaVinciDTRTestKit::DTRLightEHRUserResponseTest, :request do
   let(:unique_url_id) { '12345' }
   let(:supported_payer_url) { "/custom/#{suite_id}/#{unique_url_id}/supported-payers" }
   let(:results_repo) { Inferno::Repositories::Results.new }
+  let(:test_session) { repo_create(:test_session, test_suite_id: suite_id) }
+  let(:result) { repo_create(:result, test_session_id: test_session.id) }
+
+  def create_supported_payers_request(user_response = nil)
+    headers = [
+      {
+        type: 'request',
+        name: 'Accept',
+        value: 'application/json'
+      }
+    ]
+    url = supported_payer_url
+    url += "?user_response=#{ERB::Util.url_encode(user_response)}" if user_response.present?
+
+    repo_create(
+      :request,
+      direction: 'incoming',
+      url:,
+      test_session_id: test_session.id,
+      result:,
+      tags: [DaVinciDTRTestKit::SUPPORTED_PAYER_TAG],
+      status: 200,
+      headers:,
+      response_body: user_response.presence || {}.to_json
+    )
+  end
 
   describe 'User Response Validation' do
     it 'passes when a valid user response is provided' do
-      inputs = { unique_url_id: }
-      result = run(test, inputs)
-      expect(result.result).to eq('wait')
-
       valid_user_response = {
         payers: [
-          { id: 'payer1', name: 'Payer One' },
-          { id: 'payer2', name: 'Payer Two' }
+          { id: 'payerA', name: 'Payer A' },
+          { id: 'payerB', name: 'Payer B' }
         ]
       }.to_json
 
-      url_with_params = "#{supported_payer_url}?user_response=#{ERB::Util.url_encode(valid_user_response)}"
-
-      header 'Accept', 'application/json'
-      get url_with_params
-
-      expect(last_response.status).to eq(200)
-      expect(last_response.content_type).to eq('application/json')
-
-      result = results_repo.find(result.id)
+      create_supported_payers_request(valid_user_response)
+      result = run(test, { unique_url_id: })
       expect(result.result).to eq('pass')
     end
 
     it 'fails when an invalid user response is provided' do
-      inputs = { unique_url_id: }
-      result = run(test, inputs)
-      expect(result.result).to eq('wait')
-
       invalid_user_response = {
         payers: [
-          { id: 'payer1' } # Missing 'name' key
+          { id: 'payerA' } # Missing 'name' key
         ]
       }.to_json
 
-      url_with_params = "#{supported_payer_url}?user_response=#{ERB::Util.url_encode(invalid_user_response)}"
-
-      header 'Accept', 'application/json'
-      get url_with_params
-
-      expect(last_response.status).to eq(400)
-      expect(JSON.parse(last_response.body)['error']).to eq('Invalid response format')
-
-      result = results_repo.find(result.id)
+      create_supported_payers_request(invalid_user_response)
+      result = run(test, { unique_url_id: })
       expect(result.result).to eq('fail')
     end
 
-    it 'fails when no user response is provided' do
-      inputs = { unique_url_id: }
-      result = run(test, inputs)
-      expect(result.result).to eq('wait')
-
-      url_with_params = supported_payer_url
-
-      header 'Accept', 'application/json'
-      get url_with_params
-
-      expect(last_response.status).to eq(200)
-      result = results_repo.find(result.id)
+    it 'passes when no user response is provided' do
+      create_supported_payers_request
+      result = run(test, { unique_url_id: })
       expect(result.result).to eq('pass')
     end
   end

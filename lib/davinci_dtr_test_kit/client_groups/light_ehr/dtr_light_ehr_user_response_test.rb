@@ -1,4 +1,5 @@
 require_relative '../../urls'
+require_relative '../../tags'
 
 module DaVinciDTRTestKit
   class DTRLightEHRUserResponseTest < Inferno::Test
@@ -6,47 +7,21 @@ module DaVinciDTRTestKit
     id :dtr_light_ehr_user_response
     title 'Checks for a valid user response at the supported payer endpoint'
     description %(
-      This test verifies that a user-provided response is present and valid
+      This test verifies that a user-provided response is valid
       when a request is made to the supported payer endpoint.
     )
-    input :unique_url_id,
-          description: %(
-            A unique identifier that will be used to construct the supported payers
-            endpoint URL. This allows a permanent configuration for the tester to
-            use across Inferno sessions.
-          )
+
+    input :unique_url_id, type: :text
 
     run do
-      wait(
-        identifier: unique_url_id,
-        message: %(
-          ### User Response Check
+      load_tagged_requests(SUPPORTED_PAYER_TAG)
+      user_response = request.query_parameters['user_response']
 
-          Inferno will wait for the Light EHR to make a GET request to
-
-          `#{supported_payer_url(unique_url_id)}`
-
-          Inferno will check if a valid user response is provided.
-
-          ### Request Identification
-
-          In order to identify requests for this session, Inferno will look for
-          a URL segment with value:
-
-          ```
-          #{unique_url_id}
-          ```
-        )
-      )
-
-      user_response = request.params['user_response']
-
-      if user_response.nil?
-        raise 'User response is not provided.'
-      elsif valid_response?(user_response)
-        pass 'User response is present and valid.'
+      if user_response.blank?
+        pass 'No user response provided, skipping validation and using default response.'
       else
-        raise 'User response is invalid.'
+        assert valid_response?(user_response), 'User response is invalid.'
+        pass 'User response is present and valid.'
       end
     end
 
@@ -54,11 +29,21 @@ module DaVinciDTRTestKit
 
     def valid_response?(response)
       return false if response.nil?
-      return false unless valid_hash?(response)
-      return false unless payers_key?(response)
-      return false unless payers_is_array?(response)
 
-      response['payers'].all? { |payer| valid_payer?(payer) }
+      parsed_response = parse_json(response)
+      return false if parsed_response.nil?
+
+      return false unless payers_key?(parsed_response)
+      return false unless payers_is_array?(parsed_response)
+      return false unless parsed_response['payers'].present?
+
+      parsed_response['payers'].all? { |payer| valid_payer?(payer) }
+    end
+
+    def parse_json(response)
+      JSON.parse(response)
+    rescue JSON::ParserError
+      nil
     end
 
     def valid_hash?(response)
@@ -71,6 +56,8 @@ module DaVinciDTRTestKit
 
     def payers_is_array?(response)
       response['payers'].is_a?(Array)
+    rescue NoMethodError, TypeError
+      false
     end
 
     def valid_payer?(payer)

@@ -14,6 +14,12 @@ module DaVinciDTRTestKit
             endpoint URL. This allows a permanent configuration for the tester to
             use across Inferno sessions.
           )
+    input :user_response,
+          description: %(
+            A response from the user for a payer information in JSON
+          ),
+          optional: true,
+          type: 'textarea'
 
     run do
       wait(

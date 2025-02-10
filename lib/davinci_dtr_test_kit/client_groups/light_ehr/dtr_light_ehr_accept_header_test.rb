@@ -1,4 +1,5 @@
 require_relative '../../urls'
+require_relative '../../tags'
 
 module DaVinciDTRTestKit
   class DTRLightEHRAcceptHeaderTest < Inferno::Test
@@ -9,37 +10,13 @@ module DaVinciDTRTestKit
       This test verifies that the request to the supported payer endpoint
       includes an Accept header set to application/json.
     )
-    input :unique_url_id,
-          description: %(
-            A unique identifier that will be used to construct the supported payers
-            endpoint URL. This allows a permanent configuration for the tester to
-            use across Inferno sessions.
-          )
 
     run do
-      wait(
-        identifier: unique_url_id,
-        message: %(
-          ### Accept Header Check
+      load_tagged_requests(SUPPORTED_PAYER_TAG)
+      accept_header = request.request_headers.find { |header| header.name.downcase == 'accept' }
 
-          Inferno will wait for the Light EHR to make a GET request to
-
-          `#{supported_payer_url(unique_url_id)}`
-
-          with an `Accept` header set to `application/json`.
-
-          ### Request Identification
-
-          In order to identify requests for this session, Inferno will look for
-          a URL segment with value:
-
-          ```
-          #{unique_url_id}
-          ```
-        )
-      )
-
-      raise 'Accept header must be application/json' if request.headers['Accept'] != 'application/json'
+      assert accept_header.present?, 'Accept header must be provided'
+      assert accept_header.value == 'application/json', 'Header value must be application/json'
 
       pass 'Accept header is correctly set to application/json'
     end

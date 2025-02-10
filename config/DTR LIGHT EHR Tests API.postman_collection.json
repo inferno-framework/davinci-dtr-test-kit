@@ -57,20 +57,6 @@
 						"dtr_light_ehr",
 						"{{unique_url_id}}",
 						"supported-payers"
-					],
-					"query": [
-						{
-							"key": "user_response",
-							"value": "{\n  \"payers\": [\n    {\n      \"id\": \"payerA\",\n      \"name\": \"Payer A\"\n    },\n    {\n      \"id\": \"payerB\",\n      \"name\": \"Payer B\"\n    }\n  ]\n}",
-							"description": "Valid user response",
-							"disabled": true
-						},
-						{
-							"key": "user_response",
-							"value": "{\n  \"payers\": [\n    {\n      \"id\": \"payerA\"\n    }\n  ]\n}",
-							"description": "Invalid user response",
-							"disabled": true
-						}
 					]
 				},
 				"description": "This is a GET request and it is used to \"get\" data from an endpoint. There is no request body for a GET request, but you can use query parameters to help specify the resource you want data on (e.g., in this request, we have `id=1`).\n\nA successful GET response will have a `200 OK` status, and should include some kind of response body - for example, HTML web content or JSON data."
@@ -114,10 +100,6 @@
 		{
 			"key": "unique_url_id",
 			"value": "12345",
-			"type": "string"
-		},
-		{
-			"value": "",
 			"type": "string"
 		}
 	]
