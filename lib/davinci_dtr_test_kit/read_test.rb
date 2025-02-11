@@ -1,5 +1,9 @@
 module DaVinciDTRTestKit
   module ReadTest
+    def all_scratch_resources
+      scratch_resources[:all] ||= []
+    end
+
     def perform_read_test(resource_ids, resource_type)
       skip_if(resource_ids.nil?, "No `#{resource_type}` IDs provided, skipping test.")
       resources = []
@@ -12,6 +16,7 @@ module DaVinciDTRTestKit
 
         resources.push(resource)
       end
+      all_scratch_resources.concat(resources)
       resources
     end
 

@@ -1,8 +1,6 @@
-require_relative '../../validation_test'
-
 module DaVinciDTRTestKit
   class CoverageValidationTest < Inferno::Test
-    include DaVinciDTRTestKit::ValidationTest
+    include USCoreTestKit::ValidationTest
 
     title 'Coverage resources returned during previous tests conform to the CRD Coverage'
     description %(
@@ -19,17 +17,20 @@ fail if their code/system are not found in the valueset.
     )
 
     id :coverage_validation
-    input :coverage_resources,
-          optional: true
 
     def resource_type
       'Coverage'
     end
 
+    def scratch_resources
+      scratch[:coverage_resources] ||= {}
+    end
+
     run do
-      skip_if(coverage_ids.nil?, "No `#{resource_type}` IDs provided, skipping test.")
-      perform_profile_validation_test(coverage_resources, resource_type,
-                                      'http://hl7.org/fhir/us/davinci-crd/StructureDefinition/profile-coverage|2.0.1')
+      perform_validation_test(scratch_resources[:all] || [],
+                              'http://hl7.org/fhir/us/davinci-crd/StructureDefinition/profile-coverage',
+                              '2.0.1',
+                              skip_if_empty: true)
     end
   end
 end

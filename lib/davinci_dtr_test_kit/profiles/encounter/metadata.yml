@@ -1,0 +1,169 @@
+---
+:name: profile_encounter
+:class_name: ProfileEncounterSequence
+:version: v3.1.1
+:reformatted_version: v311
+:resource: Encounter
+:profile_url: http://hl7.org/fhir/us/davinci-crd/StructureDefinition/profile-encounter
+:profile_name: CRD Encounter
+:profile_version: 2.0.1
+:title: CRD Encounter
+:short_description: Verify support for the server capabilities required by the CRD
+  Encounter.
+:is_delayed: true
+:interactions:
+- :code: read
+  :expectation: SHOULD
+:operations: []
+:searches: []
+:search_definitions: {}
+:include_params: []
+:revincludes: []
+:required_concepts: []
+:must_supports:
+  :extensions:
+  - :id: Encounter.extension:Coverage-Information
+    :path: extension
+    :url: http://hl7.org/fhir/us/davinci-crd/StructureDefinition/ext-coverage-information
+  :slices: []
+  :elements:
+  - :path: identifier
+  - :path: identifier.system
+  - :path: identifier.value
+  - :path: status
+  - :path: class
+  - :path: type
+  - :path: serviceType
+  - :path: subject
+    :types:
+    - Reference
+    :target_profiles:
+    - http://hl7.org/fhir/us/davinci-crd/StructureDefinition/profile-patient
+  - :path: participant
+  - :path: participant.type
+  - :path: participant.period
+  - :path: participant.individual
+    :types:
+    - Reference
+    :target_profiles:
+    - http://hl7.org/fhir/us/davinci-crd/StructureDefinition/profile-practitioner
+  - :path: appointment
+    :types:
+    - Reference
+    :target_profiles:
+    - http://hl7.org/fhir/us/davinci-crd/StructureDefinition/profile-appointment
+  - :path: period
+  - :path: length
+  - :path: reasonCode
+  - :path: reasonReference
+    :types:
+    - Reference
+  - :path: diagnosis
+  - :path: diagnosis.condition
+    :types:
+    - Reference
+  - :path: hospitalization
+  - :path: hospitalization.dischargeDisposition
+  - :path: location
+  - :path: location.location
+    :types:
+    - Reference
+    :target_profiles:
+    - http://hl7.org/fhir/us/davinci-crd/StructureDefinition/profile-location
+  - :path: location.status
+  - :path: location.period
+:mandatory_elements:
+- Encounter.identifier.system
+- Encounter.identifier.value
+- Encounter.status
+- Encounter.statusHistory.status
+- Encounter.statusHistory.period
+- Encounter.class
+- Encounter.classHistory.class
+- Encounter.classHistory.period
+- Encounter.type
+- Encounter.subject
+- Encounter.diagnosis.condition
+- Encounter.location.location
+:bindings:
+- :type: code
+  :strength: required
+  :system: http://hl7.org/fhir/ValueSet/identifier-use
+  :path: identifier.use
+- :type: code
+  :strength: required
+  :system: http://hl7.org/fhir/ValueSet/encounter-status
+  :path: status
+- :type: code
+  :strength: required
+  :system: http://hl7.org/fhir/ValueSet/encounter-status
+  :path: statusHistory.status
+- :type: code
+  :strength: required
+  :system: http://hl7.org/fhir/ValueSet/encounter-location-status
+  :path: location.status
+:references:
+- :path: Encounter.identifier.assigner
+  :profiles:
+  - http://hl7.org/fhir/StructureDefinition/Organization
+- :path: Encounter.subject
+  :profiles:
+  - http://hl7.org/fhir/us/davinci-crd/StructureDefinition/profile-patient
+- :path: Encounter.episodeOfCare
+  :profiles:
+  - http://hl7.org/fhir/StructureDefinition/EpisodeOfCare
+- :path: Encounter.basedOn
+  :profiles:
+  - http://hl7.org/fhir/us/davinci-crd/StructureDefinition/profile-servicerequest
+- :path: Encounter.participant.individual
+  :profiles:
+  - http://hl7.org/fhir/us/davinci-crd/StructureDefinition/profile-practitioner
+- :path: Encounter.appointment
+  :profiles:
+  - http://hl7.org/fhir/us/davinci-crd/StructureDefinition/profile-appointment
+- :path: Encounter.reasonReference
+  :profiles:
+  - http://hl7.org/fhir/us/core/StructureDefinition/us-core-condition
+  - http://hl7.org/fhir/StructureDefinition/Procedure
+- :path: Encounter.diagnosis.condition
+  :profiles:
+  - http://hl7.org/fhir/StructureDefinition/Condition
+  - http://hl7.org/fhir/StructureDefinition/Procedure
+- :path: Encounter.account
+  :profiles:
+  - http://hl7.org/fhir/StructureDefinition/Account
+- :path: Encounter.hospitalization.origin
+  :profiles:
+  - http://hl7.org/fhir/StructureDefinition/Location
+  - http://hl7.org/fhir/StructureDefinition/Organization
+- :path: Encounter.hospitalization.destination
+  :profiles:
+  - http://hl7.org/fhir/StructureDefinition/Location
+  - http://hl7.org/fhir/StructureDefinition/Organization
+- :path: Encounter.location.location
+  :profiles:
+  - http://hl7.org/fhir/us/davinci-crd/StructureDefinition/profile-location
+- :path: Encounter.serviceProvider
+  :profiles:
+  - http://hl7.org/fhir/StructureDefinition/Organization
+- :path: Encounter.partOf
+  :profiles:
+  - http://hl7.org/fhir/us/davinci-crd/StructureDefinition/profile-encounter
+:tests:
+- :id: us_core_v311_encounter_read_test
+  :file_name: encounter_read_test.rb
+- :id: us_core_v311_encounter_validation_test
+  :file_name: encounter_validation_test.rb
+- :id: us_core_v311_encounter_must_support_test
+  :file_name: encounter_must_support_test.rb
+- :id: us_core_v311_encounter_reference_resolution_test
+  :file_name: encounter_reference_resolution_test.rb
+:id: us_core_v311_encounter
+:file_name: encounter_group.rb
+:delayed_references:
+- :path: basedOn
+  :resources:
+  - ServiceRequest
+- :path: partOf
+  :resources:
+  - Encounter

@@ -14,6 +14,10 @@ module DaVinciDTRTestKit
       'DeviceRequest'
     end
 
+    def scratch_resources
+      scratch[:device_request_resources] ||= {}
+    end
+
     def device_request_id_list
       return [nil] unless respond_to? :device_request_ids
 
@@ -21,9 +25,7 @@ module DaVinciDTRTestKit
     end
 
     run do
-      resources = perform_read_test(device_request_id_list, resource_type)
-
-      output device_request_resources: resources.to_json
+      perform_read_test(device_request_id_list, resource_type)
     end
   end
 end

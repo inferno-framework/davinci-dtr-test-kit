@@ -30,6 +30,10 @@ RSpec.describe DaVinciDTRTestKit::ReadTest do
           'Coverage'
         end
 
+        def scratch_resources
+          scratch[:coverage_resources] ||= {}
+        end
+
         def coverage_id_list
           resource_ids.split(',').map(&:strip)
         end

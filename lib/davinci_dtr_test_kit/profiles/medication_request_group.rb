@@ -1,5 +1,6 @@
 require_relative 'medication_request/medication_request_read'
 require_relative 'medication_request/medication_request_validation'
+require_relative 'medication_request/medication_request_must_support_test'
 
 module DaVinciDTRTestKit
   class MedicationRequestGroup < Inferno::TestGroup
@@ -23,6 +24,13 @@ module DaVinciDTRTestKit
     the [CRD MedicationRequest Profile](https://hl7.org/fhir/us/davinci-crd/STU2/StructureDefinition-profile-medicationrequest.html).
     Each element is checked against terminology binding and cardinality requirements.
 
+    ## Must Support
+    Each profile contains elements marked as "must support". This test
+    sequence expects to see each of these elements at least once. If at
+    least one cannot be found, the test will fail. The test will look
+    through the MedicationRequest resources found in the first test for these
+    elements.
+
     )
     id :medication_request_group
     optional
@@ -35,5 +43,6 @@ module DaVinciDTRTestKit
 
     test from: :medication_request_read
     test from: :medication_request_validation
+    test from: :medication_request_must_support_test
   end
 end

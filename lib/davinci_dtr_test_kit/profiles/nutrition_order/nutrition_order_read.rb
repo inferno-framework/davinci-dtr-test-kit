@@ -14,6 +14,10 @@ module DaVinciDTRTestKit
       'NutritionOrder'
     end
 
+    def scratch_resources
+      scratch[:nutrition_order_resources] ||= {}
+    end
+
     def nutrition_order_id_list
       return [nil] unless respond_to? :nutrition_order_ids
 
@@ -21,9 +25,7 @@ module DaVinciDTRTestKit
     end
 
     run do
-      resources = perform_read_test(nutrition_order_id_list, resource_type)
-
-      output nutrition_order_resources: resources.to_json
+      perform_read_test(nutrition_order_id_list, resource_type)
     end
   end
 end

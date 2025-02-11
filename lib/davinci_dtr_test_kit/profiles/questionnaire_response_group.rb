@@ -4,6 +4,7 @@ require_relative 'questionnaire_response/questionnaire_response_read'
 require_relative 'questionnaire_response/questionnaire_response_validation'
 require_relative 'questionnaire_response/questionnaire_response_create'
 require_relative 'questionnaire_response/questionnaire_response_update'
+require_relative 'questionnaire_response/questionnaire_response_must_support_test'
 
 module DaVinciDTRTestKit
   class QuestionnaireResponseGroup < Inferno::TestGroup
@@ -52,7 +53,15 @@ module DaVinciDTRTestKit
     ## Update
     This test sequence will perform update interactions with the provided json QuestionnaireResponse resources. The
     server SHALL be capable of creating a QuestionnaireResponse resource using the update interaction.
-          )
+
+    ## Must Support
+    Each profile contains elements marked as "must support". This test
+    sequence expects to see each of these elements at least once. If at
+    least one cannot be found, the test will fail. The test will look
+    through the QuestionnaireResponse resources found in the first test for these
+    elements.
+
+    )
     id :questionnaire_response_group
     run_as_group
 
@@ -62,5 +71,6 @@ module DaVinciDTRTestKit
     test from: :questionnaire_response_validation
     test from: :questionnaire_response_create
     test from: :questionnaire_response_update
+    test from: :questionnaire_response_must_support_test
   end
 end
