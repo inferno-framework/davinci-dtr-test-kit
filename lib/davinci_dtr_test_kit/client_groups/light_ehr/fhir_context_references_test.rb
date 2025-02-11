@@ -6,13 +6,14 @@ module DaVinciDTRTestKit
     title 'fhirContext Request, QuestionnaireResponse, or Task References Test'
     description %(
       This test validates that when the light EHR launches a DTR SMART App, the launch context includes
-      a fhirContext with exactly one of the following references and that that referenced resource can be read by the
-      light DTR EHR (in addition to one active Coverage resource):
+      a `fhirContext` with exactly one of the following references and that the referenced resource can be read from
+      the light DTR EHR:
       - A CRD-type Request or Encounter resource
       - An existing incomplete QuestionnaireResponse previously created with DTR
-      - A Questionnaire Task\n
-      This specification can be found in the [Launching DTR](https://hl7.org/fhir/us/davinci-dtr/STU2/specification.html#launching-dtr)
-      section of the DTR IG.
+      - A Questionnaire Task
+
+      See the [Launching DTR](https://hl7.org/fhir/us/davinci-dtr/STU2/specification.html#launching-dtr)
+      section of the DTR IG for details.
     )
     optional
 

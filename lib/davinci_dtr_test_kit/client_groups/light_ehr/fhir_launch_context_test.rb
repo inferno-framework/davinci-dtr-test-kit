@@ -6,8 +6,8 @@ module DaVinciDTRTestKit
     title 'Token exchange response body contains fhirContext'
     description %(
       This test validates that when the light EHR launches a DTR SMART App, the launch context
-      includes fhirContext. This specification can be found in the [Launching DTR](https://hl7.org/fhir/us/davinci-dtr/STU2/specification.html#launching-dtr)
-      section of the DTR IG.
+      includes a `fhirContext`. See the [Launching DTR](https://hl7.org/fhir/us/davinci-dtr/STU2/specification.html#launching-dtr)
+      section of the DTR IG for details.
     )
     optional
 
