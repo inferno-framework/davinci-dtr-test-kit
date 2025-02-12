@@ -4,7 +4,10 @@ module DaVinciDTRTestKit
     include DaVinciDTRTestKit::CQLTest
 
     id :dtr_custom_questionnaire_expressions
-    title '[USER INPUT VERIFICATION] Custom static questionnaire(s) contain items with expressions necessary for pre-population'
+    title %(
+      [USER INPUT VERIFICATION] Custom static questionnaire(s) contain items with expressions
+      necessary for pre-population
+    )
     description %(
       Inferno checks that the custom response has appropriate expressions and that expressions are
       written in cql.

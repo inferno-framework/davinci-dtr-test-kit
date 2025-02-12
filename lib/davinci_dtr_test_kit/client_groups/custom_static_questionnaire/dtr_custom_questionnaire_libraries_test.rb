@@ -4,7 +4,10 @@ module DaVinciDTRTestKit
     include DaVinciDTRTestKit::CQLTest
 
     id :dtr_custom_questionnaire_libraries
-    title '[USER INPUT VERIFICATION] Custom Questionnaire Package response parameters contain libraries necessary for pre-population'
+    title %(
+      [USER INPUT VERIFICATION] Custom Questionnaire Package response parameters contain libraries
+      necessary for pre-population
+    )
     description %(
       Inferno check that the custom response contains no duplicate library names
       and that libraries contain cql and elm data.
