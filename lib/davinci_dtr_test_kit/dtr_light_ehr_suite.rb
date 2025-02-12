@@ -12,6 +12,8 @@ require_relative 'profiles/nutrition_order_group'
 require_relative 'profiles/service_request_group'
 require_relative 'profiles/task_group'
 require_relative 'profiles/vision_prescription_group'
+require_relative 'client_groups/light_ehr/dtr_smart_standalone_launch'
+require_relative 'client_groups/light_ehr/dtr_smart_ehr_launch'
 require 'smart_app_launch/smart_stu1_suite'
 require 'smart_app_launch/smart_stu2_suite'
 
@@ -83,13 +85,32 @@ module DaVinciDTRTestKit
         end
       end
 
-      group from: :smart_ehr_launch_stu2,
+      group from: :dtr_smart_standalone_launch,
             required_suite_options: DTROptions::SMART_2_REQUIREMENT,
-            run_as_group: true
+            run_as_group: true,
+            config: {
+              outputs: {
+                id_token: { name: :id_token },
+                token_retrieval_time: { name: :token_retrieval_time },
+                refresh_token: { name: :refresh_token },
+                received_scopes: { name: :received_scopes },
+                access_token: { name: :access_token },
+                smart_credentials: { name: :smart_credentials }
+              }
+            }
 
-      group from: :smart_standalone_launch_stu2,
+      group from: :dtr_smart_ehr_launch,
             required_suite_options: DTROptions::SMART_2_REQUIREMENT,
-            run_as_group: true
+            run_as_group: true,
+            config: {
+              outputs: {
+                id_token: { name: :id_token },
+                client_id: { name: :client_id },
+                requested_scopes: { name: :requested_scopes },
+                access_token: { name: :access_token },
+                smart_credentials: { name: :smart_credentials }
+              }
+            }
     end
 
     group do
@@ -114,7 +135,7 @@ module DaVinciDTRTestKit
 
       )
 
-      input :credentials,
+      input :smart_credentials,
             title: 'OAuth Credentials',
             type: :oauth_credentials,
             optional: true
@@ -122,7 +143,7 @@ module DaVinciDTRTestKit
       # All FHIR requests in this suite will use this FHIR client
       fhir_client do
         url :url
-        oauth_credentials :credentials
+        oauth_credentials :smart_credentials
       end
 
       group from: :questionnaire_response_group
