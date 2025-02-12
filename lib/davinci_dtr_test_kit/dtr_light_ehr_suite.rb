@@ -87,11 +87,30 @@ module DaVinciDTRTestKit
 
       group from: :dtr_smart_standalone_launch,
             required_suite_options: DTROptions::SMART_2_REQUIREMENT,
-            run_as_group: true
+            run_as_group: true,
+            config: {
+              outputs: {
+                id_token: { name: :id_token },
+                token_retrieval_time: { name: :token_retrieval_time },
+                refresh_token: { name: :refresh_token },
+                received_scopes: { name: :received_scopes },
+                access_token: { name: :access_token },
+                smart_credentials: { name: :smart_credentials }
+              }
+            }
 
       group from: :dtr_smart_ehr_launch,
             required_suite_options: DTROptions::SMART_2_REQUIREMENT,
-            run_as_group: true
+            run_as_group: true,
+            config: {
+              outputs: {
+                id_token: { name: :id_token },
+                client_id: { name: :client_id },
+                requested_scopes: { name: :requested_scopes },
+                access_token: { name: :access_token },
+                smart_credentials: { name: :smart_credentials }
+              }
+            }
     end
 
     group do
@@ -104,16 +123,7 @@ module DaVinciDTRTestKit
       )
 
       group from: :'us_core_v311-us_core_v311_fhir_api',
-            run_as_group: true,
-            config: {
-              inputs: {
-                id_token: { name: :ehr_id_token },
-                client_id: { name: :ehr_client_id },
-                requested_scopes: { name: :ehr_requested_scopes },
-                access_token: { name: :ehr_access_token },
-                smart_credentials: { name: :ehr_smart_credentials }
-              }
-            }
+            run_as_group: true
     end
 
     group do
@@ -125,7 +135,7 @@ module DaVinciDTRTestKit
 
       )
 
-      input :credentials,
+      input :smart_credentials,
             title: 'OAuth Credentials',
             type: :oauth_credentials,
             optional: true
@@ -133,109 +143,19 @@ module DaVinciDTRTestKit
       # All FHIR requests in this suite will use this FHIR client
       fhir_client do
         url :url
-        oauth_credentials :credentials
+        oauth_credentials :smart_credentials
       end
 
-      group from: :questionnaire_response_group,
-            config: {
-              inputs: {
-                id_token: { name: :ehr_id_token },
-                client_id: { name: :ehr_client_id },
-                requested_scopes: { name: :ehr_requested_scopes },
-                access_token: { name: :ehr_access_token },
-                credentials: { name: :ehr_smart_credentials }
-              }
-            }
-      group from: :coverage_group,
-            config: {
-              inputs: {
-                id_token: { name: :ehr_id_token },
-                client_id: { name: :ehr_client_id },
-                requested_scopes: { name: :ehr_requested_scopes },
-                access_token: { name: :ehr_access_token },
-                credentials: { name: :ehr_smart_credentials }
-              }
-            }
-      group from: :communication_request_group,
-            config: {
-              inputs: {
-                id_token: { name: :ehr_id_token },
-                client_id: { name: :ehr_client_id },
-                requested_scopes: { name: :ehr_requested_scopes },
-                access_token: { name: :ehr_access_token },
-                credentials: { name: :ehr_smart_credentials }
-              }
-            }
-      group from: :device_request_group,
-            config: {
-              inputs: {
-                id_token: { name: :ehr_id_token },
-                client_id: { name: :ehr_client_id },
-                requested_scopes: { name: :ehr_requested_scopes },
-                access_token: { name: :ehr_access_token },
-                credentials: { name: :ehr_smart_credentials }
-              }
-            }
-      group from: :encounter_group,
-            config: {
-              inputs: {
-                id_token: { name: :ehr_id_token },
-                client_id: { name: :ehr_client_id },
-                requested_scopes: { name: :ehr_requested_scopes },
-                access_token: { name: :ehr_access_token },
-                credentials: { name: :ehr_smart_credentials }
-              }
-            }
-      group from: :medication_request_group,
-            config: {
-              inputs: {
-                id_token: { name: :ehr_id_token },
-                client_id: { name: :ehr_client_id },
-                requested_scopes: { name: :ehr_requested_scopes },
-                access_token: { name: :ehr_access_token },
-                credentials: { name: :ehr_smart_credentials }
-              }
-            }
-      group from: :nutrition_order_group,
-            config: {
-              inputs: {
-                id_token: { name: :ehr_id_token },
-                client_id: { name: :ehr_client_id },
-                requested_scopes: { name: :ehr_requested_scopes },
-                access_token: { name: :ehr_access_token },
-                credentials: { name: :ehr_smart_credentials }
-              }
-            }
-      group from: :service_request_group,
-            config: {
-              inputs: {
-                id_token: { name: :ehr_id_token },
-                client_id: { name: :ehr_client_id },
-                requested_scopes: { name: :ehr_requested_scopes },
-                access_token: { name: :ehr_access_token },
-                credentials: { name: :ehr_smart_credentials }
-              }
-            }
-      group from: :task_group,
-            config: {
-              inputs: {
-                id_token: { name: :ehr_id_token },
-                client_id: { name: :ehr_client_id },
-                requested_scopes: { name: :ehr_requested_scopes },
-                access_token: { name: :ehr_access_token },
-                credentials: { name: :ehr_smart_credentials }
-              }
-            }
-      group from: :vision_prescription_group,
-            config: {
-              inputs: {
-                id_token: { name: :ehr_id_token },
-                client_id: { name: :ehr_client_id },
-                requested_scopes: { name: :ehr_requested_scopes },
-                access_token: { name: :ehr_access_token },
-                credentials: { name: :ehr_smart_credentials }
-              }
-            }
+      group from: :questionnaire_response_group
+      group from: :coverage_group
+      group from: :communication_request_group
+      group from: :device_request_group
+      group from: :encounter_group
+      group from: :medication_request_group
+      group from: :nutrition_order_group
+      group from: :service_request_group
+      group from: :task_group
+      group from: :vision_prescription_group
     end
   end
 end
