@@ -12,7 +12,7 @@ module DaVinciDTRTestKit
     input :client_id
 
     def prompt
-      if config.options[:adaptive]
+      if config.options[:adaptive] || config.options[:custom]
         'Store the completed questionnaire back into the EHR.'
       else
         <<~DESCRIPTION

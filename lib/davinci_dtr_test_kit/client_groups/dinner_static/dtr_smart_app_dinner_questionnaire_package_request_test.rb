@@ -24,7 +24,7 @@ module DaVinciDTRTestKit
           description: 'Required if "Launch from Inferno" is selected'
     input :static_smart_patient_id,
           optional: true,
-          title: 'SMART App Launch Patient ID (Dinner Static)',
+          title: 'SMART App Launch Patient ID',
           type: 'text',
           description: %(
             Patient instance ID to be provided by Inferno as the patient as a part of the SMART App Launch.
@@ -32,7 +32,7 @@ module DaVinciDTRTestKit
           default: 'pat015'
     input :static_smart_fhir_context,
           optional: true,
-          title: 'SMART App Launch fhirContext (Dinner Static)',
+          title: 'SMART App Launch fhirContext',
           type: 'textarea',
           description: %(
             References to be provided by Inferno as the fhirContext as a part of the SMART App
@@ -43,10 +43,10 @@ module DaVinciDTRTestKit
                                          { reference: 'DeviceRequest/devreqe0470' }])
     input :static_ehr_bundle,
           optional: true,
-          title: 'EHR-available resources (Dinner Static)',
+          title: 'EHR-available resources',
           type: 'textarea',
           description: %(
-            Resources available from the EHR needed to drive the dinner static workflow.
+            Resources available from the EHR needed to drive this workflow.
             Formatted as a FHIR bundle that contains resources, each with an ID property populated. Each
             instance present will be available for retrieval from Inferno at the endpoint:
             <fhir-base>/<resource type>/<instance id>

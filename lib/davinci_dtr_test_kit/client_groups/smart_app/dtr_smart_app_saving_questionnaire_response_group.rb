@@ -20,8 +20,5 @@ module DaVinciDTRTestKit
     # Test 2: validate basic conformance of the QuestionnaireResponse
     test from: :dtr_questionnaire_response_basic_conformance,
          uses_request: :questionnaire_response_save
-    # Test 3: validate workflow-specific details such as pre-population and overrides
-    test from: :dtr_questionnaire_response_pre_population,
-         uses_request: :questionnaire_response_save
   end
 end

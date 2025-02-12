@@ -19,7 +19,13 @@ module DaVinciDTRTestKit
         response.status = 200
         response.format = 'application/fhir+json'
         response.headers['Access-Control-Allow-Origin'] = '*'
-        response.body = build_questionnaire_package_response.to_json
+        response.body = custom_response.presence || build_questionnaire_package_response.to_json
+      end
+
+      def custom_response
+        @custom_response ||= JSON.parse(result.input_json)
+          .find { |input| input['name'].include?('custom_questionnaire_package_response') }
+          &.dig('value')
       end
 
       def update_result
