@@ -22,7 +22,7 @@ module DaVinciDTRTestKit
       skip_if retrieval_method == 'Static', 'Performing only static flow tests - only one flow is required.'
       test_passed = true
       profile_url = 'http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/DTR-QPackageBundle|2.0.1'
-      assert !scratch[:adaptive_questionnaire_bundles].nil?, 'No resources to validate.'
+      assert scratch[:adaptive_questionnaire_bundles].present?, 'No resources to validate.'
       scratch[:adaptive_questionnaire_bundles].each_with_index do |bundle, index|
         resource_is_valid = validate_resource(bundle, :bundle, profile_url, index)
         test_passed = false unless resource_is_valid

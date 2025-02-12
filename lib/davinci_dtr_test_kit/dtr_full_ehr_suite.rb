@@ -1,3 +1,4 @@
+require_relative 'client_groups/custom_static_questionnaire/dtr_full_ehr_custom_questionnaire_workflow_group'
 require_relative 'client_groups/dinner_static/dtr_full_ehr_questionnaire_workflow_group'
 require_relative 'client_groups/dinner_adaptive/dtr_full_ehr_adaptive_dinner_questionnaire_workflow_group'
 require_relative 'auth_groups/oauth2_authentication_group'
@@ -59,7 +60,21 @@ module DaVinciDTRTestKit
     end
 
     group from: :oauth2_authentication
-    group from: :dtr_full_ehr_static_dinner_questionnaire_workflow
-    group from: :dtr_full_ehr_adaptive_dinner_questionnaire_workflow
+    group do
+      id :dtr_full_ehr_basic_workflows
+      title 'Basic Workflows'
+
+      group from: :dtr_full_ehr_custom_static_questionnaire_workflow
+      group from: :dtr_full_ehr_adaptive_dinner_questionnaire_workflow
+    end
+    group do
+      id :dtr_full_ehr_questionnaire_functionality
+      title 'Questionnaire Functionality Coverage'
+      description %(
+        Tests in this group validate that the client can complete additional DTR workflows
+        covering additional pre-population features of questionnaires.
+      )
+      group from: :dtr_full_ehr_static_dinner_questionnaire_workflow
+    end
   end
 end
