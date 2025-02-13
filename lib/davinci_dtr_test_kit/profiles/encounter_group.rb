@@ -1,5 +1,6 @@
 require_relative 'encounter/encounter_read'
 require_relative 'encounter/encounter_validation'
+require_relative 'encounter/encounter_must_support_test'
 
 module DaVinciDTRTestKit
   class EncounterGroup < Inferno::TestGroup
@@ -23,6 +24,13 @@ module DaVinciDTRTestKit
     the [CRD Encounter Profile](https://hl7.org/fhir/us/davinci-crd/STU2/StructureDefinition-profile-encounter.html).
     Each element is checked against terminology binding and cardinality requirements.
 
+    ## Must Support
+    Each profile contains elements marked as "must support". This test
+    sequence expects to see each of these elements at least once. If at
+    least one cannot be found, the test will fail. The test will look
+    through the Encounter resources found in the first test for these
+    elements.
+
     )
     id :encounter_group
     optional
@@ -35,5 +43,6 @@ module DaVinciDTRTestKit
 
     test from: :encounter_read
     test from: :encounter_validation
+    test from: :encounter_must_support_test
   end
 end

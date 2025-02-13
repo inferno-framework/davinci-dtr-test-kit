@@ -14,6 +14,10 @@ module DaVinciDTRTestKit
       'ServiceRequest'
     end
 
+    def scratch_resources
+      scratch[:service_requests] ||= {}
+    end
+
     def service_request_id_list
       return [nil] unless respond_to? :service_request_ids
 
@@ -21,9 +25,7 @@ module DaVinciDTRTestKit
     end
 
     run do
-      resources = perform_read_test(service_request_id_list, resource_type)
-
-      output service_request_resources: resources.to_json
+      perform_read_test(service_request_id_list, resource_type)
     end
   end
 end

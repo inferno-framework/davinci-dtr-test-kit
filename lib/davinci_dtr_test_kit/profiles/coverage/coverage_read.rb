@@ -14,6 +14,10 @@ module DaVinciDTRTestKit
       'Coverage'
     end
 
+    def scratch_resources
+      scratch[:coverages] ||= {}
+    end
+
     def coverage_id_list
       return [nil] unless respond_to? :coverage_ids
 
@@ -21,9 +25,7 @@ module DaVinciDTRTestKit
     end
 
     run do
-      resources = perform_read_test(coverage_id_list, resource_type)
-
-      output coverage_resources: resources.to_json
+      perform_read_test(coverage_id_list, resource_type)
     end
   end
 end

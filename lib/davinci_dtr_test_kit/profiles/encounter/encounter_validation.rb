@@ -1,8 +1,6 @@
-require_relative '../../validation_test'
-
 module DaVinciDTRTestKit
   class EncounterValidationTest < Inferno::Test
-    include DaVinciDTRTestKit::ValidationTest
+    include USCoreTestKit::ValidationTest
 
     title 'Encounter resources returned during previous tests conform to the CRD Encounter'
     description %(
@@ -19,17 +17,20 @@ fail if their code/system are not found in the valueset.
     )
 
     id :encounter_validation
-    input :encounter_resources,
-          optional: true
 
     def resource_type
       'Encounter'
     end
 
+    def scratch_resources
+      scratch[:encounters] ||= {}
+    end
+
     run do
-      skip_if(encounter_ids.nil?, "No `#{resource_type}` IDs provided, skipping test.")
-      perform_profile_validation_test(encounter_resources, resource_type,
-                                      'http://hl7.org/fhir/us/davinci-crd/StructureDefinition/profile-encounter|2.0.1')
+      perform_validation_test(scratch_resources[:all] || [],
+                              'http://hl7.org/fhir/us/davinci-crd/StructureDefinition/profile-encounter',
+                              '2.0.1',
+                              skip_if_empty: true)
     end
   end
 end

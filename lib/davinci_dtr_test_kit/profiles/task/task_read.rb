@@ -14,6 +14,10 @@ module DaVinciDTRTestKit
       'Task'
     end
 
+    def scratch_resources
+      scratch[:tasks] ||= {}
+    end
+
     def task_id_list
       return [nil] unless respond_to? :task_ids
 
@@ -21,9 +25,7 @@ module DaVinciDTRTestKit
     end
 
     run do
-      resources = perform_read_test(task_id_list, resource_type)
-
-      output task_resources: resources.to_json
+      perform_read_test(task_id_list, resource_type)
     end
   end
 end

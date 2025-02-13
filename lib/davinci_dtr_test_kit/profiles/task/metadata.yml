@@ -1,0 +1,165 @@
+---
+:name: profile_task
+:class_name: ProfileTaskSequence
+:version: v3.1.1
+:reformatted_version: v311
+:resource: Task
+:profile_url: http://hl7.org/fhir/us/davinci-pas/StructureDefinition/profile-task
+:profile_name: PAS Task
+:profile_version: 2.0.1
+:title: PAS Task
+:short_description: Verify support for the server capabilities required by the PAS
+  Task.
+:is_delayed: true
+:interactions:
+- :code: read
+  :expectation: SHOULD
+- :code: create
+  :expectation: SHOULD
+- :code: update
+  :expectation: SHOULD
+:operations: []
+:searches: []
+:search_definitions: {}
+:include_params: []
+:revincludes: []
+:required_concepts:
+- code
+- input.valueCodeableConcept
+:must_supports:
+  :extensions: []
+  :slices: []
+  :elements:
+  - :path: identifier
+  - :path: status
+  - :path: statusReason
+  - :path: intent
+  - :path: code
+  - :path: for
+    :types:
+    - Reference
+    :target_profiles:
+    - http://hl7.org/fhir/us/davinci-pas/StructureDefinition/profile-beneficiary
+  - :path: requester
+    :types:
+    - Reference
+  - :path: requester.identifier
+  - :path: owner
+    :types:
+    - Reference
+  - :path: owner.identifier
+  - :path: reasonCode.coding.code
+    :fixed_value: priorAuthorization
+  - :path: reasonReference
+    :types:
+    - Reference
+    :target_profiles:
+    - http://hl7.org/fhir/us/davinci-pas/StructureDefinition/profile-claim
+  - :path: restriction.period
+  - :path: input
+:mandatory_elements:
+- Task.identifier
+- Task.status
+- Task.intent
+- Task.code
+- Task.for
+- Task.requester
+- Task.requester.identifier
+- Task.owner
+- Task.owner.identifier
+- Task.reasonCode
+- Task.reasonReference
+- Task.input
+- Task.input.type
+- Task.input.value[x]
+- Task.input.extension
+- Task.output.type
+- Task.output.value[x]
+:bindings:
+- :type: code
+  :strength: required
+  :system: http://hl7.org/fhir/us/davinci-hrex/ValueSet/hrex-task-status
+  :path: status
+- :type: code
+  :strength: required
+  :system: http://hl7.org/fhir/ValueSet/task-intent
+  :path: intent
+- :type: code
+  :strength: required
+  :system: http://hl7.org/fhir/ValueSet/request-priority
+  :path: priority
+- :type: CodeableConcept
+  :strength: required
+  :system: http://hl7.org/fhir/us/davinci-pas/ValueSet/PASTaskCodes
+  :path: code
+- :type: CodeableConcept
+  :strength: required
+  :system: http://hl7.org/fhir/us/davinci-pas/ValueSet/AttachmentRequestCodes
+  :path: input.value
+:references:
+- :path: Task.basedOn
+  :profiles:
+  - http://hl7.org/fhir/StructureDefinition/Resource
+- :path: Task.partOf
+  :profiles:
+  - http://hl7.org/fhir/StructureDefinition/Task
+- :path: Task.focus
+  :profiles:
+  - http://hl7.org/fhir/StructureDefinition/Resource
+- :path: Task.for
+  :profiles:
+  - http://hl7.org/fhir/us/davinci-pas/StructureDefinition/profile-beneficiary
+- :path: Task.encounter
+  :profiles:
+  - http://hl7.org/fhir/StructureDefinition/Encounter
+- :path: Task.requester
+  :profiles:
+  - http://hl7.org/fhir/StructureDefinition/Device
+  - http://hl7.org/fhir/StructureDefinition/Organization
+  - http://hl7.org/fhir/StructureDefinition/Patient
+  - http://hl7.org/fhir/StructureDefinition/Practitioner
+  - http://hl7.org/fhir/StructureDefinition/PractitionerRole
+  - http://hl7.org/fhir/StructureDefinition/RelatedPerson
+- :path: Task.owner
+  :profiles:
+  - http://hl7.org/fhir/StructureDefinition/Practitioner
+  - http://hl7.org/fhir/StructureDefinition/PractitionerRole
+  - http://hl7.org/fhir/StructureDefinition/Organization
+  - http://hl7.org/fhir/StructureDefinition/CareTeam
+  - http://hl7.org/fhir/StructureDefinition/HealthcareService
+  - http://hl7.org/fhir/StructureDefinition/Patient
+  - http://hl7.org/fhir/StructureDefinition/Device
+  - http://hl7.org/fhir/StructureDefinition/RelatedPerson
+- :path: Task.location
+  :profiles:
+  - http://hl7.org/fhir/StructureDefinition/Location
+- :path: Task.reasonReference
+  :profiles:
+  - http://hl7.org/fhir/us/davinci-pas/StructureDefinition/profile-claim
+- :path: Task.insurance
+  :profiles:
+  - http://hl7.org/fhir/StructureDefinition/Coverage
+  - http://hl7.org/fhir/StructureDefinition/ClaimResponse
+- :path: Task.relevantHistory
+  :profiles:
+  - http://hl7.org/fhir/StructureDefinition/Provenance
+- :path: Task.restriction.recipient
+  :profiles:
+  - http://hl7.org/fhir/StructureDefinition/Patient
+  - http://hl7.org/fhir/StructureDefinition/Practitioner
+  - http://hl7.org/fhir/StructureDefinition/PractitionerRole
+  - http://hl7.org/fhir/StructureDefinition/RelatedPerson
+  - http://hl7.org/fhir/StructureDefinition/Group
+  - http://hl7.org/fhir/StructureDefinition/Organization
+:tests:
+- :id: us_core_v311_task_read_test
+  :file_name: task_read_test.rb
+- :id: us_core_v311_task_validation_test
+  :file_name: task_validation_test.rb
+- :id: us_core_v311_task_must_support_test
+  :file_name: task_must_support_test.rb
+- :id: us_core_v311_task_reference_resolution_test
+  :file_name: task_reference_resolution_test.rb
+:id: us_core_v311_task
+:file_name: task_group.rb
+:delayed_references: []

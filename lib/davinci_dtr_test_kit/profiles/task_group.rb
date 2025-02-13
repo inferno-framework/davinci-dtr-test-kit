@@ -2,6 +2,7 @@ require_relative 'task/task_read'
 require_relative 'task/task_validation'
 require_relative 'task/task_create'
 require_relative 'task/task_update'
+require_relative 'task/task_must_support_test'
 
 module DaVinciDTRTestKit
   class TaskGroup < Inferno::TestGroup
@@ -34,7 +35,15 @@ module DaVinciDTRTestKit
     This test sequence will perform update interactions with the provided json
     Task resources. The server SHOULD be capable of creating a Task resource
     using the update interaction.
-          )
+
+    ## Must Support
+    Each profile contains elements marked as "must support". This test
+    sequence expects to see each of these elements at least once. If at
+    least one cannot be found, the test will fail. The test will look
+    through the Task resources found in the first test for these
+    elements.
+
+    )
     id :task_group
     optional
     run_as_group
@@ -48,5 +57,6 @@ module DaVinciDTRTestKit
     test from: :task_validation
     test from: :task_create
     test from: :task_update
+    test from: :task_must_support_test
   end
 end

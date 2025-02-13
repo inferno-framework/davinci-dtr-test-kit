@@ -14,6 +14,10 @@ module DaVinciDTRTestKit
       'MedicationRequest'
     end
 
+    def scratch_resources
+      scratch[:medication_requests] ||= {}
+    end
+
     def medication_request_id_list
       return [nil] unless respond_to? :medication_request_ids
 
@@ -21,9 +25,7 @@ module DaVinciDTRTestKit
     end
 
     run do
-      resources = perform_read_test(medication_request_id_list, resource_type)
-
-      output medication_request_resources: resources.to_json
+      perform_read_test(medication_request_id_list, resource_type)
     end
   end
 end

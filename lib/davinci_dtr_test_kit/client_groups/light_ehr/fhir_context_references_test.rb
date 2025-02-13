@@ -24,6 +24,10 @@ module DaVinciDTRTestKit
       bearer_token JSON.parse(request.response_body)['access_token']
     end
 
+    def scratch_resources
+      scratch[:crd_request_resources] ||= {}
+    end
+
     run do
       token_response_params = JSON.parse(request.response_body)
 

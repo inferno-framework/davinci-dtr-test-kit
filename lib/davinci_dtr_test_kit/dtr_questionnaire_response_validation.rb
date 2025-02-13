@@ -1,12 +1,50 @@
-# frozen_string_literal: true
-
+require_relative 'cql_test'
 module DaVinciDTRTestKit
   module DTRQuestionnaireResponseValidation
+    include DaVinciDTRTestKit::CQLTest
+
     CQL_EXPRESSION_EXTENSIONS = [
       'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-initialExpression',
       'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-calculatedExpression',
       'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-candidateExpression'
     ].freeze
+
+    def validate_questionnaire_response_correctness(questionnaire_response_json, custom_response = nil)
+      check_is_questionnaire_response(questionnaire_response_json)
+      qr = FHIR.from_contents(questionnaire_response_json)
+      questionnaire = nil
+      expected_overrides = []
+      if custom_response.blank?
+        questionnaire = Fixtures.questionnaire_for_test(id)
+        expected_overrides = ['PBD.2']
+      else
+        assert_valid_json custom_response, 'Custom response provided is not a valid JSON'
+
+        # Find the questionnaire that is referenced in the QuestionnaireResponse
+        questionnaire = extract_questionnaire_from_questionnaire_package(
+          custom_response, qr.questionnaire
+        )
+
+        skip_if questionnaire.blank?,
+                "Couldn't find Questionnaire #{qr.questionnaire} in the provided custom questionnaire package
+                to validate the QuestionnaireResponse."
+
+        missing_origin_sources = ['auto', 'manual', 'override'] - extract_origin_sources(qr.item)
+        unless missing_origin_sources.empty?
+          add_message(
+            'error',
+            'All origin sources (auto, manual, override) must be present in the QuestionnaireResponse. ' \
+            "Missing #{missing_origin_sources.to_sentence}"
+          )
+        end
+      end
+
+      check_origin_sources(questionnaire.item, qr.item, expected_overrides:)
+
+      required_link_ids = extract_required_link_ids(questionnaire.item)
+      check_answer_presence(qr.item, required_link_ids)
+      assert(messages.none? { |m| m[:type] == 'error' }, 'QuestionnaireResponse is not correct, see error message(s)')
+    end
 
     def check_is_questionnaire_response(questionnaire_response_json)
       assert_valid_json(questionnaire_response_json)
@@ -53,6 +91,15 @@ module DaVinciDTRTestKit
       elsif !is_cql_expression && origin_source != 'manual'
         origin_source_error(link_id, 'manual', origin_source)
       end
+    end
+
+    def extract_origin_sources(items, origin_sources = [])
+      items&.each do |item|
+        extract_origin_sources(item&.item, origin_sources)
+        origin_sources << find_origin_source(item) if item&.answer&.any?
+      end
+
+      origin_sources
     end
 
     # Ensures that all required questions have been answered.
@@ -108,7 +155,6 @@ module DaVinciDTRTestKit
 
     def validate_cql_executed(actual_items, questionnaire_cql_expression_link_ids, template_prepopulation_expectations,
                               template_override_expectations)
-
       actual_items&.each do |item_to_validate|
         link_id = item_to_validate.linkId
         if questionnaire_cql_expression_link_ids.include?(link_id)
@@ -225,7 +271,7 @@ module DaVinciDTRTestKit
     end
 
     def item_is_cql_expression?(item)
-      item.extension&.any? { |ext| CQL_EXPRESSION_EXTENSIONS.include?(ext.url) }
+      item&.extension&.any? { |ext| CQL_EXPRESSION_EXTENSIONS.include?(ext.url) }
     end
 
     def answer_value_equal?(expected, actual)

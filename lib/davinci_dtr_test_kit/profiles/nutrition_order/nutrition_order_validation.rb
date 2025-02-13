@@ -1,8 +1,6 @@
-require_relative '../../validation_test'
-
 module DaVinciDTRTestKit
   class NutritionOrderValidationTest < Inferno::Test
-    include DaVinciDTRTestKit::ValidationTest
+    include USCoreTestKit::ValidationTest
 
     title 'NutritionOrder resources returned during previous tests conform to the CRD NutritionOrder'
     description %(
@@ -19,17 +17,20 @@ fail if their code/system are not found in the valueset.
     )
 
     id :nutrition_order_validation
-    input :nutrition_order_resources,
-          optional: true
 
     def resource_type
       'NutritionOrder'
     end
 
+    def scratch_resources
+      scratch[:nutrition_orders] ||= {}
+    end
+
     run do
-      skip_if(nutrition_order_ids.nil?, "No `#{resource_type}` IDs provided, skipping test.")
-      perform_profile_validation_test(nutrition_order_resources, resource_type,
-                                      'http://hl7.org/fhir/us/davinci-crd/StructureDefinition/profile-nutritionorder|2.0.1')
+      perform_validation_test(scratch_resources[:all] || [],
+                              'http://hl7.org/fhir/us/davinci-crd/StructureDefinition/profile-nutritionorder',
+                              '2.0.1',
+                              skip_if_empty: true)
     end
   end
 end
