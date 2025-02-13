@@ -15,7 +15,7 @@ module DaVinciDTRTestKit
     end
 
     def scratch_resources
-      scratch[:encounter_resources] ||= {}
+      scratch[:encounters] ||= {}
     end
 
     def encounter_id_list

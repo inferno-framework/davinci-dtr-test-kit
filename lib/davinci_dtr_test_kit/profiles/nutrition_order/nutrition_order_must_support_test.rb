@@ -33,7 +33,7 @@ module DaVinciDTRTestKit
     end
 
     def scratch_resources
-      scratch[:nutrition_order_resources] ||= {}
+      scratch[:nutrition_orders] ||= {}
     end
 
     run do

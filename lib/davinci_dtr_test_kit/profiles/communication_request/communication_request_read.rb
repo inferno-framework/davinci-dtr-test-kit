@@ -15,7 +15,7 @@ module DaVinciDTRTestKit
     end
 
     def scratch_resources
-      scratch[:communication_request_resources] ||= {}
+      scratch[:communication_requests] ||= {}
     end
 
     def communication_request_id_list

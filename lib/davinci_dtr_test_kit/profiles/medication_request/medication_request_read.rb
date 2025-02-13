@@ -15,7 +15,7 @@ module DaVinciDTRTestKit
     end
 
     def scratch_resources
-      scratch[:medication_request_resources] ||= {}
+      scratch[:medication_requests] ||= {}
     end
 
     def medication_request_id_list

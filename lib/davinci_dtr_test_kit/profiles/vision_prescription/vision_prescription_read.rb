@@ -15,7 +15,7 @@ module DaVinciDTRTestKit
     end
 
     def scratch_resources
-      scratch[:vision_prescription_resources] ||= {}
+      scratch[:vision_prescriptions] ||= {}
     end
 
     def vision_prescription_id_list

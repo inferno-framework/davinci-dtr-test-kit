@@ -15,7 +15,7 @@ module DaVinciDTRTestKit
     end
 
     def scratch_resources
-      scratch[:task_resources] ||= {}
+      scratch[:tasks] ||= {}
     end
 
     def task_id_list

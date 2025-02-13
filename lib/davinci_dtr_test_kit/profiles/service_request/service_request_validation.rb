@@ -23,7 +23,7 @@ fail if their code/system are not found in the valueset.
     end
 
     def scratch_resources
-      scratch[:service_request_resources] ||= {}
+      scratch[:service_requests] ||= {}
     end
 
     run do

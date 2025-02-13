@@ -25,7 +25,7 @@ none are returned, the test is skipped.
     end
 
     def scratch_resources
-      scratch[:questionnaire_response_resources] ||= {}
+      scratch[:questionnaire_responses] ||= {}
     end
 
     run do

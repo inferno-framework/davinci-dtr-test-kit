@@ -35,7 +35,7 @@ module DaVinciDTRTestKit
     end
 
     def scratch_resources
-      scratch[:service_request_resources] ||= {}
+      scratch[:service_requests] ||= {}
     end
 
     run do

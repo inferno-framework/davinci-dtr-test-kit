@@ -34,7 +34,7 @@ module DaVinciDTRTestKit
     end
 
     def scratch_resources
-      scratch[:task_resources] ||= {}
+      scratch[:tasks] ||= {}
     end
 
     run do

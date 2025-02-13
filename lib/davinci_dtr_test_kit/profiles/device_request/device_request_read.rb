@@ -15,7 +15,7 @@ module DaVinciDTRTestKit
     end
 
     def scratch_resources
-      scratch[:device_request_resources] ||= {}
+      scratch[:device_requests] ||= {}
     end
 
     def device_request_id_list

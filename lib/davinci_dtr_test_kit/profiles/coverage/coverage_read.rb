@@ -15,7 +15,7 @@ module DaVinciDTRTestKit
     end
 
     def scratch_resources
-      scratch[:coverage_resources] ||= {}
+      scratch[:coverages] ||= {}
     end
 
     def coverage_id_list
