@@ -1,8 +1,6 @@
-require_relative '../../validation_test'
-
 module DaVinciDTRTestKit
   class CommunicationRequestValidationTest < Inferno::Test
-    include DaVinciDTRTestKit::ValidationTest
+    include USCoreTestKit::ValidationTest
 
     title 'CommunicationRequest resources returned during previous tests conform to the CRD CommunicationRequest'
     description %(
@@ -19,17 +17,20 @@ fail if their code/system are not found in the valueset.
     )
 
     id :communication_request_validation
-    input :communication_request_resources,
-          optional: true
 
     def resource_type
       'CommunicationRequest'
     end
 
+    def scratch_resources
+      scratch[:communication_requests] ||= {}
+    end
+
     run do
-      skip_if(communication_request_ids.nil?, "No `#{resource_type}` IDs provided, skipping test.")
-      perform_profile_validation_test(communication_request_resources, resource_type,
-                                      'http://hl7.org/fhir/us/davinci-crd/StructureDefinition/profile-communicationrequest|2.0.1')
+      perform_validation_test(scratch_resources[:all] || [],
+                              'http://hl7.org/fhir/us/davinci-crd/StructureDefinition/profile-communicationrequest',
+                              '2.0.1',
+                              skip_if_empty: true)
     end
   end
 end

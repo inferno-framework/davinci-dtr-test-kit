@@ -14,6 +14,10 @@ module DaVinciDTRTestKit
       'CommunicationRequest'
     end
 
+    def scratch_resources
+      scratch[:communication_requests] ||= {}
+    end
+
     def communication_request_id_list
       return [nil] unless respond_to? :communication_request_ids
 
@@ -21,9 +25,7 @@ module DaVinciDTRTestKit
     end
 
     run do
-      resources = perform_read_test(communication_request_id_list, resource_type)
-
-      output communication_request_resources: resources.to_json
+      perform_read_test(communication_request_id_list, resource_type)
     end
   end
 end

@@ -1,8 +1,6 @@
-require_relative '../../validation_test'
-
 module DaVinciDTRTestKit
   class ServiceRequestValidationTest < Inferno::Test
-    include DaVinciDTRTestKit::ValidationTest
+    include USCoreTestKit::ValidationTest
 
     title 'ServiceRequest resources returned during previous tests conform to the CRD ServiceRequest'
     description %(
@@ -19,17 +17,20 @@ fail if their code/system are not found in the valueset.
     )
 
     id :service_request_validation
-    input :service_request_resources,
-          optional: true
 
     def resource_type
       'ServiceRequest'
     end
 
+    def scratch_resources
+      scratch[:service_requests] ||= {}
+    end
+
     run do
-      skip_if(service_request_ids.nil?, "No `#{resource_type}` IDs provided, skipping test.")
-      perform_profile_validation_test(service_request_resources, resource_type,
-                                      'http://hl7.org/fhir/us/davinci-crd/StructureDefinition/profile-servicerequest|2.0.1')
+      perform_validation_test(scratch_resources[:all] || [],
+                              'http://hl7.org/fhir/us/davinci-crd/StructureDefinition/profile-servicerequest',
+                              '2.0.1',
+                              skip_if_empty: true)
     end
   end
 end

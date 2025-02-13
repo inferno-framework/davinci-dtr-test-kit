@@ -14,6 +14,10 @@ module DaVinciDTRTestKit
       'Encounter'
     end
 
+    def scratch_resources
+      scratch[:encounters] ||= {}
+    end
+
     def encounter_id_list
       return [nil] unless respond_to? :encounter_ids
 
@@ -21,9 +25,7 @@ module DaVinciDTRTestKit
     end
 
     run do
-      resources = perform_read_test(encounter_id_list, resource_type)
-
-      output encounter_resources: resources.to_json
+      perform_read_test(encounter_id_list, resource_type)
     end
   end
 end

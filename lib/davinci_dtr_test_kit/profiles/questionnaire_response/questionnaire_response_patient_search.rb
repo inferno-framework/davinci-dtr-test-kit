@@ -45,7 +45,7 @@ requirement of US Core v3.1.1.
     end
 
     def scratch_resources
-      scratch[:questionnaire_response_resources] ||= {}
+      scratch[:questionnaire_responses] ||= {}
     end
 
     run do

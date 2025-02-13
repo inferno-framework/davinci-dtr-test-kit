@@ -1,8 +1,6 @@
-require_relative '../../validation_test'
-
 module DaVinciDTRTestKit
   class VisionPrescriptionValidationTest < Inferno::Test
-    include DaVinciDTRTestKit::ValidationTest
+    include USCoreTestKit::ValidationTest
 
     title 'VisionPrescription resources returned during previous tests conform to the CRD VisionPrescription'
     description %(
@@ -19,17 +17,20 @@ fail if their code/system are not found in the valueset.
     )
 
     id :vision_prescription_validation
-    input :vision_prescription_resources,
-          optional: true
 
     def resource_type
       'VisionPrescription'
     end
 
+    def scratch_resources
+      scratch[:vision_prescriptions] ||= {}
+    end
+
     run do
-      skip_if(vision_prescription_ids.nil?, "No `#{resource_type}` IDs provided, skipping test.")
-      perform_profile_validation_test(vision_prescription_resources, resource_type,
-                                      'http://hl7.org/fhir/us/davinci-crd/StructureDefinition/profile-visionprescription|2.0.1')
+      perform_validation_test(scratch_resources[:all] || [],
+                              'http://hl7.org/fhir/us/davinci-crd/StructureDefinition/profile-visionprescription',
+                              '2.0.1',
+                              skip_if_empty: true)
     end
   end
 end
