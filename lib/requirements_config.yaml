@@ -1,0 +1,25 @@
+test_kit_id: davinci_dtr_test_kit
+
+suites: 
+  - id: dtr_full_ehr
+    class_name: DaVinciDTRTestKit::DTRFullEHRSuite
+    suite_actor: Full EHR
+  - id: dtr_smart_app
+    class_name: DaVinciDTRTestKit::DTRSmartAppSuite
+    suite_actor: SMART Client
+  - id: dtr_light_ehr
+    class_name: DaVinciDTRTestKit::DTRLightEHRSuite
+    suite_actor: Light EHR
+  - id: dtr_payer_server
+    class_name: DaVinciDTRTestKit::DTRPayerServerSuite
+    suite_actor: Payer Service
+
+requirement_sets:
+  - id: hl7.fhir.us.davinci-dtr_2.0.1
+    folder: Documentation Templates and Rules (DTR)
+    requirements: All
+    actor_map:
+      - {spec: Full EHR, test_kit: Full EHR}
+      - {spec: Light EHR, test_kit: Light EHR}
+      - {spec: SMART Client, test_kit: SMART Client}
+      - {spec: Payer Service, test_kit: Payer Service}
