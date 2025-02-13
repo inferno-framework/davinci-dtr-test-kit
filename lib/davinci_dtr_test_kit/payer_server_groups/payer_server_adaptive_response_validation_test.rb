@@ -1,9 +1,7 @@
 require_relative '../validation_test'
-require_relative '../cql_test'
 module DaVinciDTRTestKit
   class PayerAdaptiveFormQuestionnaireResponseTest < Inferno::Test
     include DaVinciDTRTestKit::ValidationTest
-    include DaVinciDTRTestKit::CQLTest
     id :payer_server_adaptive_response_validation_test
     title 'Validate that the adaptive response conforms to the DTR Questionnaire Package operation definition'
     # output :questionnaire_response
@@ -40,8 +38,21 @@ module DaVinciDTRTestKit
       assert_response_status([200, 201], response: req.response)
 
       resource = FHIR.from_contents(req.response_body)
-
-      perform_questionnaire_package_validation(resource, 'adaptive')
+      if resource&.resourceType == 'Parameters'
+        scratch[:adaptive_questionnaire_bundles] = resource.parameter.filter_map do |param|
+          param.resource if param.resource&.resourceType == 'Bundle'
+        end
+        assert_valid_resource(resource:,
+                              profile_url: 'http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/dtr-qpackage-output-parameters|2.0.1')
+        questionnaire_bundle = resource.parameter.find { |param| param.resource.resourceType == 'Bundle' }&.resource
+        assert questionnaire_bundle, 'No questionnaire bundle found in the response'
+      elsif resource&.resourceType == 'Bundle'
+        scratch[:adaptive_questionnaire_bundles] = [resource]
+        assert_valid_resource(resource:,
+                              profile_url: 'http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/DTR-QPackageBundle|2.0.1')
+      else
+        assert(false, "Unexpected resourceType: #{resource&.resourceType}. Expected Parameters or Bundle")
+      end
     end
   end
 end

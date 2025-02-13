@@ -22,7 +22,7 @@ module DaVinciDTRTestKit
       skip_if retrieval_method == 'Static', 'Performing only static flow tests - only one flow is required.'
       test_passed = true
       profile_url = 'http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/dtr-questionnaire-adapt-search|2.0.1'
-      assert scratch[:adaptive_questionnaire_bundles].present?, 'No questionnaire bundles to validate.'
+      assert !scratch[:adaptive_questionnaire_bundles].nil?, 'No questionnaire bundles to validate.'
 
       questionnaires = scratch[:adaptive_questionnaire_bundles].filter_map do |bundle|
         bundle.entry&.filter_map { |entry| entry.resource if entry.resource&.resourceType == 'Questionnaire' }

@@ -1,19 +1,5 @@
 module DaVinciDTRTestKit
   module CQLTest
-    STATIC_QUESTIONNAIRE_PACKAGE_BUNDLE_PROFILE = 'http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/DTR-QPackageBundle|2.0.1'.freeze
-    STATIC_QUESTIONNAIRE_PACKAGE_PARAMETER_PROFILE = 'http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/dtr-qpackage-output-parameters|2.0.1'.freeze
-    ADAPTIVE_QUESTIONNAIRE_PACKAGE_BUNDLE_PROFILE = 'http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/DTR-QPackageBundle|2.0.1'.freeze
-    ADAPTIVE_QUESTIONNAIRE_PACKAGE_PARAMETER_PROFILE = 'http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/dtr-qpackage-output-parameters|2.0.1'.freeze
-
-    def questionnaire_package_profile_urls
-      {
-        static_bundle: STATIC_QUESTIONNAIRE_PACKAGE_BUNDLE_PROFILE,
-        static_parameter: STATIC_QUESTIONNAIRE_PACKAGE_PARAMETER_PROFILE,
-        adaptive_bundle: ADAPTIVE_QUESTIONNAIRE_PACKAGE_BUNDLE_PROFILE,
-        adaptive_parameter: ADAPTIVE_QUESTIONNAIRE_PACKAGE_PARAMETER_PROFILE
-      }
-    end
-
     def extension_presence
       @extension_presence ||= { 'found_min_launch_context' => false, 'found_min_variable' => false,
                                 'found_min_pop_context' => false, 'found_min_init_expression' => false,
@@ -332,50 +318,6 @@ module DaVinciDTRTestKit
       questionnaire_bundles.filter_map do |qb|
         qb.entry.filter_map { |entry| entry.resource if entry.resource.is_a?(FHIR::Questionnaire) }
       end&.flatten&.compact
-    end
-
-    def perform_questionnaire_package_validation(resource, form = 'static')
-      scratch[:"#{form}_questionnaire_bundles"] = extract_questionnaire_bundles(resource)
-      validate_questionnaire_package(resource, form)
-      assert scratch[:"#{form}_questionnaire_bundles"].present?, 'No questionnaire bundle found in the response'
-    end
-
-    def validate_questionnaire_package(resource, form)
-      case resource&.resourceType
-      when 'Bundle'
-        assert_valid_resource(resource:, profile_url: questionnaire_package_profile_urls[:"#{form}_bundle"])
-      when 'Parameters'
-        assert_valid_resource(resource:, profile_url: questionnaire_package_profile_urls[:"#{form}_parameter"])
-      else
-        assert(false, "Unexpected resourceType: #{resource&.resourceType}. Expected Parameters or Bundle")
-      end
-    end
-
-    def extract_questionnaire_bundles(resource)
-      case resource&.resourceType
-      when 'Bundle'
-        [resource]
-      when 'Parameters'
-        extract_bundles_from_parameter(resource)
-      else
-        []
-      end
-    end
-
-    def extract_bundles_from_parameter(parameter)
-      return [] if parameter.blank?
-
-      parameter.parameter&.filter_map do |param|
-        param.resource if param.resource&.resourceType == 'Bundle'
-      end
-    end
-
-    def extract_questionnaire_from_questionnaire_package(questionnaire_pkg_json, questionnaire_url)
-      resource = FHIR.from_contents(questionnaire_pkg_json)
-      questionnaire_bundles = extract_questionnaire_bundles(resource)
-      questionnaires = extract_questionnaires_from_bundles(questionnaire_bundles)
-
-      questionnaires.find { |q| q.url == questionnaire_url }
     end
 
     def extract_libraries_from_bundles(questionnaire_bundles)
