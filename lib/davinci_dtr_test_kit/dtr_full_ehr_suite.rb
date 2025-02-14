@@ -16,8 +16,6 @@ module DaVinciDTRTestKit
     title 'Da Vinci DTR Full EHR Test Suite'
     description File.read(File.join(__dir__, 'docs', 'dtr_full_ehr_suite_description_v201.md'))
 
-    version VERSION
-
     links [
       {
         label: 'Report Issue',
