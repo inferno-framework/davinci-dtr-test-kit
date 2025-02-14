@@ -118,6 +118,8 @@ RSpec.configure do |config|
   config.before(:suite) do
     FactoryBot.find_definitions
   end
+
+  config.shared_context_metadata_behavior = :apply_to_host_groups
 end
 
 require 'inferno/config/application'

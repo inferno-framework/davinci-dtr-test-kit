@@ -14,6 +14,8 @@ require_relative 'profiles/task_group'
 require_relative 'profiles/vision_prescription_group'
 require_relative 'client_groups/light_ehr/dtr_smart_standalone_launch'
 require_relative 'client_groups/light_ehr/dtr_smart_ehr_launch'
+require_relative 'endpoints/mock_payer/light_ehr_supported_payer_endpoint'
+require_relative 'client_groups/light_ehr/dtr_light_ehr_supported_endpoints_group'
 require 'smart_app_launch/smart_stu1_suite'
 require 'smart_app_launch/smart_stu2_suite'
 
@@ -42,10 +44,6 @@ module DaVinciDTRTestKit
       }
     ]
 
-    input :url,
-          title: 'FHIR Server Base Url',
-          description: 'URL of the target DTR Light EHR'
-
     # Hl7 Validator Wrapper:
     fhir_resource_validator do
       igs('hl7.fhir.us.davinci-dtr#2.0.1', 'hl7.fhir.us.davinci-pas#2.0.1', 'hl7.fhir.us.davinci-crd#2.0.1')
@@ -54,6 +52,8 @@ module DaVinciDTRTestKit
         message.message.match?(/\A\S+: \S+: URL value '.*' does not resolve/)
       end
     end
+
+    suite_endpoint :get, SUPPORTED_PAYER_PATH, LightEHRSupportedPayerEndpoint
 
     group do
       title 'Authorization'
@@ -120,6 +120,10 @@ module DaVinciDTRTestKit
 
       )
 
+      input :url,
+            title: 'FHIR Server Base Url',
+            description: 'URL of the target DTR Light EHR'
+
       group from: :'us_core_v311-us_core_v311_fhir_api',
             run_as_group: true
     end
@@ -155,5 +159,7 @@ module DaVinciDTRTestKit
       group from: :task_group
       group from: :vision_prescription_group
     end
+
+    group from: :dtr_light_ehr_supported_endpoints
   end
 end
