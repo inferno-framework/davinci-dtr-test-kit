@@ -10,9 +10,8 @@ module DaVinciDTRTestKit
       the light DTR EHR. See the [Launching DTR](https://hl7.org/fhir/us/davinci-dtr/STU2/specification.html#launching-dtr)
       section of the DTR IG for details.
     )
-    optional
-
     verifies_requirements 'hl7.fhir.us.davinci-dtr_2.0.1@126'
+    optional
 
     uses_request :token
 
