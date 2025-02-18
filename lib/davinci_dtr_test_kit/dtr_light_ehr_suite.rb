@@ -122,6 +122,9 @@ module DaVinciDTRTestKit
 
       group from: :'us_core_v311-us_core_v311_fhir_api',
             run_as_group: true
+
+      verifies_requirements 'hl7.fhir.us.davinci-dtr_2.0.1@2',
+                            'hl7.fhir.us.davinci-dtr_2.0.1@281'
     end
 
     group do

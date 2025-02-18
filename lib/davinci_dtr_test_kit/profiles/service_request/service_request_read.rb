@@ -6,6 +6,7 @@ module DaVinciDTRTestKit
 
     title 'Server returns correct ServiceRequest resource from ServiceRequest read interaction'
     description 'A server SHOULD support the ServiceRequest read interaction.'
+    verifies_requirements 'hl7.fhir.us.davinci-dtr_2.0.1@276'
 
     id :service_request_read
     output :service_request_resources

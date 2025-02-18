@@ -6,6 +6,7 @@ module DaVinciDTRTestKit
 
     title 'Server returns correct Task resource from Task read interaction'
     description 'A server SHOULD support the Task read interaction.'
+    verifies_requirements 'hl7.fhir.us.davinci-dtr_2.0.1@278'
 
     id :task_read
     output :task_resources

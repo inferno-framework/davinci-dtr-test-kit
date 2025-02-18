@@ -10,6 +10,8 @@ module DaVinciDTRTestKit
     id :dtr_smart_ehr_launch
     run_as_group
 
+    verifies_requirements 'hl7.fhir.us.davinci-dtr_2.0.1@117'
+
     test from: :fhir_launch_context_test
     test from: :fhir_context_coverage_test
     test from: :fhir_context_references_test

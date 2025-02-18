@@ -16,6 +16,9 @@ module DaVinciDTRTestKit
       section of the DTR IG for details.
     )
     optional
+    verifies_requirements 'hl7.fhir.us.davinci-dtr_2.0.1@127'
+    verifies_requirements 'hl7.fhir.us.davinci-dtr_2.0.1@128'
+    verifies_requirements 'hl7.fhir.us.davinci-dtr_2.0.1@129'
 
     uses_request :token
 

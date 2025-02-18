@@ -6,6 +6,7 @@ module DaVinciDTRTestKit
 
     title 'Server returns correct MedicationRequest resource from MedicationRequest read interaction'
     description 'A server SHOULD support the MedicationRequest read interaction.'
+    verifies_requirements 'hl7.fhir.us.davinci-dtr_2.0.1@273'
 
     id :medication_request_read
     output :medication_request_resources

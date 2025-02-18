@@ -6,6 +6,7 @@ module DaVinciDTRTestKit
 
     title 'Server is capable of updating a Task resource from Task update interaction'
     description 'A server SHOULD support the Task update interaction'
+    verifies_requirements 'hl7.fhir.us.davinci-dtr_2.0.1@280'
 
     id :task_update
     input :update_task_resources,

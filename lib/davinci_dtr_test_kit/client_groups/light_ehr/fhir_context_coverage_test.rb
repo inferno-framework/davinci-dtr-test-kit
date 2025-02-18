@@ -12,6 +12,8 @@ module DaVinciDTRTestKit
     )
     optional
 
+    verifies_requirements 'hl7.fhir.us.davinci-dtr_2.0.1@126'
+
     uses_request :token
 
     fhir_client do
