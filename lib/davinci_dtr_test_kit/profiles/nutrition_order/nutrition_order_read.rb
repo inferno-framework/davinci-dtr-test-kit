@@ -6,6 +6,7 @@ module DaVinciDTRTestKit
 
     title 'Server returns correct NutritionOrder resource from NutritionOrder read interaction'
     description 'A server SHOULD support the NutritionOrder read interaction.'
+    verifies_requirements 'hl7.fhir.us.davinci-dtr_2.0.1@274'
 
     id :nutrition_order_read
     output :nutrition_order_resources

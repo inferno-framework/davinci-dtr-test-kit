@@ -15,6 +15,9 @@ module DaVinciDTRTestKit
       See the [Launching DTR](https://hl7.org/fhir/us/davinci-dtr/STU2/specification.html#launching-dtr)
       section of the DTR IG for details.
     )
+    verifies_requirements 'hl7.fhir.us.davinci-dtr_2.0.1@127'
+    verifies_requirements 'hl7.fhir.us.davinci-dtr_2.0.1@128'
+    verifies_requirements 'hl7.fhir.us.davinci-dtr_2.0.1@129'
     optional
 
     uses_request :token

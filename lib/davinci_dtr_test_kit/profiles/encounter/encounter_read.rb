@@ -6,6 +6,7 @@ module DaVinciDTRTestKit
 
     title 'Server returns correct Encounter resource from Encounter read interaction'
     description 'A server SHOULD support the Encounter read interaction.'
+    verifies_requirements 'hl7.fhir.us.davinci-dtr_2.0.1@271'
 
     id :encounter_read
     output :encounter_resources

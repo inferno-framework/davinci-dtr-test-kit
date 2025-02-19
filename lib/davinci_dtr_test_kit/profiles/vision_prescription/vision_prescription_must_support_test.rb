@@ -30,6 +30,7 @@ module DaVinciDTRTestKit
       * VisionPrescription.prescriber
       * VisionPrescription.status
     )
+    verifies_requirements 'hl7.fhir.us.davinci-dtr_2.0.1@355'
     id :vision_prescription_must_support_test
 
     def resource_type

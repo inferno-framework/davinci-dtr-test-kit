@@ -12,7 +12,6 @@ require_relative 'profiles/nutrition_order_group'
 require_relative 'profiles/service_request_group'
 require_relative 'profiles/task_group'
 require_relative 'profiles/vision_prescription_group'
-require_relative 'client_groups/light_ehr/dtr_smart_standalone_launch'
 require_relative 'client_groups/light_ehr/dtr_smart_ehr_launch'
 require 'smart_app_launch/smart_stu1_suite'
 require 'smart_app_launch/smart_stu2_suite'
@@ -83,20 +82,6 @@ module DaVinciDTRTestKit
         end
       end
 
-      group from: :dtr_smart_standalone_launch,
-            required_suite_options: DTROptions::SMART_2_REQUIREMENT,
-            run_as_group: true,
-            config: {
-              outputs: {
-                id_token: { name: :id_token },
-                token_retrieval_time: { name: :token_retrieval_time },
-                refresh_token: { name: :refresh_token },
-                received_scopes: { name: :received_scopes },
-                access_token: { name: :access_token },
-                smart_credentials: { name: :smart_credentials }
-              }
-            }
-
       group from: :dtr_smart_ehr_launch,
             required_suite_options: DTROptions::SMART_2_REQUIREMENT,
             run_as_group: true,
@@ -121,39 +106,41 @@ module DaVinciDTRTestKit
       )
 
       group from: :'us_core_v311-us_core_v311_fhir_api',
-            run_as_group: true
-    end
+            run_as_group: true,
+            verifies_requirements: ['hl7.fhir.us.davinci-dtr_2.0.1@2', 'hl7.fhir.us.davinci-dtr_2.0.1@281']
 
-    group do
-      title 'DTR Light EHR Profiles'
-      description %(This test group tests system for their conformance to
-      the RESTful capabilities by specified Resources/Profiles as defined by
-      the DaVinci Documentation Templates and Rules (DTR) v2.0,1 Implementation
-      Guide Light DTR EHR Capability Statement.
+      group do
+        title 'DTR Light EHR Profiles'
+        description %(This test group tests system for their conformance to
+                              the RESTful capabilities by specified Resources/Profiles as defined by
+                              the DaVinci Documentation Templates and Rules (DTR) v2.0,1 Implementation
+                              Guide Light DTR EHR Capability Statement.
 
-      )
+                              )
+        run_as_group
 
-      input :smart_credentials,
-            title: 'OAuth Credentials',
-            type: :oauth_credentials,
-            optional: true
+        input :smart_credentials,
+              title: 'OAuth Credentials',
+              type: :oauth_credentials,
+              optional: true
 
-      # All FHIR requests in this suite will use this FHIR client
-      fhir_client do
-        url :url
-        oauth_credentials :smart_credentials
+        # All FHIR requests in this suite will use this FHIR client
+        fhir_client do
+          url :url
+          oauth_credentials :smart_credentials
+        end
+
+        group from: :questionnaire_response_group
+        group from: :coverage_group
+        group from: :communication_request_group
+        group from: :device_request_group
+        group from: :encounter_group
+        group from: :medication_request_group
+        group from: :nutrition_order_group
+        group from: :service_request_group
+        group from: :task_group
+        group from: :vision_prescription_group
       end
-
-      group from: :questionnaire_response_group
-      group from: :coverage_group
-      group from: :communication_request_group
-      group from: :device_request_group
-      group from: :encounter_group
-      group from: :medication_request_group
-      group from: :nutrition_order_group
-      group from: :service_request_group
-      group from: :task_group
-      group from: :vision_prescription_group
     end
   end
 end
