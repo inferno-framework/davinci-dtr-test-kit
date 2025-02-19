@@ -9,8 +9,8 @@ context on the QuestionnaireResponse resource. This test
 will pass if resources are returned and match the search criteria. If
 none are returned, the test is skipped.
     )
-    verifies_requirements verifies_requirements 'hl7.fhir.us.davinci-dtr_2.0.1@268',
-                                                'hl7.fhir.us.davinci-dtr_2.0.1@269'
+    verifies_requirements 'hl7.fhir.us.davinci-dtr_2.0.1@268',
+                          'hl7.fhir.us.davinci-dtr_2.0.1@269'
 
     id :questionnaire_response_context_search
 

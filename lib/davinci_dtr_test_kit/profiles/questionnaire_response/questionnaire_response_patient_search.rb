@@ -22,8 +22,8 @@ return the same number of results. Search by POST is required by the
 FHIR R4 specification, and these tests interpret search by GET as a
 requirement of US Core v3.1.1.
       )
-    verifies_requirements verifies_requirements 'hl7.fhir.us.davinci-dtr_2.0.1@268',
-                                                'hl7.fhir.us.davinci-dtr_2.0.1@270'
+    verifies_requirements 'hl7.fhir.us.davinci-dtr_2.0.1@268',
+                          'hl7.fhir.us.davinci-dtr_2.0.1@270'
 
     id :questionnaire_response_patient_search
     input :patient_ids,
