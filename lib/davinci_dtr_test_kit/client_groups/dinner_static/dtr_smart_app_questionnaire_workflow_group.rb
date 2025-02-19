@@ -1,4 +1,4 @@
-require_relative 'dtr_smart_app_dinner_package_request_test'
+require_relative 'dtr_smart_app_dinner_questionnaire_package_request_test'
 require_relative '../shared/dtr_questionnaire_package_request_validation_test'
 require_relative '../smart_app/dtr_smart_app_prepopulation_attestation_test'
 require_relative '../smart_app/dtr_smart_app_prepopulation_override_attestation_test'
