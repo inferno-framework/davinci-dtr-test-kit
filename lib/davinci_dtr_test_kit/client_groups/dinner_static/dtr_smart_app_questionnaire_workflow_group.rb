@@ -1,4 +1,4 @@
-require_relative 'dtr_smart_app_dinner_questionnaire_package_request_test'
+require_relative 'dtr_smart_app_dinner_package_request_test'
 require_relative '../shared/dtr_questionnaire_package_request_validation_test'
 require_relative '../smart_app/dtr_smart_app_prepopulation_attestation_test'
 require_relative '../smart_app/dtr_smart_app_prepopulation_override_attestation_test'
@@ -8,7 +8,7 @@ require_relative '../shared/dtr_questionnaire_response_pre_population_test'
 
 module DaVinciDTRTestKit
   class DTRSmartAppStaticDinnerQuestionnaireWorkflowGroup < Inferno::TestGroup
-    id :dtr_smart_app_static_dinner_questionnaire_workflow
+    id :dtr_smart_app_static_dinner_workflow
     title 'Dinner Order Static Questionnaire Workflow'
     description %(
       This test validates that a DTR SMART App client can perform a full DTR Static Questionnaire workflow
@@ -36,7 +36,7 @@ module DaVinciDTRTestKit
       run_as_group
 
       # Test 1: wait for the $questionnaire-package request
-      test from: :dtr_smart_app_dinner_questionnaire_package_request
+      test from: :dtr_smart_app_dinner_package_request
       # Test 2: validate the $questionnaire-package body
       test from: :dtr_questionnaire_package_request_validation
     end

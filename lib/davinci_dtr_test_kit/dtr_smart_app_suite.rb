@@ -90,7 +90,7 @@ module DaVinciDTRTestKit
       )
 
       group from: :dtr_smart_app_custom_static_workflow
-      group from: :dtr_smart_app_adaptive_dinner_questionnaire_workflow
+      group from: :dtr_smart_app_adaptive_dinner_workflow
     end
     group do
       id :dtr_smart_app_questionnaire_functionality
@@ -100,7 +100,7 @@ module DaVinciDTRTestKit
         covering additional must support features of questionnaires.
       )
       group from: :dtr_smart_app_questionnaire_workflow
-      group from: :dtr_smart_app_static_dinner_questionnaire_workflow
+      group from: :dtr_smart_app_static_dinner_workflow
     end
   end
 end

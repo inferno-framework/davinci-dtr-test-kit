@@ -8,7 +8,7 @@ require_relative '../full_ehr/dtr_full_ehr_saving_questionnaire_response_group'
 
 module DaVinciDTRTestKit
   class DTRFullEHRStaticDinnerQuestionnaireWorkflowGroup < Inferno::TestGroup
-    id :dtr_full_ehr_static_dinner_questionnaire_workflow
+    id :dtr_full_ehr_static_dinner_workflow
     title 'Dinner Order Static Questionnaire Workflow'
     description %(
       This test validates that a DTR Full EHR client can perform a full DTR Static Questionnaire workflow

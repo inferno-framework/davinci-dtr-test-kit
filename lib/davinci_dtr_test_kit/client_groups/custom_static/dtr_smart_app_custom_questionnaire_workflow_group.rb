@@ -2,7 +2,7 @@ require_relative 'dtr_custom_questionnaire_package_validation_test'
 require_relative 'dtr_custom_questionnaire_libraries_test'
 require_relative 'dtr_custom_questionnaire_extensions_test'
 require_relative 'dtr_custom_questionnaire_expressions_test'
-require_relative '../dinner_static/dtr_smart_app_dinner_questionnaire_package_request_test'
+require_relative '../dinner_static/dtr_smart_app_dinner_package_request_test'
 require_relative '../shared/dtr_questionnaire_package_request_validation_test'
 require_relative '../shared/dtr_prepopulation_attestation_test'
 require_relative '../shared/dtr_rendering_enabled_questions_attestation_test'
@@ -48,7 +48,7 @@ module DaVinciDTRTestKit
       run_as_group
 
       # Test 1: wait for the $questionnaire-package request
-      test from: :dtr_smart_app_dinner_questionnaire_package_request do
+      test from: :dtr_smart_app_dinner_package_request do
         input :custom_questionnaire_package_response
       end
       # Test 2: validate the $questionnaire-package body
