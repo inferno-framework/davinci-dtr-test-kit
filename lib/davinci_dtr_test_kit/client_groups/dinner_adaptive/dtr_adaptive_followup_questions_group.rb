@@ -1,7 +1,7 @@
 require_relative 'dtr_adaptive_next_question_retrieval_group'
 
 module DaVinciDTRTestKit
-  class DTRAdaptiveQuestionnaireFollowupQuestionsGroup < Inferno::TestGroup
+  class DTRAdaptiveFollowupQuestionsGroup < Inferno::TestGroup
     id :dtr_adaptive_followup_questions
     title 'Retrieving the Next Question'
     description %(

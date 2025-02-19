@@ -1,7 +1,7 @@
 require_relative 'dtr_adaptive_next_question_retrieval_group'
 
 module DaVinciDTRTestKit
-  class DTRAdaptiveQuestionnaireCompletionGroup < Inferno::TestGroup
+  class DTRAdaptiveCompletionGroup < Inferno::TestGroup
     id :dtr_adaptive_completion
     title 'Completing the Adaptive Questionnaire'
     description %(

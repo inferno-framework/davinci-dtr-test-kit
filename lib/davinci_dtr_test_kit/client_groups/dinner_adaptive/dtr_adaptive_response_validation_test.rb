@@ -2,14 +2,14 @@ require_relative '../../urls'
 require_relative '../../dtr_questionnaire_response_validation'
 
 module DaVinciDTRTestKit
-  class DTRAdaptiveQuestionnaireResponseValidationTest < Inferno::Test
+  class DTRAdaptiveResponseValidationTest < Inferno::Test
     include URLs
     include DTRQuestionnaireResponseValidation
 
     id :dtr_adaptive_response_validation
     title 'Adaptive QuestionnaireResponse is valid'
     description %(
-      This test validates the conformance of the Adative QuestionnaireResponse to the
+      This test validates the conformance of the Adaptive QuestionnaireResponse to the
       [SDCQuestionnaireResponseAdapt](http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaireresponse-adapt)
       structure. It verifies the presence of mandatory elements and that elements
       with required bindings contain appropriate values.

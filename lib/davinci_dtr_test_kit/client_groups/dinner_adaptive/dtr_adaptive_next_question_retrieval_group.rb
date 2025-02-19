@@ -3,7 +3,7 @@ require_relative 'dtr_adaptive_next_question_request_validation_test'
 require_relative 'dtr_adaptive_response_validation_test'
 
 module DaVinciDTRTestKit
-  class DTRAdaptiveQuestionnaireNextQuestionRetrievalGroup < Inferno::TestGroup
+  class DTRAdaptiveNextQuestionRetrievalGroup < Inferno::TestGroup
     id :dtr_adaptive_next_question_retrieval
     title 'Next Question Request and Validation'
     description %(

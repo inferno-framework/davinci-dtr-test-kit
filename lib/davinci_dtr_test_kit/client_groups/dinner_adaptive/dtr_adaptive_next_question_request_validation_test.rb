@@ -1,7 +1,7 @@
 require_relative '../../urls'
 
 module DaVinciDTRTestKit
-  class DTRAdaptiveQuestionnaireNextQuestionRequestValidationTest < Inferno::Test
+  class DTRAdaptiveNextQuestionRequestValidationTest < Inferno::Test
     include URLs
 
     id :dtr_next_question_request_validation

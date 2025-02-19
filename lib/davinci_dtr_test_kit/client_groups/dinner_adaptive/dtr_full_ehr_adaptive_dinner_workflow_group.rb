@@ -6,7 +6,7 @@ require_relative 'dtr_adaptive_followup_questions_group'
 require_relative 'dtr_adaptive_completion_group'
 
 module DaVinciDTRTestKit
-  class DTRFullEHRAdaptiveDinnerQuestionnaireWorkflowGroup < Inferno::TestGroup
+  class DTRFullEHRAdaptiveDinnerWorkflowGroup < Inferno::TestGroup
     id :dtr_full_ehr_adaptive_dinner_workflow
     title 'Adaptive Questionnaire Workflow'
     description %(
@@ -45,7 +45,7 @@ module DaVinciDTRTestKit
         title 'Filling Out the Questionnaire'
         description %(
           The tester will interact with the questionnaire within their client system
-          such that pre-population steps are taken, the qustionnaire is rendered, and
+          such that pre-population steps are taken, the questionnaire is rendered, and
           they are able to fill it out. The tester will attest that questionnaire pre-population
           and rendering directives were followed.
         )

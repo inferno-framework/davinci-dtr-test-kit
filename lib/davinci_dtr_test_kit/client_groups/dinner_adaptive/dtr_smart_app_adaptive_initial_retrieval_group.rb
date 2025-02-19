@@ -5,7 +5,7 @@ require_relative 'dtr_adaptive_next_question_request_validation_test'
 require_relative 'dtr_adaptive_response_validation_test'
 
 module DaVinciDTRTestKit
-  class DTRSmartAppAdaptiveQuestionnaireInitialRetrievalGroup < Inferno::TestGroup
+  class DTRSmartAppAdaptiveInitialRetrievalGroup < Inferno::TestGroup
     id :dtr_smart_app_adaptive_initial_retrieval
     title 'Adaptive Questionnaire Package and Initial Questions Retrieval'
 
