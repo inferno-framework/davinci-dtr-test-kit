@@ -106,42 +106,41 @@ module DaVinciDTRTestKit
       )
 
       group from: :'us_core_v311-us_core_v311_fhir_api',
-            run_as_group: true
+            run_as_group: true,
+            verifies_requirements: ['hl7.fhir.us.davinci-dtr_2.0.1@2', 'hl7.fhir.us.davinci-dtr_2.0.1@281']
 
-      verifies_requirements 'hl7.fhir.us.davinci-dtr_2.0.1@2',
-                            'hl7.fhir.us.davinci-dtr_2.0.1@281'
-    end
+      group do
+        title 'DTR Light EHR Profiles'
+        description %(This test group tests system for their conformance to
+                              the RESTful capabilities by specified Resources/Profiles as defined by
+                              the DaVinci Documentation Templates and Rules (DTR) v2.0,1 Implementation
+                              Guide Light DTR EHR Capability Statement.
 
-    group do
-      title 'DTR Light EHR Profiles'
-      description %(This test group tests system for their conformance to
-      the RESTful capabilities by specified Resources/Profiles as defined by
-      the DaVinci Documentation Templates and Rules (DTR) v2.0,1 Implementation
-      Guide Light DTR EHR Capability Statement.
+                              )
+        run_as_group
 
-      )
+        input :smart_credentials,
+              title: 'OAuth Credentials',
+              type: :oauth_credentials,
+              optional: true
 
-      input :smart_credentials,
-            title: 'OAuth Credentials',
-            type: :oauth_credentials,
-            optional: true
+        # All FHIR requests in this suite will use this FHIR client
+        fhir_client do
+          url :url
+          oauth_credentials :smart_credentials
+        end
 
-      # All FHIR requests in this suite will use this FHIR client
-      fhir_client do
-        url :url
-        oauth_credentials :smart_credentials
+        group from: :questionnaire_response_group
+        group from: :coverage_group
+        group from: :communication_request_group
+        group from: :device_request_group
+        group from: :encounter_group
+        group from: :medication_request_group
+        group from: :nutrition_order_group
+        group from: :service_request_group
+        group from: :task_group
+        group from: :vision_prescription_group
       end
-
-      group from: :questionnaire_response_group
-      group from: :coverage_group
-      group from: :communication_request_group
-      group from: :device_request_group
-      group from: :encounter_group
-      group from: :medication_request_group
-      group from: :nutrition_order_group
-      group from: :service_request_group
-      group from: :task_group
-      group from: :vision_prescription_group
     end
   end
 end
