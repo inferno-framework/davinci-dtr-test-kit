@@ -6,6 +6,7 @@ module DaVinciDTRTestKit
 
     title 'Server returns correct VisionPrescription resource from VisionPrescription read interaction'
     description 'A server SHOULD support the VisionPrescription read interaction.'
+    verifies_requirements 'hl7.fhir.us.davinci-dtr_2.0.1@277'
 
     id :vision_prescription_read
     output :vision_prescription_resources

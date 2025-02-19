@@ -12,7 +12,7 @@ requirements and may change the test validation logic.
 
 ## Test Methodology
 
-Inferno will simulate a DTR SMART App that will connect to the DTR Light EHR system under test. The tester will need to launch Inferno using either an EHR launch or a Standalone launch. Once the connection between Inferno's simulated DTR SMART App and the DTR Light EHR under test is established, tests within this suite will make FHIR API requests corresponding to capabilities required by the [Light DTR EHR Capability Statement](https://hl7.org/fhir/us/davinci-dtr/STU2/CapabilityStatement-light-dtr-ehr) and check that the EHR's responses are conformant.
+Inferno will simulate a DTR SMART App that will connect to the DTR Light EHR system under test. The tester will need to launch Inferno using an EHR launch. Once the connection between Inferno's simulated DTR SMART App and the DTR Light EHR under test is established, tests within this suite will make FHIR API requests corresponding to capabilities required by the [Light DTR EHR Capability Statement](https://hl7.org/fhir/us/davinci-dtr/STU2/CapabilityStatement-light-dtr-ehr) and check that the EHR's responses are conformant.
 
 ## Running the Tests
 
@@ -20,12 +20,10 @@ If you would like to try out the tests but don't have a Light DTR EHR implementa
 
 In addition, if you would like to try out the DTR-specific SMART Launch tests, meaning the tests that check for DTR `fhirContext` conformance, but do not have a Light DTR EHR implementation, you can run these tests against an instance of Inferno running the DTR Smart App Test Suite as your Light DTR EHR. This process is described in the following steps:
 
-1. In a separate tab from the DTR Light EHR Test Suite, pull up the Da Vinci DTR SMART App Test Suite and click "Run all tests".
-2. Start off by launching it with a standalone launch and a client_id of `sample`. Before clicking "Submit", change the SMART App Launch fhirContext input to be an array of strings, rather than the default JSON object since the DTR Light EHR tests use STU2.0 version of SMART Launch. The input should be `["Coverage/cov015","DeviceRequest/devreqe0470"]`. Click "Submit".
-3. In the other tab with the Light DTR EHR Test Suite open, click "1 Authorization" test group and click "Run all tests". The FHIR Server Base Url should be `[URL prefix]/custom/dtr_smart_app/fhir` where `[URL prefix]` comes from the URL of the test session which will be of the form `[URL prefix]/dtr_smart_app/[session id]` and the Standalone Client ID and EHR Launch Client ID should be `sample`. Click "Submit".
-4. Click the 'Follow this link to authorize with the SMART server' link on the resulting User Action popup.
-5. Next, you will be prompted for Inferno to be launched from the EHR. When you receive this, return to the tab with the Da Vinci DTR SMART App Test Suite running and cancel the current standalone EHR launch. Click "Run all tests" again and this time select "EHR Launch from Inferno" with a launch_uri provided by the DTR Light EHR prompt and click "Submit".
-6. Right click on the link in the resulting popup and click "Open Link in New Window" to complete the Authorization Test Group of the DTR Light EHR Test Suite.
+1. In the tab with the Light DTR EHR Test Suite open, click "1 Authorization" test group and click "Run all tests". The FHIR Server Base Url should be `[URL prefix]/custom/dtr_smart_app/fhir` where `[URL prefix]` comes from the URL of the test session which will be of the form `[URL prefix]/dtr_smart_app/[session id]` and the EHR Launch Client ID should be `sample`. Click "Submit". Take note of the launch_uri provided by the following prompt.
+2. In a separate tab from the DTR Light EHR Test Suite, pull up the Da Vinci DTR SMART App Test Suite and click "Run all tests".
+3. Start off by launching it with "EHR Launch from Inferno" with a client_id of `sample` and a launch_uri provided by the DTR Light EHR prompt in step 1. Before clicking "Submit", change the SMART App Launch fhirContext input to be an array of strings, rather than the default JSON object since the DTR Light EHR tests use STU2.0 version of SMART Launch. The input should be `["Coverage/cov015","DeviceRequest/devreqe0470"]`. Click "Submit".
+4. Right click on the link in the resulting popup and click "Open Link in New Window" to complete the Authorization Test Group of the DTR Light EHR Test Suite.
 
 ## Limitations
 

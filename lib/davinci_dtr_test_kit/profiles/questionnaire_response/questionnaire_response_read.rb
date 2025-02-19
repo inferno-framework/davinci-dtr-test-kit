@@ -4,6 +4,7 @@ module DaVinciDTRTestKit
 
     title 'Server returns correct QuestionnaireResponse resource from QuestionnaireResponse read interaction'
     description 'A server SHALL support the QuestionnaireResponse read interaction'
+    verifies_requirements 'hl7.fhir.us.davinci-dtr_2.0.1@265'
 
     id :questionnaire_response_read
 

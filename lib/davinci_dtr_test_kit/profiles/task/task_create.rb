@@ -6,6 +6,7 @@ module DaVinciDTRTestKit
 
     title 'Server is capable of creating a Task resource from Task create interaction'
     description 'A server SHOULD support the Task create interaction'
+    verifies_requirements 'hl7.fhir.us.davinci-dtr_2.0.1@279'
 
     id :task_create
     input :create_task_resources,

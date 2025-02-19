@@ -21,6 +21,7 @@ module DaVinciDTRTestKit
       * NutritionOrder.status
       * NutritionOrder.supplement
     )
+    verifies_requirements 'hl7.fhir.us.davinci-dtr_2.0.1@355'
     id :nutrition_order_must_support_test
 
     def resource_type

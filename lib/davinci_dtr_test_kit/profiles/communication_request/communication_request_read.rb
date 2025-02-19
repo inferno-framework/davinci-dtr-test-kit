@@ -6,6 +6,7 @@ module DaVinciDTRTestKit
 
     title 'Server returns correct CommunicationRequest resource from CommunicationRequest read interaction'
     description 'A server SHOULD support the CommunicationRequest read interaction.'
+    verifies_requirements 'hl7.fhir.us.davinci-dtr_2.0.1@275'
 
     id :communication_request_read
     output :communication_request_resources
