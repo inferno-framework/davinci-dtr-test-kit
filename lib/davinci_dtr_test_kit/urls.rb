@@ -14,6 +14,7 @@ module DaVinciDTRTestKit
   QUESTIONNAIRE_RESPONSE_PATH = "#{FHIR_BASE_PATH}/QuestionnaireResponse".freeze
   FHIR_RESOURCE_PATH = "#{FHIR_BASE_PATH}/:resource/:id".freeze
   FHIR_SEARCH_PATH = "#{FHIR_BASE_PATH}/:resource".freeze
+  SUPPORTED_PAYER_PATH = '/:tester_url_id/supported-payers'
   RESUME_PASS_PATH = '/resume_pass'
   RESUME_FAIL_PATH = '/resume_fail'
 
@@ -48,6 +49,10 @@ module DaVinciDTRTestKit
 
     def fhir_base_url
       @fhir_base_url ||= base_url + FHIR_BASE_PATH
+    end
+
+    def supported_payer_url(unique_url_id)
+      @supported_payer_url ||= base_url + SUPPORTED_PAYER_PATH.gsub(':tester_url_id', unique_url_id)
     end
 
     def resume_pass_url
