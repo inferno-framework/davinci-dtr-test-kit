@@ -15,7 +15,7 @@ RSpec.describe DaVinciDTRTestKit::DTRPayerServerQuestionnairePackageGroup do
     end
 
     describe 'static questionnaire package incoming request test' do
-      let(:runnable) { group.tests.find { |test| test.id.to_s.end_with? 'questionnaire_request_test' } }
+      let(:runnable) { group.tests.find { |test| test.id.to_s.end_with? 'request_test' } }
 
       it 'passes if valid questionnaire request is manually provided' do
         result = run(runnable, test_session, access_token:,
@@ -84,7 +84,7 @@ RSpec.describe DaVinciDTRTestKit::DTRPayerServerQuestionnairePackageGroup do
       let(:retrieval_method) { 'Adaptive' }
 
       describe 'static questionnaire package incoming request test' do
-        let(:runnable) { group.tests.find { |test| test.id.to_s.end_with? 'questionnaire_request_test' } }
+        let(:runnable) { group.tests.find { |test| test.id.to_s.end_with? 'request_test' } }
         let(:results_repo) { Inferno::Repositories::Results.new }
 
         it 'skips when retrieval method is adaptive' do
@@ -107,7 +107,7 @@ RSpec.describe DaVinciDTRTestKit::DTRPayerServerQuestionnairePackageGroup do
 
   # When initial request is not provided i.e. client flow
   describe 'static questionnaire package incoming request test' do
-    let(:runnable) { group.tests.find { |test| test.id.to_s.end_with? 'questionnaire_request_test' } }
+    let(:runnable) { group.tests.find { |test| test.id.to_s.end_with? 'request_test' } }
     let(:results_repo) { Inferno::Repositories::Results.new }
     let(:request_body_conformant) do
       File.read(File.join(__dir__, '..', 'fixtures', 'questionnaire_package_input_params_conformant.json'))
