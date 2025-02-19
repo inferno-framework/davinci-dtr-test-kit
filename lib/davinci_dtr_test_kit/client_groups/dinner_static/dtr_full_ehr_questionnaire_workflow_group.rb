@@ -24,7 +24,7 @@ module DaVinciDTRTestKit
     )
 
     group do
-      id :dtr_full_ehr_static_questionnaire_retrieval
+      id :dtr_full_ehr_static_retrieval
       title 'Retrieving the Static Questionnaire'
       description %(
         After DTR launch, Inferno will wait for the client system to request a questionnaire using the
@@ -42,7 +42,7 @@ module DaVinciDTRTestKit
     end
 
     group do
-      id :dtr_full_ehr_static_questionnaire_rendering
+      id :dtr_full_ehr_static_rendering
       title 'Filling Out the Static Questionnaire'
       description %(
         The tester will interact with the questionnaire within their client system

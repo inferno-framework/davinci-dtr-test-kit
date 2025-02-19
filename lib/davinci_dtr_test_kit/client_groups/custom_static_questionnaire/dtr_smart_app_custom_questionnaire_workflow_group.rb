@@ -12,7 +12,7 @@ require_relative '../smart_app/dtr_smart_app_questionnaire_response_correctness_
 
 module DaVinciDTRTestKit
   class DTRSmartAppCustomQuestionnaireWorkflowGroup < Inferno::TestGroup
-    id :dtr_smart_app_custom_static_questionnaire_workflow
+    id :dtr_smart_app_custom_static_workflow
     title 'Static Questionnaire Workflow'
     description %(
       This group validates that a DTR SMART App client  can perform a full DTR Static Questionnaire workflow.
@@ -31,7 +31,7 @@ module DaVinciDTRTestKit
     )
 
     group do
-      id :dtr_smart_app_custom_static_questionnaire_retrieval
+      id :dtr_smart_app_custom_static_retrieval
       title 'Retrieving the Static Questionnaire'
       description %(
         During this test, DTR will be launch in the SMART App client to start the demonstration of
@@ -64,7 +64,7 @@ module DaVinciDTRTestKit
     end
 
     group do
-      id :dtr_smart_app_custom_static_questionnaire_rendering
+      id :dtr_smart_app_custom_static_rendering
       title 'Filling Out the Static Questionnaire'
       description %(
         The tester will interact with the questionnaire within their client system

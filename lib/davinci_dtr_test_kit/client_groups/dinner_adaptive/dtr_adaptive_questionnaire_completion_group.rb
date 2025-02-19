@@ -1,8 +1,8 @@
-require_relative 'dtr_adaptive_questionnaire_next_question_retrieval_group'
+require_relative 'dtr_adaptive_next_question_retrieval_group'
 
 module DaVinciDTRTestKit
   class DTRAdaptiveQuestionnaireCompletionGroup < Inferno::TestGroup
-    id :dtr_adaptive_questionnaire_completion
+    id :dtr_adaptive_completion
     title 'Completing the Adaptive Questionnaire'
     description %(
       The client makes a final $next-question call, including the answers to all required questions asked so far.
@@ -18,6 +18,6 @@ module DaVinciDTRTestKit
     )
     run_as_group
 
-    group from: :dtr_adaptive_questionnaire_next_question_retrieval
+    group from: :dtr_adaptive_next_question_retrieval
   end
 end

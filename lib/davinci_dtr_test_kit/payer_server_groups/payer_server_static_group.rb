@@ -43,7 +43,7 @@ module DaVinciDTRTestKit
                 :access_token,
                 :initial_static_questionnaire_request
 
-    test from: :dtr_v201_payer_static_questionnaire_request_test, receives_request: :static_questionnaire_request
+    test from: :dtr_v201_payer_static_request_test, receives_request: :static_questionnaire_request
     test from: :dtr_v201_payer_static_form_request_validation_test
     test from: :dtr_v201_payer_static_form_response_test
     test from: :dtr_v201_payer_static_form_libraries_test

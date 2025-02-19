@@ -7,7 +7,7 @@ module DaVinciDTRTestKit
     description %(
       Inferno will validate questionnaires returned by the payer server.
     )
-    id :dtr_v201_payer_static_questionnaire_request_test
+    id :dtr_v201_payer_static_request_test
     config options: { accepts_multiple_requests: false }
     input :initial_static_questionnaire_request, :access_token, :retrieval_method, :url
 

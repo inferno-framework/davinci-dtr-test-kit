@@ -1,9 +1,9 @@
 require_relative '../../tags'
-require_relative 'dtr_full_ehr_adaptive_questionnaire_initial_retrieval_group'
+require_relative 'dtr_full_ehr_adaptive_initial_retrieval_group'
 require_relative '../full_ehr/dtr_full_ehr_prepopulation_attestation_test'
 require_relative '../full_ehr/dtr_full_ehr_prepopulation_override_attestation_test'
-require_relative 'dtr_adaptive_questionnaire_followup_questions_group'
-require_relative 'dtr_adaptive_questionnaire_completion_group'
+require_relative 'dtr_adaptive_followup_questions_group'
+require_relative 'dtr_adaptive_completion_group'
 
 module DaVinciDTRTestKit
   class DTRFullEHRAdaptiveDinnerQuestionnaireWorkflowGroup < Inferno::TestGroup
@@ -25,7 +25,7 @@ module DaVinciDTRTestKit
     )
 
     group do
-      id :dtr_full_ehr_adaptive_questionnaire_retrieval
+      id :dtr_full_ehr_adaptive_retrieval
       title 'Retrieving the Adaptive Questionnaire'
       description %(
         After DTR launch, Inferno will wait for the client system to request a questionnaire using the
@@ -39,7 +39,7 @@ module DaVinciDTRTestKit
       )
       run_as_group
 
-      group from: :dtr_full_ehr_adaptive_questionnaire_initial_retrieval
+      group from: :dtr_full_ehr_adaptive_initial_retrieval
       group do
         id :dtr_full_ehr_initial_questionnaire_rendering
         title 'Filling Out the Questionnaire'
@@ -57,7 +57,7 @@ module DaVinciDTRTestKit
       end
     end
 
-    group from: :dtr_adaptive_questionnaire_followup_questions,
+    group from: :dtr_adaptive_followup_questions,
           config: {
             options: {
               accepts_multiple_requests: true,
@@ -65,7 +65,7 @@ module DaVinciDTRTestKit
             }
           }
 
-    group from: :dtr_adaptive_questionnaire_completion,
+    group from: :dtr_adaptive_completion,
           config: {
             options: {
               accepts_multiple_requests: true,

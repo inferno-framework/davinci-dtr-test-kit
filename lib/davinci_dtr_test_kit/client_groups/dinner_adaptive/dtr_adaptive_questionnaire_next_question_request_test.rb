@@ -4,7 +4,7 @@ module DaVinciDTRTestKit
   class DTRAdaptiveQuestionnaireNextQuestionRequestTest < Inferno::Test
     include URLs
 
-    id :dtr_adaptive_questionnaire_next_question_request
+    id :dtr_adaptive_next_question_request
     title 'Invoke the $next-question operation'
     description %(
       Inferno will wait for the client to invoke the $next-question operation to retrieve the next question

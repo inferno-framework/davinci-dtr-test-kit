@@ -80,7 +80,7 @@ module DaVinciDTRTestKit
                 :url,
                 :access_token,
                 :custom_endpoint,
-                :initial_static_questionnaire_request,
+                :initial_static_request,
                 :initial_adaptive_questionnaire_request,
                 :next_question_requests,
                 :credentials

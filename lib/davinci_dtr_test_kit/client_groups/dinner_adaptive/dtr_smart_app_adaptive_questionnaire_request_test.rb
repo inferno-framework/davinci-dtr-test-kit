@@ -4,7 +4,7 @@ module DaVinciDTRTestKit
   class DTRSmartAppAdaptiveQuestionnaireRequestTest < Inferno::Test
     include URLs
 
-    id :dtr_smart_app_adaptive_questionnaire_request
+    id :dtr_smart_app_adaptive_request
     title 'Invoke the Questionnaire Package and Initial Next Question Operation'
     description %(
       This test waits for two sequential client requests:

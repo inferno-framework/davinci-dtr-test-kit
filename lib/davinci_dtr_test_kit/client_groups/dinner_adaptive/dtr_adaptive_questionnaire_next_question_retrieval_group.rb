@@ -1,10 +1,10 @@
-require_relative 'dtr_adaptive_questionnaire_next_question_request_test'
-require_relative 'dtr_adaptive_questionnaire_next_question_request_validation_test'
-require_relative 'dtr_adaptive_questionnaire_response_validation_test'
+require_relative 'dtr_adaptive_next_question_request_test'
+require_relative 'dtr_adaptive_next_question_request_validation_test'
+require_relative 'dtr_adaptive_response_validation_test'
 
 module DaVinciDTRTestKit
   class DTRAdaptiveQuestionnaireNextQuestionRetrievalGroup < Inferno::TestGroup
-    id :dtr_adaptive_questionnaire_next_question_retrieval
+    id :dtr_adaptive_next_question_retrieval
     title 'Next Question Request and Validation'
     description %(
       Inferno will wait for the client system to request the next question (or set of questions) using the
@@ -14,10 +14,10 @@ module DaVinciDTRTestKit
     )
 
     # Test 1: wait for the $next-question request
-    test from: :dtr_adaptive_questionnaire_next_question_request
+    test from: :dtr_adaptive_next_question_request
     # Test 2: validate the $next-question request
     test from: :dtr_next_question_request_validation
     # Test 3: validate the QuestionnaireResponse in the input parameter
-    test from: :dtr_adaptive_questionnaire_response_validation
+    test from: :dtr_adaptive_response_validation
   end
 end

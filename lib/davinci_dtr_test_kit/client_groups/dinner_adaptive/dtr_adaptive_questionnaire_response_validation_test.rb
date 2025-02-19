@@ -6,7 +6,7 @@ module DaVinciDTRTestKit
     include URLs
     include DTRQuestionnaireResponseValidation
 
-    id :dtr_adaptive_questionnaire_response_validation
+    id :dtr_adaptive_response_validation
     title 'Adaptive QuestionnaireResponse is valid'
     description %(
       This test validates the conformance of the Adative QuestionnaireResponse to the

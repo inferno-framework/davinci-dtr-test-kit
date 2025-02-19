@@ -3,7 +3,7 @@ require_relative '../request_helper'
 RSpec.describe DaVinciDTRTestKit::DTRFullEHRAdaptiveQuestionnaireInitialRetrievalGroup do
   include RequestHelpers
 
-  let(:group) { Inferno::Repositories::TestGroups.new.find('dtr_full_ehr_adaptive_questionnaire_initial_retrieval') }
+  let(:group) { Inferno::Repositories::TestGroups.new.find('dtr_full_ehr_adaptive_initial_retrieval') }
   let(:suite_id) { :dtr_full_ehr }
   let(:questionnaire_package_url) { "/custom/#{suite_id}/fhir/Questionnaire/$questionnaire-package" }
   let(:next_url) { "/custom/#{suite_id}/fhir/Questionnaire/$next-question" }
@@ -40,7 +40,7 @@ RSpec.describe DaVinciDTRTestKit::DTRFullEHRAdaptiveQuestionnaireInitialRetrieva
   end
 
   describe 'questionnaire package request and initial next question request test' do
-    let(:runnable) { group.tests.find { |test| test.id.to_s.end_with? 'dtr_full_ehr_adaptive_questionnaire_request' } }
+    let(:runnable) { group.tests.find { |test| test.id.to_s.end_with? 'dtr_full_ehr_adaptive_request' } }
     let(:results_repo) { Inferno::Repositories::Results.new }
     let(:package_request_body) do
       File.read(File.join(__dir__, '..', 'fixtures', 'questionnaire_package_input_params_conformant.json'))
@@ -141,7 +141,7 @@ RSpec.describe DaVinciDTRTestKit::DTRFullEHRAdaptiveQuestionnaireInitialRetrieva
   describe 'adaptive questionnaire response validation test' do
     let(:runnable) do
       group.tests.find do |test|
-        test.id.to_s.end_with? 'dtr_adaptive_questionnaire_response_validation'
+        test.id.to_s.end_with? 'dtr_adaptive_response_validation'
       end
     end
 
