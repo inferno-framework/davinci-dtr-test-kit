@@ -48,7 +48,7 @@ module DaVinciDTRTestKit
       run_as_group
 
       # Test 1: wait for the $questionnaire-package request
-      test from: :dtr_smart_app_dinner_package_request do
+      test from: :dtr_smart_app_dinner_questionnaire_package_request do
         input :custom_questionnaire_package_response
       end
       # Test 2: validate the $questionnaire-package body

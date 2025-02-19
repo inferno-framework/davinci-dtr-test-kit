@@ -5,7 +5,7 @@ module DaVinciDTRTestKit
   class DTRSmartAppDinnerQuestionnairePackageRequestTest < Inferno::Test
     include URLs
 
-    id :dtr_smart_app_dinner_package_request
+    id :dtr_smart_app_dinner_questionnaire_package_request
     title 'Invoke the DTR Questionnaire Package operation'
     description %(
       Inferno will wait for a DTR questionnaire package request from the client. Upon receipt, Inferno will generate and
