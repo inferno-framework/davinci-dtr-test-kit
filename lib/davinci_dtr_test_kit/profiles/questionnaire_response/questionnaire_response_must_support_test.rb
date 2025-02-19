@@ -30,7 +30,7 @@ module DaVinciDTRTestKit
         * QuestionnaireResponse.status
         * QuestionnaireResponse.subject
       )
-      verifies_requirements 'hl7.fhir.us.davinci-dtr_2.0.1@354'
+      verifies_requirements 'hl7.fhir.us.davinci-dtr_2.0.1@355'
       id :questionnaire_response_must_support_test
 
       def resource_type

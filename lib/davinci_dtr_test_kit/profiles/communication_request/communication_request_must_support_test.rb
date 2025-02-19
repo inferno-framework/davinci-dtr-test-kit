@@ -22,7 +22,7 @@ module DaVinciDTRTestKit
       * CommunicationRequest.status
       * CommunicationRequest.subject
     )
-    verifies_requirements 'hl7.fhir.us.davinci-dtr_2.0.1@354'
+    verifies_requirements 'hl7.fhir.us.davinci-dtr_2.0.1@355'
     id :communication_request_must_support_test
 
     def resource_type
