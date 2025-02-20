@@ -2,7 +2,7 @@ require 'erb'
 require_relative '../../lib/davinci_dtr_test_kit/tags'
 
 RSpec.describe DaVinciDTRTestKit::DTRLightEHRUserResponseTest, :request do
-  let(:test) { described_class }
+  let(:test) { described_class } # Use the correct class
   let(:suite_id) { :dtr_light_ehr }
   let(:unique_url_id) { '12345' }
   let(:supported_payer_url) { "/custom/#{suite_id}/#{unique_url_id}/supported-payers" }
@@ -19,7 +19,6 @@ RSpec.describe DaVinciDTRTestKit::DTRLightEHRUserResponseTest, :request do
       }
     ]
     url = supported_payer_url
-    url += "?user_response=#{ERB::Util.url_encode(user_response)}" if user_response.present?
 
     repo_create(
       :request,
@@ -30,7 +29,8 @@ RSpec.describe DaVinciDTRTestKit::DTRLightEHRUserResponseTest, :request do
       tags: [DaVinciDTRTestKit::SUPPORTED_PAYER_TAG],
       status: 200,
       headers:,
-      response_body: user_response.presence || {}.to_json
+      request_body: user_response.present? ? user_response : nil,
+      response_body: {}.to_json
     )
   end
 
