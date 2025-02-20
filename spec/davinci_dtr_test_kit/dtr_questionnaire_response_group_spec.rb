@@ -5,7 +5,7 @@ RSpec.describe DaVinciDTRTestKit::DTRQuestionnaireResponseGroup do
     Inferno::Web.app
   end
 
-  let(:group) { Inferno::Repositories::TestGroups.new.find('dtr_questionnaire_response') }
+  let(:group) { Inferno::Repositories::TestGroups.new.find('dtr_resp_response') }
   let(:suite_id) { :dtr_smart_app }
   let(:questionnaire_response_url) { "/custom/#{suite_id}/fhir/QuestionnaireResponse" }
   let(:session_data_repo) { Inferno::Repositories::SessionData.new }

@@ -4,7 +4,7 @@ require_relative 'dtr_questionnaire_response_group'
 
 module DaVinciDTRTestKit
   class DTRSmartAppQuestionnaireWorkflowGroup < Inferno::TestGroup
-    id :dtr_smart_app_questionnaire_workflow
+    id :dtr_smart_app_resp_workflow
     title 'Respiratory Assist Device Questionnaire Workflow'
     description %(
       This workflow validates that a DTR SMART App can perform a full DTR
@@ -16,8 +16,8 @@ module DaVinciDTRTestKit
       3. Pre-populate the questionnaire response
     )
 
-    group from: :dtr_questionnaire_package
-    group from: :dtr_questionnaire_rendering
-    group from: :dtr_questionnaire_response
+    group from: :dtr_resp_questionnaire_package
+    group from: :dtr_resp_rendering
+    group from: :dtr_resp_response
   end
 end

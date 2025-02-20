@@ -5,7 +5,7 @@ module DaVinciDTRTestKit
   class DTRRenderingEnabledQuestionsAttestationTest < Inferno::Test
     include URLs
 
-    id :dtr_rendering_enabled_questions_attestation
+    id :dtr_rendering_attestation
     title 'Check that the client renders the Questionnaire (Attestation)'
     description %(
       The tester will attest to the ability of the client to appropriately render the

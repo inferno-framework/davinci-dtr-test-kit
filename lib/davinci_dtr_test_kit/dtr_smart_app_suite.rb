@@ -99,7 +99,7 @@ module DaVinciDTRTestKit
         Tests in this group validate that the client can complete additional DTR workflows
         covering additional must support features of questionnaires.
       )
-      group from: :dtr_smart_app_questionnaire_workflow
+      group from: :dtr_smart_app_resp_workflow
       group from: :dtr_smart_app_static_dinner_workflow
     end
   end

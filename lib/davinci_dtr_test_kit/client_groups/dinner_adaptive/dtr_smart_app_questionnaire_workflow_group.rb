@@ -7,7 +7,7 @@ require_relative 'dtr_adaptive_completion_group'
 require_relative '../shared/dtr_questionnaire_response_pre_population_test'
 
 module DaVinciDTRTestKit
-  class DTRSmartAppAdaptiveDinnerQuestionnaireWorkflowGroup < Inferno::TestGroup
+  class DTRSmartAppAdaptiveDinnerWorkflowGroup < Inferno::TestGroup
     id :dtr_smart_app_adaptive_dinner_workflow
     title 'Adaptive Questionnaire Workflow'
     description %(

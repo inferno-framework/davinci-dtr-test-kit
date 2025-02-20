@@ -2,7 +2,7 @@ module DaVinciDTRTestKit
   class FhirContextCoverageTest < Inferno::Test
     include DaVinciDTRTestKit::ReadTest
 
-    id :fhir_context_coverage_test
+    id :fhir_context_coverage
     title 'fhirContext Coverage Reference Test'
     description %(
       This test validates that when the light EHR launches a DTR SMART App, the launch context includes

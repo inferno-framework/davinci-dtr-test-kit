@@ -11,7 +11,7 @@ require_relative '../shared/dtr_prepopulation_override_attestation_test'
 require_relative '../full_ehr/dtr_full_ehr_saving_questionnaire_response_group'
 
 module DaVinciDTRTestKit
-  class DTRFullEHRCustomQuestionnaireWorkflowGroup < Inferno::TestGroup
+  class DTRFullEHRCustomStaticWorkflowGroup < Inferno::TestGroup
     id :dtr_full_ehr_custom_static_workflow
     title 'Static Questionnaire Workflow'
     description %(
@@ -80,7 +80,7 @@ module DaVinciDTRTestKit
       run_as_group
 
       # Test 1: attest to proper rendering of the Questionnaire
-      test from: :dtr_rendering_enabled_questions_attestation
+      test from: :dtr_rendering_attestation
       # Test 2: attest to the pre-population
       test from: :dtr_prepopulation_attestation
       # Test 2: attest to the ability to manually complete questions

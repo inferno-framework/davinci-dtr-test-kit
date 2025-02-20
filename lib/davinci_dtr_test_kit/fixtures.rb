@@ -8,7 +8,7 @@ module DaVinciDTRTestKit
     FIXTURE_CONFIG = [
       {
         group_ids: [
-          'dtr_smart_app_questionnaire_workflow',
+          'dtr_smart_app_resp_workflow',
           'dtr_full_ehr_questionnaire_workflow'
         ],
         questionnaire_package: File.join('respiratory_assist_device', 'questionnaire_package.json'),
