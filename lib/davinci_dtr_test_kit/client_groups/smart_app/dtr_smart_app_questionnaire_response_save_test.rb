@@ -4,7 +4,7 @@ module DaVinciDTRTestKit
   class DTRSmartAppQuestionnaireResponseSaveTest < Inferno::Test
     include URLs
 
-    id :dtr_smart_app_questionnaire_response_save
+    id :dtr_smart_app_qr_save
     title 'Save the QuestionnaireResponse after completing it'
     description %(
       Inferno, acting as the EHR, will wait for a request to save the QuestionnaireResponse from the client.

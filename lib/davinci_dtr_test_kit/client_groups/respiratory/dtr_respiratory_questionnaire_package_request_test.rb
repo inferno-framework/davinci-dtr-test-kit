@@ -1,22 +1,15 @@
 require_relative '../../urls'
 
 module DaVinciDTRTestKit
-  class DTRSmartAppAdaptiveRequestTest < Inferno::Test
+  class DTRRespiratoryQuestionnairePackageRequestTest < Inferno::Test
     include URLs
 
-    id :dtr_smart_app_adaptive_request
-    title 'Invoke the Questionnaire Package and Initial Next Question Operation'
+    id :dtr_resp_qp_request
+    title 'Invoke the DTR Questionnaire Package operation'
     description %(
-      This test waits for two sequential client requests:
-
-      1. **Questionnaire Package Request**: The client should first invoke the `$questionnaire-package` operation
-      to retrieve the adaptive questionnaire package. Inferno will respond to this request with an empty adaptive
-      questionnaire.
-
-      2. **Initial Next Question Request**: After receiving the package, the client should invoke the
-      `$next-question` operation. Inferno will respond by providing the first set of questions.
+      Inferno will wait for a DTR questionnaire package request from the client. Upon receipt, Inferno will generate and
+      send a response.
     )
-
     config options: { accepts_multiple_requests: true }
     input :smart_app_launch,
           type: 'radio',
@@ -28,17 +21,17 @@ module DaVinciDTRTestKit
     input :launch_uri,
           optional: true,
           description: 'Required if "Launch from Inferno" is selected'
-    input :adaptive_smart_patient_id,
+    input :resp_smart_patient_id,
           optional: true,
-          title: 'SMART App Launch Patient ID (Dinner Adaptive)',
+          title: 'SMART App Launch Patient ID (Respiratory Assist Device)',
           type: 'text',
           description: %(
             Patient instance ID to be provided by Inferno as the patient as a part of the SMART App Launch.
           ),
           default: 'pat015'
-    input :adaptive_smart_fhir_context,
+    input :resp_smart_fhir_context,
           optional: true,
-          title: 'SMART App Launch fhirContext (Dinner Adaptive)',
+          title: 'SMART App Launch fhirContext (Respiratory Assist Device)',
           type: 'textarea',
           description: %(
             References to be provided by Inferno as the fhirContext as a part of the SMART App
@@ -47,12 +40,12 @@ module DaVinciDTRTestKit
           ),
           default: JSON.pretty_generate([{ reference: 'Coverage/cov015' },
                                          { reference: 'DeviceRequest/devreqe0470' }])
-    input :adaptive_ehr_bundle,
+    input :resp_ehr_bundle,
           optional: true,
-          title: 'EHR-available resources (Dinner Adaptive)',
+          title: 'EHR-available resources (Respiratory Assist Device)',
           type: 'textarea',
           description: %(
-            Resources available from the EHR needed to drive the dinner adaptive workflow.
+            Resources available from the EHR needed to drive the respiratory assist device workflow.
             Formatted as a FHIR bundle that contains resources, each with an ID property populated. Each
             instance present will be available for retrieval from Inferno at the endpoint:
             <fhir-base>/<resource type>/<instance id>
@@ -65,19 +58,19 @@ module DaVinciDTRTestKit
     run do
       # validate relevant inputs and provide warnings if they are bad
       warning do
-        if adaptive_smart_fhir_context
-          assert_valid_json(adaptive_smart_fhir_context,
+        if resp_smart_fhir_context
+          assert_valid_json(resp_smart_fhir_context,
                             'The **SMART App Launch fhirContext** input is not valid JSON, so it will not be included in
                             the access token response.')
         end
       end
 
       warning do
-        if adaptive_ehr_bundle
-          assert_valid_json(adaptive_ehr_bundle,
+        if resp_ehr_bundle
+          assert_valid_json(resp_ehr_bundle,
                             'The **EHR-available resources** input is not valid JSON, so no tester-specified instances
                               will be available to access from Inferno.')
-          assert(FHIR.from_contents(adaptive_ehr_bundle).is_a?(FHIR::Bundle),
+          assert(FHIR.from_contents(resp_ehr_bundle).is_a?(FHIR::Bundle),
                  'The **EHR-available resources** input does not contain a FHIR Bundle, so no tester-specified instances
                  will be available to access from Inferno.')
         end
@@ -86,13 +79,12 @@ module DaVinciDTRTestKit
       launch_prompt = if smart_app_launch == 'ehr'
                         %(Launch the DTR SMART App from Inferno by right clicking
                           [this link](#{launch_uri}?iss=#{fhir_base_url}&launch=#{launch_uri})
-                          and selecting "Open in new window" or "Open in new tab".)
+                          and selecting or "Open in new window" or "Open in new tab".)
                       else
                         %(Launch the SMART App from your EHR.)
                       end
       inferno_prompt_cont = %(As the DTR app steps through the launch steps, Inferno will wait and respond to the app's
                               requests for SMART configuration, authorization and access token.)
-
       wait(
         identifier: client_id,
         message: %(
@@ -102,23 +94,12 @@ module DaVinciDTRTestKit
 
           #{inferno_prompt_cont if smart_app_launch == 'ehr'}
 
-          ### Adaptive Questionnaire Retrieval
+          Then, Inferno will expect the SMART App to invoke the DTR Questionnaire Package operation by sending a POST
+          request to
 
-          1. **Questionnaire Package Request**:
-            - Inferno will expect the SMART App to invoke the DTR Questionnaire Package operation by sending a POST
-            request to
+          `#{questionnaire_package_url}`
 
-            `#{questionnaire_package_url}`
-
-            - Inferno will respond with an empty adaptive questionnaire.
-
-          2. **Initial Next Question Request**:
-            - After receiving the questionnaire package, invoke the `$next-question` operation by sending
-            a POST request to the following endpoint to retrieve the first set of questions:
-
-              `#{next_url}`.
-
-            - Inferno will respond with the initial set of questions.
+          A questionnaire package generated by Inferno will be returned.
 
           ### Pre-population
 

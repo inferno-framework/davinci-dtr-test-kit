@@ -5,7 +5,7 @@ module DaVinciDTRTestKit
   class DTRPrepopulationAttestationTest < Inferno::Test
     include URLs
 
-    id :dtr_prepopulation_attestation
+    id :dtr_prepopulation_attest
     title 'Check that the client pre-populates the Questionnaire (Attestation)'
     description %(
       Validate that pre-population of patient's information occurs as expected.

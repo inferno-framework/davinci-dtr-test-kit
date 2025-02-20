@@ -5,7 +5,7 @@ module DaVinciDTRTestKit
   class DTRPrepopulationOverrideAttestationTest < Inferno::Test
     include URLs
 
-    id :dtr_prepopulation_override_attestation
+    id :dtr_prepopulation_override_attest
     title 'Check that the user can manually populate answers in the Questionnaire (Attestation)'
     description %(
       Validate that the user can edit the rendered form to provide answers, including

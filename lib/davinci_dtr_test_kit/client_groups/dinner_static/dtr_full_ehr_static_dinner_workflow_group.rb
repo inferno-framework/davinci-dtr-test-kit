@@ -2,13 +2,13 @@ require_relative '../full_ehr/dtr_full_ehr_launch_attestation_test'
 require_relative '../full_ehr/dtr_full_ehr_questionnaire_package_request_test'
 require_relative '../shared/dtr_questionnaire_package_request_validation_test'
 require_relative '../full_ehr/dtr_full_ehr_prepopulation_attestation_test'
-require_relative '../full_ehr/dtr_full_ehr_rendering_enabled_questions_attestation_test'
+require_relative 'dtr_static_dinner_enabled_questions_attestation_test'
 require_relative '../full_ehr/dtr_full_ehr_prepopulation_override_attestation_test'
 require_relative '../full_ehr/dtr_full_ehr_saving_questionnaire_response_group'
 
 module DaVinciDTRTestKit
-  class DTRFullEHRStaticDinnerQuestionnaireWorkflowGroup < Inferno::TestGroup
-    id :dtr_full_ehr_static_dinner_questionnaire_workflow
+  class DTRFullEHRStaticDinnerWorkflowGroup < Inferno::TestGroup
+    id :dtr_full_ehr_static_dinner_workflow
     title 'Dinner Order Static Questionnaire Workflow'
     description %(
       This test validates that a DTR Full EHR client can perform a full DTR Static Questionnaire workflow
@@ -24,7 +24,7 @@ module DaVinciDTRTestKit
     )
 
     group do
-      id :dtr_full_ehr_static_questionnaire_retrieval
+      id :dtr_full_ehr_static_retrieval
       title 'Retrieving the Static Questionnaire'
       description %(
         After DTR launch, Inferno will wait for the client system to request a questionnaire using the
@@ -34,15 +34,15 @@ module DaVinciDTRTestKit
       run_as_group
 
       # Test 0: attest to launch
-      test from: :dtr_full_ehr_launch_attestation
+      test from: :dtr_full_ehr_launch_attest
       # Test 1: wait for the $questionnaire-package request
-      test from: :dtr_full_ehr_questionnaire_package_request
+      test from: :dtr_full_ehr_qp_request
       # Test 2: validate the $questionnaire-package body
-      test from: :dtr_questionnaire_package_request_validation
+      test from: :dtr_qp_request_validation
     end
 
     group do
-      id :dtr_full_ehr_static_questionnaire_rendering
+      id :dtr_full_ehr_static_rendering
       title 'Filling Out the Static Questionnaire'
       description %(
         The tester will interact with the questionnaire within their client system
@@ -53,14 +53,14 @@ module DaVinciDTRTestKit
       run_as_group
 
       # Test 1: attest to the pre-population of the name fields
-      test from: :dtr_full_ehr_prepopulation_attestation
+      test from: :dtr_full_ehr_prepopulation_attest
       # Test 2: attest to the pre-population and edit of the first name field
-      test from: :dtr_full_ehr_prepopulation_override_attestation
+      test from: :dtr_full_ehr_prepopulation_override_attest
       # Test 3: attest to the display of the toppings questions only when a dinner answer is selected
-      test from: :dtr_full_ehr_rendering_enabled_questions_attestation
+      test from: :dtr_static_dinner_enabled_questions_attest
     end
 
-    group from: :dtr_full_ehr_saving_questionnaire_response,
+    group from: :dtr_full_ehr_saving_qr,
           config: {
             inputs: {
               questionnaire_response: {

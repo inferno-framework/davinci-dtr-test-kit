@@ -1,11 +1,11 @@
-RSpec.describe DaVinciDTRTestKit::DTRQuestionnaireRenderingGroup do
+RSpec.describe DaVinciDTRTestKit::DTRRespiratoryRenderingGroup do
   include Rack::Test::Methods
 
   def app
     Inferno::Web.app
   end
 
-  let(:group) { Inferno::Repositories::TestGroups.new.find('dtr_questionnaire_rendering') }
+  let(:group) { Inferno::Repositories::TestGroups.new.find('dtr_resp_rendering') }
   let(:suite_id) { :dtr_smart_app }
   let(:resume_pass_url) { "/custom/#{suite_id}/resume_pass" }
   let(:resume_fail_url) { "/custom/#{suite_id}/resume_fail" }
@@ -28,7 +28,7 @@ RSpec.describe DaVinciDTRTestKit::DTRQuestionnaireRenderingGroup do
   end
 
   describe 'Behavior of questionnaire rendering attestation test' do
-    let(:runnable) { group.tests.find { |test| test.id.to_s.end_with? 'dtr_questionnaire_rendering_attestation' } }
+    let(:runnable) { group.tests.find { |test| test.id.to_s.end_with? 'dtr_resp_rendering_attest' } }
     let(:results_repo) { Inferno::Repositories::Results.new }
 
     it 'passes if affirmative attestation is given' do

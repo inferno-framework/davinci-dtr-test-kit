@@ -2,10 +2,10 @@ require 'securerandom'
 require_relative '../../urls'
 
 module DaVinciDTRTestKit
-  class DTRRenderingEnabledQuestionsAttestationTest < Inferno::Test
+  class DTRRenderingAttestationTest < Inferno::Test
     include URLs
 
-    id :dtr_rendering_enabled_questions_attestation
+    id :dtr_rendering_attest
     title 'Check that the client renders the Questionnaire (Attestation)'
     description %(
       The tester will attest to the ability of the client to appropriately render the
