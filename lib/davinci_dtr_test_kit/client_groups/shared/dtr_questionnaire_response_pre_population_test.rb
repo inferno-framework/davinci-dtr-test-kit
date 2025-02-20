@@ -2,10 +2,10 @@ require_relative '../../dtr_questionnaire_response_validation'
 require_relative '../../fixtures'
 
 module DaVinciDTRTestKit
-  class DTRQuestionnaireResponsePrePopulationTest < Inferno::Test
+  class DTRQuestionnaireResponsePrepopulationTest < Inferno::Test
     include DTRQuestionnaireResponseValidation
 
-    id :dtr_qr_pre_population
+    id :dtr_qr_prepopulation
     title 'QuestionnaireResponse pre-population and user overrides are conformant'
     description %(
       This test validates the conformance of the client's pre-population of the QuestionnaireResponse.

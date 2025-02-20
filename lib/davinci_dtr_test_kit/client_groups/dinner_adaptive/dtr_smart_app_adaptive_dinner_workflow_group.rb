@@ -4,7 +4,7 @@ require_relative '../smart_app/dtr_smart_app_prepopulation_attestation_test'
 require_relative '../smart_app/dtr_smart_app_prepopulation_override_attestation_test'
 require_relative 'dtr_adaptive_followup_questions_group'
 require_relative 'dtr_adaptive_completion_group'
-require_relative '../shared/dtr_questionnaire_response_pre_population_test'
+require_relative '../shared/dtr_questionnaire_response_prepopulation_test'
 
 module DaVinciDTRTestKit
   class DTRSmartAppAdaptiveDinnerWorkflowGroup < Inferno::TestGroup
@@ -94,7 +94,7 @@ module DaVinciDTRTestKit
       )
 
       # Test 3: validate workflow-specific details such as pre-population and overrides
-      test from: :dtr_qr_pre_population,
+      test from: :dtr_qr_prepopulation,
            uses_request: :questionnaire_response_save
     end
   end

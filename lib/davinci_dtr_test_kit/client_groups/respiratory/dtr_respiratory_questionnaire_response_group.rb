@@ -1,6 +1,6 @@
 require_relative 'dtr_respiratory_questionnaire_response_save_test'
 require_relative '../shared/dtr_questionnaire_response_basic_conformance_test'
-require_relative '../shared/dtr_questionnaire_response_pre_population_test'
+require_relative '../shared/dtr_questionnaire_response_prepopulation_test'
 
 module DaVinciDTRTestKit
   class DTRRespiratoryQuestionnaireResponseGroup < Inferno::TestGroup
@@ -17,7 +17,7 @@ module DaVinciDTRTestKit
     test from: :dtr_qr_basic_conformance,
          uses_request: :questionnaire_response_save
 
-    test from: :dtr_qr_pre_population,
+    test from: :dtr_qr_prepopulation,
          uses_request: :questionnaire_response_save
   end
 end

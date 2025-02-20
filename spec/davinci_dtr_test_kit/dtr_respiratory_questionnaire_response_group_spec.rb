@@ -50,7 +50,7 @@ RSpec.describe DaVinciDTRTestKit::DTRRespiratoryQuestionnaireResponseGroup do
   describe 'Behavior of questionnaire response validation test' do
     let(:runnable) do
       group.tests.find do |test|
-        test.id.to_s.end_with? 'dtr_qr_pre_population'
+        test.id.to_s.end_with? 'dtr_qr_prepopulation'
       end
     end
     let(:request_body) do

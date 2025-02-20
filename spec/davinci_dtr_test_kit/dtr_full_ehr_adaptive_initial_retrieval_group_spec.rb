@@ -71,7 +71,7 @@ RSpec.describe DaVinciDTRTestKit::DTRFullEHRAdaptiveInitialRetrievalGroup do
   describe 'next question request validation test' do
     let(:runnable) do
       group.tests.find do |test|
-        test.id.to_s.end_with? 'dtr_next_question_request_validation'
+        test.id.to_s.end_with? 'dtr_adaptive_next_question_request_validation'
       end
     end
 
