@@ -1,4 +1,4 @@
-RSpec.describe DaVinciDTRTestKit::DTRQuestionnairePackageGroup do
+RSpec.describe DaVinciDTRTestKit::DTRRespiratoryQuestionnairePackageGroup do
   include Rack::Test::Methods
 
   def app
