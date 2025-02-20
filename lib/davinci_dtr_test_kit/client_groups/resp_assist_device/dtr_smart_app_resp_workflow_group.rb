@@ -3,7 +3,7 @@ require_relative 'dtr_resp_rendering_group'
 require_relative 'dtr_resp_questionnaire_response_group'
 
 module DaVinciDTRTestKit
-  class DTRSmartAppQuestionnaireWorkflowGroup < Inferno::TestGroup
+  class DTRSmartAppRespiratoryWorkflowGroup < Inferno::TestGroup
     id :dtr_smart_app_resp_workflow
     title 'Respiratory Assist Device Questionnaire Workflow'
     description %(

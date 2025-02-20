@@ -1,5 +1,5 @@
 require_relative 'auth_groups/oauth2_authentication_group'
-require_relative 'client_groups/resp_assist_device/dtr_smart_app_resp_workflow_group'
+require_relative 'client_groups/respiratory/dtr_smart_app_resp_workflow_group'
 require_relative 'client_groups/dinner_static/dtr_smart_app_static_dinner_workflow_group'
 require_relative 'client_groups/dinner_adaptive/dtr_smart_app_adaptive_dinner_workflow_group'
 require_relative 'client_groups/custom_static/dtr_smart_app_custom_static_workflow_group'

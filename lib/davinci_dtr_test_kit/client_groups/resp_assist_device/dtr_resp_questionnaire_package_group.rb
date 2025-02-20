@@ -2,7 +2,7 @@ require_relative 'dtr_resp_questionnaire_package_request_test'
 require_relative '../shared/dtr_questionnaire_package_request_validation_test'
 
 module DaVinciDTRTestKit
-  class DTRQuestionnairePackageGroup < Inferno::TestGroup
+  class DTRRespiratoryQuestionnairePackageGroup < Inferno::TestGroup
     id :dtr_resp_qp
     title 'Questionnaire Package Retrieval'
     description %(

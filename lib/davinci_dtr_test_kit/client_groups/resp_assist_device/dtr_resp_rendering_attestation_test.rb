@@ -2,7 +2,7 @@ require 'securerandom'
 require_relative '../../urls'
 
 module DaVinciDTRTestKit
-  class DTRQuestionnaireRenderingAttestationTest < Inferno::Test
+  class DTRRespiratoryRenderingAttestationTest < Inferno::Test
     include URLs
 
     id :dtr_resp_rendering_attest
