@@ -11,8 +11,8 @@ module DaVinciDTRTestKit
     id :dtr_smart_ehr_launch
     run_as_group
 
-    test from: :fhir_launch_context_test
-    test from: :fhir_context_coverage_test
-    test from: :fhir_context_references_test
+    test from: :fhir_launch_context
+    test from: :fhir_context_coverage
+    test from: :fhir_context_references
   end
 end

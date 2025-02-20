@@ -8,7 +8,7 @@ module DaVinciDTRTestKit
     FIXTURE_CONFIG = [
       {
         group_ids: [
-          'dtr_smart_app_questionnaire_workflow',
+          'dtr_smart_app_resp_workflow',
           'dtr_full_ehr_questionnaire_workflow'
         ],
         questionnaire_package: File.join('respiratory_assist_device', 'questionnaire_package.json'),
@@ -16,23 +16,23 @@ module DaVinciDTRTestKit
       },
       {
         group_ids: [
-          'dtr_smart_app_static_dinner_questionnaire_workflow',
-          'dtr_full_ehr_static_dinner_questionnaire_workflow'
+          'dtr_smart_app_static_dinner_workflow',
+          'dtr_full_ehr_static_dinner_workflow'
         ],
         questionnaire_package: File.join('dinner_static', 'questionnaire_dinner_order_static.json'),
         questionnaire_response: File.join('dinner_static', 'questionnaire_response_dinner_order_static.json')
       },
       {
         group_ids: [
-          'dtr_full_ehr_adaptive_questionnaire_retrieval',
-          'dtr_smart_app_adaptive_questionnaire_retrieval'
+          'dtr_full_ehr_adaptive_retrieval',
+          'dtr_smart_app_adaptive_retrieval'
         ],
         questionnaire_package: File.join('dinner_adaptive', 'questionnaire_dinner_order_adaptive.json'),
         next_question: File.join('dinner_adaptive', 'dinner_order_adaptive_next_question_initial.json')
       },
       {
         group_ids: [
-          'dtr_adaptive_questionnaire_followup_questions'
+          'dtr_adaptive_followup_questions'
         ],
         next_question: {
           bean_burrito: File.join('dinner_adaptive', 'dinner_order_adaptive_next_question_burrito.json'),

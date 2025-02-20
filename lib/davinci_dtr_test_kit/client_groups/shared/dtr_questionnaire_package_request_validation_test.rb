@@ -4,7 +4,7 @@ module DaVinciDTRTestKit
   class DTRQuestionnairePackageValidationTest < Inferno::Test
     include URLs
 
-    id :dtr_questionnaire_package_request_validation
+    id :dtr_qp_request_validation
     title 'Questionnaire Package request is valid'
     description %(
       This test validates the conformance of the client's request to the

@@ -6,7 +6,7 @@ module DaVinciDTRTestKit
     include URLs
     include DTRQuestionnaireResponseValidation
 
-    id :dtr_questionnaire_response_basic_conformance
+    id :dtr_qr_basic_conformance
     title 'QuestionnaireResponse is conformant'
     description %(
       This test validates the conformance of a `QuestionnaireResponse` representing a completed questionnaire.
