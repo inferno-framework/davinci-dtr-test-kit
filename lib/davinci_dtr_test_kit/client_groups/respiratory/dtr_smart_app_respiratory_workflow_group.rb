@@ -1,6 +1,6 @@
-require_relative 'dtr_resp_questionnaire_package_group'
-require_relative 'dtr_resp_rendering_group'
-require_relative 'dtr_resp_questionnaire_response_group'
+require_relative 'dtr_respiratory_questionnaire_package_group'
+require_relative 'dtr_respiratory_rendering_group'
+require_relative 'dtr_respiratory_questionnaire_response_group'
 
 module DaVinciDTRTestKit
   class DTRSmartAppRespiratoryWorkflowGroup < Inferno::TestGroup

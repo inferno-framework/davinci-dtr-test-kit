@@ -1,4 +1,4 @@
-require_relative 'dtr_resp_questionnaire_package_request_test'
+require_relative 'dtr_respiratory_questionnaire_package_request_test'
 require_relative '../shared/dtr_questionnaire_package_request_validation_test'
 
 module DaVinciDTRTestKit

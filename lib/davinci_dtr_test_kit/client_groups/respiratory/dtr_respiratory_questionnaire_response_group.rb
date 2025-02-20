@@ -1,4 +1,4 @@
-require_relative 'dtr_resp_questionnaire_response_save_test'
+require_relative 'dtr_respiratory_questionnaire_response_save_test'
 require_relative '../shared/dtr_questionnaire_response_basic_conformance_test'
 require_relative '../shared/dtr_questionnaire_response_pre_population_test'
 
