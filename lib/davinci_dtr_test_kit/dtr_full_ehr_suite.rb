@@ -1,5 +1,5 @@
-require_relative 'client_groups/custom_static/dtr_full_ehr_custom_questionnaire_workflow_group'
-require_relative 'client_groups/dinner_static/dtr_full_ehr_questionnaire_workflow_group'
+require_relative 'client_groups/custom_static/dtr_full_ehr_custom_static_workflow_group'
+require_relative 'client_groups/dinner_static/dtr_full_ehr_static_dinner_workflow_group'
 require_relative 'client_groups/dinner_adaptive/dtr_full_ehr_adaptive_dinner_workflow_group'
 require_relative 'auth_groups/oauth2_authentication_group'
 require_relative 'endpoints/cors'

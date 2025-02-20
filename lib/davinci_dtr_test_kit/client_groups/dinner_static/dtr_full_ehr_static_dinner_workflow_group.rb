@@ -2,7 +2,7 @@ require_relative '../full_ehr/dtr_full_ehr_launch_attestation_test'
 require_relative '../full_ehr/dtr_full_ehr_questionnaire_package_request_test'
 require_relative '../shared/dtr_questionnaire_package_request_validation_test'
 require_relative '../full_ehr/dtr_full_ehr_prepopulation_attestation_test'
-require_relative '../full_ehr/dtr_full_ehr_rendering_enabled_questions_attestation_test'
+require_relative 'dtr_static_dinner_enabled_questions_attestation_test'
 require_relative '../full_ehr/dtr_full_ehr_prepopulation_override_attestation_test'
 require_relative '../full_ehr/dtr_full_ehr_saving_questionnaire_response_group'
 
@@ -57,7 +57,7 @@ module DaVinciDTRTestKit
       # Test 2: attest to the pre-population and edit of the first name field
       test from: :dtr_full_ehr_prepopulation_override_attestation
       # Test 3: attest to the display of the toppings questions only when a dinner answer is selected
-      test from: :dtr_full_ehr_rendering_enabled_questions_attestation
+      test from: :dtr_static_dinner_enabled_questions_attestation
     end
 
     group from: :dtr_full_ehr_saving_questionnaire_response,

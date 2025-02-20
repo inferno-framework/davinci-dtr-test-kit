@@ -1,6 +1,6 @@
-require_relative 'dtr_questionnaire_package_group'
-require_relative 'dtr_questionnaire_rendering_group'
-require_relative 'dtr_questionnaire_response_group'
+require_relative 'dtr_resp_questionnaire_package_group'
+require_relative 'dtr_resp_rendering_group'
+require_relative 'dtr_resp_questionnaire_response_group'
 
 module DaVinciDTRTestKit
   class DTRSmartAppQuestionnaireWorkflowGroup < Inferno::TestGroup
@@ -18,6 +18,6 @@ module DaVinciDTRTestKit
 
     group from: :dtr_resp_questionnaire_package
     group from: :dtr_resp_rendering
-    group from: :dtr_resp_response
+    group from: :dtr_resp_questionnaire_response
   end
 end

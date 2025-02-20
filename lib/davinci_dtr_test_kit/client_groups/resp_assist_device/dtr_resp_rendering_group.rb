@@ -1,4 +1,4 @@
-require_relative 'dtr_questionnaire_rendering_attestation_test'
+require_relative 'dtr_resp_rendering_attestation_test'
 
 module DaVinciDTRTestKit
   class DTRQuestionnaireRenderingGroup < Inferno::TestGroup

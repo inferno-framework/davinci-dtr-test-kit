@@ -1,8 +1,8 @@
-require_relative 'dtr_smart_app_dinner_questionnaire_package_request_test'
+require_relative '../smart_app/dtr_smart_app_questionnaire_package_request_test'
 require_relative '../shared/dtr_questionnaire_package_request_validation_test'
 require_relative '../smart_app/dtr_smart_app_prepopulation_attestation_test'
 require_relative '../smart_app/dtr_smart_app_prepopulation_override_attestation_test'
-require_relative '../smart_app/dtr_smart_app_rendering_enabled_questions_attestation_test'
+require_relative 'dtr_static_dinner_enabled_questions_attestation_test'
 require_relative '../smart_app/dtr_smart_app_saving_questionnaire_response_group'
 require_relative '../shared/dtr_questionnaire_response_pre_population_test'
 
@@ -61,7 +61,7 @@ module DaVinciDTRTestKit
       # Test 3: attest to the pre-population and edit of the location field
       test from: :dtr_smart_app_prepopulation_override_attestation
       # Test 4: attest to the display of the toppings questions only when a dinner answer is selected
-      test from: :dtr_smart_app_rendering_enabled_questions_attestation
+      test from: :dtr_static_dinner_enabled_questions_attestation
     end
 
     group from: :dtr_smart_app_saving_questionnaire_response do

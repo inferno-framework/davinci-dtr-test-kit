@@ -1,10 +1,10 @@
-require_relative 'dtr_questionnaire_response_save_test'
+require_relative 'dtr_resp_questionnaire_response_save_test'
 require_relative '../shared/dtr_questionnaire_response_basic_conformance_test'
 require_relative '../shared/dtr_questionnaire_response_pre_population_test'
 
 module DaVinciDTRTestKit
   class DTRQuestionnaireResponseGroup < Inferno::TestGroup
-    id :dtr_resp_response
+    id :dtr_resp_questionnaire_response
     title 'Questionnaire Response'
     description %(
       Demonstrate the ability to pre-populate and respond to the Respiratory Assist Device Questionnaire.
