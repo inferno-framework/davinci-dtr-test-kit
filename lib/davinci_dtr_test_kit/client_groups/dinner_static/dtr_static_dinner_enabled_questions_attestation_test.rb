@@ -20,9 +20,9 @@ module DaVinciDTRTestKit
           questions until I have selected a dinner choice and then only displays the
           "What would you like on..." question relevant for the dinner request:
 
-          [Click here](#{resume_pass_url}?client_id=#{random_id}) if the above statement is **true**.
+          [Click here](#{resume_pass_url}?token=#{random_id}) if the above statement is **true**.
 
-          [Click here](#{resume_fail_url}?client_id=#{random_id}) if the above statement is **false**.
+          [Click here](#{resume_fail_url}?token=#{random_id}) if the above statement is **false**.
         )
       )
     end
