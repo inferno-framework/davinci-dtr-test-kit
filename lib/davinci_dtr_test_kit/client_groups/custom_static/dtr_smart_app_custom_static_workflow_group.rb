@@ -48,13 +48,13 @@ module DaVinciDTRTestKit
       run_as_group
 
       # Test 1: wait for the $questionnaire-package request
-      test from: :dtr_smart_app_questionnaire_package_request do
+      test from: :dtr_smart_app_qp_request do
         input :custom_questionnaire_package_response
       end
       # Test 2: validate the $questionnaire-package body
-      test from: :dtr_questionnaire_package_request_validation
+      test from: :dtr_qp_request_validation
       # Test 3: validate the user provided $questionnaire-package response
-      test from: :dtr_custom_questionnaire_package_validation
+      test from: :dtr_custom_qp_validation
       # Test 4: verify the custom response has the necessary libraries for pre-population
       test from: :dtr_custom_questionnaire_libraries
       # Test 5: verify the custom response has the necessaru extensions for pre-population
@@ -75,14 +75,14 @@ module DaVinciDTRTestKit
       run_as_group
 
       # Test 1: attest to proper rendering of the Questionnaire
-      test from: :dtr_rendering_attestation
+      test from: :dtr_rendering_attest
       # Test 1: attest to the pre-population
-      test from: :dtr_prepopulation_attestation
+      test from: :dtr_prepopulation_attest
       # Test 2: attest to the ability to manually complete questions
-      test from: :dtr_prepopulation_override_attestation
+      test from: :dtr_prepopulation_override_attest
     end
 
-    group from: :dtr_smart_app_saving_questionnaire_response do
+    group from: :dtr_smart_app_saving_qr do
       config(options: { custom: true })
       test from: :dtr_smart_app_qr_correctness,
            uses_request: :questionnaire_response_save

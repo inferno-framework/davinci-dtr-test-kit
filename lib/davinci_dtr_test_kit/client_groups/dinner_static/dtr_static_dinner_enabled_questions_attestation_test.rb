@@ -5,7 +5,7 @@ module DaVinciDTRTestKit
   class DTRStaticDinnerEnabledQuestionsAttestationTest < Inferno::Test
     include URLs
 
-    id :dtr_static_dinner_enabled_questions_attestation
+    id :dtr_static_dinner_enabled_questions_attest
     title 'Check that the client renders enabled questions appropriately (Attestation)'
     description %(
       Validate that the rendering of the questionnaire includes only the "What would you like on..."

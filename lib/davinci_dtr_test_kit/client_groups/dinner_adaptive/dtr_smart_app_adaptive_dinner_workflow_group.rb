@@ -58,9 +58,9 @@ module DaVinciDTRTestKit
         )
 
         # Test 1: attest to the pre-population of the name fields
-        test from: :dtr_smart_app_prepopulation_attestation
+        test from: :dtr_smart_app_prepopulation_attest
         # Test 2: attest to the pre-population and edit of the location field
-        test from: :dtr_smart_app_prepopulation_override_attestation
+        test from: :dtr_smart_app_prepopulation_override_attest
       end
     end
 
@@ -85,7 +85,7 @@ module DaVinciDTRTestKit
               access_token: { name: :client_id }
             }
           }
-    group from: :dtr_smart_app_saving_questionnaire_response do
+    group from: :dtr_smart_app_saving_qr do
       config(
         options: {
           adaptive: true,
@@ -94,7 +94,7 @@ module DaVinciDTRTestKit
       )
 
       # Test 3: validate workflow-specific details such as pre-population and overrides
-      test from: :dtr_questionnaire_response_pre_population,
+      test from: :dtr_qr_pre_population,
            uses_request: :questionnaire_response_save
     end
   end

@@ -4,7 +4,7 @@ module DaVinciDTRTestKit
   class DTRFullEHRQuestionnaireResponseConformanceTest < Inferno::Test
     include DTRQuestionnaireResponseValidation
 
-    id :dtr_full_ehr_questionnaire_response_conformance
+    id :dtr_full_ehr_qr_conformance
     title 'QuestionnaireResponse is conformant'
     description %(
       Verify that the provided QuestionnaireResponse is conformant to the [DTR

@@ -16,8 +16,8 @@ module DaVinciDTRTestKit
       3. Pre-populate the questionnaire response
     )
 
-    group from: :dtr_resp_questionnaire_package
+    group from: :dtr_resp_qp
     group from: :dtr_resp_rendering
-    group from: :dtr_resp_questionnaire_response
+    group from: :dtr_resp_qr
   end
 end

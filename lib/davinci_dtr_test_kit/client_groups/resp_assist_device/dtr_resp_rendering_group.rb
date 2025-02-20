@@ -9,6 +9,6 @@ module DaVinciDTRTestKit
     )
     run_as_group
 
-    test from: :dtr_resp_rendering_attestation
+    test from: :dtr_resp_rendering_attest
   end
 end

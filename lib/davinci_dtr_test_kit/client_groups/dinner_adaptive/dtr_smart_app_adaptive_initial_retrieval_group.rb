@@ -15,7 +15,7 @@ module DaVinciDTRTestKit
     # Test 1: wait for the $questionnaire-package request and initial $next-question request
     test from: :dtr_smart_app_adaptive_request
     # Test 2: validate the $questionnaire-package request body
-    test from: :dtr_questionnaire_package_request_validation
+    test from: :dtr_qp_request_validation
     # Test 3: validate the $next-question request body
     test from: :dtr_next_question_request_validation
     # Test 4: validate the QuestionnaireResponse in the input parameter

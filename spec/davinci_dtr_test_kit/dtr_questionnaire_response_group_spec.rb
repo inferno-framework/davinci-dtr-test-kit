@@ -5,7 +5,7 @@ RSpec.describe DaVinciDTRTestKit::DTRQuestionnaireResponseGroup do
     Inferno::Web.app
   end
 
-  let(:group) { Inferno::Repositories::TestGroups.new.find('dtr_resp_questionnaire_response') }
+  let(:group) { Inferno::Repositories::TestGroups.new.find('dtr_resp_qr') }
   let(:suite_id) { :dtr_smart_app }
   let(:questionnaire_response_url) { "/custom/#{suite_id}/fhir/QuestionnaireResponse" }
   let(:session_data_repo) { Inferno::Repositories::SessionData.new }
@@ -26,7 +26,7 @@ RSpec.describe DaVinciDTRTestKit::DTRQuestionnaireResponseGroup do
   end
 
   describe 'Behavior of questionnaire response save test' do
-    let(:runnable) { group.tests.find { |test| test.id.to_s.end_with? 'questionnaire_response_save' } }
+    let(:runnable) { group.tests.find { |test| test.id.to_s.end_with? 'qr_save' } }
     let(:results_repo) { Inferno::Repositories::Results.new }
     let(:client_id) { '1234' }
 
@@ -50,7 +50,7 @@ RSpec.describe DaVinciDTRTestKit::DTRQuestionnaireResponseGroup do
   describe 'Behavior of questionnaire response validation test' do
     let(:runnable) do
       group.tests.find do |test|
-        test.id.to_s.end_with? 'dtr_questionnaire_response_pre_population'
+        test.id.to_s.end_with? 'dtr_qr_pre_population'
       end
     end
     let(:request_body) do

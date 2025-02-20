@@ -5,7 +5,7 @@ module DaVinciDTRTestKit
   class DTRFullEHRLaunchAttestationTest < Inferno::Test
     include URLs
 
-    id :dtr_full_ehr_launch_attestation
+    id :dtr_full_ehr_launch_attest
     title 'Launch DTR for a patient that has an official name (Attestation)'
     description %(
       Attest that DTR has been launched for a patient with data that will be used for prepopulation.

@@ -4,7 +4,7 @@ module DaVinciDTRTestKit
   class DTRFullEHRQuestionnaireResponseCorrectnessTest < Inferno::Test
     include DTRQuestionnaireResponseValidation
 
-    id :dtr_full_ehr_questionnaire_response_correctness
+    id :dtr_full_ehr_qr_correctness
     title 'QuestionnaireResponse is correct for the workflow'
     description %(
       Verify that the QuestionnaireResponse meets the expected workflow requirements by verifying the following:

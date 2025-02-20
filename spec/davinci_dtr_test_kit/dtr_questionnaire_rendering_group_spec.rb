@@ -28,7 +28,7 @@ RSpec.describe DaVinciDTRTestKit::DTRQuestionnaireRenderingGroup do
   end
 
   describe 'Behavior of questionnaire rendering attestation test' do
-    let(:runnable) { group.tests.find { |test| test.id.to_s.end_with? 'dtr_resp_rendering_attestation' } }
+    let(:runnable) { group.tests.find { |test| test.id.to_s.end_with? 'dtr_resp_rendering_attest' } }
     let(:results_repo) { Inferno::Repositories::Results.new }
 
     it 'passes if affirmative attestation is given' do

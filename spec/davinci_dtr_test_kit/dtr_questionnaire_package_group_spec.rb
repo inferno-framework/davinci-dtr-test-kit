@@ -5,7 +5,7 @@ RSpec.describe DaVinciDTRTestKit::DTRQuestionnairePackageGroup do
     Inferno::Web.app
   end
 
-  let(:group) { Inferno::Repositories::TestGroups.new.find('dtr_resp_questionnaire_package') }
+  let(:group) { Inferno::Repositories::TestGroups.new.find('dtr_resp_qp') }
   let(:suite_id) { :dtr_smart_app }
   let(:questionnaire_package_url) { "/custom/#{suite_id}/fhir/Questionnaire/$questionnaire-package" }
   let(:session_data_repo) { Inferno::Repositories::SessionData.new }
@@ -26,7 +26,7 @@ RSpec.describe DaVinciDTRTestKit::DTRQuestionnairePackageGroup do
   end
 
   describe 'Behavior of questionnaire package request test' do
-    let(:runnable) { group.tests.find { |test| test.id.to_s.end_with? 'dtr_resp_questionnaire_package_request' } }
+    let(:runnable) { group.tests.find { |test| test.id.to_s.end_with? 'dtr_resp_qp_request' } }
     let(:results_repo) { Inferno::Repositories::Results.new }
     let(:request_body) do
       File.read(File.join(__dir__, '..', 'fixtures', 'questionnaire_package_input_params_conformant.json'))
@@ -57,7 +57,7 @@ RSpec.describe DaVinciDTRTestKit::DTRQuestionnairePackageGroup do
   describe 'Behavior of questionnaire package request validation test' do
     let(:runnable) do
       group.tests.find do |test|
-        test.id.to_s.end_with? 'dtr_questionnaire_package_request_validation'
+        test.id.to_s.end_with? 'dtr_qp_request_validation'
       end
     end
     let(:request_body) do

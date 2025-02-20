@@ -34,11 +34,11 @@ module DaVinciDTRTestKit
       run_as_group
 
       # Test 0: attest to launch
-      test from: :dtr_full_ehr_launch_attestation
+      test from: :dtr_full_ehr_launch_attest
       # Test 1: wait for the $questionnaire-package request
-      test from: :dtr_full_ehr_questionnaire_package_request
+      test from: :dtr_full_ehr_qp_request
       # Test 2: validate the $questionnaire-package body
-      test from: :dtr_questionnaire_package_request_validation
+      test from: :dtr_qp_request_validation
     end
 
     group do
@@ -53,14 +53,14 @@ module DaVinciDTRTestKit
       run_as_group
 
       # Test 1: attest to the pre-population of the name fields
-      test from: :dtr_full_ehr_prepopulation_attestation
+      test from: :dtr_full_ehr_prepopulation_attest
       # Test 2: attest to the pre-population and edit of the first name field
-      test from: :dtr_full_ehr_prepopulation_override_attestation
+      test from: :dtr_full_ehr_prepopulation_override_attest
       # Test 3: attest to the display of the toppings questions only when a dinner answer is selected
-      test from: :dtr_static_dinner_enabled_questions_attestation
+      test from: :dtr_static_dinner_enabled_questions_attest
     end
 
-    group from: :dtr_full_ehr_saving_questionnaire_response,
+    group from: :dtr_full_ehr_saving_qr,
           config: {
             inputs: {
               questionnaire_response: {

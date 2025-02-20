@@ -14,11 +14,11 @@ module DaVinciDTRTestKit
     run_as_group
 
     # Test 0: attest to launch
-    test from: :dtr_full_ehr_launch_attestation
+    test from: :dtr_full_ehr_launch_attest
     # Test 1: wait for the $questionnaire-package request and initial $next-question request
     test from: :dtr_full_ehr_adaptive_request
     # Test 2: validate the $questionnaire-package request body
-    test from: :dtr_questionnaire_package_request_validation
+    test from: :dtr_qp_request_validation
     # Test 3: validate the $next-question request body
     test from: :dtr_next_question_request_validation
     # Test 4: validate the QuestionnaireResponse in the input parameter

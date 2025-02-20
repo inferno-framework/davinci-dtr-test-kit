@@ -3,7 +3,7 @@ module DaVinciDTRTestKit
   class DTRCustomQuestionnairePackageValidationTest < Inferno::Test
     include DaVinciDTRTestKit::CQLTest
 
-    id :dtr_custom_questionnaire_package_validation
+    id :dtr_custom_qp_validation
     title '[USER INPUT VERIFICATION] Custom Questionnaire Package response is valid'
     description %(
       Inferno will validate that the user provided response to the questionnaire-package operation is conformant

@@ -5,7 +5,7 @@ module DaVinciDTRTestKit
   class DTRFullEHRStoreAttestationTest < Inferno::Test
     include URLs
 
-    id :dtr_full_ehr_store_attestation
+    id :dtr_full_ehr_store_attest
     title 'Complete and Store the QuestionnaireResponse (Attestation)'
     description %(
       Attest that the questionnaire has been completed and the response has been persisted

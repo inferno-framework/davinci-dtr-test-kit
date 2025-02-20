@@ -51,9 +51,9 @@ module DaVinciDTRTestKit
         )
 
         # Test 1: attest to the pre-population of the name fields
-        test from: :dtr_full_ehr_prepopulation_attestation
+        test from: :dtr_full_ehr_prepopulation_attest
         # Test 2: attest to the pre-population and edit of the first name field
-        test from: :dtr_full_ehr_prepopulation_override_attestation
+        test from: :dtr_full_ehr_prepopulation_override_attest
       end
     end
 

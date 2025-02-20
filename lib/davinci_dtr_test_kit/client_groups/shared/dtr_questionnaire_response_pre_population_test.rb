@@ -5,7 +5,7 @@ module DaVinciDTRTestKit
   class DTRQuestionnaireResponsePrePopulationTest < Inferno::Test
     include DTRQuestionnaireResponseValidation
 
-    id :dtr_questionnaire_response_pre_population
+    id :dtr_qr_pre_population
     title 'QuestionnaireResponse pre-population and user overrides are conformant'
     description %(
       This test validates the conformance of the client's pre-population of the QuestionnaireResponse.
