@@ -8,7 +8,7 @@ require_relative 'dtr_adaptive_questionnaire_completion_group'
 module DaVinciDTRTestKit
   class DTRFullEHRAdaptiveDinnerQuestionnaireWorkflowGroup < Inferno::TestGroup
     id :dtr_full_ehr_adaptive_dinner_questionnaire_workflow
-    title 'Adaptive Questionnaire Workflow'
+    title 'Dinner Order Adaptive Questionnaire Workflow'
     description %(
       This test validates that a DTR Full EHR client can perform a full DTR Adaptive Questionnaire workflow
       using a mocked questionnaire requesting what a patient wants for dinner. The client system must
