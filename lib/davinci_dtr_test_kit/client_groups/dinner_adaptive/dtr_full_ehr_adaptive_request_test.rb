@@ -16,6 +16,7 @@ module DaVinciDTRTestKit
       2. **Initial Next Question Request**: After receiving the package, the client should invoke the
       `$next-question` operation. Inferno will respond by providing the first set of questions.
     )
+    verifies_requirements 'hl7.fhir.us.davinci-dtr_2.0.1@165'
 
     config options: { accepts_multiple_requests: true }
     input :access_token

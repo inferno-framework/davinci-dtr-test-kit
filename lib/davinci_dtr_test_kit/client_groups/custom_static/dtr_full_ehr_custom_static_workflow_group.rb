@@ -27,6 +27,7 @@ module DaVinciDTRTestKit
          - Allowing the tester to manually enter responses, including overriding pre-populated answers.
       3. Complete and store the QuestionnaireResponse for future use.
     )
+    verifies_requirements 'hl7.fhir.us.davinci-dtr_2.0.1@262'
 
     group do
       id :dtr_full_ehr_custom_static_retrieval
@@ -62,7 +63,7 @@ module DaVinciDTRTestKit
       test from: :dtr_custom_qp_validation
       # Test 4: verify the custom response has the necessary libraries for pre-population
       test from: :dtr_custom_questionnaire_libraries
-      # Test 5: verify the custom response has the necessaru extensions for pre-population
+      # Test 5: verify the custom response has the necessary extensions for pre-population
       test from: :dtr_custom_questionnaire_extensions
       # Test 6: verify custom response has necessary expressions for pre-population
       test from: :dtr_custom_questionnaire_expressions
@@ -73,7 +74,7 @@ module DaVinciDTRTestKit
       title 'Filling Out the Static Questionnaire'
       description %(
         The tester will interact with the questionnaire within their client system
-        such that pre-population steps are taken, the qustionnaire is rendered, and
+        such that pre-population steps are taken, the questionnaire is rendered, and
         they are able to fill it out. The tester will attest that questionnaire pre-population
         and rendering directives were followed.
       )

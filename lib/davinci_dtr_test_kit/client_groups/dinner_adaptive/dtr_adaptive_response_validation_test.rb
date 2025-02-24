@@ -24,6 +24,7 @@ module DaVinciDTRTestKit
       since neither the QuestionnaireResponse nor the contained Questionnaire will have any items,
       as no questions are yet known.
     )
+    verifies_requirements 'hl7.fhir.us.davinci-dtr_2.0.1@39'
 
     def profile_url
       'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaireresponse-adapt'

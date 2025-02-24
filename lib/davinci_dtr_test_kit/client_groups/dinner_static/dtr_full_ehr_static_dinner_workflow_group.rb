@@ -22,6 +22,7 @@ module DaVinciDTRTestKit
          - display questions only when they are enabled by other answers
       3. Complete and store the questionnaire response for future use.
     )
+    verifies_requirements 'hl7.fhir.us.davinci-dtr_2.0.1@35'
 
     group do
       id :dtr_full_ehr_static_retrieval
@@ -46,7 +47,7 @@ module DaVinciDTRTestKit
       title 'Filling Out the Static Questionnaire'
       description %(
         The tester will interact with the questionnaire within their client system
-        such that pre-population steps are taken, the qustionnaire is rendered, and
+        such that pre-population steps are taken, the questionnaire is rendered, and
         they are able to fill it out. The tester will attest that questionnaire pre-population
         and rendering directives were followed.
       )

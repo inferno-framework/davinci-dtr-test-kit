@@ -10,6 +10,7 @@ module DaVinciDTRTestKit
       Inferno will wait for a DTR questionnaire package request from the client. Upon receipt, Inferno will generate and
       send a response.
     )
+    verifies_requirements 'hl7.fhir.us.davinci-dtr_2.0.1@165'
 
     input :access_token,
           description: %(

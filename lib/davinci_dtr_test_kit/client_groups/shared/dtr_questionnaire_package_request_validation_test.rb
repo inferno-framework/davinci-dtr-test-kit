@@ -16,6 +16,7 @@ module DaVinciDTRTestKit
       to the bound ValueSet. Quantity, Coding, and code element bindings will fail if their code/system are not found in
       the valueset.
     )
+    verifies_requirements 'hl7.fhir.us.davinci-dtr_2.0.1@168'
 
     run do
       load_tagged_requests QUESTIONNAIRE_PACKAGE_TAG
