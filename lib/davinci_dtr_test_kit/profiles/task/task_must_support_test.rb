@@ -22,6 +22,7 @@ module DaVinciDTRTestKit
       * Task.status
       * Task.statusReason
     )
+    verifies_requirements 'hl7.fhir.us.davinci-dtr_2.0.1@355'
     id :task_must_support_test
 
     def resource_type

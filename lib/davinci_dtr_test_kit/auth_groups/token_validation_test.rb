@@ -1,5 +1,5 @@
 module DaVinciDTRTestKit
-  class TokentRequestTest < Inferno::Test
+  class TokenValidationTest < Inferno::Test
     id :token_validation
     title 'Client token request is valid'
     description 'Inferno will verify that an access token was successfully returned to the client under test.'

@@ -6,6 +6,7 @@ module DaVinciDTRTestKit
 
     title 'Server is capable of creating a QuestionnaireResponse resource from QuestionnaireResponse create interaction'
     description 'A sever SHALL support the QuestionnaireResponse create interaction'
+    verifies_requirements 'hl7.fhir.us.davinci-dtr_2.0.1@266'
 
     id :questionnaire_response_create
     input :create_questionnaire_resources,

@@ -4,7 +4,7 @@ module DaVinciDTRTestKit
   class DTRFullEHRQuestionnairePackageRequestTest < Inferno::Test
     include URLs
 
-    id :dtr_full_ehr_questionnaire_package_request
+    id :dtr_full_ehr_qp_request
     title 'Invoke the DTR Questionnaire Package operation'
     description %(
       Inferno will wait for a DTR questionnaire package request from the client. Upon receipt, Inferno will generate and

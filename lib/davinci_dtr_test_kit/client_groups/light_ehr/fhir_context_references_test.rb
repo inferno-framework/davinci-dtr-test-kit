@@ -2,7 +2,7 @@ module DaVinciDTRTestKit
   class FhirContextReferencesTest < Inferno::Test
     include DaVinciDTRTestKit::ReadTest
 
-    id :fhir_context_references_test
+    id :fhir_context_references
     title 'fhirContext Request, QuestionnaireResponse, or Task References Test'
     description %(
       This test validates that when the light EHR launches a DTR SMART App, the launch context includes
@@ -15,6 +15,9 @@ module DaVinciDTRTestKit
       See the [Launching DTR](https://hl7.org/fhir/us/davinci-dtr/STU2/specification.html#launching-dtr)
       section of the DTR IG for details.
     )
+    verifies_requirements 'hl7.fhir.us.davinci-dtr_2.0.1@127'
+    verifies_requirements 'hl7.fhir.us.davinci-dtr_2.0.1@128'
+    verifies_requirements 'hl7.fhir.us.davinci-dtr_2.0.1@129'
     optional
 
     uses_request :token

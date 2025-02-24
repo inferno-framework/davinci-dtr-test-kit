@@ -6,6 +6,7 @@ module DaVinciDTRTestKit
 
     title 'Server is capable of updating a QuestionnaireResponse resource from QuestionnaireResponse update interaction'
     description 'A server SHALL support the QuestionnaireResponse update interaction'
+    verifies_requirements 'hl7.fhir.us.davinci-dtr_2.0.1@267'
 
     id :questionnaire_response_update
     input :update_questionnaire_resources,

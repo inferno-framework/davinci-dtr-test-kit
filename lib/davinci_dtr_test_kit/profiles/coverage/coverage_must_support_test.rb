@@ -30,6 +30,7 @@ module DaVinciDTRTestKit
       * Coverage.subscriberId
       * Coverage.type
     )
+    verifies_requirements 'hl7.fhir.us.davinci-dtr_2.0.1@355'
     id :coverage_must_support_test
 
     def resource_type

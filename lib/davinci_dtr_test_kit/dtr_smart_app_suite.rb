@@ -1,8 +1,8 @@
 require_relative 'auth_groups/oauth2_authentication_group'
-require_relative 'client_groups/resp_assist_device/dtr_smart_app_questionnaire_workflow_group'
-require_relative 'client_groups/dinner_static/dtr_smart_app_questionnaire_workflow_group'
-require_relative 'client_groups/dinner_adaptive/dtr_smart_app_questionnaire_workflow_group'
-require_relative 'client_groups/custom_static_questionnaire/dtr_smart_app_custom_questionnaire_workflow_group'
+require_relative 'client_groups/respiratory/dtr_smart_app_respiratory_workflow_group'
+require_relative 'client_groups/dinner_static/dtr_smart_app_static_dinner_workflow_group'
+require_relative 'client_groups/dinner_adaptive/dtr_smart_app_adaptive_dinner_workflow_group'
+require_relative 'client_groups/custom_static/dtr_smart_app_custom_static_workflow_group'
 require_relative 'endpoints/cors'
 require_relative 'endpoints/mock_authorization'
 require_relative 'endpoints/mock_authorization/authorize_endpoint'
@@ -21,8 +21,6 @@ module DaVinciDTRTestKit
     id :dtr_smart_app
     title 'Da Vinci DTR SMART App Test Suite'
     description File.read(File.join(__dir__, 'docs', 'dtr_smart_app_suite_description_v201.md'))
-
-    version VERSION
 
     links [
       {
@@ -91,8 +89,8 @@ module DaVinciDTRTestKit
         Tests in this group validate that the client can complete basic DTR workflows
       )
 
-      group from: :dtr_smart_app_custom_static_questionnaire_workflow
-      group from: :dtr_smart_app_adaptive_dinner_questionnaire_workflow
+      group from: :dtr_smart_app_custom_static_workflow
+      group from: :dtr_smart_app_adaptive_dinner_workflow
     end
     group do
       id :dtr_smart_app_questionnaire_functionality
@@ -101,8 +99,8 @@ module DaVinciDTRTestKit
         Tests in this group validate that the client can complete additional DTR workflows
         covering additional must support features of questionnaires.
       )
-      group from: :dtr_smart_app_questionnaire_workflow
-      group from: :dtr_smart_app_static_dinner_questionnaire_workflow
+      group from: :dtr_smart_app_resp_workflow
+      group from: :dtr_smart_app_static_dinner_workflow
     end
   end
 end

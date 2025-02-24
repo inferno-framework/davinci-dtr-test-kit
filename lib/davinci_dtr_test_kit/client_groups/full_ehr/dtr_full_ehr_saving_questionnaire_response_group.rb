@@ -4,7 +4,7 @@ require_relative 'dtr_full_ehr_questionnaire_response_correctness_test'
 
 module DaVinciDTRTestKit
   class DTRFullEHRSavingQuestionnaireResponseGroup < Inferno::TestGroup
-    id :dtr_full_ehr_saving_questionnaire_response
+    id :dtr_full_ehr_saving_qr
     title 'Saving the QuestionnaireResponse'
     description %(
         The tester will attest to the completion of the questionnaire such that
@@ -20,10 +20,10 @@ module DaVinciDTRTestKit
     run_as_group
 
     # Test 1: attest QuestionnaireResponse saved
-    test from: :dtr_full_ehr_store_attestation
+    test from: :dtr_full_ehr_store_attest
     # Test 2: verify basic conformance of the QuestionnaireResponse
-    test from: :dtr_full_ehr_questionnaire_response_conformance
+    test from: :dtr_full_ehr_qr_conformance
     # Test 3: check workflow-specific details such as pre-population and overrides
-    test from: :dtr_full_ehr_questionnaire_response_correctness
+    test from: :dtr_full_ehr_qr_correctness
   end
 end

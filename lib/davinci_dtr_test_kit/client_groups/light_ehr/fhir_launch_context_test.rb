@@ -2,7 +2,7 @@ module DaVinciDTRTestKit
   class FhirLaunchContextTest < Inferno::Test
     include SMARTAppLaunch::TokenPayloadValidation
 
-    id :fhir_launch_context_test
+    id :fhir_launch_context
     title 'Token exchange response body contains fhirContext'
     description %(
       This test validates that when the light EHR launches a DTR SMART App, the launch context

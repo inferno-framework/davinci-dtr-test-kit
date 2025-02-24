@@ -1,6 +1,6 @@
 RSpec.describe DaVinciDTRTestKit::DTRFullEHRQuestionnaireResponseCorrectnessTest do
   let(:suite_id) { :dtr_full_ehr }
-  # let(:runnable) { Inferno::Repositories::Tests.new.find('dtr_full_ehr_questionnaire_response_correctness') }
+  # let(:runnable) { Inferno::Repositories::Tests.new.find('dtr_full_ehr_qr_correctness') }
   let(:session_data_repo) { Inferno::Repositories::SessionData.new }
   let(:test_session) { repo_create(:test_session, test_suite_id: suite_id) }
   let(:custom_questionnaire_package_response) do
