@@ -2,7 +2,7 @@ require 'erb'
 require_relative '../../lib/davinci_dtr_test_kit/tags'
 
 RSpec.describe DaVinciDTRTestKit::DTRLightEHRUserResponseTest, :request do
-  let(:test) { described_class } # Use the correct class
+  let(:test) { described_class }
   let(:suite_id) { :dtr_light_ehr }
   let(:unique_url_id) { '12345' }
   let(:supported_payer_url) { "/custom/#{suite_id}/#{unique_url_id}/supported-payers" }
@@ -29,8 +29,8 @@ RSpec.describe DaVinciDTRTestKit::DTRLightEHRUserResponseTest, :request do
       tags: [DaVinciDTRTestKit::SUPPORTED_PAYER_TAG],
       status: 200,
       headers:,
-      request_body: user_response.present? ? user_response : nil,
-      response_body: {}.to_json
+      request_body: nil,
+      response_body: user_response.presence&.to_json || {}.to_json
     )
   end
 
@@ -41,10 +41,10 @@ RSpec.describe DaVinciDTRTestKit::DTRLightEHRUserResponseTest, :request do
           { id: 'payerA', name: 'Payer A' },
           { id: 'payerB', name: 'Payer B' }
         ]
-      }.to_json
+      }
 
       create_supported_payers_request(valid_user_response)
-      result = run(test, { unique_url_id: })
+      result = run(test, { unique_url_id:, user_response: valid_user_response.to_json })
       expect(result.result).to eq('pass')
     end
 
@@ -53,10 +53,10 @@ RSpec.describe DaVinciDTRTestKit::DTRLightEHRUserResponseTest, :request do
         payers: [
           { id: 'payerA' } # Missing 'name' key
         ]
-      }.to_json
+      }
 
       create_supported_payers_request(invalid_user_response)
-      result = run(test, { unique_url_id: })
+      result = run(test, { unique_url_id:, user_response: invalid_user_response.to_json })
       expect(result.result).to eq('fail')
     end
 

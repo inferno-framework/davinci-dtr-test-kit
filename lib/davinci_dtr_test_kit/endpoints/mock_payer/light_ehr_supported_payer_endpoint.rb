@@ -16,7 +16,6 @@ module DaVinciDTRTestKit
 
     def make_response
       user_response = JSON.parse(result.input_json)&.find { |input| input['name'] == 'user_response' }&.dig('value')
-      # user_response = request.params['user_response']
 
       response.body = if user_response.present?
                         user_response

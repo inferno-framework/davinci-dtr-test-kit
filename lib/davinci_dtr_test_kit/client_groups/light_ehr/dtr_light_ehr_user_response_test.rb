@@ -2,6 +2,7 @@ require_relative '../../urls'
 require_relative '../../tags'
 
 module DaVinciDTRTestKit
+  # noinspection RubyJumpError,RubyResolve
   class DTRLightEHRUserResponseTest < Inferno::Test
     include URLs
     id :dtr_light_ehr_user_response
@@ -12,52 +13,38 @@ module DaVinciDTRTestKit
     )
 
     input :unique_url_id, type: :text
+    input :user_response, type: :textarea, optional: true
 
     run do
-      load_tagged_requests(SUPPORTED_PAYER_TAG)
-      user_response = request.query_parameters['user_response']
-
-      if user_response.blank?
+      if user_response.nil?
         pass 'No user response provided, skipping validation and using default response.'
-      else
-        assert valid_response?(user_response), 'User response is invalid.'
-        pass 'User response is present and valid.'
+        return
       end
+
+      load_tagged_requests(SUPPORTED_PAYER_TAG)
+      request_record = requests.find { |r| r.tags.include?(SUPPORTED_PAYER_TAG) }
+
+      begin
+        parsed_response = JSON.parse(request_record.response_body)
+      rescue JSON::ParserError
+        assert false, 'User response is not valid JSON.'
+      end
+
+      assert valid_response?(parsed_response), 'User response is invalid.'
+      pass 'User response is present and valid.'
     end
 
     private
 
-    def valid_response?(response)
-      return false if response.nil?
-
-      parsed_response = parse_json(response)
+    def valid_response?(parsed_response)
       return false if parsed_response.nil?
 
-      return false unless payers_key?(parsed_response)
-      return false unless payers_is_array?(parsed_response)
+      return false unless parsed_response.is_a?(Hash)
+      return false unless parsed_response.key?('payers')
+      return false unless parsed_response['payers'].is_a?(Array)
       return false unless parsed_response['payers'].present?
 
       parsed_response['payers'].all? { |payer| valid_payer?(payer) }
-    end
-
-    def parse_json(response)
-      JSON.parse(response)
-    rescue JSON::ParserError
-      nil
-    end
-
-    def valid_hash?(response)
-      response.is_a?(Hash)
-    end
-
-    def payers_key?(response)
-      response.key?('payers')
-    end
-
-    def payers_is_array?(response)
-      response['payers'].is_a?(Array)
-    rescue NoMethodError, TypeError
-      false
     end
 
     def valid_payer?(payer)
