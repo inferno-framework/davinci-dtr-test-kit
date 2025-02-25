@@ -27,7 +27,6 @@ module DaVinciDTRTestKit
          - Allowing the tester to manually enter responses, including overriding pre-populated answers.
       3. Complete and store the QuestionnaireResponse for future use.
     )
-    verifies_requirements 'hl7.fhir.us.davinci-dtr_2.0.1@262'
 
     group do
       id :dtr_full_ehr_custom_static_retrieval

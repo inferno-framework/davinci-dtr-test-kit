@@ -23,7 +23,7 @@ module DaVinciDTRTestKit
       4. Complete the questionnaire and provide the completed QuestionnaireResponse
          with appropriate indicators for pre-populated and manually-entered data.
     )
-    verifies_requirements 'hl7.fhir.us.davinci-dtr_2.0.1@36'
+    verifies_requirements 'hl7.fhir.us.davinci-dtr_2.0.1@36', 'hl7.fhir.us.davinci-dtr_2.0.1@203'
 
     group do
       id :dtr_full_ehr_adaptive_retrieval

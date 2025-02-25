@@ -15,6 +15,8 @@ module DaVinciDTRTestKit
       Note that at least one pre-populated answer must remain un-altered to demonstrate
       its representation in the resulting QuestionnaireResponse.
     )
+    verifies_requirements 'hl7.fhir.us.davinci-dtr_2.0.1@204'
+
     run do
       random_id = SecureRandom.uuid
       wait(

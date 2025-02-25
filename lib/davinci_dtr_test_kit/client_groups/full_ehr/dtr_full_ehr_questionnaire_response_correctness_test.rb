@@ -15,6 +15,7 @@ module DaVinciDTRTestKit
           - `PBD.2` (First Name): `override`
           - `3` (all nested dinner questions): `manual`
     )
+    verifies_requirements 'hl7.fhir.us.davinci-dtr_2.0.1@212'
 
     run do
       skip_if questionnaire_response.blank?, 'Completed QuestionnaireResponse input was blank'
