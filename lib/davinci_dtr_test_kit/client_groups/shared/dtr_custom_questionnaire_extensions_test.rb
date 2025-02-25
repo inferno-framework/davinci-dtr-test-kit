@@ -10,9 +10,14 @@ module DaVinciDTRTestKit
       those extensions.
     )
 
+    def form_type
+      config.options[:form_type] || 'static'
+    end
+
     run do
-      skip_if scratch[:static_questionnaire_bundles].blank?, 'No questionnaire bundle found in the custom response'
-      questionnaires = extract_questionnaires_from_bundles(scratch[:static_questionnaire_bundles])
+      skip_if scratch[:"#{form_type}_questionnaire_bundles"].blank?,
+              'No questionnaire bundle found in the custom response'
+      questionnaires = extract_questionnaires_from_bundles(scratch[:"#{form_type}_questionnaire_bundles"])
       verify_questionnaire_extensions(questionnaires)
     end
   end

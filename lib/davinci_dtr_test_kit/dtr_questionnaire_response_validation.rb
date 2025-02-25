@@ -29,14 +29,7 @@ module DaVinciDTRTestKit
                 "Couldn't find Questionnaire #{qr.questionnaire} in the provided custom questionnaire package
                 to validate the QuestionnaireResponse."
 
-        missing_origin_sources = ['auto', 'manual', 'override'] - extract_origin_sources(qr.item)
-        unless missing_origin_sources.empty?
-          add_message(
-            'error',
-            'All origin sources (auto, manual, override) must be present in the QuestionnaireResponse. ' \
-            "Missing #{missing_origin_sources.to_sentence}"
-          )
-        end
+        check_missing_origin_sources(qr)
       end
 
       check_origin_sources(questionnaire.item, qr.item, expected_overrides:)
@@ -44,6 +37,17 @@ module DaVinciDTRTestKit
       required_link_ids = extract_required_link_ids(questionnaire.item)
       check_answer_presence(qr.item, required_link_ids)
       assert(messages.none? { |m| m[:type] == 'error' }, 'QuestionnaireResponse is not correct, see error message(s)')
+    end
+
+    def check_missing_origin_sources(questionnaire_response)
+      missing_origin_sources = ['auto', 'manual', 'override'] - extract_origin_sources(questionnaire_response.item)
+      return if missing_origin_sources.empty?
+
+      add_message(
+        'error',
+        'All origin sources (auto, manual, override) must be present in the QuestionnaireResponse. ' \
+        "Missing #{missing_origin_sources.to_sentence}"
+      )
     end
 
     def check_is_questionnaire_response(questionnaire_response_json)

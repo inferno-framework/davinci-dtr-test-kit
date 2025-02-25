@@ -1,9 +1,9 @@
-require_relative '../../tags'
-require_relative '../full_ehr/dtr_full_ehr_launch_attestation_test'
-require_relative 'dtr_full_ehr_adaptive_questionnaire_request_test'
-require_relative '../shared/dtr_questionnaire_package_request_validation_test'
-require_relative 'dtr_adaptive_questionnaire_next_question_request_validation_test'
-require_relative 'dtr_adaptive_questionnaire_response_validation_test'
+require_relative '../../../tags'
+require_relative '../../full_ehr/dtr_full_ehr_launch_attestation_test'
+require_relative '../../full_ehr/dtr_full_ehr_adaptive_questionnaire_request_test'
+require_relative '../../shared/dtr_questionnaire_package_request_validation_test'
+require_relative '../dtr_adaptive_questionnaire_next_question_request_validation_test'
+require_relative '../dtr_adaptive_questionnaire_response_validation_test'
 
 module DaVinciDTRTestKit
   class DTRFullEHRAdaptiveQuestionnaireInitialRetrievalGroup < Inferno::TestGroup

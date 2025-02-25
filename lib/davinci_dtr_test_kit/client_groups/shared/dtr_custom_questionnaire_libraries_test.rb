@@ -13,9 +13,14 @@ module DaVinciDTRTestKit
       and that libraries contain cql and elm data.
     )
 
+    def form_type
+      config.options[:form_type] || 'static'
+    end
+
     run do
-      skip_if scratch[:static_questionnaire_bundles].blank?, 'No questionnaire bundle found in the custom response'
-      check_libraries(scratch[:static_questionnaire_bundles])
+      skip_if scratch[:"#{form_type}_questionnaire_bundles"].blank?,
+              'No questionnaire bundle found in the custom response'
+      check_libraries(scratch[:"#{form_type}_questionnaire_bundles"])
     end
   end
 end

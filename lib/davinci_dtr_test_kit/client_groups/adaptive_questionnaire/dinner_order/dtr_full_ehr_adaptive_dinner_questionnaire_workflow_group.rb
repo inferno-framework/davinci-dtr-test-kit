@@ -1,7 +1,7 @@
-require_relative '../../tags'
+require_relative '../../../tags'
 require_relative 'dtr_full_ehr_adaptive_questionnaire_initial_retrieval_group'
-require_relative '../full_ehr/dtr_full_ehr_prepopulation_attestation_test'
-require_relative '../full_ehr/dtr_full_ehr_prepopulation_override_attestation_test'
+require_relative '../../full_ehr/dtr_full_ehr_prepopulation_attestation_test'
+require_relative '../../full_ehr/dtr_full_ehr_prepopulation_override_attestation_test'
 require_relative 'dtr_adaptive_questionnaire_followup_questions_group'
 require_relative 'dtr_adaptive_questionnaire_completion_group'
 
