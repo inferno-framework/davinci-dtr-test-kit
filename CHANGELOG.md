@@ -1,3 +1,21 @@
+# v0.15.0
+* **Ruby Version Update:** Upgraded Ruby to `3.3.6`.
+* **Inferno Core Update:** Bumped to version `0.6`.
+* **Gemspec Updates:**
+  * Switched to `git` for specifying files.
+  * Added `presets` to the gem package.
+  * Updated any test kit dependencies
+* **Test Kit Metadata:** Implemented Test Kit metadata for Inferno Platform.
+* **Environment Updates:** Updated Ruby version in the Dockerfile and GitHub Actions workflow.
+* FI-3509: Metadata OAuth URIs by @tstrass in https://github.com/inferno-framework/davinci-dtr-test-kit/pull/43
+* FI-3232: Add DTR Specific SMART App launch tests by @elsaperelli in https://github.com/inferno-framework/davinci-dtr-test-kit/pull/45
+* Migrate gitlab changes by @vanessuniq in https://github.com/inferno-framework/davinci-dtr-test-kit/pull/50
+* Fi 3515: mustSupports tests for Light DTR EHR profiles by @elsaperelli in https://github.com/inferno-framework/davinci-dtr-test-kit/pull/52
+* FI-3648: Add Spec for Shared Tests and Implement Features for the Failing Tests by @vanessuniq in https://github.com/inferno-framework/davinci-dtr-test-kit/pull/49
+* FI-3739: Add Light DTR EHR verifies  requirements  by @elsaperelli in https://github.com/inferno-framework/davinci-dtr-test-kit/pull/54
+* Shorten ids by @karlnaden in https://github.com/inferno-framework/davinci-dtr-test-kit/pull/55
+* FI-3473: Fix INFERNO_HOST Value for Prod by @vanessuniq in https://github.com/inferno-framework/davinci-dtr-test-kit/pull/53
+
 # v0.14.1
 * Make us_core_test_kit and tls_test_kit dependencies relative
 
@@ -41,6 +59,6 @@
 * Dependency Updates 2024-07-03 by @Jammjammjamm in https://github.com/inferno-framework/davinci-dtr-test-kit/pull/8
 
 
-# v0.9.0 
+# v0.9.0
 
 * Initial public release.
