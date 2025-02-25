@@ -147,7 +147,7 @@ module DaVinciDTRTestKit
 
     # This will be omited if custom questionnaire not provided
     group do
-      id :dtr_full_ehr_custom_adaptive_followup_questions
+      id :dtr_full_ehr_custom_adaptive_followup_questions_2
       title 'Retrieving the Next Question (Round 3)'
       description %()
       run_as_group
