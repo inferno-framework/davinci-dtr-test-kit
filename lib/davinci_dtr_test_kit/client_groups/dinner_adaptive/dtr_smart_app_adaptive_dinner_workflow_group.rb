@@ -52,7 +52,7 @@ module DaVinciDTRTestKit
         title 'Filling Out the Questionnaire'
         description %(
           The tester will interact with the questionnaire within their client system
-          such that pre-population steps are taken, the qustionnaire is rendered, and
+          such that pre-population steps are taken, the questionnaire is rendered, and
           they are able to fill it out. The tester will attest that questionnaire pre-population
           and rendering directives were followed.
         )

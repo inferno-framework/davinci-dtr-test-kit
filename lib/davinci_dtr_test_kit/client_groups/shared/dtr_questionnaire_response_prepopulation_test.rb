@@ -20,6 +20,9 @@ module DaVinciDTRTestKit
          the origin.source extension set to 'override' and an answer different
          from the expected result from execution of the CQL on Inferno's data.
     )
+    verifies_requirements 'hl7.fhir.us.davinci-dtr_2.0.1@173', 'hl7.fhir.us.davinci-dtr_2.0.1@174',
+                          'hl7.fhir.us.davinci-dtr_2.0.1@176', 'hl7.fhir.us.davinci-dtr_2.0.1@178',
+                          'hl7.fhir.us.davinci-dtr_2.0.1@179', 'hl7.fhir.us.davinci-dtr_2.0.1@188'
 
     run do
       questionnaire_response_json = request.request_body

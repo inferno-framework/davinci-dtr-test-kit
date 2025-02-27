@@ -12,6 +12,7 @@ module DaVinciDTRTestKit
       that includes the next question (or set of questions) for the tester to complete.
       Inferno will then validate the conformance of the request.
     )
+    verifies_requirements 'hl7.fhir.us.davinci-dtr_2.0.1@185'
 
     # Test 1: wait for the $next-question request
     test from: :dtr_adaptive_next_question_request
