@@ -2,9 +2,9 @@ require_relative '../../urls'
 require_relative '../../tags'
 
 module DaVinciDTRTestKit
-  class DTRLightEHRAcceptHeaderTest < Inferno::Test
+  class DTRLightEHRSupportedPayersAcceptHeaderTest < Inferno::Test
     include URLs
-    id :dtr_light_ehr_accept_header
+    id :dtr_light_ehr_sp_accept_header
     title 'Checks for a valid Accept header at the supported payer endpoint'
     description %(
       This test verifies that the request to the supported payer endpoint
@@ -16,8 +16,8 @@ module DaVinciDTRTestKit
       accept_header = request.request_headers.find { |header| header.name.downcase == 'accept' }
 
       assert accept_header.present?, 'Accept header must be provided'
-      assert accept_header.value == 'application/json', 'Header value must be application/json'
-
+      assert accept_header.value == 'application/json', "Invalid Accept header: Expected 'application/json'
+                                      but received '#{accept_header.value}'"
       pass 'Accept header is correctly set to application/json'
     end
   end

@@ -1,4 +1,4 @@
-RSpec.describe DaVinciDTRTestKit::DTRLightEHRSupportedPayerEndpointTest, :request do
+RSpec.describe DaVinciDTRTestKit::DTRLightEHRSupportedPayersEndpointTest, :request do
   let(:test) { described_class }
   let(:suite_id) { :dtr_light_ehr }
   let(:unique_url_id) { '12345' }

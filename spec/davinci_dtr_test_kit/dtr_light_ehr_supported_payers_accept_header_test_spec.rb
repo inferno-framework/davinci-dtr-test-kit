@@ -1,6 +1,6 @@
 require_relative '../../lib/davinci_dtr_test_kit/tags'
 
-RSpec.describe DaVinciDTRTestKit::DTRLightEHRAcceptHeaderTest, :request do
+RSpec.describe DaVinciDTRTestKit::DTRLightEHRSupportedPayersAcceptHeaderTest, :request do
   let(:test) { described_class }
   let(:suite_id) { :dtr_light_ehr }
   let(:unique_url_id) { '12345' }
