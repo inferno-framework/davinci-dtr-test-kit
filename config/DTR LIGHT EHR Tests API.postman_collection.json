@@ -1,0 +1,106 @@
+{
+	"info": {
+		"_postman_id": "f1a4c032-a0f2-4114-948d-7b7a44abd755",
+		"name": "DTR LIGHT EHR Tests API",
+		"description": "The variables tab in this collection controls port for inferno and token used to establish a session.\n\n- base_url: points to a running instance of inferno. Typical values will be\n    \n    - Inferno production: [https://inferno.healthit.gov/suites](https://inferno.healthit.gov/suites)\n        \n    - Inferno QA: [https://inferno-qa.healthit.gov/suites](https://inferno-qa.healthit.gov/suites)\n        \n    - Local docker: [http://localhost](http://localhost)\n        \n    - Local development: [http://localhost:4657](http://localhost:4657)\n        \n- bearer_token: placed in the Authentication header as a bearer token and used by Inferno to recognize requests for a test session. This value will need to be entered in the Access Token input of the DTR SMART App test suite.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "38902712"
+	},
+	"item": [
+		{
+			"name": "Get Supported Payers",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {
+					"accept": true
+				}
+			},
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{local_url}}/custom/dtr_light_ehr/{{unique_url_id}}/supported-payers",
+					"host": [
+						"{{local_url}}"
+					],
+					"path": [
+						"custom",
+						"dtr_light_ehr",
+						"{{unique_url_id}}",
+						"supported-payers"
+					]
+				},
+				"description": "This is a GET request and it is used to \"get\" data from an endpoint. There is no request body for a GET request, but you can use query parameters to help specify the resource you want data on (e.g., in this request, we have `id=1`).\n\nA successful GET response will have a `200 OK` status, and should include some kind of response body - for example, HTML web content or JSON data."
+			},
+			"response": []
+		}
+	],
+	"auth": {
+		"type": "bearer"
+	},
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "https://inferno.healthit.gov/suites"
+		},
+		{
+			"key": "local_url",
+			"value": "http://localhost:4567",
+			"type": "string"
+		},
+		{
+			"key": "unique_url_id",
+			"value": "12345",
+			"type": "string"
+		}
+	]
+}
