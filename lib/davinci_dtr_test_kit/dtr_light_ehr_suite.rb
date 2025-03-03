@@ -54,6 +54,14 @@ module DaVinciDTRTestKit
 
     suite_endpoint :get, SUPPORTED_PAYER_PATH, LightEHRSupportedPayerEndpoint
 
+    resume_test_route :get, RESUME_PASS_PATH do |request|
+      request.query_parameters['token']
+    end
+
+    resume_test_route :get, RESUME_FAIL_PATH, result: 'fail' do |request|
+      request.query_parameters['token']
+    end
+
     group do
       title 'Authorization'
 

@@ -1,5 +1,8 @@
+require_relative '../../urls'
+
 module DaVinciDTRTestKit
   class DTRLightEHRSupportedPayersUseTest < Inferno::Test
+    include URLs
     id :dtr_light_ehr_sp_use
     title 'Demonstrate Use of the Supported Payers Response'
     description %(
@@ -18,8 +21,6 @@ module DaVinciDTRTestKit
           Demonstrate that when DTR is needed for a patient that is not covered by payers included in the
           supported payers list returned from the endpoint, launching Inferno's simulated DTR App
           is not an option.
-
-          > EHRs will use this information [from the supported payers endpoint] to determine whether to expose the ability to launch DTR for orders associated with coverages for that payer.
 
           [Click here](#{resume_pass_url}?token=#{identifier}) if the system **successfully** demonstrates this capability.
 
