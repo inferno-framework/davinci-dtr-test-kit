@@ -4,7 +4,7 @@ module DaVinciDTRTestKit
   class DTRLightEHRSupportedPayersEndpointTest < Inferno::Test
     include URLs
     id :dtr_light_ehr_sp_endpoint
-    title 'Client can request an app's supported payers list'
+    title 'Client can request an app\'s supported payers list'
     description %(
       This test verifies that the app can successfully access the supported payers endpoint via a GET request
     )
@@ -25,6 +25,8 @@ module DaVinciDTRTestKit
           ),
           optional: true,
           type: 'textarea'
+
+    verifies_requirements 'hl7.fhir.us.davinci-dtr_2.0.1@104', 'hl7.fhir.us.davinci-dtr_2.0.1@107'
 
     run do
       wait(

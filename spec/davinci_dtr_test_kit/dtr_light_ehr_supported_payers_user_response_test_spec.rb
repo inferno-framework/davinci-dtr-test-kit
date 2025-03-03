@@ -44,7 +44,7 @@ RSpec.describe DaVinciDTRTestKit::DTRLightEHRSupportedPayersUserResponseTest, :r
       }
 
       create_supported_payers_request(valid_user_response)
-      result = run(test, { unique_url_id:, user_response: valid_user_response.to_json })
+      result = run(test, { user_response: valid_user_response.to_json })
       expect(result.result).to eq('pass')
     end
 
@@ -56,14 +56,14 @@ RSpec.describe DaVinciDTRTestKit::DTRLightEHRSupportedPayersUserResponseTest, :r
       }
 
       create_supported_payers_request(invalid_user_response)
-      result = run(test, { unique_url_id:, user_response: invalid_user_response.to_json })
+      result = run(test, { user_response: invalid_user_response.to_json })
       expect(result.result).to eq('fail')
     end
 
-    it 'passes when no user response is provided' do
+    it 'omits when no user response is provided' do
       create_supported_payers_request
-      result = run(test, { unique_url_id: })
-      expect(result.result).to eq('pass')
+      result = run(test)
+      expect(result.result).to eq('omit')
     end
   end
 end
