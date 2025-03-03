@@ -10,7 +10,6 @@ module DaVinciDTRTestKit
     description %(
       Validate that the user can edit a pre-populated item and replace it with another value.
     )
-    verifies_requirements 'hl7.fhir.us.davinci-dtr_2.0.1@207'
 
     run do
       random_id = SecureRandom.uuid
