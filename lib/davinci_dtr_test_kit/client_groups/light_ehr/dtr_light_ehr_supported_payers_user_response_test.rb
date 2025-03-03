@@ -17,54 +17,35 @@ module DaVinciDTRTestKit
 
     input :user_response, type: :textarea, optional: true
 
-    def valid_response?(parsed_response)
-      if parsed_response.nil?
-        assert false, 'Response is nil.'
-        return false
-      end
+    def validate_response(parsed_response)
+      assert parsed_response.present?, 'User provided response is nil.'
 
       unless parsed_response.is_a?(Hash)
-        assert false, 'Response is not a valid JSON object (Hash expected).'
-        return false
-      end
-
-      unless parsed_response.key?('payers')
-        assert false, 'Response does not contain the required "payers" key.'
-        return false
+        add_message('error', 'Response is not a valid JSON object (Hash expected).')
+        return
       end
 
       unless parsed_response['payers'].is_a?(Array)
-        assert false, 'The "payers" key does not contain an array.'
-        return false
+        add_message('error', 'The "payers" field is not an array.')
+        return
       end
 
-      if parsed_response['payers'].empty?
-        assert false, 'The "payers" array is empty.'
-        return false
-      end
+      add_message('error', 'Response does not contain the required "payers" key.') unless parsed_response.key?('payers')
+      add_message('error', 'The "payers" field is an empty array.') if parsed_response['payers'].empty?
 
       parsed_response['payers'].each_with_index do |payer, index|
-        valid_payer?(payer, index)
+        validate_payer(payer, index)
       end
     end
 
-    def valid_payer?(payer, index)
+    def validate_payer(payer, index)
       unless payer.is_a?(Hash)
-        assert false, "Payer at index #{index} is not a valid JSON object (Hash expected)."
-        return false
+        add_message('error', "Payer at index #{index} is not a valid JSON object (Hash expected).")
+        return
       end
 
-      unless payer.key?('id')
-        assert false, "Payer at index #{index} does not contain the required 'id' key."
-        return false
-      end
-
-      unless payer.key?('name')
-        assert false, "Payer at index #{index} does not contain the required 'name' key."
-        return false
-      end
-
-      true
+      add_message('error', "Payer at index #{index} does not contain the required 'id' key.") unless payer.key?('id')
+      add_message('error', "Payer at index #{index} does not contain the required 'name' key.") unless payer['name']
     end
 
     run do
@@ -81,7 +62,8 @@ module DaVinciDTRTestKit
         assert false, 'User response is not valid JSON.'
       end
 
-      assert valid_response?(parsed_response), 'User response is invalid.'
+      validate_response(parsed_response)
+      assert messages.none? { |msg| msg[:type] == 'error' }, 'User response is invalid.'
       pass 'User response is present and valid.'
     end
   end
