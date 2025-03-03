@@ -1,9 +1,7 @@
-# lib/davinci_dtr_test_kit/client_groups/light_ehr/dtr_light_ehr_supported_payers_user_response_test.rb
 require_relative '../../urls'
 require_relative '../../tags'
 
 module DaVinciDTRTestKit
-  # noinspection RubyJumpError,RubyResolve
   class DTRLightEHRSupportedPayersUserResponseTest < Inferno::Test
     include URLs
     id :dtr_light_ehr_sp_user_response
@@ -20,18 +18,53 @@ module DaVinciDTRTestKit
     input :user_response, type: :textarea, optional: true
 
     def valid_response?(parsed_response)
-      return false if parsed_response.nil?
+      if parsed_response.nil?
+        assert false, 'Response is nil.'
+        return false
+      end
 
-      return false unless parsed_response.is_a?(Hash)
-      return false unless parsed_response.key?('payers')
-      return false unless parsed_response['payers'].is_a?(Array)
-      return false unless parsed_response['payers'].present?
+      unless parsed_response.is_a?(Hash)
+        assert false, 'Response is not a valid JSON object (Hash expected).'
+        return false
+      end
 
-      parsed_response['payers'].all? { |payer| valid_payer?(payer) }
+      unless parsed_response.key?('payers')
+        assert false, 'Response does not contain the required "payers" key.'
+        return false
+      end
+
+      unless parsed_response['payers'].is_a?(Array)
+        assert false, 'The "payers" key does not contain an array.'
+        return false
+      end
+
+      if parsed_response['payers'].empty?
+        assert false, 'The "payers" array is empty.'
+        return false
+      end
+
+      parsed_response['payers'].each_with_index do |payer, index|
+        valid_payer?(payer, index)
+      end
     end
 
-    def valid_payer?(payer)
-      payer.is_a?(Hash) && payer.key?('id') && payer.key?('name')
+    def valid_payer?(payer, index)
+      unless payer.is_a?(Hash)
+        assert false, "Payer at index #{index} is not a valid JSON object (Hash expected)."
+        return false
+      end
+
+      unless payer.key?('id')
+        assert false, "Payer at index #{index} does not contain the required 'id' key."
+        return false
+      end
+
+      unless payer.key?('name')
+        assert false, "Payer at index #{index} does not contain the required 'name' key."
+        return false
+      end
+
+      true
     end
 
     run do

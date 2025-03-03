@@ -48,10 +48,70 @@ RSpec.describe DaVinciDTRTestKit::DTRLightEHRSupportedPayersUserResponseTest, :r
       expect(result.result).to eq('pass')
     end
 
-    it 'fails when an invalid user response is provided' do
+    it 'fails when response is not a valid JSON object' do
+      invalid_user_response = '[]'
+
+      create_supported_payers_request(invalid_user_response)
+      result = run(test, { user_response: invalid_user_response })
+      expect(result.result).to eq('fail')
+    end
+
+    it 'fails when response does not contain the required "payers" key' do
+      invalid_user_response = {
+        not_payers: []
+      }
+
+      create_supported_payers_request(invalid_user_response)
+      result = run(test, { user_response: invalid_user_response.to_json })
+      expect(result.result).to eq('fail')
+    end
+
+    it 'fails when "payers" key does not contain an array' do
+      invalid_user_response = {
+        payers: 'not_an_array'
+      }
+
+      create_supported_payers_request(invalid_user_response)
+      result = run(test, { user_response: invalid_user_response.to_json })
+      expect(result.result).to eq('fail')
+    end
+
+    it 'fails when the "payers" array is empty' do
+      invalid_user_response = {
+        payers: []
+      }
+
+      create_supported_payers_request(invalid_user_response)
+      result = run(test, { user_response: invalid_user_response.to_json })
+      expect(result.result).to eq('fail')
+    end
+
+    it 'fails when a payer is not a valid JSON object' do
+      invalid_user_response = {
+        payers: ['not_a_hash']
+      }
+
+      create_supported_payers_request(invalid_user_response)
+      result = run(test, { user_response: invalid_user_response.to_json })
+      expect(result.result).to eq('fail')
+    end
+
+    it 'fails when a payer does not contain the required "id" key' do
       invalid_user_response = {
         payers: [
-          { id: 'payerA' } # Missing 'name' key
+          { name: 'Payer A' }
+        ]
+      }
+
+      create_supported_payers_request(invalid_user_response)
+      result = run(test, { user_response: invalid_user_response.to_json })
+      expect(result.result).to eq('fail')
+    end
+
+    it 'fails when a payer does not contain the required "name" key' do
+      invalid_user_response = {
+        payers: [
+          { id: 'payerA' }
         ]
       }
 
