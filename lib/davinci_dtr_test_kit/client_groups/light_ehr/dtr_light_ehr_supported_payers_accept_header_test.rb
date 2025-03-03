@@ -11,6 +11,8 @@ module DaVinciDTRTestKit
       includes an `Accept` HTTP header set to `application/json`.
     )
 
+    verifies_requirements 'hl7.fhir.us.davinci-dtr_2.0.1@108'
+
     run do
       load_tagged_requests(SUPPORTED_PAYER_TAG)
       accept_header = request.request_headers.find { |header| header.name.downcase == 'accept' }

@@ -26,6 +26,8 @@ module DaVinciDTRTestKit
           optional: true,
           type: 'textarea'
 
+    verifies_requirements 'hl7.fhir.us.davinci-dtr_2.0.1@104', 'hl7.fhir.us.davinci-dtr_2.0.1@107'
+
     run do
       wait(
         identifier: unique_url_id,
