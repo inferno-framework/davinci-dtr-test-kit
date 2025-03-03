@@ -6,7 +6,7 @@ module DaVinciDTRTestKit
     id :dtr_light_ehr_sp_config
     title 'Demonstrate supported payers configuration'
     description %(
-      During this test the capability of the light EHR under test to configure a supported
+      During this test, the tester will demonstrate the capability of the light EHR under test to configure a supported
       payers endpoint for Inferno's simulated DTR SMART App.
     )
 
