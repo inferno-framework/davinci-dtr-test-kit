@@ -13,6 +13,8 @@ module DaVinciDTRTestKit
       Note that the test requires that two questions be pre-populated so that both a pre-populated
       and an overridden answer can be demonstrated when the QuestionnaireResponse is generated.
     )
+    verifies_requirements 'hl7.fhir.us.davinci-dtr_2.0.1@207'
+
     run do
       random_id = SecureRandom.uuid
       wait(

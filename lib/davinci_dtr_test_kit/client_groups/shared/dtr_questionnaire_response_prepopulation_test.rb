@@ -22,7 +22,7 @@ module DaVinciDTRTestKit
     )
     verifies_requirements 'hl7.fhir.us.davinci-dtr_2.0.1@173', 'hl7.fhir.us.davinci-dtr_2.0.1@174',
                           'hl7.fhir.us.davinci-dtr_2.0.1@176', 'hl7.fhir.us.davinci-dtr_2.0.1@178',
-                          'hl7.fhir.us.davinci-dtr_2.0.1@179', 'hl7.fhir.us.davinci-dtr_2.0.1@188'
+                          'hl7.fhir.us.davinci-dtr_2.0.1@207'
 
     run do
       questionnaire_response_json = request.request_body

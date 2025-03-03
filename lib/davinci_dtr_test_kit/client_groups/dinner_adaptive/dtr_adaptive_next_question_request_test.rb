@@ -12,6 +12,7 @@ module DaVinciDTRTestKit
       Inferno will validate the request body and update the contained Questionnaire to include
       the next question or set of questions.
     )
+    verifies_requirements 'hl7.fhir.us.davinci-dtr_2.0.1@264'
 
     input :access_token
 
