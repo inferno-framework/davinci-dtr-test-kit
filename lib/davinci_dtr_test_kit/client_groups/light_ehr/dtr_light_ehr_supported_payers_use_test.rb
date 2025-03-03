@@ -4,7 +4,7 @@ module DaVinciDTRTestKit
   class DTRLightEHRSupportedPayersUseTest < Inferno::Test
     include URLs
     id :dtr_light_ehr_sp_use
-    title 'Demonstrate Use of the Supported Payers Response'
+    title 'Demonstrate use of the supported payers response'
     description %(
       During this test the tester will demonstrate the ability of the light EHR under test to use the response from
       the supported payers endpoint to suppress the launch of Inferno's simulated DTR SMART App for a patient
