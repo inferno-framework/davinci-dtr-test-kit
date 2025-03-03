@@ -5,10 +5,10 @@ module DaVinciDTRTestKit
   class DTRLightEHRSupportedPayersAcceptHeaderTest < Inferno::Test
     include URLs
     id :dtr_light_ehr_sp_accept_header
-    title 'Checks for a valid Accept header at the supported payer endpoint'
+    title 'Client uses the required Accept HTTP header value'
     description %(
-      This test verifies that the request to the supported payer endpoint
-      includes an Accept header set to application/json.
+      This test verifies that the request to the supported payers endpoint
+      includes an `Accept` HTTP header set to `application/json`.
     )
 
     run do

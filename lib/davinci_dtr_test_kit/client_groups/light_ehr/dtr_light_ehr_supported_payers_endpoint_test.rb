@@ -4,9 +4,9 @@ module DaVinciDTRTestKit
   class DTRLightEHRSupportedPayersEndpointTest < Inferno::Test
     include URLs
     id :dtr_light_ehr_sp_endpoint
-    title 'Client can retrieve payers from supported payer endpoint'
+    title 'Client can request an app's supported payers list'
     description %(
-      This test verifies that the app can successfully access the supported payer endpoint via a GET request
+      This test verifies that the app can successfully access the supported payers endpoint via a GET request
     )
     input :unique_url_id,
           title: 'Supported Payers Endpoint Path',
@@ -18,7 +18,10 @@ module DaVinciDTRTestKit
     input :user_response,
           title: 'Custom Supported Payers Response',
           description: %(
-            A response from the user for a payer information in JSON
+            If present, the value will be returned when the client makes a request to the supported payers endpoint,
+            allowing testers to instruct Inferno how to respond with payers that are configured in the
+            system under test. The provided response will be checked for conformance to the required
+            JSON structure. If not provided, Inferno will return a pre-configured value.
           ),
           optional: true,
           type: 'textarea'
@@ -32,8 +35,6 @@ module DaVinciDTRTestKit
           Inferno will wait for the Light EHR to to make a GET request to
 
           `#{supported_payer_url(unique_url_id)}`
-
-          Inferno will return the static payers json details
         )
       )
     end

@@ -8,7 +8,7 @@ module DaVinciDTRTestKit
     include URLs
     id :dtr_light_ehr_sp_user_response
     title %(
-      [USER INPUT VERIFICATION] Checks for a valid user response at the supported payer endpoint
+      [USER INPUT VERIFICATION] Tester-provided supported payers response is conformant
     )
     description %(
       This test verifies that the user-provided response conforms
@@ -17,7 +17,6 @@ module DaVinciDTRTestKit
       **Custom Supported Payers Response** input.
     )
 
-    input :unique_url_id, type: :text
     input :user_response, type: :textarea, optional: true
 
     def valid_response?(parsed_response)
@@ -36,12 +35,12 @@ module DaVinciDTRTestKit
     end
 
     run do
-      pass_if user_response.nil?, 'No user response provided, skipping validation and using default response.'
+      omit_if user_response.nil?, 'No user response provided, default response returned.'
 
       load_tagged_requests(SUPPORTED_PAYER_TAG)
       request_record = requests.first
 
-      assert request_record.present?, 'No request found with the SUPPORTED_PAYER_TAG.'
+      assert request_record.present?, 'No requests made to the supported payers endpoint.'
 
       begin
         parsed_response = JSON.parse(request_record.response_body)
