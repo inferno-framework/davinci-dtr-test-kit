@@ -10,6 +10,7 @@ module DaVinciDTRTestKit
     description %(
       Validate that the user can edit a pre-populated item and replace it with another value.
     )
+
     run do
       random_id = SecureRandom.uuid
       wait(

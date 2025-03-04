@@ -13,6 +13,8 @@ module DaVinciDTRTestKit
           automatically pre-populated, and manually overridden.
         - Contains answers for all required items.
     )
+    verifies_requirements 'hl7.fhir.us.davinci-dtr_2.0.1@209', 'hl7.fhir.us.davinci-dtr_2.0.1@210'
+
     input :custom_questionnaire_package_response,
           title: 'Custom Questionnaire Package Response JSON',
           description: %(

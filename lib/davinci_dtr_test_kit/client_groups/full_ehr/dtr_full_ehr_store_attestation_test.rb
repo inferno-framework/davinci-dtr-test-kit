@@ -11,6 +11,7 @@ module DaVinciDTRTestKit
       Attest that the questionnaire has been completed and the response has been persisted
       and can be exported as a FHIR QuestionnaireResponse instance.
     )
+
     run do
       random_id = SecureRandom.uuid
       wait(
