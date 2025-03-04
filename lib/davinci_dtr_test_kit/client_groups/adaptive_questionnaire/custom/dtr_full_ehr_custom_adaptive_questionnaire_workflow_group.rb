@@ -36,6 +36,7 @@ module DaVinciDTRTestKit
 
       At least two answers should be pre-populated across all sets of questions.
     )
+    config(options: { form_type: 'adaptive' })
 
     group do
       id :dtr_full_ehr_custom_adaptive_retrieval
@@ -52,15 +53,19 @@ module DaVinciDTRTestKit
             I attest that DTR has been launched in the context of a patient with data that will
             exercise pre-population logic in the provided adaptive questionnaire resulting in at
             least 2 pre-populated answers.
-          ),
-          form_type: 'adaptive'
+          )
         },
         inputs: {
           custom_questionnaire_package_response: {
-            name: 'custom_adaptive_questionnaire_package_response'
+            name: 'adaptive_custom_questionnaire_package_response',
+            description: %(
+              A JSON PackageBundle may be provided here to replace Inferno's response to
+              the $questionnaire-package request. Note: Ensure that the questionnaire package
+              has an empty Adaptive Questionnaire.
+            )
           },
           custom_next_question_questionnaire: {
-            name: 'custom_initial_next_question_questionnaire',
+            name: 'initial_custom_next_question_questionnaire',
             title: 'Custom Questionnaire resource to include in the initial $next-question Response'
           }
         }
@@ -81,6 +86,16 @@ module DaVinciDTRTestKit
              title: 'Launch DTR (Attestation)'
         # Test 1: wait for the $questionnaire-package request and initial $next-question request
         test from: :dtr_full_ehr_adaptive_questionnaire_request do
+          description %(
+            This test waits for two sequential client requests:
+
+            1. **Questionnaire Package Request**: The client should first invoke the `$questionnaire-package` operation
+            to retrieve the adaptive questionnaire package. Inferno will respond to this request with the user
+            provided empty adaptive questionnaire.
+
+            2. **Initial Next Question Request**: After receiving the package, the client should invoke the
+            `$next-question` operation. Inferno will respond by providing the user provided first set of questions.
+          )
           input :custom_questionnaire_package_response, :custom_next_question_questionnaire
         end
         # Test 2: validate the $questionnaire-package request body
@@ -99,14 +114,26 @@ module DaVinciDTRTestKit
         end
         # Test 5: validate the user provided $questionnaire-package response
         test from: :dtr_custom_questionnaire_package_validation
-        # Test 6: validate the user provided $next-question questionnaire
-        test from: :dtr_custom_next_questionnaire_validation
-        # Test 7: verify the custom response has the necessary libraries for pre-population
+        # Test 6: verify the custom response has the necessary libraries for pre-population
         test from: :dtr_custom_questionnaire_libraries
+        # Test 7: validate the user provided $next-question questionnaire
+        test from: :dtr_custom_next_questionnaire_validation
         # Test 8: verify the custom response has the necessaru extensions for pre-population
-        test from: :dtr_custom_questionnaire_extensions
+        test from: :dtr_custom_questionnaire_extensions do
+          title %(
+            [USER INPUT VERIFICATION] Custom Questionnaire for $next-question Response contain extensions
+            necessary for pre-population
+          )
+          input :custom_next_question_questionnaire
+        end
         # Test 9: verify custom response has necessary expressions for pre-population
-        test from: :dtr_custom_questionnaire_expressions
+        test from: :dtr_custom_questionnaire_expressions do
+          title %(
+            [USER INPUT VERIFICATION] Custom Questionnaire for $next-question Response contain items with
+            expressions necessary for pre-population
+          )
+          input :custom_next_question_questionnaire
+        end
       end
 
       group do
@@ -132,6 +159,12 @@ module DaVinciDTRTestKit
           accepts_multiple_requests: true,
           next_tag: "custom_followup_#{CLIENT_NEXT_TAG}",
           next_question_prompt_title: 'Follow-up Next Question Request'
+        },
+        inputs: {
+          custom_next_question_questionnaire: {
+            name: 'followup_custom_next_question_questionnaire',
+            title: 'Custom Questionnaire resource to include in the follow-up $next-question Response'
+          }
         }
       )
 

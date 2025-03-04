@@ -15,9 +15,16 @@ module DaVinciDTRTestKit
     end
 
     run do
-      skip_if scratch[:"#{form_type}_questionnaire_bundles"].blank?,
-              'No questionnaire bundle found in the custom response'
-      questionnaires = extract_questionnaires_from_bundles(scratch[:"#{form_type}_questionnaire_bundles"])
+      questionnaires = nil
+      if form_type == 'static'
+        skip_if scratch[:"#{form_type}_questionnaire_bundles"].blank?,
+                'No questionnaire bundle found in the custom response'
+        questionnaires = extract_questionnaires_from_bundles(scratch[:"#{form_type}_questionnaire_bundles"])
+      else
+        assert_valid_json custom_next_question_questionnaire, 'Custom $next-question Questionnaire is not valid JSON'
+        questionnaires = [FHIR.from_contents(custom_next_question_questionnaire)].compact
+      end
+
       verify_questionnaire_extensions(questionnaires)
     end
   end
