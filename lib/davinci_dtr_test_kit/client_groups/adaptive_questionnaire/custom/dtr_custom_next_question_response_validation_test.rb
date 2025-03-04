@@ -1,7 +1,7 @@
 module DaVinciDTRTestKit
   class DTRCustomNextQuestionResponseValidationTest < Inferno::Test
     id :dtr_custom_next_questionnaire_validation
-    title '[USER INPUT VERIFICATION] Custom Questionnaire for $next-question Response is valid'
+    title '[USER INPUT VERIFICATION] Custom Questionnaire for $next-question Response is valid for this workflow'
     description %(
       Inferno will validate that the user-provided Questionnaire resource to include in the
       `$next-question` response is correct for this workflow.
@@ -62,7 +62,7 @@ module DaVinciDTRTestKit
       contained_questionnaire = scratch[:contained_questionnaire]
       validate_correctness_of_custom_next_questionnaire(custom_questionnaire, contained_questionnaire)
 
-      assert messages.any? { |message| message[:type] == 'error' },
+      assert messages.none? { |message| message[:type] == 'error' },
              'Custom Questionnaire provided is not valid for this workflow'
     end
   end
