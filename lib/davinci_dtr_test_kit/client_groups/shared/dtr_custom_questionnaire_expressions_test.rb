@@ -5,7 +5,7 @@ module DaVinciDTRTestKit
 
     id :dtr_custom_questionnaire_expressions
     title %(
-      [USER INPUT VERIFICATION] Custom static questionnaire(s) contain items with expressions
+      [USER INPUT VERIFICATION] Custom questionnaire(s) contain items with expressions
       necessary for pre-population
     )
     description %(

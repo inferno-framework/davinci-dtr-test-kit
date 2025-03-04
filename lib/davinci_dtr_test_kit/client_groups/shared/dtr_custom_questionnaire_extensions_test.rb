@@ -4,7 +4,7 @@ module DaVinciDTRTestKit
     include DaVinciDTRTestKit::CQLTest
 
     id :dtr_custom_questionnaire_extensions
-    title '[USER INPUT VERIFICATION] Custom static questionnaire(s) contain extensions necessary for pre-population'
+    title '[USER INPUT VERIFICATION] Custom questionnaire(s) contain extensions necessary for pre-population'
     description %(
       Inferno checks that the custom response has appropriate extensions and references to libraries within
       those extensions.
