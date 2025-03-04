@@ -10,11 +10,12 @@ module DaVinciDTRTestKit
     description %(
       Validate that the user can edit the rendered form to provide answers, including
       - Providing an answer for an unanswered question.
-      - Overridding a pre-populated answer with a manual answer.
+      - Overriding a pre-populated answer with a manual answer.
 
       Note that at least one pre-populated answer must remain un-altered to demonstrate
-      its representaton in the resulting QuestionnaireResponse.
+      its representation in the resulting QuestionnaireResponse.
     )
+
     run do
       random_id = SecureRandom.uuid
       wait(
