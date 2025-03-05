@@ -36,7 +36,19 @@ module DaVinciDTRTestKit
 
       At least two answers should be pre-populated across all sets of questions.
     )
-    config(options: { form_type: 'adaptive' })
+    config(
+      options: { form_type: 'adaptive' },
+      inputs: {
+        custom_questionnaire_package_response: {
+          name: 'adaptive_custom_questionnaire_package_response',
+          description: %(
+              A JSON PackageBundle may be provided here to replace Inferno's response to
+              the $questionnaire-package request. Note: Ensure that the questionnaire package
+              has an empty Adaptive Questionnaire.
+            )
+        }
+      }
+    )
 
     group do
       id :dtr_full_ehr_custom_adaptive_retrieval
@@ -44,7 +56,6 @@ module DaVinciDTRTestKit
       description %()
       run_as_group
 
-      # input :custom_questionnaire_package_response, :custom_next_question_questionnaire
       input_order :access_token
 
       config(
@@ -56,14 +67,6 @@ module DaVinciDTRTestKit
           )
         },
         inputs: {
-          custom_questionnaire_package_response: {
-            name: 'adaptive_custom_questionnaire_package_response',
-            description: %(
-              A JSON PackageBundle may be provided here to replace Inferno's response to
-              the $questionnaire-package request. Note: Ensure that the questionnaire package
-              has an empty Adaptive Questionnaire.
-            )
-          },
           custom_next_question_questionnaire: {
             name: 'initial_custom_next_question_questionnaire',
             title: 'Custom Questionnaire resource to include in the initial $next-question Response'
@@ -169,13 +172,39 @@ module DaVinciDTRTestKit
       )
 
       # Test 1: wait for the $next-question request
-      test from: :dtr_adaptive_questionnaire_next_question_request
+      test from: :dtr_adaptive_questionnaire_next_question_request do
+        input :custom_next_question_questionnaire
+      end
       # Test 2: validate the $next-question request
       test from: :dtr_next_question_request_validation
       # Test 3: validate the QuestionnaireResponse in the input parameter
-      test from: :dtr_adaptive_questionnaire_response_validation
+      test from: :dtr_adaptive_questionnaire_response_validation do
+        description %(
+            Verify that the QuestionnaireResponse
+             - Is conformant to the [SDCQuestionnaireResponseAdapt](http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaireresponse-adapt).
+             - Has source extensions demonstrating answers that are manually entered,
+              automatically pre-populated, and manually overridden. (For `completed` QuestionnaireResponse)
+             - Contains answers for all required items.
+          )
+      end
       # Test 4: validate the user provided $next-question questionnaire
       test from: :dtr_custom_next_questionnaire_validation
+      # Test 5: verify the custom response has the necessaru extensions for pre-population
+      test from: :dtr_custom_questionnaire_extensions do
+        title %(
+          [USER INPUT VERIFICATION] Custom Questionnaire for $next-question Response contain extensions
+          necessary for pre-population
+        )
+        input :custom_questionnaire_package_response, :custom_next_question_questionnaire
+      end
+      # Test 6: verify custom response has necessary expressions for pre-population
+      test from: :dtr_custom_questionnaire_expressions do
+        title %(
+          [USER INPUT VERIFICATION] Custom Questionnaire for $next-question Response contain items with
+          expressions necessary for pre-population
+        )
+        input :custom_next_question_questionnaire
+      end
     end
 
     # This will be omited if custom questionnaire not provided
