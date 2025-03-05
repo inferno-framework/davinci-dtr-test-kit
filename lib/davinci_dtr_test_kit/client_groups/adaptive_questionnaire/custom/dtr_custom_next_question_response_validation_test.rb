@@ -27,6 +27,14 @@ module DaVinciDTRTestKit
           ),
           type: 'textarea'
 
+    def extract_link_ids(questionnaire_items)
+      questionnaire_items&.each_with_object([]) do |item, link_ids|
+        link_ids << item.linkId
+
+        link_ids.concat(extract_link_ids(item.item)) if item.item.present?
+      end
+    end
+
     def validate_correctness_of_custom_next_questionnaire(custom_questionnaire, contained_questionnaire)
       error_msg = %(
         Custom Questionnaire ID does not match the contained Questionnaire ID in
@@ -35,19 +43,20 @@ module DaVinciDTRTestKit
       )
       add_message('error', error_msg) if custom_questionnaire.id != contained_questionnaire.id
 
+      custom_items_link_ids = extract_link_ids(custom_questionnaire.item) || []
+      contained_items_link_ids = extract_link_ids(contained_questionnaire.item) || []
+      missing_items_ids = contained_items_link_ids - custom_items_link_ids
+
       error_msg = %(
         Custom Questionnaire must include all previous questions along with the next question or set of questions.
       )
-      add_message('error', error_msg) if custom_questionnaire.item.length <= contained_questionnaire.item.length
+      add_message('error', error_msg) if custom_items_link_ids.length <= contained_items_link_ids.length
 
-      custom_items = custom_questionnaire.to_hash['item'] || []
-      contained_items = contained_questionnaire.to_hash['item'] || []
-      missing_items = contained_items - custom_items
       error_msg = %(
         Custom Questionnaire must include all previous questions. The following items are missing:
-        `#{missing_items}`
+        questions with Link ID `#{missing_items_ids.to_sentence}`.
       )
-      add_message('error', error_msg) if missing_items.present?
+      add_message('error', error_msg) if missing_items_ids.present?
     end
 
     run do
