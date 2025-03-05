@@ -22,6 +22,9 @@ module DaVinciDTRTestKit
       to the bound ValueSet. Quantity, Coding, and code element bindings will fail if their code/system are not found in
       the valueset.
     )
+    verifies_requirements 'hl7.fhir.us.davinci-dtr_2.0.1@169', 'hl7.fhir.us.davinci-dtr_2.0.1@294',
+                          'hl7.fhir.us.davinci-dtr_2.0.1@303', 'hl7.fhir.us.davinci-dtr_2.0.1@305',
+                          'hl7.fhir.us.davinci-dtr_2.0.1@306'
     input :url
 
     run do
