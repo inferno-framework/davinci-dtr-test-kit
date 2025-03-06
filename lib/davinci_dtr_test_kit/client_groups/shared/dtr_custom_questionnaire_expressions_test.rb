@@ -18,6 +18,11 @@ module DaVinciDTRTestKit
     end
 
     run do
+      if respond_to?(:custom_next_question_questionnaire)
+        omit_if custom_next_question_questionnaire.blank?,
+                'Next question or set of questions not provided for this round'
+      end
+
       questionnaires = nil
       if form_type == 'static'
         skip_if scratch[:"#{form_type}_questionnaire_bundles"].blank?,

@@ -41,6 +41,7 @@ module DaVinciDTRTestKit
       inputs: {
         custom_questionnaire_package_response: {
           name: 'adaptive_custom_questionnaire_package_response',
+          title: 'Custom Questionnaire Package Response JSON for Adaptive form',
           description: %(
               A JSON PackageBundle may be provided here to replace Inferno's response to
               the $questionnaire-package request. Note: Ensure that the questionnaire package
@@ -207,7 +208,7 @@ module DaVinciDTRTestKit
       end
     end
 
-    # This will be omited if custom questionnaire not provided
+    # This will be skipped if custom questionnaire not provided
     group do
       id :dtr_full_ehr_custom_adaptive_followup_questions_2
       title 'Retrieving the Next Question (Round 3)'
@@ -216,19 +217,49 @@ module DaVinciDTRTestKit
       config(
         options: {
           accepts_multiple_requests: true,
-          next_tag: "custom_followup_#{CLIENT_NEXT_TAG}",
+          next_tag: "custom_followup2_#{CLIENT_NEXT_TAG}",
           next_question_prompt_title: 'Follow-up Next Question Request'
+        },
+        inputs: {
+          custom_next_question_questionnaire: {
+            name: 'followup2_custom_next_question_questionnaire',
+            title: 'Custom Questionnaire resource to include in the Response of the third $next-question Request'
+          }
         }
       )
+      input :custom_questionnaire_package_response, optional: true, type: 'textarea'
+      input :custom_next_question_questionnaire, optional: true
 
       # Test 1: wait for the $next-question request
       test from: :dtr_adaptive_questionnaire_next_question_request
       # Test 2: validate the $next-question request
       test from: :dtr_next_question_request_validation
       # Test 3: validate the QuestionnaireResponse in the input parameter
-      test from: :dtr_adaptive_questionnaire_response_validation
+      test from: :dtr_adaptive_questionnaire_response_validation do
+        description %(
+            Verify that the QuestionnaireResponse
+             - Is conformant to the [SDCQuestionnaireResponseAdapt](http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaireresponse-adapt).
+             - Has source extensions demonstrating answers that are manually entered,
+              automatically pre-populated, and manually overridden. (For `completed` QuestionnaireResponse)
+             - Contains answers for all required items.
+          )
+      end
       # Test 4: validate the user provided $next-question questionnaire
       test from: :dtr_custom_next_questionnaire_validation
+      # Test 5: verify the custom response has the necessaru extensions for pre-population
+      test from: :dtr_custom_questionnaire_extensions do
+        title %(
+          [USER INPUT VERIFICATION] Custom Questionnaire for $next-question Response contain extensions
+          necessary for pre-population
+        )
+      end
+      # Test 6: verify custom response has necessary expressions for pre-population
+      test from: :dtr_custom_questionnaire_expressions do
+        title %(
+          [USER INPUT VERIFICATION] Custom Questionnaire for $next-question Response contain items with
+          expressions necessary for pre-population
+        )
+      end
     end
 
     group do

@@ -60,7 +60,7 @@ module DaVinciDTRTestKit
     end
 
     run do
-      omit_if custom_next_question_questionnaire.blank?, 'Next question or set of questions not provided'
+      omit_if custom_next_question_questionnaire.blank?, 'Next question or set of questions not provided for this round'
       skip_if scratch[:contained_questionnaire].blank?, %(
         Unable to validate next questionnaire provided: could not find a contained
         questionnaire in the $next-question request.
