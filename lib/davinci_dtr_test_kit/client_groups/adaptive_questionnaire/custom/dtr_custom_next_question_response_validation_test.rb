@@ -68,6 +68,9 @@ module DaVinciDTRTestKit
       assert_valid_json custom_next_question_questionnaire, 'Custom $next-question Questionnaire is not valid JSON'
 
       custom_questionnaire = FHIR.from_contents(custom_next_question_questionnaire)
+      assert custom_questionnaire, 'The custom Questionnaire input provided is not a valid FHIR resource'
+      assert_resource_type(:questionnaire, resource: custom_questionnaire)
+
       contained_questionnaire = scratch[:contained_questionnaire]
       validate_correctness_of_custom_next_questionnaire(custom_questionnaire, contained_questionnaire)
 
