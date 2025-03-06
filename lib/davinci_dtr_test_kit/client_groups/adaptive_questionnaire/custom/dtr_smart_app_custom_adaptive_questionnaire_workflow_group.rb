@@ -31,7 +31,7 @@ module DaVinciDTRTestKit
       4. Request the next set of questions using the $next-question operation and support the tester in completing
          the second set of questions.
       5. Repeat step 4 if three responses to the `$next-question` request were provided.
-      6.Provide the completed QuestionnaireResponse with appropriate indicators for pre-populated
+      6. Provide the completed QuestionnaireResponse with appropriate indicators for pre-populated
          and manually-entered data.
 
       At least two answers should be pre-populated across all sets of questions.
