@@ -9,7 +9,7 @@ require_relative '../../shared/dtr_questionnaire_response_pre_population_test'
 module DaVinciDTRTestKit
   class DTRSmartAppAdaptiveDinnerQuestionnaireWorkflowGroup < Inferno::TestGroup
     id :dtr_smart_app_adaptive_dinner_questionnaire_workflow
-    title 'Adaptive Questionnaire Workflow'
+    title 'Dinner Order Adaptive Questionnaire Workflow'
     description %(
       This test validates that a DTR SMART App client can perform a full DTR Adaptive Questionnaire workflow
       using a mocked questionnaire requesting what a patient wants for dinner. The client system must
