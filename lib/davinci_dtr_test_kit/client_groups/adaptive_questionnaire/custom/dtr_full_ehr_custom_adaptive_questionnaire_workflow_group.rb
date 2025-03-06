@@ -191,7 +191,7 @@ module DaVinciDTRTestKit
       end
     end
 
-    # This will be skipped if custom questionnaire not provided
+    # This will be omitted if custom questionnaire not provided
     group do
       id :dtr_full_ehr_custom_adaptive_followup_questions_2
       title 'Retrieving the Next Question (Round 3)'
@@ -242,6 +242,14 @@ module DaVinciDTRTestKit
           [USER INPUT VERIFICATION] Custom Questionnaire for $next-question Response contain items with
           expressions necessary for pre-population
         )
+      end
+
+      # Customize group result
+      run do
+        test1_result = results[tests.first.id].result
+        omit_if test1_result == 'omit', 'Omitted: No next question or set of questions provided for this round.'
+        skip_if(results.any? { |result| result.result == 'skip' })
+        assert(results.all? { |result| result.result == 'pass' })
       end
     end
 
