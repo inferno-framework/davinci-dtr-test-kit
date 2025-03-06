@@ -65,7 +65,8 @@ module DaVinciDTRTestKit
             I attest that DTR has been launched in the context of a patient with data that will
             exercise pre-population logic in the provided adaptive questionnaire resulting in at
             least 2 pre-populated answers.
-          )
+          ),
+          next_tag: "custom_initial_#{CLIENT_NEXT_TAG}"
         },
         inputs: {
           custom_next_question_questionnaire: {
@@ -75,81 +76,63 @@ module DaVinciDTRTestKit
         }
       )
 
-      group do
-        title 'Adaptive Questionnaire Package and Initial Questions Retrieval'
-        config(options: { next_tag: "custom_initial_#{CLIENT_NEXT_TAG}" })
-        run_as_group
-
-        # Test 0: attest to launch
-        test from: :dtr_full_ehr_launch_attestation,
-             config: {
-               options: {
-                 attestation_message: 'I attest that DTR has been launched in the context of a patient with data that will exercise pre-population logic in the provided static questionnaire resulting in at least 2 pre-populated answers.' # rubocop:disable Layout/LineLength
-               }
-             },
-             title: 'Launch DTR (Attestation)'
-        # Test 1: wait for the $questionnaire-package request and initial $next-question request
-        test from: :dtr_full_ehr_adaptive_questionnaire_request do
-          description %(
-            This test waits for two sequential client requests:
-
-            1. **Questionnaire Package Request**: The client should first invoke the `$questionnaire-package` operation
-            to retrieve the adaptive questionnaire package. Inferno will respond to this request with the user
-            provided empty adaptive questionnaire.
-
-            2. **Initial Next Question Request**: After receiving the package, the client should invoke the
-            `$next-question` operation. Inferno will respond by providing the user provided first set of questions.
-          )
-          input :custom_questionnaire_package_response, :custom_next_question_questionnaire
-        end
-        # Test 2: validate the $questionnaire-package request body
-        test from: :dtr_questionnaire_package_request_validation
-        # Test 3: validate the $next-question request body
-        test from: :dtr_next_question_request_validation
-        # Test 4: validate the QuestionnaireResponse in the input parameter
-        test from: :dtr_adaptive_questionnaire_response_validation do
-          description %(
-            Verify that the QuestionnaireResponse
-             - Is conformant to the [SDCQuestionnaireResponseAdapt](http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaireresponse-adapt).
-             - Has source extensions demonstrating answers that are manually entered,
-              automatically pre-populated, and manually overridden. (For `completed` QuestionnaireResponse)
-             - Contains answers for all required items.
-          )
-        end
-        # Test 5: validate the user provided $questionnaire-package response
-        test from: :dtr_custom_questionnaire_package_validation
-        # Test 6: verify the custom response has the necessary libraries for pre-population
-        test from: :dtr_custom_questionnaire_libraries
-        # Test 7: validate the user provided $next-question questionnaire
-        test from: :dtr_custom_next_questionnaire_validation
-        # Test 8: verify the custom response has the necessaru extensions for pre-population
-        test from: :dtr_custom_questionnaire_extensions do
-          title %(
-            [USER INPUT VERIFICATION] Custom Questionnaire for $next-question Response contain extensions
-            necessary for pre-population
-          )
-          input :custom_next_question_questionnaire
-        end
-        # Test 9: verify custom response has necessary expressions for pre-population
-        test from: :dtr_custom_questionnaire_expressions do
-          title %(
-            [USER INPUT VERIFICATION] Custom Questionnaire for $next-question Response contain items with
-            expressions necessary for pre-population
-          )
-          input :custom_next_question_questionnaire
-        end
-      end
-
-      group do
-        title 'Filling Out the Questionnaire'
+      # Test 0: attest to launch
+      test from: :dtr_full_ehr_launch_attestation,
+           config: {
+             options: {
+               attestation_message: 'I attest that DTR has been launched in the context of a patient with data that will exercise pre-population logic in the provided static questionnaire resulting in at least 2 pre-populated answers.' # rubocop:disable Layout/LineLength
+             }
+           },
+           title: 'Launch DTR (Attestation)'
+      # Test 1: wait for the $questionnaire-package request and initial $next-question request
+      test from: :dtr_full_ehr_adaptive_questionnaire_request do
         description %(
-          The tester will interact with the questionnaire within their client system
-          such that pre-population steps are taken, the qustionnaire is rendered, and
-          they are able to fill it out. The tester will attest that questionnaire pre-population
-          and rendering directives were followed.
+          This test waits for two sequential client requests:
+
+          1. **Questionnaire Package Request**: The client should first invoke the `$questionnaire-package` operation
+          to retrieve the adaptive questionnaire package. Inferno will respond to this request with the user
+          provided empty adaptive questionnaire.
+
+          2. **Initial Next Question Request**: After receiving the package, the client should invoke the
+          `$next-question` operation. Inferno will respond by providing the user provided first set of questions.
         )
-        test from: :dtr_prepopulation_attestation
-        test from: :dtr_prepopulation_override_attestation
+        input :custom_questionnaire_package_response, :custom_next_question_questionnaire
+      end
+      # Test 2: validate the $questionnaire-package request body
+      test from: :dtr_questionnaire_package_request_validation
+      # Test 3: validate the $next-question request body
+      test from: :dtr_next_question_request_validation
+      # Test 4: validate the QuestionnaireResponse in the input parameter
+      test from: :dtr_adaptive_questionnaire_response_validation do
+        description %(
+          Verify that the QuestionnaireResponse
+            - Is conformant to the [SDCQuestionnaireResponseAdapt](http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaireresponse-adapt).
+            - Has source extensions demonstrating answers that are manually entered,
+            automatically pre-populated, and manually overridden. (For `completed` QuestionnaireResponse)
+            - Contains answers for all required items.
+        )
+      end
+      # Test 5: validate the user provided $questionnaire-package response
+      test from: :dtr_custom_questionnaire_package_validation
+      # Test 6: verify the custom response has the necessary libraries for pre-population
+      test from: :dtr_custom_questionnaire_libraries
+      # Test 7: validate the user provided $next-question questionnaire
+      test from: :dtr_custom_next_questionnaire_validation
+      # Test 8: verify the custom response has the necessaru extensions for pre-population
+      test from: :dtr_custom_questionnaire_extensions do
+        title %(
+          [USER INPUT VERIFICATION] Custom Questionnaire for $next-question Response contain extensions
+          necessary for pre-population
+        )
+        input :custom_next_question_questionnaire
+      end
+      # Test 9: verify custom response has necessary expressions for pre-population
+      test from: :dtr_custom_questionnaire_expressions do
+        title %(
+          [USER INPUT VERIFICATION] Custom Questionnaire for $next-question Response contain items with
+          expressions necessary for pre-population
+        )
+        input :custom_next_question_questionnaire
       end
     end
 
@@ -282,6 +265,23 @@ module DaVinciDTRTestKit
       test from: :dtr_next_question_request_validation
       # Test 3: validate the QuestionnaireResponse in the input parameter
       test from: :dtr_adaptive_questionnaire_response_validation
+    end
+
+    group do
+      title 'Attestation: Questionnaire Pre-Population and Rendering'
+      description %(
+        This group verifies that the tester has properly followed pre-population and rendering
+        directives while interacting with and filling out the questionnaire.
+
+        After retrieving and completing the questionnaire in their client system, the tester will
+        attest that:
+        1. The questionnaire was pre-populated as expected, with at least two answers pre-populated
+          across all sets of questions.
+        2. The questionnaire was rendered correctly according to its defined structure.
+        3. They were able to manually enter responses, including overriding pre-populated answers.
+      )
+      test from: :dtr_prepopulation_attestation
+      test from: :dtr_prepopulation_override_attestation
     end
   end
 end
