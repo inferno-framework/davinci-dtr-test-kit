@@ -9,6 +9,7 @@ module DaVinciDTRTestKit
       Inferno checks that the payer server response to $next-question operation has appropriate expressions and that
       expressions are written in cql.
     )
+    verifies_requirements 'hl7.fhir.us.davinci-dtr_2.0.1@64'
 
     run do
       skip_if retrieval_method == 'Static', 'Performing only static flow tests - only one flow is required.'

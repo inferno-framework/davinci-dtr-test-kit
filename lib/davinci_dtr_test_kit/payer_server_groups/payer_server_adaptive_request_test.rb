@@ -8,6 +8,8 @@ module DaVinciDTRTestKit
       Inferno will wait for a DTR questionnaire package request from the client. Upon receipt, Inferno will generate and
       send a response.
     )
+    verifies_requirements 'hl7.fhir.us.davinci-dtr_2.0.1@239', 'hl7.fhir.us.davinci-dtr_2.0.1@292'
+
     id :payer_server_questionnaire_request
     config options: { accepts_multiple_requests: true }
 

@@ -6,7 +6,7 @@ module DaVinciDTRTestKit
     title 'Validate that the adaptive response contains valid Questionnaire Bundle resources'
     description %(
       This test ensures that the payer's response includes a resource that conforms to the the
-      [DTR Quesitonnaire Bundle](http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/DTR-QPackageBundle)
+      [DTR Questionnaire Bundle](http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/DTR-QPackageBundle)
       structure.
 
       It verifies the presence of mandatory elements and that elements with required bindings contain appropriate
@@ -17,6 +17,7 @@ module DaVinciDTRTestKit
       This test may process multiple resources, labeling messages with the corresponding tested resources
       in the order that they were received.
     )
+    verifies_requirements 'hl7.fhir.us.davinci-dtr_2.0.1@303'
 
     run do
       skip_if retrieval_method == 'Static', 'Performing only static flow tests - only one flow is required.'

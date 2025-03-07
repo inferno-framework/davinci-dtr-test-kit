@@ -17,15 +17,20 @@ module DaVinciDTRTestKit
       This test may process multiple resources, labeling messages with the corresponding tested resources
       in the order that they were received.
     )
+    verifies_requirements 'hl7.fhir.us.davinci-dtr_2.0.1@37'
 
     run do
-      skip_if retrieval_method == 'Static', 'Performing only static flow tests - only one flow is required.'
+      skip_if retrieval_method == 'Static',
+              'Performing only static flow tests - only one flow is required.'
       test_passed = true
       profile_url = 'http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/dtr-questionnaire-adapt-search|2.0.1'
-      assert scratch[:adaptive_questionnaire_bundles].present?, 'No questionnaire bundles to validate.'
+      assert scratch[:adaptive_questionnaire_bundles].present?,
+             'No questionnaire bundles to validate.'
 
       questionnaires = scratch[:adaptive_questionnaire_bundles].filter_map do |bundle|
-        bundle.entry&.filter_map { |entry| entry.resource if entry.resource&.resourceType == 'Questionnaire' }
+        bundle.entry&.filter_map do |entry|
+          entry.resource if entry.resource&.resourceType == 'Questionnaire'
+        end
       end&.flatten&.compact
 
       assert questionnaires&.any?, 'No adaptive questionnaires to validate.'
