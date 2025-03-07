@@ -5,6 +5,7 @@ module DaVinciDTRTestKit
     description %(
       This test validates that in the sequence of adaptive responses, one includes a "completed" status.
     )
+    verifies_requirements 'hl7.fhir.us.davinci-dtr_2.0.1@219'
 
     run do
       skip_if retrieval_method == 'Static', 'Performing only static flow tests - only one flow is required.'

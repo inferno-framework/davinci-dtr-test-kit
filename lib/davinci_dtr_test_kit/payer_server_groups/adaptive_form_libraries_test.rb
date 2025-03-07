@@ -9,6 +9,9 @@ module DaVinciDTRTestKit
       Inferno check that the payer response contains no duplicate library names
        and that libraries contain cql and elm data.
     )
+    verifies_requirements 'hl7.fhir.us.davinci-dtr_2.0.1@84', 'hl7.fhir.us.davinci-dtr_2.0.1@95',
+                          'hl7.fhir.us.davinci-dtr_2.0.1@96', 'hl7.fhir.us.davinci-dtr_2.0.1@99',
+                          'hl7.fhir.us.davinci-dtr_2.0.1@101', 'hl7.fhir.us.davinci-dtr_2.0.1@102'
 
     run do
       skip_if retrieval_method == 'Static', 'Performing only static flow tests - only one flow is required.'
