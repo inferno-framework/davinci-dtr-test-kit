@@ -1,8 +1,8 @@
-require_relative '../../smart_app/dtr_smart_app_adaptive_questionnaire_request_test'
+require_relative '../../smart_app/dtr_smart_app_adaptive_request_test'
 require_relative '../../shared/dtr_questionnaire_package_request_validation_test'
-require_relative '../dtr_adaptive_questionnaire_next_question_request_test'
-require_relative '../dtr_adaptive_questionnaire_next_question_request_validation_test'
-require_relative '../dtr_adaptive_questionnaire_response_validation_test'
+require_relative '../dtr_adaptive_next_question_request_test'
+require_relative '../dtr_adaptive_next_question_request_validation_test'
+require_relative '../dtr_adaptive_response_validation_test'
 require_relative '../../shared/dtr_custom_questionnaire_package_validation_test'
 require_relative '../../shared/dtr_custom_questionnaire_libraries_test'
 require_relative '../../shared/dtr_custom_questionnaire_extensions_test'
@@ -11,7 +11,7 @@ require_relative 'dtr_custom_next_question_response_validation_test'
 require_relative '../../shared/dtr_prepopulation_attestation_test'
 require_relative '../../shared/dtr_prepopulation_override_attestation_test'
 require_relative '../../smart_app/dtr_smart_app_saving_questionnaire_response_group'
-require_relative '../../shared/dtr_questionnaire_response_pre_population_test'
+require_relative '../../shared/dtr_questionnaire_response_prepopulation_test'
 
 module DaVinciDTRTestKit
   class DTRSmartAppCustomAdaptiveQuestionnaireWorkflowGroup < Inferno::TestGroup
@@ -74,7 +74,7 @@ module DaVinciDTRTestKit
       )
 
       # Test 1: wait for the $questionnaire-package request and initial $next-question request
-      test from: :dtr_smart_app_adaptive_questionnaire_request do
+      test from: :dtr_smart_app_adaptive_request do
         description %(
           This test waits for two sequential client requests:
 
@@ -88,11 +88,11 @@ module DaVinciDTRTestKit
         input :custom_questionnaire_package_response, :custom_next_question_questionnaire
       end
       # Test 2: validate the $questionnaire-package request body
-      test from: :dtr_questionnaire_package_request_validation
+      test from: :dtr_qp_request_validation
       # Test 3: validate the $next-question request body
-      test from: :dtr_next_question_request_validation
+      test from: :dtr_adaptive_next_question_request_validation
       # Test 4: validate the QuestionnaireResponse in the input parameter
-      test from: :dtr_adaptive_questionnaire_response_validation do
+      test from: :dtr_adaptive_response_validation do
         description %(
           Verify that the QuestionnaireResponse
             - Is conformant to the [SDCQuestionnaireResponseAdapt](http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaireresponse-adapt).
@@ -102,7 +102,7 @@ module DaVinciDTRTestKit
         )
       end
       # Test 5: validate the user provided $questionnaire-package response
-      test from: :dtr_custom_questionnaire_package_validation
+      test from: :dtr_custom_qp_validation
       # Test 6: verify the custom response has the necessary libraries for pre-population
       test from: :dtr_custom_questionnaire_libraries
       # Test 7: validate the user provided $next-question questionnaire
@@ -146,13 +146,13 @@ module DaVinciDTRTestKit
       )
 
       # Test 1: wait for the $next-question request
-      test from: :dtr_adaptive_questionnaire_next_question_request do
+      test from: :dtr_adaptive_next_question_request do
         input :custom_next_question_questionnaire
       end
       # Test 2: validate the $next-question request
-      test from: :dtr_next_question_request_validation
+      test from: :dtr_adaptive_next_question_request_validation
       # Test 3: validate the QuestionnaireResponse in the input parameter
-      test from: :dtr_adaptive_questionnaire_response_validation do
+      test from: :dtr_adaptive_response_validation do
         description %(
             Verify that the QuestionnaireResponse
              - Is conformant to the [SDCQuestionnaireResponseAdapt](http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaireresponse-adapt).
@@ -205,11 +205,11 @@ module DaVinciDTRTestKit
       input :custom_next_question_questionnaire, optional: true
 
       # Test 1: wait for the $next-question request
-      test from: :dtr_adaptive_questionnaire_next_question_request
+      test from: :dtr_adaptive_next_question_request
       # Test 2: validate the $next-question request
-      test from: :dtr_next_question_request_validation
+      test from: :dtr_adaptive_next_question_request_validation
       # Test 3: validate the QuestionnaireResponse in the input parameter
-      test from: :dtr_adaptive_questionnaire_response_validation do
+      test from: :dtr_adaptive_response_validation do
         description %(
             Verify that the QuestionnaireResponse
              - Is conformant to the [SDCQuestionnaireResponseAdapt](http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaireresponse-adapt).
@@ -262,11 +262,11 @@ module DaVinciDTRTestKit
       )
 
       # Test 1: wait for the $next-question request
-      test from: :dtr_adaptive_questionnaire_next_question_request
+      test from: :dtr_adaptive_next_question_request
       # Test 2: validate the $next-question request
-      test from: :dtr_next_question_request_validation
+      test from: :dtr_adaptive_next_question_request_validation
       # Test 3: validate the QuestionnaireResponse in the input parameter
-      test from: :dtr_adaptive_questionnaire_response_validation
+      test from: :dtr_adaptive_response_validation
     end
 
     group do
@@ -282,11 +282,11 @@ module DaVinciDTRTestKit
         2. The questionnaire was rendered correctly according to its defined structure.
         3. They were able to manually enter responses, including overriding pre-populated answers.
       )
-      test from: :dtr_prepopulation_attestation
-      test from: :dtr_prepopulation_override_attestation
+      test from: :dtr_prepopulation_attest
+      test from: :dtr_prepopulation_override_attest
     end
 
-    group from: :dtr_smart_app_saving_questionnaire_response do
+    group from: :dtr_smart_app_saving_qr do
       config(
         options: {
           custom: true,
@@ -295,7 +295,7 @@ module DaVinciDTRTestKit
         }
       )
 
-      test from: :dtr_questionnaire_response_pre_population,
+      test from: :dtr_qr_prepopulation,
            uses_request: :questionnaire_response_save,
            description: %(
             The tester will complete the questionnaire such that a QuestionnaireResponse is
