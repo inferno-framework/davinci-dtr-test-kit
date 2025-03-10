@@ -142,7 +142,7 @@ GEM
       mutex_m
     i18n (1.14.7)
       concurrent-ruby (~> 1.0)
-    inferno_core (0.6.5)
+    inferno_core (0.6.4)
       activesupport (~> 6.1.7.5)
       base62-rb (= 0.3.1)
       blueprinter (= 0.25.2)
@@ -352,6 +352,7 @@ DEPENDENCIES
   davinci_dtr_test_kit!
   debug
   factory_bot (~> 6.1)
+  inferno_core (= 0.6.4)
   rack-test (~> 1.1.0)
   rspec (~> 3.10)
   rubocop (~> 1.9)
