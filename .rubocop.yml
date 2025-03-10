@@ -53,6 +53,9 @@ Metrics/ModuleLength:
 Metrics/PerceivedComplexity:
   Enabled: false
 
+Naming/VariableNumber:
+  Enabled: false
+
 # Metrics/CyclomaticComplexity:
 #   Max: 10
 

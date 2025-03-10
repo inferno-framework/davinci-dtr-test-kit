@@ -1,14 +1,14 @@
-require_relative '../../tags'
+require_relative '../../../tags'
 require_relative 'dtr_full_ehr_adaptive_initial_retrieval_group'
-require_relative '../full_ehr/dtr_full_ehr_prepopulation_attestation_test'
-require_relative '../full_ehr/dtr_full_ehr_prepopulation_override_attestation_test'
+require_relative '../../full_ehr/dtr_full_ehr_prepopulation_attestation_test'
+require_relative '../../full_ehr/dtr_full_ehr_prepopulation_override_attestation_test'
 require_relative 'dtr_adaptive_followup_questions_group'
 require_relative 'dtr_adaptive_completion_group'
 
 module DaVinciDTRTestKit
   class DTRFullEHRAdaptiveDinnerWorkflowGroup < Inferno::TestGroup
     id :dtr_full_ehr_adaptive_dinner_workflow
-    title 'Adaptive Questionnaire Workflow'
+    title 'Dinner Order Adaptive Questionnaire Workflow'
     description %(
       This test validates that a DTR Full EHR client can perform a full DTR Adaptive Questionnaire workflow
       using a mocked questionnaire requesting what a patient wants for dinner. The client system must
