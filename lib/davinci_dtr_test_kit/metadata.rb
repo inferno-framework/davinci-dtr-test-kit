@@ -3,7 +3,7 @@ require_relative 'version'
 module DaVinciDTRTestKit
   class Metadata < Inferno::TestKit
     id :davinci_dtr_test_kit
-    title 'DDa Vinci Documentation Templates and Rules (DTR) Test Kit'
+    title 'Da Vinci Documentation Templates and Rules (DTR) Test Kit'
     description <<~DESCRIPTION
       The Da Vinci Documentation Templates and Rules (DTR) Test Kit validates
       the conformance of DTR SMART app client and payer server implementations to
