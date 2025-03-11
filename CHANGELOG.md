@@ -1,3 +1,10 @@
+# v0.15.1
+* FI-3463: DTR Light EHR: test supported payer endpoint by @degradification in https://github.com/inferno-framework/davinci-dtr-test-kit/pull/42
+* Fi-3766: Add Full DTR EHR verifies requirements by @elsaperelli in https://github.com/inferno-framework/davinci-dtr-test-kit/pull/57
+* FI-3800: Add Payer Server verifies_requirements by @elsaperelli in https://github.com/inferno-framework/davinci-dtr-test-kit/pull/59
+* Fix typo in metadata title by @Shaumik-Ashraf in https://github.com/inferno-framework/davinci-dtr-test-kit/pull/61
+
+
 # v0.15.0
 * **Ruby Version Update:** Upgraded Ruby to `3.3.6`.
 * **Inferno Core Update:** Bumped to version `0.6`.
