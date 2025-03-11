@@ -1,29 +1,33 @@
 module DaVinciDTRTestKit
   class DTRCustomNextQuestionResponseValidationTest < Inferno::Test
     id :dtr_custom_next_questionnaire_validation
-    title '[USER INPUT VERIFICATION] Custom Questionnaire for $next-question Response is valid for this workflow'
+    title '[USER INPUT VERIFICATION] Custom Questionnaires for $next-question Responses is valid for this workflow'
     description %(
-      Inferno will validate that the user-provided Questionnaire resource to include in the
-      `$next-question` response is correct for this workflow.
+      Inferno will validate that the user-provided Questionnaire resources to be included in
+      each `$next-question` response are correct for this workflow.
 
       The test verifies that:
-      1. The custom Questionnaire has the same ID as the contained Questionnaire in the
-        QuestionnaireResponse of the `$next-question` request.
-      2. The custom Questionnaire includes all previously presented questions along with
-        the next question or set of questions.
+      1. All provided Questionnaires have the same ID as the contained Questionnaire in the
+         `QuestionnaireResponse` of the `$next-question` request.
+      2. Each provided Questionnaire includes all previously presented questions along with
+         the next question or set of questions.
 
       If any of these conditions are not met, the test will fail.
     )
 
-    input :custom_next_question_questionnaire,
-          title: 'Custom Questionnaire resource to include in the $next-question Response',
+    input :custom_next_question_questionnaires,
+          title: 'Custom Questionnaire resources to include in each $next-question Response',
           description: %(
-            A JSON Questionnaire resource may be provided here for Inferno to use when updating
-            the contained Questionnaire in the QuestionnaireResponse received in the
-            `$next-question` request. Inferno will replace the contained Questionnaire
-            with the provided resource before returning the updated QuestionnaireResponse
-            in the response. The provided Questionnaire must contain the next question
-            or set of questions.
+            Provide a JSON list of Questionnaire resources for Inferno to use when updating
+            the contained Questionnaire in the `QuestionnaireResponse` received in each
+            `$next-question` request.
+
+            Each `$next-question` request will correspond to the next item in the provided list,
+            and Inferno will replace the contained Questionnaire with the corresponding resource
+            before returning the updated `QuestionnaireResponse`.
+
+            The provided Questionnaires must contain the next question or set of questions in
+            sequence, ensuring a proper progression of the adaptive questionnaire workflow.
           ),
           type: 'textarea'
 
@@ -60,12 +64,12 @@ module DaVinciDTRTestKit
     end
 
     run do
-      omit_if custom_next_question_questionnaire.blank?, 'Next question or set of questions not provided for this round'
-      skip_if scratch[:contained_questionnaire].blank?, %(
-        Unable to validate next questionnaire provided: could not find a contained
+      # omit_if custom_next_question_questionnaire.blank?, 'Next question or set of questions not provided for this round'
+      skip_if scratch[:contained_questionnaires].blank?, %(
+        Unable to validate next questionnaire provided: could not find matching contained
         questionnaire in the $next-question request.
       )
-      assert_valid_json custom_next_question_questionnaire, 'Custom $next-question Questionnaire is not valid JSON'
+      assert_valid_json custom_next_question_questionnaires, 'Custom $next-question Questionnaires is not valid JSON'
 
       custom_questionnaire = FHIR.from_contents(custom_next_question_questionnaire)
       assert custom_questionnaire, 'The custom Questionnaire input provided is not a valid FHIR resource'

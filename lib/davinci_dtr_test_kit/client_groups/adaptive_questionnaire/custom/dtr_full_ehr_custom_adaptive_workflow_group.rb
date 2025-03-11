@@ -5,6 +5,8 @@ require_relative '../../shared/dtr_questionnaire_package_request_validation_test
 require_relative '../dtr_adaptive_next_question_request_validation_test'
 require_relative '../dtr_adaptive_response_validation_test'
 require_relative '../../shared/dtr_custom_questionnaire_package_validation_test'
+require_relative '../../shared/dtr_custom_questionnaire_libraries_test'
+require_relative 'dtr_custom_next_question_response_validation_test'
 
 # require_relative '../../full_ehr/dtr_full_ehr_adaptive_request_test'
 # require_relative '../../shared/dtr_questionnaire_package_request_validation_test'
@@ -89,6 +91,10 @@ module DaVinciDTRTestKit
     end
     # Test 5: validate the user provided $questionnaire-package response
     test from: :dtr_custom_qp_validation
+    # Test 6: verify the custom response has the necessary libraries for pre-population
+    test from: :dtr_custom_questionnaire_libraries
+    # Test 7: validate the user provided $next-question questionnaires
+    test from: :dtr_custom_next_questionnaire_validation
 
     # group do
     #   id :dtr_full_ehr_custom_adaptive_retrieval
