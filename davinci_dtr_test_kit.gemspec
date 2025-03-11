@@ -9,7 +9,7 @@ Gem::Specification.new do |spec|
   spec.description   = 'Test Kit for the Da Vinci Documentation Templates and Rules (DTR) FHIR Implementation Guide'
   spec.homepage      = 'https://github.com/inferno-framework/davinci-dtr-test-kit'
   spec.license       = 'Apache-2.0'
-  spec.add_dependency 'inferno_core', '~> 0.6.2'
+  spec.add_dependency 'inferno_core', '~> 0.6.4'
   spec.add_dependency 'jwt', '~> 2.6'
   spec.add_dependency 'smart_app_launch_test_kit', '~> 0.5.0'
   spec.add_dependency 'tls_test_kit', '~> 0.3.0'
@@ -19,6 +19,10 @@ Gem::Specification.new do |spec|
   spec.metadata['homepage_uri'] = spec.homepage
   spec.metadata['source_code_uri'] = spec.homepage
   spec.files = `[ -d .git ] && git ls-files -z lib config/presets LICENSE`.split("\x0")
-
+  spec.files -= [
+    'config/presets/light_ehr_ref_server_local.json',
+    'config/presets/payer_server_adaptive_client_flow.json',
+    'config/presets/payer_server_adaptive_manual_flow.json'
+  ]
   spec.require_paths = ['lib']
 end

@@ -1,3 +1,6 @@
+# v0.15.2
+* Remove internal presets from gem by @karlnaden in https://github.com/inferno-framework/davinci-dtr-test-kit/pull/64
+
 # v0.15.1
 * FI-3463: DTR Light EHR: test supported payer endpoint by @degradification in https://github.com/inferno-framework/davinci-dtr-test-kit/pull/42
 * Fi-3766: Add Full DTR EHR verifies requirements by @elsaperelli in https://github.com/inferno-framework/davinci-dtr-test-kit/pull/57
