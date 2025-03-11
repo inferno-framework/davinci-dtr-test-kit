@@ -15,7 +15,7 @@ require_relative '../../shared/dtr_prepopulation_attestation_test'
 require_relative '../../shared/dtr_prepopulation_override_attestation_test'
 
 module DaVinciDTRTestKit
-  class DTRFullEHRCustomAdaptiveQuestionnaireWorkflowGroup < Inferno::TestGroup
+  class DTRFullEHRCustomAdaptiveWorkflowGroup < Inferno::TestGroup
     id :dtr_full_ehr_custom_adaptive_workflow
     title 'Adaptive Questionnaire Workflow'
     description %(
