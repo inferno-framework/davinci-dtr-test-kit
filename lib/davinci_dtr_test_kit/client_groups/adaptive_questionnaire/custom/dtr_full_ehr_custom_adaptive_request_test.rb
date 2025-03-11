@@ -4,7 +4,7 @@ module DaVinciDTRTestKit
   class DTRFullEHRCustomAdaptiveRequestTest < Inferno::Test
     include URLs
 
-    id :dtr_custom_adative_request
+    id :dtr_full_ehr_custom_adative_request
     title 'Client can complete the DTR Adaptive Questionnaire workflow'
     description %(
       This test waits for client requests to retrieve and progress through an adaptive questionnaire workflow.
