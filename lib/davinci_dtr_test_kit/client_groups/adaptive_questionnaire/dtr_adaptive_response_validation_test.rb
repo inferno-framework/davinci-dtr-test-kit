@@ -35,40 +35,50 @@ module DaVinciDTRTestKit
       config.options[:next_tag]
     end
 
-    def custom_complete_questionnaire?
-      !!config.options[:custom_complete_questionnaire]
+    def perform_questionnaire_reponses_validation
+      requests.each_with_index do |r, index|
+        if r.url != next_url
+          add_message('warning',
+                      "Request #{index} made to wrong URL: #{r.url}. Should instead be to #{next_url}")
+        end
+
+        assert_valid_json(r.request_body)
+        input_params = FHIR.from_contents(r.request_body)
+        assert input_params.present?, 'Request does not contain a recognized FHIR object'
+
+        qr = nil
+        if input_params.is_a?(FHIR::QuestionnaireResponse)
+          qr = input_params
+        elsif input_params.is_a?(FHIR::Parameters)
+          qr = input_params.parameter&.find do |param|
+            param.name == 'questionnaire-response'
+          end&.resource
+        end
+
+        assert qr.present?, 'QuestionnaireResponse resource not provided.'
+        verify_basic_conformance(qr.to_json, profile_url)
+
+        questionnaire = qr.contained.find { |res| res.resourceType == 'Questionnaire' }
+        scratch[:contained_questionnaires] ||= []
+        scratch[:contained_questionnaires] << questionnaire
+
+        check_missing_origin_sources(qr) if index == requests.length - 1
+        expected_overrides = next_request_tag&.include?('custom') ? [] : ['PBD.2']
+        check_origin_sources(questionnaire.item, qr.item, expected_overrides:)
+
+        required_link_ids = extract_required_link_ids(questionnaire.item)
+        check_answer_presence(qr.item, required_link_ids)
+      rescue Inferno::Exceptions::AssertionException => e
+        add_message('error', "Request #{index}: #{e.message}")
+        next
+      end
     end
 
     run do
       load_tagged_requests next_request_tag
-      skip_if request.blank?, 'A $next-question request must be made prior to running this test'
+      skip_if requests.blank?, 'A $next-question request must be made prior to running this test'
 
-      assert request.url == next_url, "Request made to wrong URL: #{request.url}. Should instead be to #{next_url}"
-      assert_valid_json(request.request_body)
-      input_params = FHIR.from_contents(request.request_body)
-      skip_if input_params.blank?, 'Request does not contain a recognized FHIR object'
-
-      qr = nil
-      if input_params.is_a?(FHIR::QuestionnaireResponse)
-        qr = input_params
-      elsif input_params.is_a?(FHIR::Parameters)
-        qr = input_params.parameter&.find do |param|
-          param.name == 'questionnaire-response'
-        end&.resource
-      end
-
-      skip_if qr.nil?, 'QuestionnaireResponse resource not provided.'
-      verify_basic_conformance(qr.to_json, profile_url)
-
-      questionnaire = qr.contained.find { |res| res.resourceType == 'Questionnaire' }
-      scratch[:contained_questionnaire] = questionnaire
-
-      check_missing_origin_sources(qr) if custom_complete_questionnaire?
-      expected_overrides = next_request_tag&.include?('custom') ? [] : ['PBD.2']
-      check_origin_sources(questionnaire.item, qr.item, expected_overrides:)
-
-      required_link_ids = extract_required_link_ids(questionnaire.item)
-      check_answer_presence(qr.item, required_link_ids)
+      perform_questionnaire_reponses_validation
 
       assert(messages.none? { |m| m[:type] == 'error' }, 'QuestionnaireResponse is not correct, see error message(s)')
     end
