@@ -22,14 +22,19 @@ module DaVinciDTRTestKit
         response.body = build_questionnaire_next_response.to_json
       end
 
-      def custom_questionnaire
-        @custom_questionnaire ||= JSON.parse(result.input_json)
-          .find { |input| input['name'].include?('custom_next_question_questionnaire') }
+      def custom_questionnaires
+        return @custom_questionnaires unless @custom_questionnaires.nil?
+
+        questionnaires = JSON.parse(result.input_json)
+          .find { |input| input['name'].include?('custom_next_question_questionnaires') }
           &.dig('value')
+        return unless questionnaires
+
+        @custom_questionnaires = [JSON.parse(questionnaires)].flatten.compact
       end
 
       def complete_questionnaire?
-        test.config.options[:custom_complete_questionnaire]
+        custom_questionnaires && custom_questionnaires.empty?
       end
 
       def update_result
@@ -113,8 +118,8 @@ module DaVinciDTRTestKit
       end
 
       def determine_next_questionnaire(questionnaire_response, test_id)
-        if custom_questionnaire
-          FHIR.from_contents(custom_questionnaire)
+        if custom_questionnaires
+          FHIR.from_contents(custom_questionnaires.shift.to_json)
         # Retrieve the selected option from the response and determine the next set of questions
         elsif questionnaire_dinner_order_selection_present?(questionnaire_response)
           dinner_question_from_selection(questionnaire_response, test_id)
