@@ -67,7 +67,8 @@ module DaVinciDTRTestKit
 
           ### Continuing the Tests
 
-          Once all required `$next-question` requests have been made, [Click here](#{resume_pass_url}?token=#{access_token}) to continue.
+          Once all required `$next-question` requests have been made,
+          [Click here](#{resume_pass_url}?token=#{access_token}) to continue.
         )
       )
     end

@@ -35,7 +35,7 @@ module DaVinciDTRTestKit
       config.options[:next_tag]
     end
 
-    def perform_questionnaire_reponses_validation
+    def perform_questionnaire_reponses_validation # rubocop:disable Metrics/CyclomaticComplexity
       requests.each_with_index do |r, index|
         if r.url != next_url
           add_message('warning',
