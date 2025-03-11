@@ -1,7 +1,7 @@
 module DaVinciDTRTestKit
   class DTRCustomNextQuestionResponseValidationTest < Inferno::Test
     id :dtr_custom_next_questionnaire_validation
-    title '[USER INPUT VERIFICATION] Custom Questionnaires for $next-question Responses is valid for this workflow'
+    title '[USER INPUT VERIFICATION] Custom Questionnaires for $next-question Responses are valid for this workflow'
     description %(
       Inferno will validate that the user-provided Questionnaire resources to be included in
       each `$next-question` response are correct for this workflow.
@@ -64,19 +64,24 @@ module DaVinciDTRTestKit
     end
 
     run do
-      # omit_if custom_next_question_questionnaire.blank?, 'Next question or set of questions not provided for this round'
-      skip_if scratch[:contained_questionnaires].blank?, %(
-        Unable to validate next questionnaire provided: could not find matching contained
-        questionnaire in the $next-question request.
-      )
       assert_valid_json custom_next_question_questionnaires, 'Custom $next-question Questionnaires is not valid JSON'
 
-      custom_questionnaire = FHIR.from_contents(custom_next_question_questionnaire)
-      assert custom_questionnaire, 'The custom Questionnaire input provided is not a valid FHIR resource'
-      assert_resource_type(:questionnaire, resource: custom_questionnaire)
+      custom_questionnaires = [JSON.parse(custom_next_question_questionnaires)].flatten
+      custom_questionnaires.each_with_index do |q, index|
+        custom_questionnaire = FHIR.from_contents(q.to_json)
+        assert custom_questionnaire, "The custom Questionnaire #{q[:id]} provided is not a valid FHIR resource"
+        assert_resource_type(:questionnaire, resource: custom_questionnaire)
 
-      contained_questionnaire = scratch[:contained_questionnaire]
-      validate_correctness_of_custom_next_questionnaire(custom_questionnaire, contained_questionnaire)
+        contained_questionnaire = scratch[:contained_questionnaires][index]
+        assert contained_questionnaire, %(
+          Unable to validate next questionnaire `#{q[:id]}` provided: could not find matching contained
+          questionnaire in the $next-question request.
+        )
+        validate_correctness_of_custom_next_questionnaire(custom_questionnaire, contained_questionnaire)
+      rescue Inferno::Exceptions::AssertionException => e
+        add_message('error', "Questionnaire `#{q[:id]}`: #{e.message}")
+        next
+      end
 
       assert messages.none? { |message| message[:type] == 'error' },
              'Custom Questionnaire provided is not valid for this workflow'

@@ -15,28 +15,15 @@ module DaVinciDTRTestKit
     end
 
     run do
-      if respond_to?(:custom_next_question_questionnaire)
-        omit_if custom_next_question_questionnaire.blank?,
-                'Next question or set of questions not provided for this round'
-      end
-
       questionnaires = nil
       if form_type == 'static'
         skip_if scratch[:"#{form_type}_questionnaire_bundles"].blank?,
-                'No questionnaire bundle found in the custom response'
+                'No questionnaire bundle found in the custom package response'
         questionnaires = extract_questionnaires_from_bundles(scratch[:"#{form_type}_questionnaire_bundles"])
       else
-        assert_valid_json custom_next_question_questionnaire, 'Custom $next-question Questionnaire is not valid JSON'
-        # This is necessary for adaptive Q to retrieve and save libraries in memory
-        if try(:custom_questionnaire_package_response)
-          skip_if custom_questionnaire_package_response.blank?, 'Need to provide questionnaire package bundle input.'
-          assert_valid_json custom_questionnaire_package_response,
-                            'Custom package response provided is not a valid JSON'
-          resource = FHIR.from_contents(custom_questionnaire_package_response)
-          questionnaire_bundles = extract_questionnaire_bundles(resource)
-          check_libraries(questionnaire_bundles)
-        end
-        questionnaires = [FHIR.from_contents(custom_next_question_questionnaire)].compact
+        assert_valid_json custom_next_question_questionnaires, 'Custom $next-question questionnaires not valid JSON'
+        custom_questionnaires = [JSON.parse(custom_next_question_questionnaires)].flatten.compact
+        questionnaires = custom_questionnaires.map { |q| FHIR.from_contents(q.to_json) }.compact
       end
 
       verify_questionnaire_extensions(questionnaires)

@@ -18,11 +18,6 @@ module DaVinciDTRTestKit
     end
 
     run do
-      if respond_to?(:custom_next_question_questionnaire)
-        omit_if custom_next_question_questionnaire.blank?,
-                'Next question or set of questions not provided for this round'
-      end
-
       questionnaires = nil
       if form_type == 'static'
         skip_if scratch[:"#{form_type}_questionnaire_bundles"].blank?,
@@ -30,8 +25,9 @@ module DaVinciDTRTestKit
 
         questionnaires = extract_questionnaires_from_bundles(scratch[:"#{form_type}_questionnaire_bundles"])
       else
-        assert_valid_json custom_next_question_questionnaire, 'Custom $next-question Questionnaire is not valid JSON'
-        questionnaires = [FHIR.from_contents(custom_next_question_questionnaire)].compact
+        assert_valid_json custom_next_question_questionnaires, 'Custom $next-question questionnairee not valid JSON'
+        custom_questionnaires = [JSON.parse(custom_next_question_questionnaires)].flatten.compact
+        questionnaires = custom_questionnaires.map { |q| FHIR.from_contents(q.to_json) }.compact
       end
 
       verify_questionnaire_items(questionnaires, final_cql_test: true)
