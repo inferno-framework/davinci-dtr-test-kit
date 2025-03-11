@@ -1,6 +1,7 @@
 require_relative 'client_groups/custom_static/dtr_full_ehr_custom_static_workflow_group'
 require_relative 'client_groups/dinner_static/dtr_full_ehr_static_dinner_workflow_group'
-require_relative 'client_groups/dinner_adaptive/dtr_full_ehr_adaptive_dinner_workflow_group'
+require_relative 'client_groups/adaptive_questionnaire/dinner_order/dtr_full_ehr_adaptive_dinner_workflow_group'
+require_relative 'client_groups/adaptive_questionnaire/custom/dtr_full_ehr_custom_adaptive_workflow_group'
 require_relative 'auth_groups/oauth2_authentication_group'
 require_relative 'endpoints/cors'
 require_relative 'endpoints/mock_authorization/simple_token_endpoint'
@@ -65,7 +66,7 @@ module DaVinciDTRTestKit
       title 'Basic Workflows'
 
       group from: :dtr_full_ehr_custom_static_workflow
-      group from: :dtr_full_ehr_adaptive_dinner_workflow
+      group from: :dtr_full_ehr_custom_adaptive_workflow
     end
     group do
       id :dtr_full_ehr_questionnaire_functionality
@@ -75,6 +76,7 @@ module DaVinciDTRTestKit
         covering additional pre-population features of questionnaires.
       )
       group from: :dtr_full_ehr_static_dinner_workflow
+      group from: :dtr_full_ehr_adaptive_dinner_workflow
     end
   end
 end

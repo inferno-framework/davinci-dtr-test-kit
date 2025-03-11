@@ -46,7 +46,7 @@ module DaVinciDTRTestKit
       title 'Filling Out the Static Questionnaire'
       description %(
         The tester will interact with the questionnaire within their client system
-        such that pre-population steps are taken, the qustionnaire is rendered, and
+        such that pre-population steps are taken, the questionnaire is rendered, and
         they are able to fill it out. Inferno will check that appropriate interactions
         with the server occur and the tester will attest that questionnaire pre-population
         and rendering directives were followed.

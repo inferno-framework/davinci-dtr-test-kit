@@ -13,7 +13,7 @@
     },
     {
       "name": "client_id",
-      "value": "eyJhbGciOiJub25lIn0.eyJpbmZlcm5vX2NsaWVudF9pZCI6InNhbXBsZSJ9"
+      "value": "sample"
     },
     {
       "name": "static_smart_patient_id",

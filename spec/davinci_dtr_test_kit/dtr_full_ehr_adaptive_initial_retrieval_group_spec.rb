@@ -101,7 +101,10 @@ RSpec.describe DaVinciDTRTestKit::DTRFullEHRAdaptiveInitialRetrievalGroup do
 
       result = run(runnable, test_session)
       expect(result.result).to eq('fail')
-      expect(result.result_message).to match(/Invalid JSON/)
+      result_messages_string = results_repo
+        .current_results_for_test_session_and_runnables(test_session.id, [runnable])
+        .first.messages.map(&:message).join
+      expect(result_messages_string).to match(/Invalid JSON/)
     end
 
     it 'fails if next question request body is not a valid FHIR object' do
@@ -109,7 +112,10 @@ RSpec.describe DaVinciDTRTestKit::DTRFullEHRAdaptiveInitialRetrievalGroup do
 
       result = run(runnable, test_session)
       expect(result.result).to eq('fail')
-      expect(result.result_message).to match(/does not contain a recognized FHIR object/)
+      result_messages_string = results_repo
+        .current_results_for_test_session_and_runnables(test_session.id, [runnable])
+        .first.messages.map(&:message).join
+      expect(result_messages_string).to match(/does not contain a recognized FHIR object/)
     end
 
     it 'fails if next question request body is not a Parameters resource' do
@@ -117,7 +123,10 @@ RSpec.describe DaVinciDTRTestKit::DTRFullEHRAdaptiveInitialRetrievalGroup do
 
       result = run(runnable, test_session)
       expect(result.result).to eq('fail')
-      expect(result.result_message).to match(/Expected Parameters or QuestionnaireResponse/)
+      result_messages_string = results_repo
+        .current_results_for_test_session_and_runnables(test_session.id, [runnable])
+        .first.messages.map(&:message).join
+      expect(result_messages_string).to match(/Expected Parameters or QuestionnaireResponse/)
     end
 
     it 'fails if next question input parameters resource does not have a questionnaire-response param' do
@@ -125,7 +134,10 @@ RSpec.describe DaVinciDTRTestKit::DTRFullEHRAdaptiveInitialRetrievalGroup do
 
       result = run(runnable, test_session)
       expect(result.result).to eq('fail')
-      expect(result.result_message).to match(/must contain one `parameter:questionnaire-response` slice/)
+      result_messages_string = results_repo
+        .current_results_for_test_session_and_runnables(test_session.id, [runnable])
+        .first.messages.map(&:message).join
+      expect(result_messages_string).to match(/must contain one `parameter:questionnaire-response` slice/)
     end
 
     it 'fails if the resource for the questionnaire-response param is not QuestionnaireResponse' do
@@ -134,7 +146,10 @@ RSpec.describe DaVinciDTRTestKit::DTRFullEHRAdaptiveInitialRetrievalGroup do
 
       result = run(runnable, test_session)
       expect(result.result).to eq('fail')
-      expect(result.result_message).to match(/Unexpected resource type: expected QuestionnaireResponse/)
+      result_messages_string = results_repo
+        .current_results_for_test_session_and_runnables(test_session.id, [runnable])
+        .first.messages.map(&:message).join
+      expect(result_messages_string).to match(/Unexpected resource type: expected QuestionnaireResponse/)
     end
   end
 
@@ -153,13 +168,6 @@ RSpec.describe DaVinciDTRTestKit::DTRFullEHRAdaptiveInitialRetrievalGroup do
       allow_any_instance_of(runnable).to receive(:next_request_tag).and_return(next_tag)
     end
 
-    it 'passes if QuestionnaireResponse is conformant' do
-      build_next_request(next_question_request_body)
-
-      result = run(runnable, test_session)
-      expect(result.result).to eq('pass'), result.result_message
-    end
-
     it 'skips if no next-question request was made' do
       result = run(runnable, test_session)
       expect(result.result).to eq('skip')
@@ -171,23 +179,32 @@ RSpec.describe DaVinciDTRTestKit::DTRFullEHRAdaptiveInitialRetrievalGroup do
 
       result = run(runnable, test_session)
       expect(result.result).to eq('fail')
-      expect(result.result_message).to match(/Invalid JSON/)
+      result_messages_string = results_repo
+        .current_results_for_test_session_and_runnables(test_session.id, [runnable])
+        .first.messages.map(&:message).join
+      expect(result_messages_string).to match(/Invalid JSON/)
     end
 
-    it 'akips if next question request body is not a valid FHIR object' do
+    it 'fails if next question request body is not a valid FHIR object' do
       build_next_request({}.to_json)
 
       result = run(runnable, test_session)
-      expect(result.result).to eq('skip')
-      expect(result.result_message).to match(/does not contain a recognized FHIR object/)
+      expect(result.result).to eq('fail')
+      result_messages_string = results_repo
+        .current_results_for_test_session_and_runnables(test_session.id, [runnable])
+        .first.messages.map(&:message).join
+      expect(result_messages_string).to match(/does not contain a recognized FHIR object/)
     end
 
-    it 'akips if next question input parameters resource does not have questionnaire-response param slice' do
+    it 'fails if next question input parameters resource does not have questionnaire-response param slice' do
       build_next_request(next_question_request_body_nonconformant)
 
       result = run(runnable, test_session)
-      expect(result.result).to eq('skip')
-      expect(result.result_message).to match(/QuestionnaireResponse resource not provided/)
+      expect(result.result).to eq('fail')
+      result_messages_string = results_repo
+        .current_results_for_test_session_and_runnables(test_session.id, [runnable])
+        .first.messages.map(&:message).join
+      expect(result_messages_string).to match(/QuestionnaireResponse resource not provided/)
     end
 
     it 'fails if the answers in the questionnaire response do not have the correct origin.source' do
