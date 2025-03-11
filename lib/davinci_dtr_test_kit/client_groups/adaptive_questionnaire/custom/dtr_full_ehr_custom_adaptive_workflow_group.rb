@@ -1,20 +1,21 @@
 require_relative '../../../tags'
 require_relative '../../full_ehr/dtr_full_ehr_launch_attestation_test'
 require_relative 'dtr_full_ehr_custom_adaptive_request_test'
-
-require_relative '../../full_ehr/dtr_full_ehr_adaptive_request_test'
 require_relative '../../shared/dtr_questionnaire_package_request_validation_test'
-require_relative '../dtr_adaptive_next_question_request_test'
-require_relative '../dtr_adaptive_next_question_request_validation_test'
-require_relative '../dtr_adaptive_response_validation_test'
 
-require_relative '../../shared/dtr_custom_questionnaire_package_validation_test'
-require_relative '../../shared/dtr_custom_questionnaire_libraries_test'
-require_relative '../../shared/dtr_custom_questionnaire_extensions_test'
-require_relative '../../shared/dtr_custom_questionnaire_expressions_test'
-require_relative 'dtr_custom_next_question_response_validation_test'
-require_relative '../../shared/dtr_prepopulation_attestation_test'
-require_relative '../../shared/dtr_prepopulation_override_attestation_test'
+# require_relative '../../full_ehr/dtr_full_ehr_adaptive_request_test'
+# require_relative '../../shared/dtr_questionnaire_package_request_validation_test'
+# require_relative '../dtr_adaptive_next_question_request_test'
+# require_relative '../dtr_adaptive_next_question_request_validation_test'
+# require_relative '../dtr_adaptive_response_validation_test'
+
+# require_relative '../../shared/dtr_custom_questionnaire_package_validation_test'
+# require_relative '../../shared/dtr_custom_questionnaire_libraries_test'
+# require_relative '../../shared/dtr_custom_questionnaire_extensions_test'
+# require_relative '../../shared/dtr_custom_questionnaire_expressions_test'
+# require_relative 'dtr_custom_next_question_response_validation_test'
+# require_relative '../../shared/dtr_prepopulation_attestation_test'
+# require_relative '../../shared/dtr_prepopulation_override_attestation_test'
 
 module DaVinciDTRTestKit
   class DTRFullEHRCustomAdaptiveWorkflowGroup < Inferno::TestGroup
@@ -43,7 +44,7 @@ module DaVinciDTRTestKit
     )
     run_as_group
     config(
-      options: { form_type: 'adaptive' },
+      options: { form_type: 'adaptive', next_tag: "custom_#{CLIENT_NEXT_TAG}" },
       inputs: {
         custom_questionnaire_package_response: {
           name: 'adaptive_custom_questionnaire_package_response',
@@ -69,8 +70,20 @@ module DaVinciDTRTestKit
          title: 'Launch DTR (Attestation)'
     # Test 1: Recieve questionnaire-package and next-question requests
     test from: :dtr_custom_adative_request
-    # Test 2:
-    # Tests 3:
+    # Test 2: validate the $questionnaire-package request body
+    test from: :dtr_qp_request_validation
+    # Test 3: validate the $next-question requests body
+    test from: :dtr_adaptive_next_question_request_validation
+    # Test 4: validate the QuestionnaireResponse in the input parameter
+    test from: :dtr_adaptive_response_validation do
+      description %(
+          Verify that the QuestionnaireResponse
+            - Is conformant to the [SDCQuestionnaireResponseAdapt](http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaireresponse-adapt).
+            - Has source extensions demonstrating answers that are manually entered,
+            automatically pre-populated, and manually overridden. (For `completed` QuestionnaireResponse)
+            - Contains answers for all required items.
+        )
+    end
 
     # group do
     #   id :dtr_full_ehr_custom_adaptive_retrieval
