@@ -2,6 +2,7 @@ require_relative 'shared_setup'
 
 RSpec.describe DaVinciDTRTestKit::DTRPayerServerQuestionnairePackageGroup, :request do
   let(:suite_id) { 'dtr_payer_server' }
+
   include_context('when running standard tests',
                   'payer_server_static_package', # group
                   suite_id = :dtr_payer_server,
