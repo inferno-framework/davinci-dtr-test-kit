@@ -14,8 +14,12 @@ module DaVinciDTRTestKit
         session_data = Inferno::Repositories::SessionData.new
         endpoint_input = session_data.load(test_session_id: session_id, name: 'custom_endpoint')
         url_input = session_data.load(test_session_id: session_id, name: 'url')
-        credentials_input = session_data.load(test_session_id: session_id, name: 'credentials',
-                                              type: 'oauth_credentials')
+        credentials_input =
+          session_data.load(
+            test_session_id: session_id,
+            name: 'smart_auth_info',
+            type: 'auth_info'
+          )
 
         client = FHIR::Client.new(url_input)
         client.default_json
