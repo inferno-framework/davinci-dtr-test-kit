@@ -4,6 +4,10 @@ source "https://rubygems.org"
 
 gemspec
 
+gem 'us_core_test_kit',
+    git: 'https://github.com/inferno-framework/us-core-test-kit.git',
+    branch: 'fi-3586-migrate-to-authinfo'
+
 group :development, :test do
   gem 'database_cleaner-sequel', '~> 1.8'
   gem 'factory_bot', '~> 6.1'

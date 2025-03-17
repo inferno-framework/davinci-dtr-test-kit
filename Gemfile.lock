@@ -1,3 +1,13 @@
+GIT
+  remote: https://github.com/inferno-framework/us-core-test-kit.git
+  revision: 0cad558fb98280b815247eb266cc61350e57513d
+  branch: fi-3586-migrate-to-authinfo
+  specs:
+    us_core_test_kit (0.10.1)
+      inferno_core (>= 0.6.4)
+      smart_app_launch_test_kit (>= 0.6.0)
+      tls_test_kit (~> 0.3.0)
+
 PATH
   remote: .
   specs:
@@ -329,10 +339,6 @@ GEM
       concurrent-ruby (~> 1.0)
     unicode-display_width (2.6.0)
     unicode_utils (1.4.0)
-    us_core_test_kit (0.10.1)
-      inferno_core (>= 0.6.4)
-      smart_app_launch_test_kit (>= 0.5.0)
-      tls_test_kit (~> 0.3.0)
     webmock (3.23.1)
       addressable (>= 2.8.0)
       crack (>= 0.3.2)
@@ -357,6 +363,7 @@ DEPENDENCIES
   rubocop (~> 1.9)
   rubocop-rake (~> 0.6.0)
   rubocop-rspec
+  us_core_test_kit!
   webmock (~> 3.11)
 
 BUNDLED WITH
