@@ -68,8 +68,22 @@ module DaVinciDTRTestKit
 
         required_link_ids = extract_required_link_ids(questionnaire.item)
         check_answer_presence(qr.item, required_link_ids)
+
+        # for custom flow, ensure the tester completed the questionnaire
+        if next_request_tag&.include?('custom') && index == requests.length - 1
+          assert_valid_json(
+            custom_next_question_questionnaires,
+            'Workflow not completed: the provided questionnaires input for next-question requests is not valid JSON'
+          )
+          custom_questionnaires = [JSON.parse(custom_next_question_questionnaires)].flatten
+          assert requests.length > custom_questionnaires.length, %(
+            Workflow not completed: expected #{custom_questionnaires.length + 1} next-question requests,
+            but received #{requests.length}.
+          )
+        end
       rescue Inferno::Exceptions::AssertionException => e
-        add_message('error', "Request #{index}: #{e.message}")
+        prefix = e.message.include?('Workflow not') ? '' : "Request #{index}: "
+        add_message('error', "#{prefix}#{e.message}")
         next
       end
     end

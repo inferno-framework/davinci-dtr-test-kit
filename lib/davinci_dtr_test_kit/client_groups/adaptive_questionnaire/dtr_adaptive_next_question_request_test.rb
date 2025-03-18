@@ -66,11 +66,6 @@ module DaVinciDTRTestKit
     end
 
     run do
-      if respond_to?(:custom_next_question_questionnaire)
-        omit_if custom_next_question_questionnaire.blank?,
-                'Next question or set of questions not provided for this round'
-      end
-
       wait(
         identifier: access_token,
         message: <<~MESSAGE

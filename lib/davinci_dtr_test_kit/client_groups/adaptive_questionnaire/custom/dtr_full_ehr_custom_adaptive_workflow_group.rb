@@ -82,6 +82,7 @@ module DaVinciDTRTestKit
             automatically pre-populated, and manually overridden. (For `completed` QuestionnaireResponse)
             - Contains answers for all required items.
         )
+        input :custom_next_question_questionnaires
       end
       # Test 5: validate the user provided $questionnaire-package response
       test from: :dtr_custom_qp_validation
