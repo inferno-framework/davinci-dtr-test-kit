@@ -1,7 +1,8 @@
 require_relative 'shared_setup'
 
-RSpec.describe DaVinciDTRTestKit::DTRPayerServerQuestionnairePackageGroup do
-  include Rack::Test::Methods
+RSpec.describe DaVinciDTRTestKit::DTRPayerServerQuestionnairePackageGroup, :request do
+  let(:suite_id) { 'dtr_payer_server' }
+
   include_context('when running standard tests',
                   'payer_server_static_package', # group
                   suite_id = :dtr_payer_server,
@@ -33,6 +34,10 @@ RSpec.describe DaVinciDTRTestKit::DTRPayerServerQuestionnairePackageGroup do
       let(:runnable) { group.tests.find { |test| test.id.to_s.end_with? 'static_form_request_validation_test' } }
       let(:input_validation_test) do
         Class.new(Inferno::Test) do
+          def self.suite
+            Inferno::Repositories::TestSuites.new.find('dtr_payer_server')
+          end
+
           validator do
             url ENV.fetch('FHIR_RESOURCE_VALIDATOR_URL')
           end

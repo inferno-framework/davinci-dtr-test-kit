@@ -1,6 +1,4 @@
-RSpec.describe DaVinciDTRTestKit::DTRRespiratoryQuestionnaireResponseGroup do
-  include Rack::Test::Methods
-
+RSpec.describe DaVinciDTRTestKit::DTRRespiratoryQuestionnaireResponseGroup, :request do
   def app
     Inferno::Web.app
   end
