@@ -13,7 +13,7 @@ Gem::Specification.new do |spec|
   spec.add_dependency 'jwt', '~> 2.6'
   spec.add_dependency 'smart_app_launch_test_kit', '~> 0.6.0'
   spec.add_dependency 'tls_test_kit', '~> 0.3.0'
-  spec.add_dependency 'us_core_test_kit', '~> 0.10.0'
+  spec.add_dependency 'us_core_test_kit', '~> 0.11.0'
   spec.required_ruby_version = Gem::Requirement.new('>= 3.3.6')
   spec.metadata['inferno_test_kit'] = 'true'
   spec.metadata['homepage_uri'] = spec.homepage
