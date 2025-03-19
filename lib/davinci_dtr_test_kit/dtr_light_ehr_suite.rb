@@ -159,7 +159,9 @@ module DaVinciDTRTestKit
                               )
         run_as_group
 
-        input :smart_auth_info, type: :auth_info
+        input :smart_auth_info,
+              type: :auth_info,
+              optional: true
 
         # All FHIR requests in this suite will use this FHIR client
         fhir_client do
