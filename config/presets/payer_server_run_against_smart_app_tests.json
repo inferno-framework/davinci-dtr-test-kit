@@ -28,7 +28,7 @@
       "title": "OAuth Credentials",
       "type": "auth_info",
       "value": {
-        "auth_type": "public",
+        "auth_type": "backend_services",
         "access_token": "eyJhbGciOiJub25lIn0.eyJpbmZlcm5vX2NsaWVudF9pZCI6InNhbXBsZSJ9"
       }
     }
