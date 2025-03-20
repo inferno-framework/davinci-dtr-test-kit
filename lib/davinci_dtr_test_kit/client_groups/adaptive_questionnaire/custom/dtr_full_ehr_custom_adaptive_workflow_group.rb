@@ -76,11 +76,11 @@ module DaVinciDTRTestKit
       # Test 4: validate the QuestionnaireResponse in the input parameter
       test from: :dtr_adaptive_response_validation do
         description %(
-          Verify that the QuestionnaireResponse
-            - Is conformant to the [SDCQuestionnaireResponseAdapt](http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaireresponse-adapt).
-            - Has source extensions demonstrating answers that are manually entered,
-            automatically pre-populated, and manually overridden. (For `completed` QuestionnaireResponse)
-            - Contains answers for all required items.
+          Verify that all submitted QuestionnaireResponse resources meet the following criteria:
+          - Conform to the [SDCQuestionnaireResponseAdapt](http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaireresponse-adapt).
+          - Include source extensions indicating whether answers were manually entered,
+            automatically pre-populated, or manually overridden (for `completed` QuestionnaireResponse).
+          - Provide answers for all required items in their contained Questionnaire.
         )
         input :custom_next_question_questionnaires
       end
