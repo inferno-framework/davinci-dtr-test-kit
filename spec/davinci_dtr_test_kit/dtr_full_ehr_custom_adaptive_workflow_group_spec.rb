@@ -1,7 +1,4 @@
-require_relative '../request_helper'
-
-RSpec.describe DaVinciDTRTestKit::DTRFullEHRCustomAdaptiveWorkflowGroup do
-  include RequestHelpers
+RSpec.describe DaVinciDTRTestKit::DTRFullEHRCustomAdaptiveWorkflowGroup, :request do
   let(:suite_id) { :dtr_full_ehr }
   let(:group) { Inferno::Repositories::TestGroups.new.find('dtr_full_ehr_custom_adaptive_workflow') }
   let(:access_token) { 'sample_token' }
