@@ -17,10 +17,12 @@ RSpec.describe DaVinciDTRTestKit::DTRFullEHRCustomAdaptiveWorkflowGroup, :reques
   end
   let(:next_tag) { "custom_#{DaVinciDTRTestKit::CLIENT_NEXT_TAG}" }
 
-  def build_next_request(request_body)
+  def build_next_request(request_bodies)
     result = repo_create(:result, test_session_id: test_session.id)
-    repo_create(:request, result_id: result.id, url: next_url, request_body:,
-                          test_session_id: test_session.id, tags: [next_tag])
+    request_bodies.each do |request_body|
+      repo_create(:request, result_id: result.id, url: next_url, request_body:,
+                            test_session_id: test_session.id, tags: [next_tag])
+    end
   end
 
   describe 'custom adaptive request test' do
@@ -85,19 +87,31 @@ RSpec.describe DaVinciDTRTestKit::DTRFullEHRCustomAdaptiveWorkflowGroup, :reques
   describe 'custom adaptive questionnaire response validation test' do
     let(:runnable) { find_test(group, 'dtr_adaptive_response_validation') }
 
-    it 'fails if the required number of next-question requests have not been made' do
+    before do
       allow_any_instance_of(runnable).to receive(:assert_valid_resource).and_return(true)
       allow_any_instance_of(runnable).to receive(:next_request_tag).and_return(next_tag)
+    end
 
-      2.times { build_next_request(next_question_request_body) }
+    it 'fails if the required number of next-question requests have not been made' do
+      build_next_request([next_question_request_body])
       result = run(runnable, custom_next_question_questionnaires: custom_questionnaires.to_json)
       expect(result.result).to eq('fail')
 
+      expect(result.result_message).to match(/Workflow not completed/)
+    end
+
+    it 'fails if a next-question request does not contain the expected questionnaire' do
+      questionnaire = custom_questionnaires.last
+      questionnaire.item = [{ linkId: '3' }]
+      qr_json = FHIR::QuestionnaireResponse.new(contained: [questionnaire]).to_json
+      build_next_request([next_question_request_body, qr_json])
+      result = run(runnable, custom_next_question_questionnaires: custom_questionnaires.to_json)
+      expect(result.result).to eq('fail')
       result_messages_string = results_repo
         .current_results_for_test_session_and_runnables(test_session.id, [runnable])
         .first.messages.map(&:message).join
 
-      expect(result_messages_string).to match(/Workflow not completed/)
+      expect(result_messages_string).to match(/The contained Questionnaire.item does not match/)
     end
   end
 end
