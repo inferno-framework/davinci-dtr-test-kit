@@ -22,17 +22,8 @@ module DaVinciDTRTestKit
         response.body = build_questionnaire_next_response.to_json
       end
 
-      def self.request_index_by_test_run
-        @request_index_by_test_run ||= {}
-      end
-
-      def request_index_by_test_run
-        self.class.request_index_by_test_run[test_run.id] ||= 0
-      end
-
-      def increment_request_index
-        self.class.request_index_by_test_run[test_run.id] ||= 0
-        self.class.request_index_by_test_run[test_run.id] += 1
+      def custom_next_question_requests
+        requests_repo.tagged_requests(test_run.test_session_id, ["custom_#{DaVinciDTRTestKit::CLIENT_NEXT_TAG}"])
       end
 
       def custom_questionnaires
@@ -47,7 +38,7 @@ module DaVinciDTRTestKit
       end
 
       def next_custom_questionnaire
-        custom_questionnaires[request_index_by_test_run]
+        custom_questionnaires[custom_next_question_requests.length]
       end
 
       def complete_questionnaire?
@@ -136,9 +127,7 @@ module DaVinciDTRTestKit
 
       def determine_next_questionnaire(questionnaire_response, test_id)
         if custom_questionnaires
-          questionnaire = FHIR.from_contents(next_custom_questionnaire.to_json)
-          increment_request_index
-          questionnaire
+          FHIR.from_contents(next_custom_questionnaire.to_json)
         # Retrieve the selected option from the response and determine the next set of questions
         elsif questionnaire_dinner_order_selection_present?(questionnaire_response)
           dinner_question_from_selection(questionnaire_response, test_id)
