@@ -35,7 +35,7 @@ module DaVinciDTRTestKit
       config.options[:next_tag]
     end
 
-    def perform_questionnaire_reponses_validation # rubocop:disable Metrics/CyclomaticComplexity
+    def perform_questionnaire_reponses_validation(custom_questionnaires) # rubocop:disable Metrics/CyclomaticComplexity
       requests.each_with_index do |r, index|
         if r.url != next_url
           add_message('warning',
@@ -62,25 +62,16 @@ module DaVinciDTRTestKit
         scratch[:contained_questionnaires] ||= []
         scratch[:contained_questionnaires] << questionnaire
 
+        assert questionnaire, 'QuestionnaireResponse does not contained a Questionnaire'
+
+        verify_contained_questionnaire(questionnaire, index, custom_questionnaires)
         check_missing_origin_sources(qr) if index == requests.length - 1
+
         expected_overrides = next_request_tag&.include?('custom') ? [] : ['PBD.2']
         check_origin_sources(questionnaire.item, qr.item, expected_overrides:)
 
         required_link_ids = extract_required_link_ids(questionnaire.item)
         check_answer_presence(qr.item, required_link_ids)
-
-        # for custom flow, ensure the tester completed the questionnaire
-        if next_request_tag&.include?('custom') && index == requests.length - 1
-          assert_valid_json(
-            custom_next_question_questionnaires,
-            'Workflow not completed: the provided questionnaires input for next-question requests is not valid JSON'
-          )
-          custom_questionnaires = [JSON.parse(custom_next_question_questionnaires)].flatten
-          assert requests.length > custom_questionnaires.length, %(
-            Workflow not completed: expected #{custom_questionnaires.length + 1} next-question requests,
-            but received #{requests.length}.
-          )
-        end
       rescue Inferno::Exceptions::AssertionException => e
         prefix = e.message.include?('Workflow not') ? '' : "Request #{index}: "
         add_message('error', "#{prefix}#{e.message}")
@@ -88,11 +79,43 @@ module DaVinciDTRTestKit
       end
     end
 
+    def verify_contained_questionnaire(questionnaire, index, custom_questionnaires)
+      return unless next_request_tag&.include?('custom') && index.positive? && custom_questionnaires.present?
+
+      assert questionnaire.to_hash['item'] == custom_questionnaires[index - 1]['item'], %(
+        Invalid QuestionnaireResponse. The contained Questionnaire.item does not match the expected one. \n
+        Expected: `#{custom_questionnaires[index - 1]['item']}`,\n
+        Received: \n `#{questionnaire.to_hash['item']}`.
+      )
+    end
+
+    def verify_workflow_completion(custom_questionnaires)
+      return unless next_request_tag&.include?('custom')
+
+      assert requests.length > custom_questionnaires.length, %(
+            Workflow not completed: expected #{custom_questionnaires.length + 1} next-question requests,
+            but received #{requests.length}.
+          )
+    end
+
     run do
       load_tagged_requests next_request_tag
       skip_if requests.blank?, 'A $next-question request must be made prior to running this test'
 
-      perform_questionnaire_reponses_validation
+      custom_questionnaires = []
+      if next_request_tag&.include?('custom')
+        begin
+          custom_questionnaires = [JSON.parse(custom_next_question_questionnaires)].flatten
+        rescue JSON::ParserError
+          add_message(
+            'error',
+            'Workflow not completed: the provided questionnaires input for next-question requests is not valid JSON'
+          )
+        end
+      end
+
+      perform_questionnaire_reponses_validation(custom_questionnaires)
+      verify_workflow_completion(custom_questionnaires)
 
       assert(messages.none? { |m| m[:type] == 'error' }, 'QuestionnaireResponse is not correct, see error message(s)')
     end
