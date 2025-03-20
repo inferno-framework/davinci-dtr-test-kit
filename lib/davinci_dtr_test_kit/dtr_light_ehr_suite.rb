@@ -65,6 +65,24 @@ module DaVinciDTRTestKit
     group do
       title 'Authorization'
 
+      config(
+        inputs: {
+          smart_auth_info: {
+            name: :smart_auth_info,
+            title: 'EHR Launch Credentials',
+            options: {
+              mode: 'auth',
+              components: [
+                Inferno::DSL::AuthInfo.default_auth_type_component_without_backend_services
+              ]
+            }
+          }
+        },
+        outputs: {
+          smart_auth_info: { name: :smart_auth_info }
+        }
+      )
+
       group from: :smart_discovery_stu2 do
         required_suite_options DTROptions::SMART_2_REQUIREMENT
         run_as_group
@@ -98,8 +116,7 @@ module DaVinciDTRTestKit
                 id_token: { name: :id_token },
                 client_id: { name: :client_id },
                 requested_scopes: { name: :requested_scopes },
-                access_token: { name: :access_token },
-                smart_credentials: { name: :smart_credentials }
+                access_token: { name: :access_token }
               }
             }
     end
@@ -117,6 +134,17 @@ module DaVinciDTRTestKit
             title: 'FHIR Server Base Url',
             description: 'URL of the target DTR Light EHR'
 
+      config(
+        inputs: {
+          smart_auth_info: {
+            title: 'OAuth Credentials',
+            options: {
+              mode: 'access'
+            }
+          }
+        }
+      )
+
       group from: :'us_core_v311-us_core_v311_fhir_api',
             run_as_group: true,
             verifies_requirements: ['hl7.fhir.us.davinci-dtr_2.0.1@2', 'hl7.fhir.us.davinci-dtr_2.0.1@281']
@@ -131,15 +159,14 @@ module DaVinciDTRTestKit
                               )
         run_as_group
 
-        input :smart_credentials,
-              title: 'OAuth Credentials',
-              type: :oauth_credentials,
+        input :smart_auth_info,
+              type: :auth_info,
               optional: true
 
         # All FHIR requests in this suite will use this FHIR client
         fhir_client do
           url :url
-          oauth_credentials :smart_credentials
+          auth_info :smart_auth_info
         end
 
         group from: :questionnaire_response_group

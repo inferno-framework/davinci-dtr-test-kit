@@ -18,18 +18,15 @@
       "value": "SAMPLE_PUBLIC_CLIENT_ID"
     },
     {
-      "name": "smart_credentials",
-      "type": "oauth_credentials",
+      "name": "smart_auth_info",
+      "type": "auth_info",
       "title": "OAuth Credentials",
       "optional": true,
-      "value": "{\"access_token\":\"SAMPLE_TOKEN\"}"
-    },
-    {
-      "name": "credentials",
-      "type": "oauth_credentials",
-      "title": "OAuth Credentials",
-      "optional": true,
-      "value": "{\"access_token\":\"SAMPLE_TOKEN\"}"
+      "value": {
+        "auth_type": "public",
+        "access_token": "SAMPLE_TOKEN",
+        "client_id": "SAMPLE_PUBLIC_CLIENT_ID"
+      }
     },
     {
       "name": "patient_ids",

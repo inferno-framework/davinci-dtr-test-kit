@@ -4,7 +4,7 @@ services:
   #   image: infernocommunity/fhir-validator-service
   #   # Update this path to match your directory structure
   #   volumes:
-  #     - ./lib/davinci_dtr_test_kit/igs:/home/igs
+  #     - ./data/igs:/home/igs
   # fhir_validator_app:
   #   image: infernocommunity/fhir-validator-app
   #   depends_on:
@@ -19,7 +19,7 @@ services:
       # Negative values mean sessions never expire, 0 means sessions immediately expire
       SESSION_CACHE_DURATION: -1
     volumes:
-      - ./lib/davinci_dtr_test_kit/igs:/app/igs
+      - ./data/igs:/app/igs
       # To let the service share your local FHIR package cache,
       # uncomment the below line
       # - ~/.fhir:/home/ktor/.fhir

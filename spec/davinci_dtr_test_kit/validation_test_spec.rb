@@ -17,10 +17,15 @@ RSpec.describe DaVinciDTRTestKit::ValidationTest do
     end
     Inferno::TestRunner.new(test_session:, test_run:).run(runnable)
   end
+
   describe 'profile validation test' do
     let(:profile_validation_test) do
       Class.new(Inferno::Test) do
         include DaVinciDTRTestKit::ValidationTest
+
+        def self.suite
+          Inferno::Repositories::TestSuites.new.find('dtr_payer_server')
+        end
 
         validator do
           url ENV.fetch('FHIR_RESOURCE_VALIDATOR_URL')
@@ -38,6 +43,7 @@ RSpec.describe DaVinciDTRTestKit::ValidationTest do
         end
       end
     end
+
     let(:coverage_resources) do
       FHIR::Coverage.new(
         resourceType: 'Coverage',

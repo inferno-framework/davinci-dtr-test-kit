@@ -1,8 +1,4 @@
-require_relative '../request_helper'
-
-RSpec.describe DaVinciDTRTestKit::DTRFullEHRAdaptiveInitialRetrievalGroup do
-  include RequestHelpers
-
+RSpec.describe DaVinciDTRTestKit::DTRFullEHRAdaptiveInitialRetrievalGroup, :request do
   let(:group) { Inferno::Repositories::TestGroups.new.find('dtr_full_ehr_adaptive_initial_retrieval') }
   let(:suite_id) { :dtr_full_ehr }
   let(:questionnaire_package_url) { "/custom/#{suite_id}/fhir/Questionnaire/$questionnaire-package" }

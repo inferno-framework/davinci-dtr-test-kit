@@ -4,10 +4,10 @@
   "test_suite_id": "dtr_payer_server",
   "inputs": [
     {
-      "name": "smart_credentials",
+      "name": "smart_auth_info",
       "value": null,
       "title": "OAuth Credentials",
-      "type": "oauth_credentials",
+      "type": "auth_info",
       "optional": true
     },
     {
