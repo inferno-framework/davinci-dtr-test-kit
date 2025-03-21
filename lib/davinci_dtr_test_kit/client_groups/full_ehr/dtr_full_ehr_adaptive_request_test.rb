@@ -20,7 +20,12 @@ module DaVinciDTRTestKit
                           'hl7.fhir.us.davinci-dtr_2.0.1@264'
 
     config options: { accepts_multiple_requests: true }
-    input :access_token
+    input :access_token,
+          description: %(
+            `Bearer` token that the client under test will send in the
+            `Authorization` header of each HTTP request to Inferno. Inferno
+            will look for this value to associate requests with this session.
+          )
 
     run do
       wait(

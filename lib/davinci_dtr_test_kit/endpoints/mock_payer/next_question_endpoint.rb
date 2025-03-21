@@ -22,6 +22,29 @@ module DaVinciDTRTestKit
         response.body = build_questionnaire_next_response.to_json
       end
 
+      def custom_next_question_requests
+        requests_repo.tagged_requests(test_run.test_session_id, ["custom_#{DaVinciDTRTestKit::CLIENT_NEXT_TAG}"])
+      end
+
+      def custom_questionnaires
+        return @custom_questionnaires unless @custom_questionnaires.nil?
+
+        questionnaires = JSON.parse(result.input_json)
+          .find { |input| input['name'].include?('custom_next_question_questionnaires') }
+          &.dig('value')
+        return unless questionnaires
+
+        @custom_questionnaires = [JSON.parse(questionnaires)].flatten.compact
+      end
+
+      def next_custom_questionnaire
+        custom_questionnaires[custom_next_question_requests.length]
+      end
+
+      def complete_questionnaire?
+        custom_questionnaires && next_custom_questionnaire.blank?
+      end
+
       def update_result
         results_repo.update_result(result.id, 'pass') unless test.config.options[:accepts_multiple_requests]
       end
@@ -41,9 +64,9 @@ module DaVinciDTRTestKit
 
         questionnaire_response_param = FHIR::Parameters::Parameter.new(name: 'return', resource: questionnaire_response)
 
-        if questionnaire_last_dinner_order_question_present?(questionnaire_response)
+        if complete_questionnaire? || questionnaire_last_dinner_order_question_present?(questionnaire_response)
           # change the questionnaire response status to completed and return the parameters
-          return handle_last_dinner_order(questionnaire_response)
+          return complete_questionnaire(questionnaire_response)
         end
 
         next_questionnaire = determine_next_questionnaire(questionnaire_response, test.id)
@@ -103,15 +126,17 @@ module DaVinciDTRTestKit
       end
 
       def determine_next_questionnaire(questionnaire_response, test_id)
+        if custom_questionnaires
+          FHIR.from_contents(next_custom_questionnaire.to_json)
         # Retrieve the selected option from the response and determine the next set of questions
-        if questionnaire_dinner_order_selection_present?(questionnaire_response)
+        elsif questionnaire_dinner_order_selection_present?(questionnaire_response)
           dinner_question_from_selection(questionnaire_response, test_id)
         else
           Fixtures.next_question_for_test(test_id)
         end
       end
 
-      def handle_last_dinner_order(questionnaire_response)
+      def complete_questionnaire(questionnaire_response)
         update_questionnaire_response(questionnaire_response)
         questionnaire_response
       end

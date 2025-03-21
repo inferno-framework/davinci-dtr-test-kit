@@ -1,8 +1,8 @@
-require_relative '../../tags'
-require_relative 'dtr_smart_app_adaptive_request_test'
-require_relative '../shared/dtr_questionnaire_package_request_validation_test'
-require_relative 'dtr_adaptive_next_question_request_validation_test'
-require_relative 'dtr_adaptive_response_validation_test'
+require_relative '../../../tags'
+require_relative '../../smart_app/dtr_smart_app_adaptive_request_test'
+require_relative '../../shared/dtr_questionnaire_package_request_validation_test'
+require_relative '../dtr_adaptive_next_question_request_validation_test'
+require_relative '../dtr_adaptive_response_validation_test'
 
 module DaVinciDTRTestKit
   class DTRSmartAppAdaptiveInitialRetrievalGroup < Inferno::TestGroup
