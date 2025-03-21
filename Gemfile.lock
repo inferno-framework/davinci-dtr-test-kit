@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    davinci_dtr_test_kit (0.15.2)
+    davinci_dtr_test_kit (0.16.0)
       inferno_core (~> 0.6.7)
       jwt (~> 2.6)
       smart_app_launch_test_kit (~> 0.6.0)
@@ -205,14 +205,14 @@ GEM
     mutex_m (0.3.0)
     netrc (0.11.0)
     nio4r (2.7.4)
-    nokogiri (1.18.4)
+    nokogiri (1.18.5)
       mini_portile2 (~> 2.8.2)
       racc (~> 1.4)
-    nokogiri (1.18.4-arm64-darwin)
+    nokogiri (1.18.5-arm64-darwin)
       racc (~> 1.4)
-    nokogiri (1.18.4-x86_64-darwin)
+    nokogiri (1.18.5-x86_64-darwin)
       racc (~> 1.4)
-    nokogiri (1.18.4-x86_64-linux-gnu)
+    nokogiri (1.18.5-x86_64-linux-gnu)
       racc (~> 1.4)
     oauth2 (1.4.11)
       faraday (>= 0.17.3, < 3.0)
