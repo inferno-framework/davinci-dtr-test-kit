@@ -1,3 +1,12 @@
+# v0.16.0
+## Breaking Change
+This release updates the Da Vinci DTR Test Kit to use AuthInfo rather than
+OAuthCredentials for storing auth information. As a result of this change, any
+test kits which rely on this test kit will need to be updated to use AuthInfo
+rather than OAuthCredentials inputs.
+
+* FI-3746: Use AuthInfo by @Jammjammjamm in https://github.com/inferno-framework/davinci-dtr-test-kit/pull/65
+
 # v0.15.2
 * Remove internal presets from gem by @karlnaden in https://github.com/inferno-framework/davinci-dtr-test-kit/pull/64
 
