@@ -1,8 +1,11 @@
+require_relative '../../descriptions'
 require_relative '../../urls'
+require_relative '../../session_identification'
 
 module DaVinciDTRTestKit
   class DTRAdaptiveNextQuestionRequestValidationTest < Inferno::Test
     include URLs
+    include SessionIdentification
 
     id :dtr_adaptive_next_question_request_validation
     title '$next-question request is valid'
@@ -32,6 +35,19 @@ module DaVinciDTRTestKit
     )
     verifies_requirements 'hl7.fhir.us.davinci-dtr_2.0.1@264'
 
+    input :client_id,
+          title: 'Client Id',
+          type: 'text',
+          optional: true,
+          locked: true,
+          description: INPUT_CLIENT_ID_LOCKED
+    input :session_url_path,
+          title: 'Session-specific URL path extension',
+          type: 'text',
+          optional: true,
+          locked: true,
+          description: INPUT_SESSION_URL_PATH_LOCKED
+
     def assert_valid_resource_type(resource)
       type = resource.resourceType
       valid = ['Parameters', 'QuestionnaireResponse'].include?(type)
@@ -43,10 +59,12 @@ module DaVinciDTRTestKit
     end
 
     def perform_requests_validation
+      nq_endpoint = inputs_to_session_endpont(:next_question, client_id, session_url_path)
+
       requests.each_with_index do |r, index|
-        if r.url != next_url
+        if r.url != nq_endpoint
           add_message('warning',
-                      "Request #{index} made to wrong URL: #{r.url}. Should instead be to #{next_url}")
+                      "Request #{index} made to wrong URL: #{r.url}. Should instead be to #{nq_endpoint}")
         end
         assert_valid_json(r.request_body)
         input_params = FHIR.from_contents(r.request_body)

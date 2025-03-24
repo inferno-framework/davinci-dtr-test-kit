@@ -1,11 +1,13 @@
 require_relative 'client_groups/custom_static/dtr_full_ehr_custom_static_workflow_group'
 require_relative 'client_groups/dinner_static/dtr_full_ehr_static_dinner_workflow_group'
-require_relative 'client_groups/adaptive_questionnaire/dinner_order/dtr_full_ehr_adaptive_dinner_workflow_group'
-require_relative 'client_groups/adaptive_questionnaire/custom/dtr_full_ehr_custom_adaptive_workflow_group'
+require_relative 'client_groups/dinner_adaptive/dtr_full_ehr_adaptive_dinner_workflow_group'
+require_relative 'client_groups/payer_registration/dtr_client_registration_group'
 require_relative 'client_groups/must_support/dtr_full_ehr_questionnaire_must_support_group'
-require_relative 'auth_groups/oauth2_authentication_group'
+require_relative 'client_groups/auth/dtr_client_payer_auth_group'
 require_relative 'endpoints/cors'
-require_relative 'endpoints/mock_authorization/simple_token_endpoint'
+require_relative 'endpoints/mock_udap_smart_server'
+require_relative 'endpoints/mock_udap_smart_server/registration'
+require_relative 'endpoints/mock_udap_smart_server/token'
 require_relative 'endpoints/mock_payer/full_ehr_questionnaire_package_endpoint'
 require_relative 'endpoints/mock_payer/full_ehr_next_question_endpoint'
 require_relative 'version'
@@ -46,12 +48,18 @@ module DaVinciDTRTestKit
       end
     end
 
-    allow_cors QUESTIONNAIRE_PACKAGE_PATH, NEXT_PATH
+    allow_cors QUESTIONNAIRE_PACKAGE_PATH, NEXT_PATH, SESSION_QUESTIONNAIRE_PACKAGE_PATH, SESSION_NEXT_PATH
 
-    suite_endpoint :post, PAYER_TOKEN_PATH, MockAuthorization::SimpleTokenEndpoint
+    route(:get, UDAP_DISCOVERY_PATH, MockUdapSmartServer.method(:udap_server_metadata))
+    route(:get, SMART_DISCOVERY_PATH, MockUdapSmartServer.method(:smart_server_metadata))
+
+    suite_endpoint :post, REGISTRATION_PATH, MockUdapSmartServer::RegistrationEndpoint
+    suite_endpoint :post, TOKEN_PATH, MockUdapSmartServer::TokenEndpoint
 
     suite_endpoint :post, QUESTIONNAIRE_PACKAGE_PATH, MockPayer::FullEHRQuestionnairePackageEndpoint
+    suite_endpoint :post, SESSION_QUESTIONNAIRE_PACKAGE_PATH, MockPayer::FullEHRQuestionnairePackageEndpoint
     suite_endpoint :post, NEXT_PATH, MockPayer::FullEHRNextQuestionEndpoint
+    suite_endpoint :post, SESSION_NEXT_PATH, MockPayer::FullEHRNextQuestionEndpoint
 
     resume_test_route :get, RESUME_PASS_PATH do |request|
       request.query_parameters['token']
@@ -61,7 +69,7 @@ module DaVinciDTRTestKit
       request.query_parameters['token']
     end
 
-    group from: :oauth2_authentication
+    group from: :dtr_client_payer_registration
     group do
       id :dtr_full_ehr_basic_workflows
       title 'Basic Workflows'
@@ -80,5 +88,6 @@ module DaVinciDTRTestKit
       group from: :dtr_full_ehr_adaptive_dinner_workflow
     end
     group from: :dtr_full_ehr_questionnaire_ms
+    group from: :dtr_client_payer_auth
   end
 end
