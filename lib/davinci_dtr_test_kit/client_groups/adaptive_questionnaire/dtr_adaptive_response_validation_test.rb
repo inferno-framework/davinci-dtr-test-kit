@@ -65,13 +65,13 @@ module DaVinciDTRTestKit
         scratch[:contained_questionnaires] << questionnaire
 
         verify_contained_questionnaire(questionnaire, index, custom_questionnaires)
-        check_missing_origin_sources(qr) if index == requests.length - 1
+        check_missing_origin_sources(qr, index) if index == requests.length - 1
 
         expected_overrides = next_request_tag&.include?('custom') ? [] : ['PBD.2']
-        check_origin_sources(questionnaire.item, qr.item, expected_overrides:)
+        check_origin_sources(questionnaire.item, qr.item, expected_overrides:, index:)
 
         required_link_ids = extract_required_link_ids(questionnaire.item)
-        check_answer_presence(qr.item, required_link_ids)
+        check_answer_presence(qr.item, required_link_ids, index)
       rescue Inferno::Exceptions::AssertionException => e
         prefix = e.message.include?('Workflow not') ? '' : "Request #{index}: "
         add_message('error', "#{prefix}#{e.message}")
