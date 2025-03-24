@@ -37,6 +37,20 @@ RSpec.describe DaVinciDTRTestKit::DTRFullEHRCustomAdaptiveWorkflowGroup, :reques
 
     before { allow_any_instance_of(DaVinciDTRTestKit::URLs).to(receive(:resume_pass_url).and_return('')) }
 
+    it 'fails when an empty package response is provided' do
+      result = run(runnable, access_token:, adaptive_custom_questionnaire_package_response: {}.to_json,
+                             custom_next_question_questionnaires: custom_questionnaires.to_json)
+      expect(result.result).to eq('fail')
+      expect(result.result_message).to match(/Custom questionnaire package response is empty/)
+    end
+
+    it 'fails when an empty questionnaire list is provided' do
+      result = run(runnable, access_token:, adaptive_custom_questionnaire_package_response:,
+                             custom_next_question_questionnaires: [].to_json)
+      expect(result.result).to eq('fail')
+      expect(result.result_message).to match(/Custom questionnaires list is empty/)
+    end
+
     it 'returns the user provided custom package to the questionnaire package request' do
       allow_any_instance_of(DaVinciDTRTestKit::URLs).to(receive(:questionnaire_package_url).and_return(''))
       result = run(runnable, access_token:, adaptive_custom_questionnaire_package_response:,
@@ -111,7 +125,7 @@ RSpec.describe DaVinciDTRTestKit::DTRFullEHRCustomAdaptiveWorkflowGroup, :reques
         .current_results_for_test_session_and_runnables(test_session.id, [runnable])
         .first.messages.map(&:message).join
 
-      expect(result_messages_string).to match(/The contained Questionnaire.item does not match/)
+      expect(result_messages_string).to match(/contained Questionnaire `item` does not match/)
     end
   end
 end
