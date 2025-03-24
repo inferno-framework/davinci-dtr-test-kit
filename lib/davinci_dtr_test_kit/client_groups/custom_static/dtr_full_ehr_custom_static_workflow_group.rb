@@ -29,6 +29,8 @@ module DaVinciDTRTestKit
     )
     verifies_requirements 'hl7.fhir.us.davinci-dtr_2.0.1@35', 'hl7.fhir.us.davinci-dtr_2.0.1@208'
 
+    input_order :custom_questionnaire_package_response, :questionnaire_response
+
     group do
       id :dtr_full_ehr_custom_static_retrieval
       title 'Retrieving the Static Questionnaire'
@@ -46,7 +48,7 @@ module DaVinciDTRTestKit
       )
       run_as_group
 
-      input_order :access_token, :custom_questionnaire_package_response
+      input_order :custom_questionnaire_package_response
 
       # Test 0: attest to launch
       test from: :dtr_full_ehr_launch_attest,
@@ -89,14 +91,6 @@ module DaVinciDTRTestKit
     end
 
     group from: :dtr_full_ehr_saving_qr do
-      input :custom_questionnaire_package_response,
-            title: 'Custom Questionnaire Package Response JSON',
-            description: %(
-              A JSON PackageBundle may be provided here to replace Inferno's response to the
-              $questionnaire-package request.
-            ),
-            type: 'textarea'
-
       config(
         inputs: {
           questionnaire_response: {

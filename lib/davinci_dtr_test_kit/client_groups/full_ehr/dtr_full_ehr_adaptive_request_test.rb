@@ -1,8 +1,11 @@
+require_relative '../../descriptions'
+require_relative '../../session_identification'
 require_relative '../../urls'
 
 module DaVinciDTRTestKit
   class DTRFullEHRAdaptiveRequestTest < Inferno::Test
     include URLs
+    include SessionIdentification
 
     id :dtr_full_ehr_adaptive_request
     title 'Invoke the Questionnaire Package and Initial Next Question Operation'
@@ -20,16 +23,32 @@ module DaVinciDTRTestKit
                           'hl7.fhir.us.davinci-dtr_2.0.1@264'
 
     config options: { accepts_multiple_requests: true }
-    input :access_token,
-          description: %(
-            `Bearer` token that the client under test will send in the
-            `Authorization` header of each HTTP request to Inferno. Inferno
-            will look for this value to associate requests with this session.
-          )
+    input :client_id,
+          title: 'Client Id',
+          type: 'text',
+          optional: true,
+          locked: true,
+          description: INPUT_CLIENT_ID_LOCKED
+    input :session_url_path,
+          title: 'Session-specific URL path extension',
+          type: 'text',
+          optional: true,
+          locked: true,
+          description: INPUT_SESSION_URL_PATH_LOCKED
+    input :jwk_set,
+          title: 'JSON Web Key Set (JWKS)',
+          type: 'textarea',
+          optional: true,
+          locked: true,
+          description: INPUT_JWK_SET_LOCKED
 
     run do
+      wait_identifier = inputs_to_wait_identifier(client_id, session_url_path)
+      qp_endpoint = inputs_to_session_endpont(:questionnaire_package, client_id, session_url_path)
+      nq_endpoint = inputs_to_session_endpont(:next_question, client_id, session_url_path)
+
       wait(
-        identifier: access_token,
+        identifier: wait_identifier,
         message: %(
           ### Adaptive Questionnaire Retrieval
 
@@ -37,7 +56,7 @@ module DaVinciDTRTestKit
             - Invoke the `$questionnaire-package` operation by sending a POST request to the following
             endpoint to retrieve the adaptive questionnaire package:
 
-              `#{questionnaire_package_url}`.
+              `#{qp_endpoint}`.
 
             - Inferno will respond with an empty adaptive questionnaire.
 
@@ -45,24 +64,15 @@ module DaVinciDTRTestKit
             - After receiving the questionnaire package, invoke the `$next-question` operation by sending
             a POST request to the following endpoint to retrieve the first set of questions:
 
-              `#{next_url}`.
+              `#{nq_endpoint}`.
 
             - Inferno will respond with the initial set of questions.
 
           Inferno will wait for both of these requests to be made.
 
-          ### Request Identification
-
-          In order to identify requests for this session, Inferno will look for
-          an `Authorization` header with value:
-
-          ```
-          Bearer #{access_token}
-          ```
-
           ### Continuing the Tests
 
-          When both requests have been made, [Click here](#{resume_pass_url}?token=#{access_token}) to continue.
+          When both requests have been made, [Click here](#{resume_pass_url}?token=#{wait_identifier}) to continue.
         )
       )
     end
