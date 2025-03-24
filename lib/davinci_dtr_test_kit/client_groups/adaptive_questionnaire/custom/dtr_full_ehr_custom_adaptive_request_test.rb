@@ -31,6 +31,22 @@ module DaVinciDTRTestKit
     input :custom_questionnaire_package_response, :custom_next_question_questionnaires
 
     run do
+      assert_valid_json(
+        custom_questionnaire_package_response,
+        'Custom questionnaire package response is not a valid json'
+      )
+      assert_valid_json(custom_next_question_questionnaires, 'Custom next questionnaires input is not a valid json')
+
+      custom_qp = JSON.parse(custom_questionnaire_package_response)
+      custom_questionnaires = JSON.parse(custom_next_question_questionnaires)
+      assert custom_qp.present?, %(
+        Custom questionnaire package response is empty, please provide a custom questionnaire package response
+        for the $questionnaire-package request
+      )
+      assert custom_questionnaires.present?, %(
+        'Custom questionnaires list is empty, please provide a list of Custom Questionnaire resources
+        to include in each $next-question Response.
+      )
       wait(
         identifier: access_token,
         message: %(
