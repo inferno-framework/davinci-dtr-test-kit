@@ -59,10 +59,10 @@ module DaVinciDTRTestKit
         verify_basic_conformance(qr.to_json, profile_url)
 
         questionnaire = qr.contained.find { |res| res.resourceType == 'Questionnaire' }
+        assert questionnaire, 'QuestionnaireResponse does not contained a Questionnaire'
+
         scratch[:contained_questionnaires] ||= []
         scratch[:contained_questionnaires] << questionnaire
-
-        assert questionnaire, 'QuestionnaireResponse does not contained a Questionnaire'
 
         verify_contained_questionnaire(questionnaire, index, custom_questionnaires)
         check_missing_origin_sources(qr) if index == requests.length - 1
@@ -80,12 +80,19 @@ module DaVinciDTRTestKit
     end
 
     def verify_contained_questionnaire(questionnaire, index, custom_questionnaires)
-      return unless next_request_tag&.include?('custom') && index.positive? && custom_questionnaires.present?
+      return unless next_request_tag&.include?('custom')
+      return unless index.positive? && custom_questionnaires.present?
 
-      assert questionnaire.to_hash['item'] == custom_questionnaires[index - 1]['item'], %(
-        Invalid QuestionnaireResponse. The contained Questionnaire.item does not match the expected one. \n
-        Expected: `#{custom_questionnaires[index - 1]['item']}`,\n
-        Received: \n `#{questionnaire.to_hash['item']}`.
+      expected_questionnaire = custom_questionnaires[index - 1]
+      return unless expected_questionnaire
+
+      actual_items = questionnaire.to_hash['item']
+      expected_items = expected_questionnaire['item']
+
+      assert actual_items == expected_items, %(
+        Invalid QuestionnaireResponse: the contained Questionnaire `item` does not match the expected content.
+        **Expected**: #{expected_items.inspect}
+        **Received**: #{actual_items.inspect}
       )
     end
 

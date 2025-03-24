@@ -31,6 +31,10 @@ module DaVinciDTRTestKit
           ),
           type: 'textarea'
 
+    def next_request_tag
+      config.options[:next_tag]
+    end
+
     def extract_link_ids(questionnaire_items)
       questionnaire_items&.each_with_object([]) do |item, link_ids|
         link_ids << item.linkId
@@ -40,13 +44,6 @@ module DaVinciDTRTestKit
     end
 
     def validate_correctness_of_custom_next_questionnaire(custom_questionnaire, contained_questionnaire)
-      error_msg = %(
-        Custom Questionnaire ID does not match the contained Questionnaire ID in
-        the QuestionnaireResponse of the $next-question request.
-        Expected `#{contained_questionnaire.id}`, but received `#{custom_questionnaire.id}`
-      )
-      add_message('error', error_msg) if custom_questionnaire.id != contained_questionnaire.id
-
       custom_items_link_ids = extract_link_ids(custom_questionnaire.item) || []
       contained_items_link_ids = extract_link_ids(contained_questionnaire.item) || []
       missing_items_ids = contained_items_link_ids - custom_items_link_ids
@@ -64,19 +61,27 @@ module DaVinciDTRTestKit
     end
 
     run do
+      load_tagged_requests next_request_tag
+      skip_if requests.blank?, 'A $next-question request must be made prior to running this test'
       assert_valid_json custom_next_question_questionnaires, 'Custom $next-question Questionnaires is not valid JSON'
 
+      skip_if scratch[:contained_questionnaires].nil?, %(
+        Unable to validate user-provided Questionnaires: no valid `$next-question` requests
+        containing a Questionnaire were received.
+      )
+
       custom_questionnaires = [JSON.parse(custom_next_question_questionnaires)].flatten
-      custom_questionnaires.each_with_index do |q, index|
+      custom_questionnaires.each do |q|
         custom_questionnaire = FHIR.from_contents(q.to_json)
         assert custom_questionnaire, "The custom Questionnaire #{q[:id]} provided is not a valid FHIR resource"
         assert_resource_type(:questionnaire, resource: custom_questionnaire)
 
-        contained_questionnaire = scratch[:contained_questionnaires][index]
+        contained_questionnaire = scratch[:contained_questionnaires].find { |cq| cq.id == custom_questionnaire.id }
         assert contained_questionnaire, %(
-          Unable to validate next questionnaire `#{q[:id]}` provided: could not find matching contained
-          questionnaire in the $next-question request.
+          Unable to validate the provided custom Questionnaire `#{q[:id]}`: no valid `$next-question` request
+          was found containing a Questionnaire with a matching ID.
         )
+
         validate_correctness_of_custom_next_questionnaire(custom_questionnaire, contained_questionnaire)
       rescue Inferno::Exceptions::AssertionException => e
         add_message('error', "Questionnaire `#{q[:id]}`: #{e.message}")
