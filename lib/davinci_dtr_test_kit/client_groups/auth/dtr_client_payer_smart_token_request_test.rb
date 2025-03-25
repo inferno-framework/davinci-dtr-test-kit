@@ -20,7 +20,7 @@ module DaVinciDTRTestKit
           optional: true,
           locked: true,
           description: INPUT_CLIENT_ID_LOCKED
-    input :jwk_set,
+    input :smart_jwk_set,
           title: 'JSON Web Key Set (JWKS)',
           type: 'textarea',
           optional: true,
@@ -28,7 +28,8 @@ module DaVinciDTRTestKit
           description: INPUT_JWK_SET_LOCKED
 
     run do
-      omit_if jwk_set.blank?, 'SMART Backend Services authentication not demonstrated as a part of this test session.'
+      omit_if smart_jwk_set.blank?,
+              'SMART Backend Services authentication not demonstrated as a part of this test session.'
 
       load_tagged_requests(TOKEN_TAG, SMART_TAG)
       skip_if requests.blank?, 'No SMART token requests made.'
@@ -116,7 +117,7 @@ module DaVinciDTRTestKit
     end
 
     def check_jwt_signature(encoded_token, index)
-      error = MockUdapSmartServer.smart_assertion_signature_verification(encoded_token, jwk_set)
+      error = MockUdapSmartServer.smart_assertion_signature_verification(encoded_token, smart_jwk_set)
 
       return unless error.present?
 
