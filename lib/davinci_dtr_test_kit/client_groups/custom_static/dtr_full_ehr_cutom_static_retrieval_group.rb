@@ -11,17 +11,17 @@ module DaVinciDTRTestKit
     id :dtr_full_ehr_custom_static_retrieval
     title 'Retrieving the Static Questionnaire'
     description %(
-        During this test, DTR will be launch in the Full EHR to start the demonstration of
-        static Questionnaire capabilities. This launch must occur within the context of a patient
-        that will demonstrate the Questionnaire's pre-population logic. The patient's data needs
-        to support pre-population of at least two answers to allow for demonstration of both
-        pre-populated and manually-overridden answers in the resulting QuestionnaireResponse.
+      During this test, DTR will be launch in the Full EHR to start the demonstration of
+      static Questionnaire capabilities. This launch must occur within the context of a patient
+      that will demonstrate the Questionnaire's pre-population logic. The patient's data needs
+      to support pre-population of at least two answers to allow for demonstration of both
+      pre-populated and manually-overridden answers in the resulting QuestionnaireResponse.
 
-        After DTR launch, Inferno will wait for the client system to request a questionnaire using the
-        $questionnaire-package operation and will return a static questionnaire for the
-        tester to complete. Inferno will then validate the the conformance of the request
-        and of the provided Questionnaire that Inferno responded with.
-      )
+      After DTR launch, Inferno will wait for the client system to request a questionnaire using the
+      $questionnaire-package operation and will return a static questionnaire for the
+      tester to complete. Inferno will then validate the the conformance of the request
+      and of the provided Questionnaire that Inferno responded with.
+    )
     run_as_group
 
     input_order :access_token, :custom_questionnaire_package_response
