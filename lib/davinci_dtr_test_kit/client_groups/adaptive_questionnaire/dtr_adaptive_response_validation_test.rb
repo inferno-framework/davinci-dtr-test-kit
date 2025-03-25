@@ -1,10 +1,13 @@
+require_relative '../../descriptions'
 require_relative '../../urls'
+require_relative '../../session_identification'
 require_relative '../../dtr_questionnaire_response_validation'
 
 module DaVinciDTRTestKit
   class DTRAdaptiveResponseValidationTest < Inferno::Test
     include URLs
     include DTRQuestionnaireResponseValidation
+    include SessionIdentification
 
     id :dtr_adaptive_response_validation
     title 'Adaptive QuestionnaireResponse is valid'
@@ -27,6 +30,19 @@ module DaVinciDTRTestKit
     verifies_requirements 'hl7.fhir.us.davinci-dtr_2.0.1@38', 'hl7.fhir.us.davinci-dtr_2.0.1@210',
                           'hl7.fhir.us.davinci-dtr_2.0.1@264'
 
+    input :client_id,
+          title: 'Client Id',
+          type: 'text',
+          optional: true,
+          locked: true,
+          description: INPUT_CLIENT_ID_LOCKED
+    input :session_url_path,
+          title: 'Session-specific URL path extension',
+          type: 'text',
+          optional: true,
+          locked: true,
+          description: INPUT_SESSION_URL_PATH_LOCKED
+
     def profile_url
       'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaireresponse-adapt'
     end
@@ -36,10 +52,12 @@ module DaVinciDTRTestKit
     end
 
     def perform_questionnaire_reponses_validation(custom_questionnaires) # rubocop:disable Metrics/CyclomaticComplexity
+      nq_endpoint = inputs_to_session_endpont(:next_question, client_id, session_url_path)
+
       requests.each_with_index do |r, index|
-        if r.url != next_url
+        if r.url != nq_endpoint
           add_message('warning',
-                      "Request #{index} made to wrong URL: #{r.url}. Should instead be to #{next_url}")
+                      "Request #{index} made to wrong URL: #{r.url}. Should instead be to #{nq_endpoint}")
         end
 
         assert_valid_json(r.request_body)
