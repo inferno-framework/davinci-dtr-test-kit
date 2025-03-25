@@ -45,7 +45,7 @@ module DaVinciDTRTestKit
               Client URI that will be used to register with Inferno's simulated UDAP server.
             )
     input :smart_jwk_set,
-          title: 'JSON Web Key Set (JWKS)',
+          title: 'SMART JSON Web Key Set (JWKS)',
           type: 'textarea',
           optional: true,
           description: %(
@@ -67,9 +67,9 @@ module DaVinciDTRTestKit
           type: 'text',
           optional: true,
           description: %(
-              Ignored if a UDAP Client URI or JWKS is provided. If demonstrating PAS
+              Ignored if a UDAP Client URI or SMART JWKS is provided. If demonstrating PAS
               interactions without authentication, Inferno will use this value to
-              setup a session-specific FHIR endpoints to use during these tests.
+              setup session-specific FHIR endpoints to use during these tests.
               If not provided, and no auth configuration is included in the inputs,
               a value will be generated.
             )
