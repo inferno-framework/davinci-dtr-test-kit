@@ -4,6 +4,7 @@ require_relative '../../full_ehr/dtr_full_ehr_prepopulation_attestation_test'
 require_relative '../../full_ehr/dtr_full_ehr_prepopulation_override_attestation_test'
 require_relative 'dtr_adaptive_followup_questions_group'
 require_relative 'dtr_adaptive_completion_group'
+require_relative '../../full_ehr/dtr_full_ehr_store_attestation_test'
 
 module DaVinciDTRTestKit
   class DTRFullEHRAdaptiveDinnerWorkflowGroup < Inferno::TestGroup
@@ -67,12 +68,21 @@ module DaVinciDTRTestKit
             }
           }
 
-    group from: :dtr_adaptive_completion,
-          config: {
-            options: {
-              accepts_multiple_requests: true,
-              next_tag: "completion_#{CLIENT_NEXT_TAG}"
-            }
-          }
+    group from: :dtr_adaptive_completion do
+      config(
+        options: {
+          accepts_multiple_requests: true,
+          next_tag: "completion_#{CLIENT_NEXT_TAG}"
+        }
+      )
+      group do
+        title 'Attestation: QuestionnaireResponse Completion and Storage'
+        description %(
+          The tester will attest to the completion of the questionnaire such that the results are stored for later use.
+        )
+
+        test from: :dtr_full_ehr_store_attest
+      end
+    end
   end
 end
