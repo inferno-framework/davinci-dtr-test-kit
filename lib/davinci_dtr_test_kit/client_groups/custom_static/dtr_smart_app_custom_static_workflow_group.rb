@@ -1,7 +1,7 @@
-require_relative 'dtr_custom_questionnaire_package_validation_test'
-require_relative 'dtr_custom_questionnaire_libraries_test'
-require_relative 'dtr_custom_questionnaire_extensions_test'
-require_relative 'dtr_custom_questionnaire_expressions_test'
+require_relative '../shared/dtr_custom_questionnaire_package_validation_test'
+require_relative '../shared/dtr_custom_questionnaire_libraries_test'
+require_relative '../shared/dtr_custom_questionnaire_extensions_test'
+require_relative '../shared/dtr_custom_questionnaire_expressions_test'
 require_relative '../smart_app/dtr_smart_app_questionnaire_package_request_test'
 require_relative '../shared/dtr_questionnaire_package_request_validation_test'
 require_relative '../shared/dtr_prepopulation_attestation_test'
@@ -68,7 +68,7 @@ module DaVinciDTRTestKit
       title 'Filling Out the Static Questionnaire'
       description %(
         The tester will interact with the questionnaire within their client system
-        such that pre-population steps are taken, the qustionnaire is rendered, and
+        such that pre-population steps are taken, the questionnaire is rendered, and
         they are able to fill it out. The tester will attest that questionnaire pre-population
         and rendering directives were followed.
       )

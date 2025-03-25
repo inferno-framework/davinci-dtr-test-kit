@@ -31,9 +31,15 @@ module DaVinciDTRTestKit
       if config.options[:adaptive]
         questionnaire = questionnaire_response.contained.find { |res| res.resourceType == 'Questionnaire' }
         assert questionnaire, 'Adaptive QuestionnaireResponse must have a contained Questionnaire resource.'
-        check_origin_sources(questionnaire.item, questionnaire_response.item, expected_overrides: ['PBD.2'])
+
+        check_missing_origin_sources(questionnaire_response) if config.options[:custom]
+
+        expected_overrides = config.options[:custom] ? [] : ['PBD.2']
+        check_origin_sources(questionnaire.item, questionnaire_response.item, expected_overrides:)
+
         required_link_ids = extract_required_link_ids(questionnaire.item)
         check_answer_presence(questionnaire_response.item, required_link_ids)
+
         assert(messages.none? { |m| m[:type] == 'error' }, 'QuestionnaireResponse is not correct, see error message(s)')
       else
         questionnaire = Fixtures.questionnaire_for_test(id)

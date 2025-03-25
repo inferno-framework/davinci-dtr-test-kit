@@ -1,6 +1,6 @@
-require_relative 'dtr_adaptive_next_question_request_test'
-require_relative 'dtr_adaptive_next_question_request_validation_test'
-require_relative 'dtr_adaptive_response_validation_test'
+require_relative '../dtr_adaptive_next_question_request_test'
+require_relative '../dtr_adaptive_next_question_request_validation_test'
+require_relative '../dtr_adaptive_response_validation_test'
 
 module DaVinciDTRTestKit
   class DTRAdaptiveNextQuestionRetrievalGroup < Inferno::TestGroup

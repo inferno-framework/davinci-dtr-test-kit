@@ -24,6 +24,9 @@ module DaVinciDTRTestKit
       If it is a Parameters resource, it must contain one parameter named `questionnaire-response`
       with a `resource` attribute set to a FHIR QuestionnaireResponse instance, as specified above.
 
+      This test may process multiple resources, labeling messages with the corresponding tested resources
+      in the order that they were received.
+
       The QuestionnaireResponse resource's structure and conformance will be validated
       in the following test ('Adaptive QuestionnaireResponse is valid').
     )
@@ -39,25 +42,41 @@ module DaVinciDTRTestKit
       config.options[:next_tag]
     end
 
+    def perform_requests_validation
+      requests.each_with_index do |r, index|
+        if r.url != next_url
+          add_message('warning',
+                      "Request #{index} made to wrong URL: #{r.url}. Should instead be to #{next_url}")
+        end
+        assert_valid_json(r.request_body)
+        input_params = FHIR.from_contents(r.request_body)
+        assert input_params.present?, 'Request does not contain a recognized FHIR object'
+        assert_valid_resource_type(input_params)
+
+        if input_params.is_a?(FHIR::Parameters)
+          questionnaire_response_params = input_params.parameter.select do |param|
+            param.name == 'questionnaire-response'
+          end
+          qr_params_count = questionnaire_response_params.length
+          assert qr_params_count == 1,
+                 "Input parameter must contain one `parameter:questionnaire-response` slice. Found #{qr_params_count}"
+
+          questionnaire_response =  questionnaire_response_params.first.resource
+          assert_resource_type(:questionnaire_response, resource: questionnaire_response)
+        end
+      rescue Inferno::Exceptions::AssertionException => e
+        add_message('error', "Request #{index}: #{e.message}")
+        next
+      end
+    end
+
     run do
       load_tagged_requests next_request_tag
-      skip_if request.blank?, 'A $next-question request must be made prior to running this test'
+      skip_if requests.blank?, 'A $next-question request must be made prior to running this test'
 
-      assert request.url == next_url, "Request made to wrong URL: #{request.url}. Should instead be to #{next_url}"
-      assert_valid_json(request.request_body)
-      input_params = FHIR.from_contents(request.request_body)
-      assert input_params.present?, 'Request does not contain a recognized FHIR object'
-      assert_valid_resource_type(input_params)
+      perform_requests_validation
 
-      if input_params.is_a?(FHIR::Parameters)
-        questionnaire_response_params = input_params.parameter.select { |param| param.name == 'questionnaire-response' }
-        qr_params_count = questionnaire_response_params.length
-        assert qr_params_count == 1,
-               "Input parameter must contain one `parameter:questionnaire-response` slice. Found #{qr_params_count}"
-
-        questionnaire_response =  questionnaire_response_params.first.resource
-        assert_resource_type(:questionnaire_response, resource: questionnaire_response)
-      end
+      assert messages.none? { |m| m[:type] == 'error' }, 'next-quest request(s) not comformant'
     end
   end
 end

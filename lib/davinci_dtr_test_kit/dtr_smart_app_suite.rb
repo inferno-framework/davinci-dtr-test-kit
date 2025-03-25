@@ -1,8 +1,9 @@
 require_relative 'auth_groups/oauth2_authentication_group'
 require_relative 'client_groups/respiratory/dtr_smart_app_respiratory_workflow_group'
 require_relative 'client_groups/dinner_static/dtr_smart_app_static_dinner_workflow_group'
-require_relative 'client_groups/dinner_adaptive/dtr_smart_app_adaptive_dinner_workflow_group'
+require_relative 'client_groups/adaptive_questionnaire/dinner_order/dtr_smart_app_adaptive_dinner_workflow_group'
 require_relative 'client_groups/custom_static/dtr_smart_app_custom_static_workflow_group'
+require_relative 'client_groups/adaptive_questionnaire/custom/dtr_smart_app_custom_adaptive_workflow_group'
 require_relative 'endpoints/cors'
 require_relative 'endpoints/mock_authorization'
 require_relative 'endpoints/mock_authorization/authorize_endpoint'
@@ -90,10 +91,9 @@ module DaVinciDTRTestKit
       )
 
       group from: :dtr_smart_app_custom_static_workflow
-      group from: :dtr_smart_app_adaptive_dinner_workflow
+      group from: :dtr_smart_app_custom_adaptive_workflow
     end
     group do
-      id :dtr_smart_app_questionnaire_functionality
       title 'Questionnaire Functionality Coverage'
       description %(
         Tests in this group validate that the client can complete additional DTR workflows
@@ -101,6 +101,7 @@ module DaVinciDTRTestKit
       )
       group from: :dtr_smart_app_resp_workflow
       group from: :dtr_smart_app_static_dinner_workflow
+      group from: :dtr_smart_app_adaptive_dinner_workflow
     end
   end
 end

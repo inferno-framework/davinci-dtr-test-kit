@@ -28,12 +28,16 @@ module DaVinciDTRTestKit
           ),
           type: 'textarea'
 
+    def form_type
+      config.options[:form_type] || 'static'
+    end
+
     run do
       assert_valid_json custom_questionnaire_package_response, 'Custom questionnaire package response is not valid JSON'
 
       resource = FHIR.from_contents(custom_questionnaire_package_response)
 
-      perform_questionnaire_package_validation(resource, 'static')
+      perform_questionnaire_package_validation(resource, form_type)
     end
   end
 end

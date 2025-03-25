@@ -29,14 +29,7 @@ module DaVinciDTRTestKit
                 "Couldn't find Questionnaire #{qr.questionnaire} in the provided custom questionnaire package
                 to validate the QuestionnaireResponse."
 
-        missing_origin_sources = ['auto', 'manual', 'override'] - extract_origin_sources(qr.item)
-        unless missing_origin_sources.empty?
-          add_message(
-            'error',
-            'All origin sources (auto, manual, override) must be present in the QuestionnaireResponse. ' \
-            "Missing #{missing_origin_sources.to_sentence}"
-          )
-        end
+        check_missing_origin_sources(qr)
       end
 
       check_origin_sources(questionnaire.item, qr.item, expected_overrides:)
@@ -44,6 +37,18 @@ module DaVinciDTRTestKit
       required_link_ids = extract_required_link_ids(questionnaire.item)
       check_answer_presence(qr.item, required_link_ids)
       assert(messages.none? { |m| m[:type] == 'error' }, 'QuestionnaireResponse is not correct, see error message(s)')
+    end
+
+    def check_missing_origin_sources(questionnaire_response, index = nil)
+      missing_origin_sources = ['auto', 'manual', 'override'] - extract_origin_sources(questionnaire_response.item)
+      return if missing_origin_sources.empty?
+
+      prefix = index ? "Request #{index}: " : ''
+      add_message(
+        'error',
+        "#{prefix}All origin sources (auto, manual, override) must be present in the QuestionnaireResponse. " \
+        "Missing #{missing_origin_sources.to_sentence}"
+      )
     end
 
     def check_is_questionnaire_response(questionnaire_response_json)
@@ -65,9 +70,10 @@ module DaVinciDTRTestKit
     end
 
     # This only checks answers in the questionnaire response, meaning it does not catch missing answers
-    def check_origin_sources(questionnaire_items, response_items, expected_overrides: [])
+    def check_origin_sources(questionnaire_items, response_items, expected_overrides: [], index: nil)
+      prefix = index ? "Request #{index}: " : ''
       response_items&.each do |response_item|
-        check_origin_sources(questionnaire_items, response_item.item, expected_overrides:)
+        check_origin_sources(questionnaire_items, response_item.item, expected_overrides:, index:)
         next unless response_item.answer&.any?
 
         link_id = response_item.linkId
@@ -76,20 +82,25 @@ module DaVinciDTRTestKit
         is_cql_expression = item_is_cql_expression?(questionnaire_item)
 
         if origin_source.nil?
-          add_message('error', "Required `origin.source` extension not present on answer to item `#{link_id}`")
+          add_message('error', "#{prefix}Required `origin.source` extension not present on answer to item `#{link_id}`")
         else
-          check_origin_source(origin_source, link_id, is_cql_expression, override: expected_overrides.include?(link_id))
+          check_origin_source(
+            origin_source, link_id, is_cql_expression,
+            override: expected_overrides.include?(link_id),
+            index:
+          )
         end
       end
     end
 
-    def check_origin_source(origin_source, link_id, is_cql_expression, override: false)
+    def check_origin_source(origin_source, link_id, is_cql_expression, override: false, index: nil) # rubocop:disable  Metrics/CyclomaticComplexity
+      prefix = index ? "Request #{index}: " : ''
       if override
-        origin_source_error(link_id, ['override'], origin_source) unless origin_source == 'override'
+        origin_source_error(link_id, ['override'], origin_source, prefix) unless origin_source == 'override'
       elsif is_cql_expression && !['auto', 'override'].include?(origin_source)
-        origin_source_error(link_id, 'auto or override', origin_source)
+        origin_source_error(link_id, 'auto or override', origin_source, prefix)
       elsif !is_cql_expression && origin_source != 'manual'
-        origin_source_error(link_id, 'manual', origin_source)
+        origin_source_error(link_id, 'manual', origin_source, prefix)
       end
     end
 
@@ -104,11 +115,13 @@ module DaVinciDTRTestKit
 
     # Ensures that all required questions have been answered.
     # If required_link_ids not provided, all questions are treated as optional.
-    def check_answer_presence(response_items, required_link_ids = [])
+    def check_answer_presence(response_items, required_link_ids = [], index = nil)
+      prefix = index ? "Request #{index}: " : ''
+
       required_link_ids.each do |link_id|
         item = find_item_by_link_id(response_items, link_id)
         unless item&.answer&.any? { |answer| answer.value.present? }
-          add_message('error', "No answer for item #{link_id}")
+          add_message('error', "#{prefix}No answer for item #{link_id}")
         end
       end
     end
@@ -235,8 +248,8 @@ module DaVinciDTRTestKit
       end
     end
 
-    def origin_source_error(link_id, expected, actual)
-      add_message('error', %(`origin.source` extension on item `#{link_id}` contains unexpected value.
+    def origin_source_error(link_id, expected, actual, msg_prefix = nil)
+      add_message('error', %(#{msg_prefix}`origin.source` extension on item `#{link_id}` contains unexpected value.
                              Expected: #{expected}. Found: #{actual}))
     end
 
