@@ -12,7 +12,7 @@ module DaVinciDTRTestKit
         During this test, Inferno will verify that the SMART registration details
         provided are conformant.
       )
-    input :jwk_set,
+    input :smart_jwk_set,
           optional: true
     input :client_id,
           optional: true
@@ -20,7 +20,7 @@ module DaVinciDTRTestKit
     output :client_id
 
     run do
-      omit_if jwk_set.blank?, 'Not configured for SMART authentication.'
+      omit_if smart_jwk_set.blank?, 'Not configured for SMART authentication.'
 
       if client_id.blank?
         client_id = test_session_id
@@ -28,10 +28,10 @@ module DaVinciDTRTestKit
       end
 
       jwks_warnings = []
-      parsed_jwk_set = MockUdapSmartServer.jwk_set(jwk_set, jwks_warnings)
+      parsed_smart_jwk_set = MockUdapSmartServer.jwk_set(smart_jwk_set, jwks_warnings)
       jwks_warnings.each { |warning| add_message('warning', warning) }
 
-      assert parsed_jwk_set.length.positive?, 'JWKS content does not include any valid keys.'
+      assert parsed_smart_jwk_set.length.positive?, 'JWKS content does not include any valid keys.'
 
       # store_mocked_registration(JWT::JWK::Set.new(jwk_list))
 

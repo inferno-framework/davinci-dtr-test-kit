@@ -13,7 +13,7 @@ module DaVinciDTRTestKit
       )
     input :udap_client_uri,
           optional: true
-    input :jwk_set,
+    input :smart_jwk_set,
           optional: true
     input :client_id,
           optional: true
@@ -34,7 +34,7 @@ module DaVinciDTRTestKit
           new_session_url_path = ''
         end
         udap_smart_or_both =
-          if udap_client_uri.present? && jwk_set.present?
+          if udap_client_uri.present? && smart_jwk_set.present?
             'SMART and UDAP'
           elsif udap_client_uri.present?
             'UDAP'

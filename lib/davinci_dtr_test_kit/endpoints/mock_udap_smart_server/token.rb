@@ -21,7 +21,7 @@ module DaVinciDTRTestKit
             MockUdapSmartServer.udap_assertion_signature_verification(assertion, software_statement)
           else
             key_set_input = JSON.parse(result.input_json)&.find do |i|
-              i['name'] == 'jwk_set'
+              i['name'] == 'smart_jwk_set'
             end&.dig('value')
             MockUdapSmartServer.smart_assertion_signature_verification(assertion, key_set_input)
           end
