@@ -27,7 +27,7 @@ module DaVinciDTRTestKit
 
       requests.clear
       token_requests = load_tagged_requests(TOKEN_TAG, UDAP_TAG)
-      prior_auth_requests = load_tagged_requests(SUBMIT_TAG) + load_tagged_requests(INQUIRE_TAG)
+      prior_auth_requests = load_tagged_requests(QUESTIONNAIRE_PACKAGE_TAG) + load_tagged_requests(CLIENT_NEXT_TAG)
 
       skip_if token_requests.blank?, 'No token requests made.'
       skip_if prior_auth_requests.blank?, 'No prior authorization requests made.'
