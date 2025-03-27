@@ -1,0 +1,38 @@
+require 'securerandom'
+require_relative '../../urls'
+module DaVinciDTRTestKit
+  class DTRMustSupportAttestationTest < Inferno::Test
+    id :dtr_must_support_attest
+    title 'Attestation: Support for mustSupport Elements in Questionnaire'
+
+    def form_type
+      config.options[:form_type]
+    end
+
+    def profile_url
+      if form_type == 'adaptive'
+        'http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/dtr-questionnaire-adapt|2.0.1'
+      else
+        'http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/dtr-std-questionnaire|2.0.1'
+      end
+    end
+
+    run do
+      random_id = SecureRandom.uuid
+      wait(
+        identifier: random_id,
+        message: %(
+          I attest that the client application successfully handled all `mustSupport` elements
+          defined in the [DTR #{form_type&.capitalize || 'Standard'} Questionnaire profile](#{profile_url}) by:
+
+          - Requesting, rendering, and completing each of the provided questionnaires.
+          - Displaying appropriate visual cues or guidance where `mustSupport` elements impact expected user actions.
+
+          [Click here](#{resume_pass_url}?token=#{random_id}) if the above statement is **true**.
+
+          [Click here](#{resume_fail_url}?token=#{random_id}) if the above statement is **false**.
+        )
+      )
+    end
+  end
+end
