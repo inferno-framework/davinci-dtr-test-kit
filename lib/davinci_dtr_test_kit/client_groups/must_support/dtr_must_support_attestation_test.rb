@@ -2,6 +2,7 @@ require 'securerandom'
 require_relative '../../urls'
 module DaVinciDTRTestKit
   class DTRMustSupportAttestationTest < Inferno::Test
+    include URLs
     id :dtr_must_support_attest
     title 'Attestation: Support for mustSupport Elements in Questionnaire'
 
