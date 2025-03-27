@@ -3,6 +3,8 @@ require_relative '../custom_static/dtr_full_ehr_cutom_static_retrieval_group'
 require_relative '../adaptive_questionnaire/custom/dtr_full_ehr_custom_adaptive_retrieval_group'
 require_relative 'dtr_must_support_attestation_test'
 require_relative '../full_ehr/dtr_full_ehr_store_attestation_test'
+require_relative '../shared/dtr_prepopulation_attestation_test'
+require_relative '../shared/dtr_prepopulation_override_attestation_test'
 
 module DaVinciDTRTestKit
   class DTRFullEHRQuestionnaireMustSupportGroup < Inferno::TestGroup
@@ -56,8 +58,22 @@ module DaVinciDTRTestKit
 
       group do
         title 'Attestation: Filling Out the Static Questionnaires'
+        description %(
+          This group verifies that the tester has properly followed pre-population and rendering
+          directives while interacting with and filling out the questionnaire(s).
+
+          After retrieving and completing each questionnaire in their client system, the tester will
+          attest that:
+          1. The client system can handle `mustSupport` elements by displaying appropriate visual cues or
+            guidance where those elements impact expected user actions.
+          2. Each questionnaire was pre-populated as expected, with at least two answers pre-populated.
+          3. Each questionnaire was rendered correctly according to its defined structure.
+          4. They were able to manually enter responses, including overriding pre-populated answers.
+        )
 
         test from: :dtr_must_support_attest
+        test from: :dtr_prepopulation_attest
+        test from: :dtr_prepopulation_override_attest
       end
 
       group do
@@ -150,9 +166,24 @@ module DaVinciDTRTestKit
       end
 
       group do
-        title 'Attestation: Filling Out the Static Questionnaire'
+        title 'Attestation: Filling Out the Adaptive Questionnaire'
+        description %(
+          This group verifies that the tester has properly followed pre-population and rendering
+          directives while interacting with and filling out the questionnaire.
+
+          After retrieving and completing the questionnaire in their client system, the tester will
+          attest that:
+          1. The client system can handle `mustSupport` elements by displaying appropriate visual cues or
+            guidance where those elements impact expected user actions.
+          2. The questionnaire was pre-populated as expected, with at least two answers pre-populated
+            across all sets of questions.
+          3. The questionnaire was rendered correctly according to its defined structure.
+          4. They were able to manually enter responses, including overriding pre-populated answers.
+        )
 
         test from: :dtr_must_support_attest
+        test from: :dtr_prepopulation_attest
+        test from: :dtr_prepopulation_override_attest
       end
 
       group do

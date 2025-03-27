@@ -4,7 +4,7 @@ module DaVinciDTRTestKit
   class DTRMustSupportAttestationTest < Inferno::Test
     include URLs
     id :dtr_must_support_attest
-    title 'Attestation: Support for mustSupport Elements in Questionnaire'
+    title 'Support for mustSupport Elements in Questionnaire (Attestation)'
 
     def form_type
       config.options[:form_type]
