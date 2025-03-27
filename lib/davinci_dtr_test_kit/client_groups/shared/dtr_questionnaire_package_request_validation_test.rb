@@ -19,8 +19,12 @@ module DaVinciDTRTestKit
     verifies_requirements 'hl7.fhir.us.davinci-dtr_2.0.1@168', 'hl7.fhir.us.davinci-dtr_2.0.1@293',
                           'hl7.fhir.us.davinci-dtr_2.0.1@295'
 
+    def qp_tag
+      config.options[:questionnaire_package_tag] || QUESTIONNAIRE_PACKAGE_TAG
+    end
+
     run do
-      load_tagged_requests QUESTIONNAIRE_PACKAGE_TAG
+      load_tagged_requests qp_tag
       skip_if request.blank?, 'A Questionnaire Package request must be made prior to running this test'
 
       assert request.url == questionnaire_package_url,

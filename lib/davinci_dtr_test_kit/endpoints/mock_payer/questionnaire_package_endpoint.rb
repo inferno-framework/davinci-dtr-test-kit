@@ -12,7 +12,7 @@ module DaVinciDTRTestKit
       end
 
       def tags
-        [QUESTIONNAIRE_PACKAGE_TAG]
+        [test.config.options[:questionnaire_package_tag].presence || QUESTIONNAIRE_PACKAGE_TAG]
       end
 
       def make_response
