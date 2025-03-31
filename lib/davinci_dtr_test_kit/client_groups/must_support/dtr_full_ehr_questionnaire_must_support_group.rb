@@ -1,5 +1,5 @@
 require_relative '../../urls'
-require_relative '../custom_static/dtr_full_ehr_cutom_static_retrieval_group'
+require_relative '../custom_static/dtr_full_ehr_custom_static_retrieval_group'
 require_relative '../adaptive_questionnaire/custom/dtr_full_ehr_custom_adaptive_retrieval_group'
 require_relative 'dtr_must_support_attestation_test'
 require_relative '../full_ehr/dtr_full_ehr_store_attestation_test'
