@@ -5,6 +5,7 @@ require_relative 'dtr_must_support_attestation_test'
 require_relative '../full_ehr/dtr_full_ehr_store_attestation_test'
 require_relative '../shared/dtr_prepopulation_attestation_test'
 require_relative '../shared/dtr_prepopulation_override_attestation_test'
+require_relative 'dtr_questionnaire_must_support_test'
 
 module DaVinciDTRTestKit
   class DTRFullEHRQuestionnaireMustSupportGroup < Inferno::TestGroup
@@ -14,9 +15,9 @@ module DaVinciDTRTestKit
     input_order :access_token
 
     group do
-      run_as_group
       title 'Static Questionnaires Element Support'
       description %()
+      run_as_group
       config(
         options: {
           questionnaire_package_tag: "ms_static_#{QUESTIONNAIRE_PACKAGE_TAG}"
@@ -51,9 +52,10 @@ module DaVinciDTRTestKit
 
       group do
         title '[USER INPUT VALIDATION] Static Questionnaires Must Support'
-        test 'All must support elements are provided in the static Questionnaire resources provided' do
-          run { omit 'Not yet implemented' }
-        end
+
+        test from: :dtr_questionnaire_must_support,
+             title: 'All must support elements are provided in the static Questionnaire resources provided',
+             description: %()
       end
 
       group do
@@ -160,9 +162,10 @@ module DaVinciDTRTestKit
 
       group do
         title '[USER INPUT VALIDATION] Adaptive Questionnaires Must Support'
-        test 'All must support elements are provided in the adaptive Questionnaire resources provided' do
-          run { omit 'Not yet implemented' }
-        end
+
+        test from: :dtr_questionnaire_must_support,
+             title: 'All must support elements are provided in the adaptive Questionnaire resources provided',
+             description: %()
       end
 
       group do
