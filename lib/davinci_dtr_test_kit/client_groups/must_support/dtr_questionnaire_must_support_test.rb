@@ -23,7 +23,7 @@ module DaVinciDTRTestKit
       questionnaires = nil
       if form_type == 'static'
         skip_if scratch[:"#{form_type}_questionnaire_bundles"].blank?,
-                'No questionnaire bundle found in the custom response'
+                'No questionnaire bundle found in the custom Questionnaire Package response'
 
         questionnaires = extract_questionnaires_from_bundles(scratch[:"#{form_type}_questionnaire_bundles"])
       else
