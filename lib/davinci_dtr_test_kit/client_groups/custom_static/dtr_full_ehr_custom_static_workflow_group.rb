@@ -1,4 +1,4 @@
-require_relative 'dtr_full_ehr_cutom_static_retrieval_group'
+require_relative 'dtr_full_ehr_custom_static_retrieval_group'
 require_relative '../shared/dtr_prepopulation_attestation_test'
 require_relative '../shared/dtr_rendering_attestation_test'
 require_relative '../shared/dtr_prepopulation_override_attestation_test'
