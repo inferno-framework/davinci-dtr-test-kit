@@ -36,11 +36,6 @@ module DaVinciDTRTestKit
       skip_if questionnaires.blank? || questionnaires.none? { |q| q.is_a?(FHIR::Questionnaire) },
               'No Questionnaire resources found.'
 
-      # this raises Error: 404 Not Found when attempting to download IG using this url:
-      # https://packages.fhir.org/hl7.fhir.us.davinci-dtr/-/hl7.fhir.us.davinci-dtr-2.0.1.tgz
-      # Not sure if `"https://packages.fhir.org/#{package_name}/-/#{package_name}-#{version}.tgz"`
-      # in the IgDownloader#ig_registry_url method is the correct uri pattern to determine the
-      # package url for all IGs. Need to check with Dylan
       skip { assert_must_support_elements_present(questionnaires, profile_url) }
     end
   end
