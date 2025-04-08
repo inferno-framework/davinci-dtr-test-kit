@@ -5,6 +5,13 @@ module DaVinciDTRTestKit
     include URLs
     id :dtr_must_support_attest
     title 'Support for mustSupport Elements in Questionnaire (Attestation)'
+    description %(
+      The DTR client SHALL be able to handle all `mustSupport` elements defined in the Questionnaire profile.
+
+      The tester attests that the client has:
+      - Successfully requested, rendered, and completed each of the provided questionnaires.
+      - Presented appropriate visual cues or guidance wherever `mustSupport` elements affect expected user actions.
+    )
 
     def form_type
       config.options[:form_type]
