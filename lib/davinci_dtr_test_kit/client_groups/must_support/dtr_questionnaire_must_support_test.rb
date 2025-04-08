@@ -5,8 +5,6 @@ module DaVinciDTRTestKit
     include DaVinciDTRTestKit::CQLTest
     id :dtr_questionnaire_must_support
 
-    config(options: { debug_must_support_metadata: true })
-
     def form_type
       config.options[:form_type] || 'static'
     end
