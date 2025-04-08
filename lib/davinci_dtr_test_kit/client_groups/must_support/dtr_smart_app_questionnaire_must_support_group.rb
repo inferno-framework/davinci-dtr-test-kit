@@ -70,7 +70,7 @@ module DaVinciDTRTestKit
       test from: :dtr_custom_qp_validation
       # Test 4: must support test
       test from: :dtr_questionnaire_must_support,
-           title: '[USER INPUT VALIDATION] All must support elements are provided in the static Questionnaire resources provided',
+           title: '[USER INPUT VALIDATION] All must support elements are provided in the static Questionnaire resources provided', # rubocop:disable Layout/LineLength
            description: %(
             The DTR client SHALL be able to handle all `mustSupport` elements defined in the
             [DTR Standard Questionnaire ](http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/dtr-std-questionnaire)

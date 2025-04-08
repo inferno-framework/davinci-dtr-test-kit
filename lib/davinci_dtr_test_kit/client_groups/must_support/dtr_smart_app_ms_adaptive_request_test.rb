@@ -167,8 +167,8 @@ module DaVinciDTRTestKit
 
           3. **Pre-population and MustSupport Elements Visual Inspection**:
 
-              Inferno will then wait for the client to complete Questionnaire pre-population. The client should make FHIR
-              GET requests using service base path:
+              Inferno will then wait for the client to complete Questionnaire pre-population.
+              The client should make FHIR GET requests using service base path:
 
               `#{fhir_base_url}`
 
