@@ -178,7 +178,10 @@ module DaVinciDTRTestKit
       test from: :dtr_custom_next_questionnaire_validation
       # Test 7: must support test
       test from: :dtr_questionnaire_must_support do
-        title 'All must support elements are provided in the adaptive Questionnaire resources provided'
+        title %(
+          [USER INPUT VALIDATION] All must support elements are provided in the adaptive
+          Questionnaire resources provided
+        )
         description %()
 
         input :custom_next_question_questionnaires

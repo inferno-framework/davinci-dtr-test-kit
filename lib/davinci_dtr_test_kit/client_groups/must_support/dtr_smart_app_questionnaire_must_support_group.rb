@@ -1,13 +1,13 @@
 require_relative '../../urls'
-require_relative '../custom_static/dtr_smart_app_custom_static_retrieval_group'
+require_relative 'dtr_smart_app_ms_questionnaire_package_request_test'
+require_relative '../shared/dtr_questionnaire_package_request_validation_test'
+require_relative '../shared/dtr_custom_questionnaire_package_validation_test'
 require_relative 'dtr_questionnaire_must_support_test'
 require_relative 'dtr_must_support_attestation_test'
-require_relative '../full_ehr/dtr_full_ehr_store_attestation_test'
-require_relative '../shared/dtr_prepopulation_attestation_test'
-require_relative '../smart_app/dtr_smart_app_saving_questionnaire_response_group'
-require_relative '../smart_app/dtr_smart_app_questionnaire_response_correctness_test'
-require_relative '../shared/dtr_questionnaire_response_prepopulation_test'
-require_relative '../adaptive_questionnaire/custom/dtr_smart_app_custom_adaptive_retrieval_group'
+require_relative 'dtr_smart_app_ms_adaptive_request_test'
+require_relative '../adaptive_questionnaire/dtr_adaptive_next_question_request_validation_test'
+require_relative '../adaptive_questionnaire/dtr_adaptive_response_validation_test'
+require_relative '../adaptive_questionnaire/custom/dtr_custom_next_question_response_validation_test'
 
 module DaVinciDTRTestKit
   class DTRSmartAppQuestionnaireMustSupportGroup < Inferno::TestGroup
@@ -17,7 +17,30 @@ module DaVinciDTRTestKit
 
     group do
       title 'Static Questionnaires Element Support'
-      description %()
+      description %(
+        ### Questionnaire Package Request and mustSupport Visual Inspeection
+
+        During this test, Inferno will wait for the client system to request the questionnaire(s) using the
+        `$questionnaire-package` operation and will return the user-provided Questionnaire package for the
+        tester to complete.
+
+        The tester will then demonstrate that the client system supports the
+        `mustSupport` elements defined in the [DTR Standard Questionnaire](http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/dtr-std-questionnaire)
+        profile through visual inspection (e.g., rendering, UI behavior, or guidance).
+
+        ### Profile Validation
+
+         Inferno will validate that:
+          - The $questionnaire-package request conforms to [DTR Questionnaire Package Input Parameters](http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/dtr-qpackage-input-parameters)
+          - The response to the `$questionnaire-package` operation conforms to the [Questionnaire Package
+            operation definition](https://hl7.org/fhir/us/davinci-dtr/STU2/OperationDefinition-questionnaire-package.html).
+
+        ### Must Support
+
+        Each profile contains elements marked as "must support". Inferno expects to see each of
+        these elements at least once. If at least one cannot be found, the test will skip.
+        The test will look through the Questionnaire resources provided for these elements.
+      )
       run_as_group
       config(
         options: {
@@ -39,48 +62,56 @@ module DaVinciDTRTestKit
         }
       )
 
-      group from: :dtr_smart_app_custom_static_retrieval,
-            title: 'Retrieving the Static Questionnaires for must support validation'
-
-      group do
-        title '[USER INPUT VALIDATION] Static Questionnaires Must Support'
-
-        test from: :dtr_questionnaire_must_support,
-             title: 'All must support elements are provided in the static Questionnaire resources provided',
-             description: %()
-      end
-
-      group do
-        title 'Attestation: Filling Out the Static Questionnaires'
-        description %(
-          This group verifies that the tester has properly followed pre-population and rendering
-          directives while interacting with and filling out the questionnaire(s).
-
-          After retrieving and completing each questionnaire in their client system, the tester will
-          attest that:
-          1. The client system can handle `mustSupport` elements by displaying appropriate visual cues or
-            guidance where those elements impact expected user actions.
-          2. Each questionnaire was pre-populated as expected, with at least two answers pre-populated.
-          3. Each questionnaire was rendered correctly according to its defined structure.
-          4. They were able to manually enter responses, including overriding pre-populated answers.
-        )
-
-        test from: :dtr_must_support_attest
-        test from: :dtr_prepopulation_attest
-        test from: :dtr_prepopulation_override_attest
-      end
-
-      group from: :dtr_smart_app_saving_qr do
-        config(options: { custom: true })
-        test from: :dtr_smart_app_qr_correctness,
-             uses_request: :questionnaire_response_save
-      end
+      # Test 1: wait for the $questionnaire-package request
+      test from: :dtr_smart_app_ms_qp_request
+      # Test 2: validate the $questionnaire-package body
+      test from: :dtr_qp_request_validation
+      # Test 3: validate the user provided $questionnaire-package response
+      test from: :dtr_custom_qp_validation
+      # Test 4: must support test
+      test from: :dtr_questionnaire_must_support,
+           title: '[USER INPUT VALIDATION] All must support elements are provided in the static Questionnaire resources provided',
+           description: %()
+      # Test 5: attest client system can handle `mustSupport` elements
+      test from: :dtr_must_support_attest
     end
 
     group do
       run_as_group
       title 'Adaptive Questionnaires Element Support'
-      description %()
+      description %(
+        ### Adaptive Questionnaire requests
+
+        During this test, Inferno will wait for client requests to retrieve and progress through
+        the adaptive questionnaire workflow:
+
+          - **Questionnaire Package Request**: The client should invoke the `$questionnaire-package`
+            operation to retrieve the adaptive questionnaire package. Inferno will respond with the
+            user-provided empty adaptive questionnaire.
+
+          - **Next Question Requests**: The client should invoke the `$next-question` operation to
+            request the next set of questions. Inferno will respond sequentially with the next
+            Questionnaire from the user-provided list. If a `$next-question` request is received
+            when the list is empty, Inferno will mark the QuestionnaireResponse as completed.
+
+          - **mustSupport Visual Inspection**: The tester will demonstrate that the client system supports the
+            `mustSupport` elements defined in the [DTR Questionnaire for adaptive form](http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/dtr-questionnaire-adapt)
+            profile through visual inspection (e.g., rendering, UI behavior, or guidance).
+
+        ### Profile Validation
+
+        Inferno will validate that:
+          - The response to the `$questionnaire-package` operation conforms to the [Questionnaire Package
+            operation definition](https://hl7.org/fhir/us/davinci-dtr/STU2/OperationDefinition-questionnaire-package.html).
+          - Each user-provided Questionnaire resource included in a `$next-question` response is valid
+            and appropriate for the workflow.
+
+        ### Must Support
+
+        Each profile contains elements marked as "must support". Inferno expects to see each of
+        these elements at least once. If at least one cannot be found, the test will skip.
+        The test will look through the Questionnaire resources provided for these elements.
+      )
       config(
         options: {
           form_type: 'adaptive',
@@ -122,74 +153,39 @@ module DaVinciDTRTestKit
         }
       )
 
-      group from: :dtr_smart_app_custom_adaptive_retrieval do
-        title 'Retrieving the Adaptive Questionnaires for must support validation'
+      # Test 1: Recieve questionnaire-package and next-question requests
+      test from: :dtr_smart_app_ms_adative_request
+      # Test 2: validate the $questionnaire-package request body
+      test from: :dtr_qp_request_validation
+      # Test 3: validate the $next-question requests body
+      test from: :dtr_adaptive_next_question_request_validation
+      # Test 4: validate the QuestionnaireResponse in the input parameter
+      test from: :dtr_adaptive_response_validation do
         description %(
-          Once DTR is launched, Inferno will wait for client requests to retrieve and progress through
-          the adaptive questionnaire workflow:
-
-          - **Questionnaire Package Request**: The client should invoke the `$questionnaire-package`
-            operation to retrieve the adaptive questionnaire package. Inferno will respond with the
-            user-provided empty adaptive questionnaire.
-
-          - **Next Question Requests**: The client should invoke the `$next-question` operation to
-            request the next set of questions. Inferno will respond sequentially with the next
-            Questionnaire from the user-provided list. If a `$next-question` request is received
-            when the list is empty, Inferno will mark the QuestionnaireResponse as completed.
-
-          Inferno will validate that:
-          - The response to the `$questionnaire-package` operation conforms to the [Questionnaire Package
-            operation definition](https://hl7.org/fhir/us/davinci-dtr/STU2/OperationDefinition-questionnaire-package.html).
-          - Each user-provided Questionnaire resource included in a `$next-question` response is valid
-            and appropriate for the workflow.
+          Verify that all submitted QuestionnaireResponse resources meet the following criteria:
+          - Conform to the [SDCQuestionnaireResponseAdapt](http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaireresponse-adapt).
+          - Include source extensions indicating whether answers were manually entered,
+            automatically pre-populated, or manually overridden (for `completed` QuestionnaireResponse).
+          - Provide answers for all required items in their contained Questionnaire.
         )
+        input :custom_next_question_questionnaires
       end
-      group do
-        title '[USER INPUT VALIDATION] Adaptive Questionnaires Must Support'
-
-        test from: :dtr_questionnaire_must_support,
-             title: 'All must support elements are provided in the adaptive Questionnaire resources provided',
-             description: %()
-      end
-      group do
-        title 'Attestation: Filling Out the Adaptive Questionnaire'
-        description %(
-          This group verifies that the tester has properly followed pre-population and rendering
-          directives while interacting with and filling out the questionnaire.
-
-          After retrieving and completing the questionnaire in their client system, the tester will
-          attest that:
-          1. The client system can handle `mustSupport` elements by displaying appropriate visual cues or
-            guidance where those elements impact expected user actions.
-          2. The questionnaire was pre-populated as expected, with at least two answers pre-populated
-            across all sets of questions.
-          3. The questionnaire was rendered correctly according to its defined structure.
-          4. They were able to manually enter responses, including overriding pre-populated answers.
+      # Test 5: validate the user provided $questionnaire-package response
+      test from: :dtr_custom_qp_validation
+      # Test 6: validate the user provided $next-question questionnaires
+      test from: :dtr_custom_next_questionnaire_validation
+      # Test 7: must support test
+      test from: :dtr_questionnaire_must_support do
+        title %(
+          [USER INPUT VALIDATION] All must support elements are provided in the adaptive
+          Questionnaire resources provided
         )
+        description %()
 
-        test from: :dtr_must_support_attest
-        test from: :dtr_prepopulation_attest
-        test from: :dtr_prepopulation_override_attest
+        input :custom_next_question_questionnaires
       end
-      group from: :dtr_smart_app_saving_qr do
-        config(
-          options: {
-            custom: true,
-            adaptive: true,
-            qr_profile_url: 'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaireresponse-adapt'
-          }
-        )
-
-        test from: :dtr_qr_prepopulation,
-             uses_request: :questionnaire_response_save,
-             description: %(
-              The tester will complete the questionnaire such that a QuestionnaireResponse is
-              stored back into Inferno's EHR endpoint. The stored QuestionnaireResponse will be evaluated for:
-              - Has source extensions demonstrating answers that are manually entered,
-                automatically pre-populated, and manually overridden.
-              - Contains answers for all required items.
-             )
-      end
+      # Test 8: attest client system can handle `mustSupport` elements
+      test from: :dtr_must_support_attest
     end
   end
 end
