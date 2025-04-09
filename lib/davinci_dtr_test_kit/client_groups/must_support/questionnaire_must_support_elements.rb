@@ -1,36 +1,5 @@
 module DaVinciDTRTestKit
   module QuestionnaireMustSupportElements
-    ADAPTIVE_QUESTIONNAIRE = [
-      'Questionnaire.version',
-      'Questionnaire.title',
-      'Questionnaire.derivedFrom',
-      'Questionnaire.status',
-      'Questionnaire.effectivePeriod',
-      'Questionnaire.item',
-      'Questionnaire.item.linkId',
-      'Questionnaire.item.prefix',
-      'Questionnaire.item.text',
-      'Questionnaire.item.type',
-      'Questionnaire.item.required',
-      'Questionnaire.item.repeats',
-      'Questionnaire.item.readOnly',
-      'Questionnaire.item.answerOption',
-      'Questionnaire.item.answerOption.value[x]',
-      'Questionnaire.item.initial',
-      'Questionnaire.item.initial.value[x]',
-      'Questionnaire.item.item',
-      'Questionnaire.extension:questionnaireAdaptive',
-      'Questionnaire.extension:cqf-library',
-      'Questionnaire.extension:itemPopulationContext',
-      'Questionnaire.item.extension:hidden',
-      'Questionnaire.item.extension:itemControl',
-      'Questionnaire.item.extension:supportLink',
-      'Questionnaire.item.extension:initialExpression',
-      'Questionnaire.item.extension:candidateExpression',
-      'Questionnaire.item.extension:contextExpression',
-      'Questionnaire.item.text.extension:itemTextRenderingXhtml'
-    ].freeze
-
     STATIC_QUESTIONNAIRE = [
       'Questionnaire.url',
       'Questionnaire.version',

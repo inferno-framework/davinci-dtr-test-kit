@@ -8,7 +8,7 @@ module DaVinciDTRTestKit
     title 'QuestionnaireResponse is correct for the workflow'
     description %(
       Verify that the QuestionnaireResponse
-        - Is for one of the Questionnaires provided by the tester.
+        - Is for the Questionnaire provided by the tester.
         - Has source extensions demonstrating answers that are manually entered,
           automatically pre-populated, and manually overridden.
         - Contains answers for all required items.
