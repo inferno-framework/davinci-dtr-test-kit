@@ -8,9 +8,12 @@ require_relative 'dtr_smart_app_ms_adaptive_request_test'
 require_relative '../adaptive_questionnaire/dtr_adaptive_next_question_request_validation_test'
 require_relative '../adaptive_questionnaire/dtr_adaptive_response_validation_test'
 require_relative '../adaptive_questionnaire/custom/dtr_custom_next_question_response_validation_test'
+require_relative 'questionnaire_must_support_elements'
 
 module DaVinciDTRTestKit
   class DTRSmartAppQuestionnaireMustSupportGroup < Inferno::TestGroup
+    include QuestionnaireMustSupportElements
+
     id :dtr_smart_app_questionnaire_ms
     title 'Demonstrate Element Support'
     description %()
@@ -71,62 +74,14 @@ module DaVinciDTRTestKit
       # Test 4: must support test
       test from: :dtr_questionnaire_must_support,
            title: '[USER INPUT VALIDATION] All must support elements are provided in the static Questionnaire resources provided', # rubocop:disable Layout/LineLength
-           description: %(
-            The DTR client SHALL be able to handle all `mustSupport` elements defined in the
-            [DTR Standard Questionnaire ](http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/dtr-std-questionnaire)
-            profile. This test will look through the provided Questionnaire resources for the following
-            must support elements:
+           description: <<~DESCRIPTION
+             The DTR client SHALL be able to handle all `mustSupport` elements defined in the
+             [DTR Standard Questionnaire ](http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/dtr-std-questionnaire)
+             profile. This test will look through the provided Questionnaire resources for the following
+             must support elements:
 
-            - Questionnaire.url
-            - Questionnaire.version
-            - Questionnaire.title
-            - Questionnaire.status
-            - Questionnaire.subjectType
-            - Questionnaire.effectivePeriod
-            - Questionnaire.item
-            - Questionnaire.item.linkId
-            - Questionnaire.item.prefix
-            - Questionnaire.item.text
-            - Questionnaire.item.type
-            - Questionnaire.item.enableWhen
-            - Questionnaire.item.enableBehavior
-            - Questionnaire.item.required
-            - Questionnaire.item.repeats
-            - Questionnaire.item.readOnly
-            - Questionnaire.item.maxLength
-            - Questionnaire.item.answerValueSet
-            - Questionnaire.item.answerOption
-            - Questionnaire.item.answerOption.value[x]
-            - Questionnaire.item.initial
-            - Questionnaire.item.initial.value[x]
-            - Questionnaire.item.item
-            - Questionnaire.extension:terminologyServer
-            - Questionnaire.extension:performerType
-            - Questionnaire.extension:assemble-expectation
-            - Questionnaire.extension:entryMode
-            - Questionnaire.extension:signatureRequired
-            - Questionnaire.extension:cqf-library
-            - Questionnaire.extension:launchContext
-            - Questionnaire.extension:variable
-            - Questionnaire.extension:itemPopulationContext
-            - Questionnaire.item.extension:itemHidden
-            - Questionnaire.item.extension:itemControl
-            - Questionnaire.item.extension:supportLink
-            - Questionnaire.item.extension:mimeType
-            - Questionnaire.item.extension:unitOption
-            - Questionnaire.item.extension:unitValueSet
-            - Questionnaire.item.extension:referenceResource
-            - Questionnaire.item.extension:referenceProfile
-            - Questionnaire.item.extension:candidateExpression
-            - Questionnaire.item.extension:lookupQuestionnaire
-            - Questionnaire.item.extension:initialExpression
-            - Questionnaire.item.extension:calculatedExpression
-            - Questionnaire.item.extension:enableWhenExpression
-            - Questionnaire.item.extension:contextExpression
-            - Questionnaire.item.text.extension:itemTextRenderingXhtml
-            - Questionnaire.item.answerOption.extension:optionExclusive
-            - Questionnaire.item.answerOption.value[x].extension:answerOptionRenderingXhtml
-          )
+             #{STATIC_QUESTIONNAIRE.map { |el| "- #{el}" }.join("\n")}
+           DESCRIPTION
       # Test 5: attest client system can handle `mustSupport` elements
       test from: :dtr_must_support_attest
     end
@@ -235,41 +190,14 @@ module DaVinciDTRTestKit
           [USER INPUT VALIDATION] All must support elements are provided in the adaptive
           Questionnaire resources provided
         )
-        description %(
+        description <<~DESCRIPTION
           The DTR client SHALL be able to handle all `mustSupport` elements defined in the
           [DTR Questionnaire for adaptive form](http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/dtr-questionnaire-adapt)
           profile. This test will look through the provided Questionnaire resources for the following
           must support elements:
 
-          - Questionnaire.version
-          - Questionnaire.title
-          - Questionnaire.derivedFrom
-          - Questionnaire.status
-          - Questionnaire.effectivePeriod
-          - Questionnaire.item
-          - Questionnaire.item.linkId
-          - Questionnaire.item.prefix
-          - Questionnaire.item.text
-          - Questionnaire.item.type
-          - Questionnaire.item.required
-          - Questionnaire.item.repeats
-          - Questionnaire.item.readOnly
-          - Questionnaire.item.answerOption
-          - Questionnaire.item.answerOption.value[x]
-          - Questionnaire.item.initial
-          - Questionnaire.item.initial.value[x]
-          - Questionnaire.item.item
-          - Questionnaire.extension:questionnaireAdaptive
-          - Questionnaire.extension:cqf-library
-          - Questionnaire.extension:itemPopulationContext
-          - Questionnaire.item.extension:hidden
-          - Questionnaire.item.extension:itemControl
-          - Questionnaire.item.extension:supportLink
-          - Questionnaire.item.extension:initialExpression
-          - Questionnaire.item.extension:candidateExpression
-          - Questionnaire.item.extension:contextExpression
-          - Questionnaire.item.text.extension:itemTextRenderingXhtml
-        )
+          #{ADAPTIVE_QUESTIONNAIRE.map { |el| "- #{el}" }.join("\n")}
+        DESCRIPTION
 
         input :custom_next_question_questionnaires
       end

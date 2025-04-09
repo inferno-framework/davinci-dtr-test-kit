@@ -1,12 +1,14 @@
 require_relative '../../urls'
+require_relative 'questionnaire_must_support_elements'
 
 module DaVinciDTRTestKit
   class DTRFullEHRMSAdaptiveRequestTest < Inferno::Test
     include URLs
+    include QuestionnaireMustSupportElements
 
     id :dtr_full_ehr_ms_adative_request
     title 'Complete the DTR Adaptive Questionnaire workflow and Demonstrate mustSupport Handling'
-    description %(
+    description <<~DESCRIPTION
       This test waits for client requests to retrieve and progress through an adaptive questionnaire workflow.
 
       1. **Questionnaire Package Request**: The client should invoke the `$questionnaire-package` operation
@@ -22,35 +24,8 @@ module DaVinciDTRTestKit
           following `mustSupport` elements as  defined in the [DTR Questionnaire for adaptive form](http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/dtr-questionnaire-adapt)
           profile:
 
-          - Questionnaire.version
-          - Questionnaire.title
-          - Questionnaire.derivedFrom
-          - Questionnaire.status
-          - Questionnaire.effectivePeriod
-          - Questionnaire.item
-          - Questionnaire.item.linkId
-          - Questionnaire.item.prefix
-          - Questionnaire.item.text
-          - Questionnaire.item.type
-          - Questionnaire.item.required
-          - Questionnaire.item.repeats
-          - Questionnaire.item.readOnly
-          - Questionnaire.item.answerOption
-          - Questionnaire.item.answerOption.value[x]
-          - Questionnaire.item.initial
-          - Questionnaire.item.initial.value[x]
-          - Questionnaire.item.item
-          - Questionnaire.extension:questionnaireAdaptive
-          - Questionnaire.extension:cqf-library
-          - Questionnaire.extension:itemPopulationContext
-          - Questionnaire.item.extension:hidden
-          - Questionnaire.item.extension:itemControl
-          - Questionnaire.item.extension:supportLink
-          - Questionnaire.item.extension:initialExpression
-          - Questionnaire.item.extension:candidateExpression
-          - Questionnaire.item.extension:contextExpression
-          - Questionnaire.item.text.extension:itemTextRenderingXhtml
-    )
+          #{ADAPTIVE_QUESTIONNAIRE.map { |el| "- #{el}" }.join("\n    ")}
+    DESCRIPTION
     verifies_requirements 'hl7.fhir.us.davinci-dtr_2.0.1@165', 'hl7.fhir.us.davinci-dtr_2.0.1@262',
                           'hl7.fhir.us.davinci-dtr_2.0.1@264'
 
@@ -83,7 +58,7 @@ module DaVinciDTRTestKit
       wait(
         identifier: access_token,
         timeout: 1800,
-        message: %(
+        message: <<~MESSAGE
           ### Adaptive Questionnaire Workflow
 
           1. **Questionnaire Package Request**:
@@ -114,18 +89,7 @@ module DaVinciDTRTestKit
 
               The `mustSupport` elements include:
 
-              `Questionnaire.version`, `Questionnaire.title`, `Questionnaire.derivedFrom`, `Questionnaire.status`,
-              `Questionnaire.effectivePeriod`, `Questionnaire.item`, `Questionnaire.item.linkId`,
-              `Questionnaire.item.prefix`, `Questionnaire.item.text`, `Questionnaire.item.type`,
-              `Questionnaire.item.required`, `Questionnaire.item.repeats`, `Questionnaire.item.readOnly`,
-              `Questionnaire.item.answerOption`, `Questionnaire.item.answerOption.value[x]`,
-              `Questionnaire.item.initial`, `Questionnaire.item.initial.value[x]`, `Questionnaire.item.item`,
-              `Questionnaire.extension:questionnaireAdaptive`, `Questionnaire.extension:cqf-library`,
-              `Questionnaire.extension:itemPopulationContext`, `Questionnaire.item.extension:hidden`,
-              `Questionnaire.item.extension:itemControl`, `Questionnaire.item.extension:supportLink`,
-              `Questionnaire.item.extension:initialExpression`, `Questionnaire.item.extension:candidateExpression`,
-              `Questionnaire.item.extension:contextExpression`,
-              `Questionnaire.item.text.extension:itemTextRenderingXhtml`
+              #{ADAPTIVE_QUESTIONNAIRE.map { |el| "- #{el}" }.join("\n    ")}
 
 
           ### Request Identification
@@ -140,7 +104,7 @@ module DaVinciDTRTestKit
 
           Once all required `$next-question` requests have been made and the visual inspection is complete,
           [Click here](#{resume_pass_url}?token=#{access_token}) to continue.
-        )
+        MESSAGE
       )
     end
   end

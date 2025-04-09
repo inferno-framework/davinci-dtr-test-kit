@@ -1,68 +1,22 @@
 require_relative '../../urls'
+require_relative 'questionnaire_must_support_elements'
 
 module DaVinciDTRTestKit
   class DTRFullEHRMSQuestionnairePackageRequestTest < Inferno::Test
     include URLs
+    include QuestionnaireMustSupportElements
 
     id :dtr_full_ehr_ms_qp_request
     title 'Invoke the Questionnaire Package Operation and Demonstrate mustSupport Handling'
-    description %(
+    description <<~DESCRIPTION
       Inferno will wait for a DTR Questionnaire package request from the client. Upon receipt,
       Inferno will return the user-provided Questionnaire package as the response to the $questionnaire-package request.
 
       Afterward, Inferno will wait for the user to visually demonstrate support (via UI cues or guidance)
       for the following mustSupport elements, as defined in the [DTR Standard Questionnaire profile](http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/dtr-std-questionnaire):
 
-        - Questionnaire.url
-        - Questionnaire.version
-        - Questionnaire.title
-        - Questionnaire.status
-        - Questionnaire.subjectType
-        - Questionnaire.effectivePeriod
-        - Questionnaire.item
-        - Questionnaire.item.linkId
-        - Questionnaire.item.prefix
-        - Questionnaire.item.text
-        - Questionnaire.item.type
-        - Questionnaire.item.enableWhen
-        - Questionnaire.item.enableBehavior
-        - Questionnaire.item.required
-        - Questionnaire.item.repeats
-        - Questionnaire.item.readOnly
-        - Questionnaire.item.maxLength
-        - Questionnaire.item.answerValueSet
-        - Questionnaire.item.answerOption
-        - Questionnaire.item.answerOption.value[x]
-        - Questionnaire.item.initial
-        - Questionnaire.item.initial.value[x]
-        - Questionnaire.item.item
-        - Questionnaire.extension:terminologyServer
-        - Questionnaire.extension:performerType
-        - Questionnaire.extension:assemble-expectation
-        - Questionnaire.extension:entryMode
-        - Questionnaire.extension:signatureRequired
-        - Questionnaire.extension:cqf-library
-        - Questionnaire.extension:launchContext
-        - Questionnaire.extension:variable
-        - Questionnaire.extension:itemPopulationContext
-        - Questionnaire.item.extension:itemHidden
-        - Questionnaire.item.extension:itemControl
-        - Questionnaire.item.extension:supportLink
-        - Questionnaire.item.extension:mimeType
-        - Questionnaire.item.extension:unitOption
-        - Questionnaire.item.extension:unitValueSet
-        - Questionnaire.item.extension:referenceResource
-        - Questionnaire.item.extension:referenceProfile
-        - Questionnaire.item.extension:candidateExpression
-        - Questionnaire.item.extension:lookupQuestionnaire
-        - Questionnaire.item.extension:initialExpression
-        - Questionnaire.item.extension:calculatedExpression
-        - Questionnaire.item.extension:enableWhenExpression
-        - Questionnaire.item.extension:contextExpression
-        - Questionnaire.item.text.extension:itemTextRenderingXhtml
-        - Questionnaire.item.answerOption.extension:optionExclusive
-        - Questionnaire.item.answerOption.value[x].extension:answerOptionRenderingXhtml
-    )
+        #{STATIC_QUESTIONNAIRE.map { |el| "- #{el}" }.join("\n")}
+    DESCRIPTION
     config options: { accepts_multiple_requests: true }
     verifies_requirements 'hl7.fhir.us.davinci-dtr_2.0.1@165', 'hl7.fhir.us.davinci-dtr_2.0.1@262'
     input :access_token,
@@ -88,7 +42,7 @@ module DaVinciDTRTestKit
       wait(
         identifier: access_token,
         timeout: 1800,
-        message: %(
+        message: <<~MESSAGE
           ### Questionnaire Package
 
           Inferno will wait for the Full EHR to invoke the DTR Questionnaire Package operation by sending a POST
@@ -107,29 +61,7 @@ module DaVinciDTRTestKit
 
           The mustSupport elements include:
 
-          `Questionnaire.url`, `Questionnaire.version`, `Questionnaire.title`, `Questionnaire.status`,
-          `Questionnaire.subjectType`, `Questionnaire.effectivePeriod`, `Questionnaire.item`,
-          `Questionnaire.item.linkId`, `Questionnaire.item.prefix`, `Questionnaire.item.text`,
-          `Questionnaire.item.type`, `Questionnaire.item.enableWhen`, `Questionnaire.item.enableBehavior`,
-          `Questionnaire.item.required`, `Questionnaire.item.repeats`, `Questionnaire.item.readOnly`,
-          `Questionnaire.item.maxLength`, `Questionnaire.item.answerValueSet`, `Questionnaire.item.answerOption`,
-          `Questionnaire.item.answerOption.value[x]`, `Questionnaire.item.initial`,
-          `Questionnaire.item.initial.value[x]`, `Questionnaire.item.item`, `Questionnaire.extension:terminologyServer`,
-          `Questionnaire.extension:performerType`, `Questionnaire.extension:assemble-expectation`,
-          `Questionnaire.extension:entryMode`, `Questionnaire.extension:signatureRequired`,
-          `Questionnaire.extension:cqf-library`, `Questionnaire.extension:launchContext`,
-          `Questionnaire.extension:variable`, `Questionnaire.extension:itemPopulationContext`,
-          `Questionnaire.item.extension:itemHidden`, `Questionnaire.item.extension:itemControl`,
-          `Questionnaire.item.extension:supportLink`, `Questionnaire.item.extension:mimeType`,
-          `Questionnaire.item.extension:unitOption`, `Questionnaire.item.extension:unitValueSet`,
-          `Questionnaire.item.extension:referenceResource`, `Questionnaire.item.extension:referenceProfile`,
-          `Questionnaire.item.extension:candidateExpression`, `Questionnaire.item.extension:lookupQuestionnaire`,
-          `Questionnaire.item.extension:initialExpression`, `Questionnaire.item.extension:calculatedExpression`,
-          `Questionnaire.item.extension:enableWhenExpression`, `Questionnaire.item.extension:contextExpression`,
-          `Questionnaire.item.text.extension:itemTextRenderingXhtml`,
-          `Questionnaire.item.answerOption.extension:optionExclusive`,
-          `Questionnaire.item.answerOption.value[x].extension:answerOptionRenderingXhtml`
-
+          #{STATIC_QUESTIONNAIRE.map { |el| "- #{el}" }.join("\n")}
 
           ### Request Identification
 
@@ -144,7 +76,7 @@ module DaVinciDTRTestKit
 
           Once the Questionnaire has been loaded and the visual inspection is complete,
           [Click here](#{resume_pass_url}?token=#{access_token}) to continue.
-        )
+        MESSAGE
       )
     end
   end
