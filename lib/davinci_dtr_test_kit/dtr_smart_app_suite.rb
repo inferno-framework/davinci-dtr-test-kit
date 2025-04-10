@@ -4,6 +4,7 @@ require_relative 'client_groups/dinner_static/dtr_smart_app_static_dinner_workfl
 require_relative 'client_groups/adaptive_questionnaire/dinner_order/dtr_smart_app_adaptive_dinner_workflow_group'
 require_relative 'client_groups/custom_static/dtr_smart_app_custom_static_workflow_group'
 require_relative 'client_groups/adaptive_questionnaire/custom/dtr_smart_app_custom_adaptive_workflow_group'
+require_relative 'client_groups/must_support/dtr_smart_app_questionnaire_must_support_group'
 require_relative 'endpoints/cors'
 require_relative 'endpoints/mock_authorization'
 require_relative 'endpoints/mock_authorization/authorize_endpoint'
@@ -44,7 +45,7 @@ module DaVinciDTRTestKit
 
     # Hl7 Validator Wrapper:
     fhir_resource_validator do
-      igs 'hl7.fhir.us.davinci-dtr#2.0.1'
+      igs 'igs/davinci_dtr_2.0.1.tgz'
 
       exclude_message do |message|
         message.message.match?(/\A\S+: \S+: URL value '.*' does not resolve/)
@@ -103,5 +104,6 @@ module DaVinciDTRTestKit
       group from: :dtr_smart_app_static_dinner_workflow
       group from: :dtr_smart_app_adaptive_dinner_workflow
     end
+    group from: :dtr_smart_app_questionnaire_ms
   end
 end

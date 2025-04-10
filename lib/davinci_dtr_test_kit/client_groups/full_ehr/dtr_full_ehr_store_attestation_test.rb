@@ -16,14 +16,14 @@ module DaVinciDTRTestKit
       random_id = SecureRandom.uuid
       wait(
         identifier: random_id,
-        message: %(
-          I attest that the questionnaire has been completed and stored within the EHR for future
+        message: <<~MESSAGE
+          I attest that questionnaires have been completed and stored within the EHR for future
           use and export as a FHIR QuestionnaireResponse instance.
 
           [Click here](#{resume_pass_url}?token=#{random_id}) if the above statement is **true**.
 
           [Click here](#{resume_fail_url}?token=#{random_id}) if the above statement is **false**.
-        )
+        MESSAGE
       )
     end
   end
