@@ -54,7 +54,7 @@ module DaVinciDTRTestKit
 
           1. **Questionnaire Package Request**:
             - Invoke the `$questionnaire-package` operation by sending a POST request to the following
-            endpoint to retrieve the adaptive questionnaire package:
+              endpoint to retrieve the adaptive questionnaire package:
 
               `#{qp_endpoint}`.
 
@@ -62,7 +62,7 @@ module DaVinciDTRTestKit
 
           2. **Initial Next Question Request**:
             - After receiving the questionnaire package, invoke the `$next-question` operation by sending
-            a POST request to the following endpoint to retrieve the first set of questions:
+              a POST request to the following endpoint to retrieve the first set of questions:
 
               `#{nq_endpoint}`.
 

@@ -1,17 +1,19 @@
+require 'udap_security_test_kit'
+require 'smart_app_launch_test_kit'
 require_relative 'client_groups/custom_static/dtr_full_ehr_custom_static_workflow_group'
 require_relative 'client_groups/dinner_static/dtr_full_ehr_static_dinner_workflow_group'
 require_relative 'client_groups/adaptive_questionnaire/dinner_order/dtr_full_ehr_adaptive_dinner_workflow_group'
 require_relative 'client_groups/adaptive_questionnaire/custom/dtr_full_ehr_custom_adaptive_workflow_group'
 require_relative 'client_groups/payer_registration/dtr_client_registration_group'
 require_relative 'client_groups/must_support/dtr_full_ehr_questionnaire_must_support_group'
-require_relative 'client_groups/auth/dtr_client_payer_auth_group'
+require_relative 'client_groups/auth/dtr_client_payer_auth_smart_group'
+require_relative 'client_groups/auth/dtr_client_payer_auth_udap_group'
 require_relative 'endpoints/cors'
-require_relative 'endpoints/mock_udap_smart_server'
-require_relative 'endpoints/mock_udap_smart_server/registration'
-require_relative 'endpoints/mock_udap_smart_server/token'
+require_relative 'endpoints/mock_udap_smart_server/token_endpoint'
 require_relative 'endpoints/mock_payer/full_ehr_questionnaire_package_endpoint'
 require_relative 'endpoints/mock_payer/full_ehr_next_question_endpoint'
 require_relative 'version'
+require_relative 'dtr_client_options'
 
 module DaVinciDTRTestKit
   class DTRFullEHRSuite < Inferno::TestSuite
@@ -40,6 +42,19 @@ module DaVinciDTRTestKit
       }
     ]
 
+    suite_option :client_type,
+                 title: 'Client Security Type',
+                 list_options: [
+                   {
+                     label: 'SMART Backend Services',
+                     value: DTRClientOptions::SMART_BACKEND_SERVICES_CONFIDENTIAL_ASYMMETRIC
+                   },
+                   {
+                     label: 'UDAP B2B Client Credentials',
+                     value: DTRClientOptions::UDAP_CLIENT_CREDENTIALS
+                   }
+                 ]
+
     # Hl7 Validator Wrapper:
     fhir_resource_validator do
       igs 'igs/davinci_dtr_2.0.1.tgz'
@@ -51,11 +66,16 @@ module DaVinciDTRTestKit
 
     allow_cors QUESTIONNAIRE_PACKAGE_PATH, NEXT_PATH, SESSION_QUESTIONNAIRE_PACKAGE_PATH, SESSION_NEXT_PATH
 
-    route(:get, UDAP_DISCOVERY_PATH, MockUdapSmartServer.method(:udap_server_metadata))
-    route(:get, SMART_DISCOVERY_PATH, MockUdapSmartServer.method(:smart_server_metadata))
+    route(:get, UDAPSecurityTestKit::UDAP_DISCOVERY_PATH, lambda { |_env|
+      UDAPSecurityTestKit::MockUDAPServer.udap_server_metadata(id)
+    })
+    route(:get, SMARTAppLaunch::SMART_DISCOVERY_PATH, lambda { |_env|
+      SMARTAppLaunch::MockSMARTServer.smart_server_metadata(id)
+    })
 
-    suite_endpoint :post, REGISTRATION_PATH, MockUdapSmartServer::RegistrationEndpoint
-    suite_endpoint :post, TOKEN_PATH, MockUdapSmartServer::TokenEndpoint
+    suite_endpoint :post, UDAPSecurityTestKit::REGISTRATION_PATH,
+                   UDAPSecurityTestKit::MockUDAPServer::RegistrationEndpoint
+    suite_endpoint :post, UDAPSecurityTestKit::TOKEN_PATH, MockUdapSmartServer::TokenEndpoint
 
     suite_endpoint :post, QUESTIONNAIRE_PACKAGE_PATH, MockPayer::FullEHRQuestionnairePackageEndpoint
     suite_endpoint :post, SESSION_QUESTIONNAIRE_PACKAGE_PATH, MockPayer::FullEHRQuestionnairePackageEndpoint
@@ -89,6 +109,14 @@ module DaVinciDTRTestKit
       group from: :dtr_full_ehr_adaptive_dinner_workflow
     end
     group from: :dtr_full_ehr_questionnaire_ms
-    group from: :dtr_client_payer_auth
+
+    group from: :dtr_client_payer_auth_smart,
+          required_suite_options: {
+            client_type: DTRClientOptions::SMART_BACKEND_SERVICES_CONFIDENTIAL_ASYMMETRIC
+          }
+    group from: :dtr_client_payer_auth_udap,
+          required_suite_options: {
+            client_type: DTRClientOptions::UDAP_CLIENT_CREDENTIALS
+          }
   end
 end

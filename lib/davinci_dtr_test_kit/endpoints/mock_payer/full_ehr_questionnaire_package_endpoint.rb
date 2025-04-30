@@ -1,3 +1,4 @@
+require 'udap_security_test_kit'
 require_relative 'questionnaire_package_endpoint'
 
 module DaVinciDTRTestKit
@@ -6,7 +7,9 @@ module DaVinciDTRTestKit
       def test_run_identifier
         return request.params[:session_path] if request.params[:session_path].present?
 
-        MockUdapSmartServer.token_to_client_id(request.headers['authorization']&.delete_prefix('Bearer '))
+        UDAPSecurityTestKit::MockUdapSmartServer.token_to_client_id(
+          request.headers['authorization']&.delete_prefix('Bearer ')
+        )
       end
 
       def make_response
@@ -16,8 +19,8 @@ module DaVinciDTRTestKit
       end
 
       def update_result
-        if MockUdapSmartServer.request_has_expired_token?(request)
-          MockUdapSmartServer.update_response_for_expired_token(response)
+        if UDAPSecurityTestKit::MockUdapSmartServer.request_has_expired_token?(request)
+          UDAPSecurityTestKit::MockUdapSmartServer.update_response_for_expired_token(response)
           return
         end
 
