@@ -1,3 +1,4 @@
+require_relative '../../descriptions'
 require_relative '../../urls'
 
 module DaVinciDTRTestKit
@@ -14,19 +15,12 @@ module DaVinciDTRTestKit
     )
     verifies_requirements 'hl7.fhir.us.davinci-dtr_2.0.1@264'
 
-    input :access_token
-
-    def example_client_jwt_payload_part
-      Base64.strict_encode64({ inferno_client_id: access_token }.to_json).delete('=')
-    end
-
-    def request_identification
-      if config.options[:smart_app]
-        "eyJhbGciOiJub25lIn0.#{example_client_jwt_payload_part}"
-      else
-        access_token
-      end
-    end
+    input :client_id,
+          title: 'Client Id',
+          type: 'text',
+          optional: true,
+          locked: true,
+          description: INPUT_CLIENT_ID_LOCKED
 
     def cont_test_description
       <<~DESCRIPTION
@@ -34,7 +28,7 @@ module DaVinciDTRTestKit
 
         When the DTR application has finished loading the Questionnaire,
         including any clinical data requests to support pre-population,
-        [Click here](#{resume_pass_url}?token=#{access_token}) to continue.
+        [Click here](#{resume_pass_url}?token=#{client_id}) to continue.
       DESCRIPTION
     end
 
@@ -67,7 +61,7 @@ module DaVinciDTRTestKit
 
     run do
       wait(
-        identifier: access_token,
+        identifier: client_id,
         message: <<~MESSAGE
           ### #{next_question_prompt_title}
 
@@ -76,15 +70,6 @@ module DaVinciDTRTestKit
           `#{next_url}`
 
           #{prompt_cont}
-
-          ### Request Identification
-
-          In order to identify requests for this session, Inferno will look for
-          an `Authorization` header with value:
-
-          ```
-          Bearer #{request_identification}
-          ```
 
           #{cont_test_description if config.options[:accepts_multiple_requests]}
         MESSAGE

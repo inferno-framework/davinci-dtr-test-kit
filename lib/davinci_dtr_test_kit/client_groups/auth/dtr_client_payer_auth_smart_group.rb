@@ -1,5 +1,4 @@
 require 'smart_app_launch_test_kit'
-require_relative 'token_request_smart_verification_test'
 require_relative '../../tags'
 
 module DaVinciDTRTestKit
@@ -18,7 +17,10 @@ module DaVinciDTRTestKit
     run_as_group
 
     # smart auth verification
-    test from: :dtr_client_payer_auth_token_smart_verification
+    test from: :smart_client_token_request_bsca_verification,
+         config: {
+           options: { endpoint_suite_id: :dtr_full_ehr }
+         }
     test from: :smart_client_token_use_verification,
          config: {
            options: { access_request_tags: [QUESTIONNAIRE_PACKAGE_TAG, CLIENT_NEXT_TAG] }

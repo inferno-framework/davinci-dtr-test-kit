@@ -64,7 +64,7 @@ module DaVinciDTRTestKit
       end
     end
 
-    allow_cors QUESTIONNAIRE_PACKAGE_PATH, NEXT_PATH, SESSION_QUESTIONNAIRE_PACKAGE_PATH, SESSION_NEXT_PATH
+    allow_cors QUESTIONNAIRE_PACKAGE_PATH, NEXT_PATH
 
     route(:get, UDAPSecurityTestKit::UDAP_DISCOVERY_PATH, lambda { |_env|
       UDAPSecurityTestKit::MockUDAPServer.udap_server_metadata(id)
@@ -78,9 +78,7 @@ module DaVinciDTRTestKit
     suite_endpoint :post, UDAPSecurityTestKit::TOKEN_PATH, MockUdapSmartServer::TokenEndpoint
 
     suite_endpoint :post, QUESTIONNAIRE_PACKAGE_PATH, MockPayer::FullEHRQuestionnairePackageEndpoint
-    suite_endpoint :post, SESSION_QUESTIONNAIRE_PACKAGE_PATH, MockPayer::FullEHRQuestionnairePackageEndpoint
     suite_endpoint :post, NEXT_PATH, MockPayer::FullEHRNextQuestionEndpoint
-    suite_endpoint :post, SESSION_NEXT_PATH, MockPayer::FullEHRNextQuestionEndpoint
 
     resume_test_route :get, RESUME_PASS_PATH do |request|
       request.query_parameters['token']

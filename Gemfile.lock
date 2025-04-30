@@ -1,6 +1,6 @@
 GIT
   remote: https://github.com/inferno-framework/smart-app-launch-test-kit.git
-  revision: 977486ab23d76914af147d86e84c5935f66533b3
+  revision: e55aeb72d7d668f6c1f4898493306d6500f8eeeb
   branch: client_authorization_code_tests
   specs:
     smart_app_launch_test_kit (0.6.1)
@@ -11,7 +11,7 @@ GIT
 
 GIT
   remote: https://github.com/inferno-framework/udap-security-test-kit.git
-  revision: 10d0788c3a7bcd24f5cb33412b886299057b1098
+  revision: d9d00b0b72dff2981f992ded0623ff03481ebb6e
   branch: client_authorization_code_tests
   specs:
     udap_security_test_kit (0.11.3)
@@ -262,7 +262,7 @@ GEM
     psych (5.2.3)
       date
       stringio
-    public_suffix (6.0.1)
+    public_suffix (6.0.2)
     puma (5.6.9)
       nio4r (~> 2.0)
     racc (1.8.1)

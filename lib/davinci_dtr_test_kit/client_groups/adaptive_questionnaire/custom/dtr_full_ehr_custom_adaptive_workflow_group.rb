@@ -54,8 +54,6 @@ module DaVinciDTRTestKit
       }
     )
 
-    input_order :access_token
-
     group do
       id :dtr_full_ehr_custom_adaptive_retrieval
       title 'Retrieving the Adaptive Questionnaire'

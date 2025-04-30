@@ -1,9 +1,7 @@
 # frozen_string_literal: true
 
 module DaVinciDTRTestKit
-  SESSION_PATH_PLACEHOLDER = '/:session_path'
   FHIR_BASE_PATH = '/fhir'
-  SESSION_FHIR_BASE_PATH = SESSION_PATH_PLACEHOLDER + FHIR_BASE_PATH
   METADATA_PATH = "#{FHIR_BASE_PATH}/metadata".freeze
   SMART_CONFIG_PATH = "#{FHIR_BASE_PATH}/.well-known/smart-configuration".freeze
   OPENID_CONFIG_PATH = "#{FHIR_BASE_PATH}/.well-known/openid-configuration".freeze
@@ -12,9 +10,7 @@ module DaVinciDTRTestKit
   EHR_TOKEN_PATH = "#{FHIR_BASE_PATH}/mock_ehr_auth/token".freeze
   PAYER_TOKEN_PATH = "#{FHIR_BASE_PATH}/mock_payer_auth/token".freeze
   QUESTIONNAIRE_PACKAGE_PATH = "#{FHIR_BASE_PATH}/Questionnaire/$questionnaire-package".freeze
-  SESSION_QUESTIONNAIRE_PACKAGE_PATH = SESSION_PATH_PLACEHOLDER + QUESTIONNAIRE_PACKAGE_PATH
   NEXT_PATH = "#{FHIR_BASE_PATH}/Questionnaire/$next-question".freeze
-  SESSION_NEXT_PATH = SESSION_PATH_PLACEHOLDER + NEXT_PATH
   QUESTIONNAIRE_RESPONSE_PATH = "#{FHIR_BASE_PATH}/QuestionnaireResponse".freeze
   FHIR_RESOURCE_PATH = "#{FHIR_BASE_PATH}/:resource/:id".freeze
   FHIR_SEARCH_PATH = "#{FHIR_BASE_PATH}/:resource".freeze
@@ -36,12 +32,6 @@ module DaVinciDTRTestKit
       @fhir_base_url ||= base_url + FHIR_BASE_PATH
     end
 
-    def session_fhir_base_url(session_path)
-      return fhir_base_url if session_path.blank?
-
-      base_url + SESSION_FHIR_BASE_PATH.gsub(SESSION_PATH_PLACEHOLDER, "/#{session_path}")
-    end
-
     def ehr_authorize_url
       @ehr_authorize_url ||= base_url + EHR_AUTHORIZE_PATH
     end
@@ -58,20 +48,8 @@ module DaVinciDTRTestKit
       @questionnaire_package_url ||= base_url + QUESTIONNAIRE_PACKAGE_PATH
     end
 
-    def session_questionnaire_package_url(session_path)
-      return questionnaire_package_url if session_path.blank?
-
-      base_url + SESSION_QUESTIONNAIRE_PACKAGE_PATH.gsub(SESSION_PATH_PLACEHOLDER, "/#{session_path}")
-    end
-
     def next_url
       @next_url ||= base_url + NEXT_PATH
-    end
-
-    def session_next_url(session_path)
-      return next_url if session_path.blank?
-
-      base_url + SESSION_NEXT_PATH.gsub(SESSION_PATH_PLACEHOLDER, "/#{session_path}")
     end
 
     def questionnaire_response_url

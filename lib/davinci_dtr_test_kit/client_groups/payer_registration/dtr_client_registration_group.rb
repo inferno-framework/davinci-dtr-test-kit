@@ -3,8 +3,6 @@ require 'smart_app_launch_test_kit'
 require_relative '../../dtr_client_options'
 require_relative 'configuration_display_smart_test'
 require_relative 'configuration_display_udap_test'
-require_relative 'dtr_client_registration_udap_interaction_test'
-require_relative 'dtr_client_registration_udap_verification_test'
 
 module DaVinciDTRTestKit
   class DTRPayerRegistrationGroup < Inferno::TestGroup
@@ -36,13 +34,19 @@ module DaVinciDTRTestKit
          }
 
     # udap registration tests
-    test from: :dtr_client_payer_reg_udap_interaction,
+    test from: :udap_client_registration_interaction,
          required_suite_options: {
            client_type: DTRClientOptions::UDAP_CLIENT_CREDENTIALS
+         },
+         config: {
+           options: { endpoint_suite_id: :dtr_full_ehr }
          }
-    test from: :dtr_client_payer_reg_udap_verification,
+    test from: :udap_client_registration_cc_verification,
          required_suite_options: {
            client_type: DTRClientOptions::UDAP_CLIENT_CREDENTIALS
+         },
+         config: {
+           options: { endpoint_suite_id: :dtr_full_ehr }
          }
     test from: :dtr_client_payer_reg_udap_config_display,
          required_suite_options: {
