@@ -16,7 +16,7 @@ module DaVinciDTRTestKit
       )
     run_as_group
 
-    # smart auth verification
+    # udap auth verification
     test from: :udap_client_token_request_cc_verification,
          config: {
            options: { endpoint_suite_id: :dtr_full_ehr }

@@ -2,9 +2,6 @@
 
 source "https://rubygems.org"
 
-gem 'smart_app_launch_test_kit', git: 'https://github.com/inferno-framework/smart-app-launch-test-kit.git', branch: 'client_authorization_code_tests'
-gem 'udap_security_test_kit', git: 'https://github.com/inferno-framework/udap-security-test-kit.git', branch: 'client_authorization_code_tests'
-
 gemspec
 
 group :development, :test do
