@@ -1,7 +1,7 @@
 RSpec.describe DaVinciDTRTestKit::DTRFullEHRCustomAdaptiveWorkflowGroup, :request do
   let(:suite_id) { :dtr_full_ehr }
   let(:group) { Inferno::Repositories::TestGroups.new.find('dtr_full_ehr_custom_adaptive_workflow') }
-  let(:access_token) { 'sample_token' }
+  let(:client_id) { 'sample_id' }
   let(:questionnaire_package_url) { "/custom/#{suite_id}/fhir/Questionnaire/$questionnaire-package" }
   let(:next_url) { "/custom/#{suite_id}/fhir/Questionnaire/$next-question" }
   let(:results_repo) { Inferno::Repositories::Results.new }
@@ -33,19 +33,19 @@ RSpec.describe DaVinciDTRTestKit::DTRFullEHRCustomAdaptiveWorkflowGroup, :reques
     let(:adaptive_custom_questionnaire_package_response) do
       File.read(File.join(__dir__, '..', 'fixtures', 'questionnaire_package_output_params_conformant.json'))
     end
-    let(:resume_pass_url) { "/custom/#{suite_id}/resume_pass?token=#{access_token}" }
+    let(:resume_pass_url) { "/custom/#{suite_id}/resume_pass?token=#{client_id}" }
 
     before { allow_any_instance_of(DaVinciDTRTestKit::URLs).to(receive(:resume_pass_url).and_return('')) }
 
     it 'fails when an empty package response is provided' do
-      result = run(runnable, access_token:, adaptive_custom_questionnaire_package_response: {}.to_json,
+      result = run(runnable, client_id:, adaptive_custom_questionnaire_package_response: {}.to_json,
                              custom_next_question_questionnaires: custom_questionnaires.to_json)
       expect(result.result).to eq('fail')
       expect(result.result_message).to match(/Custom questionnaire package response is empty/)
     end
 
     it 'fails when an empty questionnaire list is provided' do
-      result = run(runnable, access_token:, adaptive_custom_questionnaire_package_response:,
+      result = run(runnable, client_id:, adaptive_custom_questionnaire_package_response:,
                              custom_next_question_questionnaires: [].to_json)
       expect(result.result).to eq('fail')
       expect(result.result_message).to match(/Custom questionnaires list is empty/)
@@ -53,11 +53,11 @@ RSpec.describe DaVinciDTRTestKit::DTRFullEHRCustomAdaptiveWorkflowGroup, :reques
 
     it 'returns the user provided custom package to the questionnaire package request' do
       allow_any_instance_of(DaVinciDTRTestKit::URLs).to(receive(:questionnaire_package_url).and_return(''))
-      result = run(runnable, access_token:, adaptive_custom_questionnaire_package_response:,
+      result = run(runnable, client_id:, adaptive_custom_questionnaire_package_response:,
                              custom_next_question_questionnaires: custom_questionnaires.to_json)
       expect(result.result).to eq('wait')
 
-      header 'Authorization', "Bearer #{access_token}"
+      header 'Authorization', "Bearer #{UDAPSecurityTestKit::MockUDAPServer.client_id_to_token(client_id, 5)}"
       post(questionnaire_package_url, package_request_body)
       expect(last_response.ok?).to be(true)
       expect(parsed_body).to eq(JSON.parse(adaptive_custom_questionnaire_package_response))
@@ -68,10 +68,10 @@ RSpec.describe DaVinciDTRTestKit::DTRFullEHRCustomAdaptiveWorkflowGroup, :reques
       allow_any_instance_of(DaVinciDTRTestKit::MockPayer::NextQuestionEndpoint).to(
         receive(:evaluate_fhirpath).and_return([])
       )
-      result = run(runnable, access_token:, adaptive_custom_questionnaire_package_response:,
+      result = run(runnable, client_id:, adaptive_custom_questionnaire_package_response:,
                              custom_next_question_questionnaires: custom_questionnaires.to_json)
       expect(result.result).to eq('wait')
-      header 'Authorization', "Bearer #{access_token}"
+      header 'Authorization', "Bearer #{UDAPSecurityTestKit::MockUDAPServer.client_id_to_token(client_id, 5)}"
       post(next_url, next_question_request_body)
       expect(last_response.ok?).to be(true)
       contained_questionnaire = parsed_body['contained'].first
