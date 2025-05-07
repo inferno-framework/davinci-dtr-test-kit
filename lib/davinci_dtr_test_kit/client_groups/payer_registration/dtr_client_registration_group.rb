@@ -9,18 +9,10 @@ module DaVinciDTRTestKit
     id :dtr_client_payer_registration
     title 'Client Registration'
     description %(
-        Register the client under test with Inferno's simulated DTR Server,
-        including configuration of the system under test to hit the correct endpoints and
-        enable authentication and authorization of DTR requests.
-
-        When running these tests there are two options for authentication:
-        1. **UDAP B2B client credentials flow**: the system under test will dynamically register
-           with Inferno and request access tokens used to access FHIR endpoints
-           as per the UDAP specification.
-        2. **SMART Backend Services**: the system under test will manually register
-           with Inferno and request access token used to access FHIR endpoints
-           as per the SMART Backend Services specification.
-      )
+      Register the client under test with Inferno's simulated DTR Server,
+      including configuration of the system under test to hit the correct endpoints and
+      enable authentication and authorization of DTR requests.
+    )
     run_as_group
 
     # smart registration tests

@@ -7,7 +7,7 @@ module DaVinciDTRTestKit
     title 'Review Authentication Interactions'
     description %(
         During these tests, Inferno will verify that the client interacted with Inferno's
-        simulated udAP authorization server in a conformant manner when requesting access tokens
+        simulated UDAP authorization server in a conformant manner when requesting access tokens
         and that the client under test was able to use provided access tokens to make DTR
         requests.
 

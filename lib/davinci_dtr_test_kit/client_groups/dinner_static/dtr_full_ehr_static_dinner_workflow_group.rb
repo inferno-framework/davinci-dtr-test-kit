@@ -61,16 +61,20 @@ module DaVinciDTRTestKit
       test from: :dtr_static_dinner_enabled_questions_attest
     end
 
-    group from: :dtr_full_ehr_saving_qr,
-          config: {
-            inputs: {
-              questionnaire_response: {
-                description: "The QuestionnaireResponse as exported from the EHR after completion of the Questionnaire.
-                IMPORTANT: If you have not yet run the 'Filling Out the Static Questionnaire' group, leave this blank
-                until you have done so. Then, run just the 'Saving the QuestionnaireResponse' group and populate
-                this input."
-              }
-            }
+    group from: :dtr_full_ehr_saving_qr do
+      config(
+        inputs: {
+          questionnaire_response: {
+            name: 'static_dinner_questionnaire_response',
+            description: "The QuestionnaireResponse as exported from the EHR after completion of the Questionnaire.
+            IMPORTANT: If you have not yet run the 'Filling Out the Static Questionnaire' group, leave this blank
+            until you have done so. Then, run just the 'Saving the QuestionnaireResponse' group and populate
+            this input."
           }
+        }
+      )
+      # custom qp input not used - Inferno-defined questionnaire
+      children[2].inputs.delete(:custom_questionnaire_package_response)
+    end
   end
 end

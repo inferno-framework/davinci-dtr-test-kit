@@ -20,7 +20,7 @@ module DaVinciDTRTestKit
 
       def update_result
         if UDAPSecurityTestKit::MockUDAPServer.request_has_expired_token?(request)
-          UDAPSecurityTestKit::MockUDAPServer.update_response_for_expired_token(response)
+          UDAPSecurityTestKit::MockUDAPServer.update_response_for_expired_token(response, 'Bearer token')
           return
         end
 
