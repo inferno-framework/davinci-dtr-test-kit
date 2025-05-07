@@ -4,6 +4,8 @@ module DaVinciDTRTestKit
   class DTRQuestionnaireMustSupportTes < Inferno::Test
     include DaVinciDTRTestKit::CQLTest
     id :dtr_questionnaire_must_support
+    verifies_requirements 'hl7.fhir.us.davinci-dtr_2.0.1@15', 'hl7.fhir.us.davinci-dtr_2.0.1@65',
+                          'hl7.fhir.us.davinci-dtr_2.0.1@66', 'hl7.fhir.us.davinci-dtr_2.0.1@206'
 
     def form_type
       config.options[:form_type] || 'static'

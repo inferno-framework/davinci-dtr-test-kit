@@ -23,6 +23,11 @@ module DaVinciDTRTestKit
       `mustSupport` elements defined in the [DTR Standard Questionnaire](http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/dtr-std-questionnaire)
       profile through visual inspection (e.g., rendering, UI behavior, or guidance).
 
+      Since there are no `mustSupport` elements defined in the [DTR Adaptive Questionnaire]('http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/dtr-questionnaire-adapt')
+      profile that are not present in the DTR Standard Questionnaire profile, demonstrating that the client
+      system supports DTR Standard Questionnaire `mustSupport` elements allows the user to conclude that
+      that DTR Adaptive Questionnaire `mustSupport` elements are supported.
+
       ### Profile Validation
 
         Inferno will validate that:
@@ -66,7 +71,6 @@ module DaVinciDTRTestKit
     # Test 4: must support test
     test from: :dtr_questionnaire_must_support,
          title: '[USER INPUT VALIDATION] All must support elements are provided in the static Questionnaire resources provided', # rubocop:disable Layout/LineLength
-         verifies_requirements: ['hl7.fhir.us.davinci-dtr_2.0.1@65'],
          description: <<~DESCRIPTION
            The DTR client SHALL be able to handle all `mustSupport` elements defined in the
            [DTR Standard Questionnaire](http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/dtr-std-questionnaire)
