@@ -113,11 +113,11 @@ To run the tests using this approach:
 
 #### Startup and Client Registration
 1. Start a Da Vinci DTR Full EHR Test suite session choosing SMART Backend Services for the Client Security Type.
-1. Select the "Dinner Order Questionnaire Example Using SMART (Postman)" preset from the dropdown in the upper left.
+1. Select the "Dinner Order Questionnaire Example (Postman)" preset from the dropdown in the upper left.
 1. Select the Client Registration group from the list at the left, click "RUN TEST" in the upper right,
    and click "SUBMIT" in the input dialog that appears. A "User Action Required" wait dialog will appear.
 1. In another tab, start a SMART App Launch STU2.2 suite session. Select the Backend Services group,
-   click "RUN TESTS", and provide the following inputs before clicking "SUBMIT:
+   click "RUN TESTS", and provide the following inputs before clicking "SUBMIT":
    - **FHIR Endpoint**: the "FHIR Base URL" displayed in the wait dialog in the DTR tests.
    - **Scopes**: `system/*.rs`
    - **Client ID**: the "SMART Client Id" displayed in the wait dialog in the DTR tests.
@@ -131,6 +131,19 @@ To run the tests using this approach:
      `inferno.healthit.gov`. If running on another server, see guidance on the "Overview" tab
      of the postman collection.
    - **access_token**: the access token extracted in the previous step.
+1. Confirm that registration is complete by clicking the link in the DTR tests to complete the registration tests.
+
+##### UDAP Alternative
+
+To demonstrate the use of UDAP authentication for the DTR EHR, perform the above startup steps with the following changes
+- In step 1 when starting the DTR Full EHR test suite session, choose UDAP B2B Client Credentials for the Client Security Type.
+- In step 4, start a UDAP Security test suite session instead. Select the "Demo: Run Against the UDAP Security Client Suite"
+  preset, then choose the UDAP Client Credentials Flow group, click "RUN TESTS", and update the following inputs before clicking "SUBMIT":
+  - **FHIR Server Base URL**: change to the FHIR server indicated in the wait dialog in the DTR tests.
+- In step 5, the access token (same format as described above) can be found in test **2.3.01** OAuth token exchange request succeeds when supplied correct information.
+- In step 7, there will be two attestations to complete.
+
+All other steps below will be the same.
 
 #### Dinner Questionnaire (Standard)
 
@@ -139,13 +152,16 @@ Postman collection. Follow the quick start instructions above with the following
 - Use postman to submit the "Questionnaire Package for Dinner (Static)" request when Inferno
   is waiting for a `$questionnaire-package` request. Note that the response that looks similar
   to the "Example Working Response" in postman.
-- Copy the contents of the "Sample QuestionnaireResponse for Dinner (Static) ..." postman request
-  for the **Completed QuestionnaireResponse** input.
+- Copy the contents of the "Sample QuestionnaireResponse for Dinner (Static) ..." postman request,
+  replace the string `{{base_url}}` with the value of the **base_url** postman variable, and enter the result
+  as the **Completed QuestionnaireResponse** input in Inferno.
 
-The "Dinner Order Questionnaire Example Using SMART (Postman)" preset also populates the same questionnaire as the
+The "Dinner Order Questionnaire Example (Postman)" preset also populates the same questionnaire as the
 tester-provided questionnaire to use in the Basic Workflows -> Static Questionnaire Workflow group. You
 can execute that group as well in a similar manner to see how tester-provided questionnaire tests are
 different.
+
+These tests are not expected to fully pass due to known issues in the example FHIR instances.
 
 #### Dinner Questionnaire (Adaptive)
 
@@ -172,15 +188,19 @@ Postman collection.
    that the response that looks similar to the "Example Response" in postman
    and click the link to continue the tests.
 
-The "Dinner Order Questionnaire Example Using SMART (Postman)" preset also populates the same questionnaire as the
+The "Dinner Order Questionnaire Example (Postman)" preset also populates the same questionnaire as the
 tester-provided questionnaire to use in the Basic Workflows -> Adaptive Questionnaire Workflow group. You
 can execute that group as well in a similar manner (note that all `$next-question` requests are made
 within a single wait test) to see how tester-provided questionnaire tests are different.
+
+These tests are not expected to fully pass due to known issues in the example FHIR instances.
 
 #### Review Authentication Interactions
 
 Anytime after executing one of the questionnaire test groups, you can execute the Review Authentication Interactions
 group to verify the conformance of access token requests against the SMART Backend Services flow.
+
+These tests are not expected to fully pass due to invalid token requests purposefully sent by the SMART server tests.
 
 ## Limitations
 

@@ -112,12 +112,13 @@ If you do not have a DTR SMART app but would like to try the tests out, you can 
 [this Postman collection](https://github.com/inferno-framework/davinci-dtr-test-kit/blob/main/config/DTR%20SMART%20App%20Tests%20Postman%20Demo.postman_collection.json)
 to make requests against Inferno. This does not include the capability to render the complete
 questionnaires, but does have samples of correctly and incorrectly completed QuestionnaireResponses.
-The following is a list of tests with the Postman requests that can be used with them:
+After starting the session, choose the "Dinner Order Questionnaire Example" preset. The following
+is a list of tests with the Postman requests that can be used with them:
 
-- **Standalone launch sequence**: use requests in the `SMART App Launch` folder during
+- **Standalone launch sequence**: optionally use requests in the `SMART App Launch` folder during
   tests **1.1.1.01** or **2.1.1.01** to simulate the SMART Launch flow and obtain an access
   token to use for subsequent requests. See the collection's Overview for details on the
-  access token's generation.
+  access token's generation. You can also skip this step and leave the existing postman variable as is.
 - **1.1** _Static Questionnaire Workflow_: use requests in the `Static Dinner` folder
   - **1.1.1.01** _Invoke the DTR Questionnaire Package operation_: submit request `Questionnaire Package for Dinner (Static)` while this test is waiting.
   - **1.1.3.01** _Save the QuestionnaireResponse after completing it_: submit request `Save QuestionnaireResponse for Dinner (Static)` while this test is waiting. If you want to see a failure, submit request `Save QuestionnaireResponse for Dinner (Static) - missing origin extension` instead.

@@ -1,5 +1,5 @@
 {
-  "title": "Dinner Order Questionnaire Example Using SMART (Postman)",
+  "title": "Dinner Order Questionnaire Example (Postman)",
   "id": "full_ehr_dinner_order_example",
   "test_suite_id": "dtr_full_ehr",
   "inputs": [
@@ -10,6 +10,13 @@
       "title": "Client Id",
       "type": "text",
       "value": "smart_client_test_demo"
+    },
+    {
+      "name": "udap_client_uri",
+      "description": "The UDAP Client URI that will be used to register with Inferno's simulated UDAP server.",
+      "title": "UDAP Client URI",
+      "type": "text",
+      "value": "<%= Inferno::Application['base_url'] %>/custom/udap_security/fhir"
     },
     {
       "name": "smart_jwk_set",
