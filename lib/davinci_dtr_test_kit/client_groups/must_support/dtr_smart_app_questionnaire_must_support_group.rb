@@ -23,10 +23,10 @@ module DaVinciDTRTestKit
       `mustSupport` elements defined in the [DTR Standard Questionnaire](http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/dtr-std-questionnaire)
       profile through visual inspection (e.g., rendering, UI behavior, or guidance).
 
-      Since there are no `mustSupport` elements defined in the [DTR Adaptive Questionnaire]('http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/dtr-questionnaire-adapt')
+            Since there are no non-required `mustSupport` elements defined in the [DTR Adaptive Questionnaire]('http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/dtr-questionnaire-adapt')
       profile that are not present in the DTR Standard Questionnaire profile, demonstrating that the client
-      system supports DTR Standard Questionnaire `mustSupport` elements allows the user to conclude that
-      that DTR Adaptive Questionnaire `mustSupport` elements are supported.
+      system supports DTR Standard Questionnaire `mustSupport` elements plus an adaptive questionnaire workflow 
+      is sufficient to show that DTR Adaptive Questionnaire `mustSupport` elements are supported.
 
       ### Profile Validation
 
