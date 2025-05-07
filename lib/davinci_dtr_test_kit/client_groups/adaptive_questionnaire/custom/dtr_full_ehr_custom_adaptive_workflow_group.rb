@@ -91,7 +91,7 @@ module DaVinciDTRTestKit
       test from: :dtr_custom_questionnaire_libraries
       # Test 7: validate the user provided $next-question questionnaires
       test from: :dtr_custom_next_questionnaire_validation
-      # Test 8: verify the custom responses has the necessaru extensions for pre-population
+      # Test 8: verify the custom responses has the necessary extensions for pre-population
       test from: :dtr_custom_questionnaire_extensions do
         title %(
           [USER INPUT VERIFICATION] Custom Questionnaires for $next-question Responses contain extensions

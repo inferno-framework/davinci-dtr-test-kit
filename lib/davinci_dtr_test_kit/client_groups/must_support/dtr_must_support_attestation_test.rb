@@ -12,6 +12,8 @@ module DaVinciDTRTestKit
       - Successfully requested, rendered, and completed each of the provided questionnaires.
       - Presented appropriate visual cues or guidance wherever `mustSupport` elements affect expected user actions.
     )
+    verifies_requirements 'hl7.fhir.us.davinci-dtr_2.0.1@15', 'hl7.fhir.us.davinci-dtr_2.0.1@16',
+                          'hl7.fhir.us.davinci-dtr_2.0.1@206'
 
     def form_type
       config.options[:form_type]

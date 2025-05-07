@@ -26,7 +26,7 @@ module DaVinciDTRTestKit
         questionnaires = extract_questionnaires_from_bundles(scratch[:"#{form_type}_questionnaire_bundles"])
       else
         assert_valid_json custom_next_question_questionnaires,
-                          'Custom $next-question questionnairee not valid JSON'
+                          'Custom $next-question questionnaires not valid JSON'
         custom_questionnaires = [JSON.parse(custom_next_question_questionnaires)].flatten.compact
         questionnaires = custom_questionnaires.map { |q| FHIR.from_contents(q.to_json) }.compact
       end
