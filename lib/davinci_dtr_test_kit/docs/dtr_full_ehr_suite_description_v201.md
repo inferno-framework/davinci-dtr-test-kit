@@ -202,6 +202,26 @@ group to verify the conformance of access token requests against the SMART Backe
 
 These tests are not expected to fully pass due to invalid token requests purposefully sent by the SMART server tests.
 
+## Auth Configuration Details
+
+When running these tests there are 2 options for authentication, which also allows 
+Inferno to identify which session the requests are for. The choice is made when the
+session is created with the selected Client Security Type option, which determines
+what details the tester needs to provide during the Client Registration tests:
+
+- **SMART Backend Services**: the system under test will manually register
+  with Inferno and request access token used to access FHIR endpoints
+  as per the SMART Backend Services specification. It requires the
+  **SMART JSON Web Key Set (JWKS)** input to be populated with either a URL that resolves
+  to a JWKS or a raw JWKS in JSON format. Additionally, testers may provide
+  a **Client Id** if they want their client assigned a specific one.
+- **UDAP B2B Client Credentials**: the system under test will dynamically register
+  with Inferno and request access tokens used to access FHIR endpoints
+  as per the UDAP specification. It requires the **UDAP Client URI** input
+  to be populated with the URI that the client will use when dynamically
+  registering with Inferno. This will be used to generate a client id (each
+  unique UDAP Client URI will always get the same client id).
+
 ## Limitations
 
 The DTR IG is a complex specification and these tests currently validate conformance to only
