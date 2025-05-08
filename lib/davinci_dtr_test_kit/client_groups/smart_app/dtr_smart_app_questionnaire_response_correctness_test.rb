@@ -18,10 +18,11 @@ module DaVinciDTRTestKit
     input :custom_questionnaire_package_response,
           title: 'Custom Questionnaire Package Response JSON',
           description: %(
-            A JSON PackageBundle may be provided here to replace Inferno's response to the
-            $questionnaire-package request.
+            The custom $questionnaire-package response used in the previous tests, if provided.
           ),
-          type: 'textarea'
+          type: 'textarea',
+          optional: true,
+          locked: true
 
     run do
       validate_questionnaire_response_correctness(request.request_body, custom_questionnaire_package_response)

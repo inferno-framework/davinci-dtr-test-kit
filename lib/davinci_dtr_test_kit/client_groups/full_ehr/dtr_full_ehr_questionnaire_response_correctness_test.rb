@@ -17,10 +17,19 @@ module DaVinciDTRTestKit
     )
     verifies_requirements 'hl7.fhir.us.davinci-dtr_2.0.1@209', 'hl7.fhir.us.davinci-dtr_2.0.1@210'
 
+    input :custom_questionnaire_package_response,
+          title: 'Custom Questionnaire Package Response JSON',
+          description: %(
+            The custom $questionnaire-package response used in the previous tests, if provided.
+          ),
+          type: 'textarea',
+          optional: true,
+          locked: true
+
     run do
       skip_if questionnaire_response.blank?, 'Completed QuestionnaireResponse input was blank'
 
-      validate_questionnaire_response_correctness(questionnaire_response, try(:custom_questionnaire_package_response))
+      validate_questionnaire_response_correctness(questionnaire_response, custom_questionnaire_package_response)
     end
   end
 end

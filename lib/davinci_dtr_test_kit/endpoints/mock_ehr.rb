@@ -21,7 +21,7 @@ module DaVinciDTRTestKit
         # Overwrite the OAuth URIs returned by the reference server to point to the suite endpoints instead
         oauth_uris_url = 'http://fhir-registry.smarthealthit.org/StructureDefinition/oauth-uris'
         base_url = MockAuthorization.env_base_url(env, METADATA_PATH)
-        sec_ext = cs.rest.first&.security&.extension&.delete_if { |e| e.url == oauth_uris_url }
+        sec_ext = cs.rest.first&.security&.extension&.delete_if { |e| e.url == oauth_uris_url } # rubocop:disable Style/SafeNavigationChainLength
         sec_ext&.push(
           FHIR::Extension.new(
             url: oauth_uris_url,

@@ -1,3 +1,4 @@
+require_relative '../../../descriptions'
 require_relative '../../../urls'
 
 module DaVinciDTRTestKit
@@ -22,13 +23,14 @@ module DaVinciDTRTestKit
                           'hl7.fhir.us.davinci-dtr_2.0.1@264'
 
     config options: { accepts_multiple_requests: true }
-    input :access_token,
-          description: %(
-            `Bearer` token that the client under test will send in the
-            `Authorization` header of each HTTP request to Inferno. Inferno
-            will look for this value to associate requests with this session.
-          )
+
     input :custom_questionnaire_package_response, :custom_next_question_questionnaires
+    input :client_id,
+          title: 'Client Id',
+          type: 'text',
+          optional: true,
+          locked: true,
+          description: INPUT_CLIENT_ID_LOCKED
 
     run do
       assert_valid_json(
@@ -47,8 +49,9 @@ module DaVinciDTRTestKit
         'Custom questionnaires list is empty, please provide a list of Custom Questionnaire resources
         to include in each $next-question Response.
       )
+
       wait(
-        identifier: access_token,
+        identifier: client_id,
         message: %(
           ### Adaptive Questionnaire Workflow
 
@@ -73,18 +76,10 @@ module DaVinciDTRTestKit
 
           Inferno will wait for all expected requests to be made.
 
-          ### Request Identification
-
-          To identify requests for this session, Inferno will look for an `Authorization` header with the value:
-
-          ```
-          Bearer #{access_token}
-          ```
-
           ### Continuing the Tests
 
           Once all required `$next-question` requests have been made,
-          [Click here](#{resume_pass_url}?token=#{access_token}) to continue.
+          [Click here](#{resume_pass_url}?token=#{client_id}) to continue.
         )
       )
     end

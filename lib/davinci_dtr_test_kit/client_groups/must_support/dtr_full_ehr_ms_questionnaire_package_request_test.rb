@@ -1,3 +1,4 @@
+require_relative '../../descriptions'
 require_relative '../../urls'
 require_relative 'questionnaire_must_support_elements'
 
@@ -19,13 +20,13 @@ module DaVinciDTRTestKit
     DESCRIPTION
     config options: { accepts_multiple_requests: true }
     verifies_requirements 'hl7.fhir.us.davinci-dtr_2.0.1@165', 'hl7.fhir.us.davinci-dtr_2.0.1@262'
-    input :access_token,
-          description: %(
-            `Bearer` token that the client under test will send in the
-            `Authorization` header of each HTTP request to Inferno. Inferno
-            will look for this value to associate requests with this session.
-          )
     input :custom_questionnaire_package_response
+    input :client_id,
+          title: 'Client Id',
+          type: 'text',
+          optional: true,
+          locked: true,
+          description: INPUT_CLIENT_ID_LOCKED
 
     run do
       assert_valid_json(
@@ -40,7 +41,7 @@ module DaVinciDTRTestKit
       )
 
       wait(
-        identifier: access_token,
+        identifier: client_id,
         timeout: 1800,
         message: <<~MESSAGE
           ### Questionnaire Package
@@ -63,19 +64,10 @@ module DaVinciDTRTestKit
 
           #{STATIC_QUESTIONNAIRE.map { |el| "- #{el}" }.join("\n")}
 
-          ### Request Identification
-
-          In order to identify requests for this session, Inferno will look for
-          an `Authorization` header with value:
-
-          ```
-          Bearer #{access_token}
-          ```
-
           ### Continuing the Tests
 
           Once the Questionnaire has been loaded and the visual inspection is complete,
-          [Click here](#{resume_pass_url}?token=#{access_token}) to continue.
+          [Click here](#{resume_pass_url}?token=#{client_id}) to continue.
         MESSAGE
       )
     end

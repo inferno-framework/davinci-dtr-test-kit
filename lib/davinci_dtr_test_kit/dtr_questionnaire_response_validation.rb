@@ -189,7 +189,6 @@ module DaVinciDTRTestKit
                                                questionnaire_cql_expression_link_ids,
                                                expected_prepopulated = {},
                                                expected_overrides = {})
-
       questionnaire_cql_expression_link_ids.each do |target_link_id|
         target_item = find_item_by_link_id(template_questionnaire_response.item, target_link_id)
         raise "Template QuestionnaireResponse missing item with link id `#{target_link_id}`" unless target_item.present?

@@ -17,10 +17,19 @@ module DaVinciDTRTestKit
   SUPPORTED_PAYER_PATH = '/:tester_url_id/supported-payers'
   RESUME_PASS_PATH = '/resume_pass'
   RESUME_FAIL_PATH = '/resume_fail'
+  AUTH_SERVER_PATH = '/auth'
+  SMART_DISCOVERY_PATH = "#{FHIR_BASE_PATH}/.well-known/smart-configuration".freeze
+  UDAP_DISCOVERY_PATH = "#{FHIR_BASE_PATH}/.well-known/udap".freeze
+  TOKEN_PATH = "#{AUTH_SERVER_PATH}/token".freeze
+  REGISTRATION_PATH = "#{AUTH_SERVER_PATH}/register".freeze
 
   module URLs
     def base_url
       @base_url ||= "#{Inferno::Application['base_url']}/custom/#{suite_id}"
+    end
+
+    def fhir_base_url
+      @fhir_base_url ||= base_url + FHIR_BASE_PATH
     end
 
     def ehr_authorize_url
@@ -47,10 +56,6 @@ module DaVinciDTRTestKit
       @questionnaire_response_url ||= base_url + QUESTIONNAIRE_RESPONSE_PATH
     end
 
-    def fhir_base_url
-      @fhir_base_url ||= base_url + FHIR_BASE_PATH
-    end
-
     def supported_payer_url(unique_url_id)
       @supported_payer_url ||= base_url + SUPPORTED_PAYER_PATH.gsub(':tester_url_id', unique_url_id)
     end
@@ -61,6 +66,18 @@ module DaVinciDTRTestKit
 
     def resume_fail_url
       @resume_fail_url ||= base_url + RESUME_FAIL_PATH
+    end
+
+    def udap_discovery_url
+      @udap_discovery_url ||= base_url + UDAP_DISCOVERY_PATH
+    end
+
+    def token_url
+      @token_url ||= base_url + TOKEN_PATH
+    end
+
+    def registration_url
+      @registration_url ||= base_url + REGISTRATION_PATH
     end
 
     def suite_id

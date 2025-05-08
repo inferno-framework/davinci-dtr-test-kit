@@ -37,9 +37,8 @@ module DaVinciDTRTestKit
               %(fhirContext not present on the passed launch context, skipping test.))
 
       context_reference = token_response_params['fhirContext'].filter do |c|
-        c.split('/')[0] == 'DeviceRequest' || c.split('/')[0] == 'ServiceRequest' ||
-          c.split('/')[0] == 'CommunicationRequest' || c.split('/')[0] == 'MedicationRequest' ||
-          c.split('/')[0] == 'Encounter' || c.split('/')[0] == 'Task' || c.split('/')[0] == 'QuestionnaireResponse'
+        ['DeviceRequest', 'ServiceRequest', 'CommunicationRequest', 'MedicationRequest', 'Encounter', 'Task',
+         'QuestionnaireResponse'].include?(c.split('/')[0])
       end
 
       assert context_reference.present?,
@@ -49,11 +48,11 @@ module DaVinciDTRTestKit
       assert context_reference_amount == 1,
              'fhirContext should only contain one CRD-type request, QuestionnaireResponse, or Task'
 
-      crd_request_array = [(context_reference[0]).split('/')[1]]
+      crd_request_array = [context_reference[0].split('/')[1]]
       assert crd_request_array.present?,
              'fhirContext does not contain a CRD-type request, QuestionnaireResponse, or Task resource in proper format'
 
-      perform_read_test(crd_request_array, (context_reference[0]).split('/')[0])
+      perform_read_test(crd_request_array, context_reference[0].split('/')[0])
     end
   end
 end

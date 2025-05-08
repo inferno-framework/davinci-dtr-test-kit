@@ -1,3 +1,4 @@
+require_relative '../../descriptions'
 require_relative '../../urls'
 
 module DaVinciDTRTestKit
@@ -20,22 +21,22 @@ module DaVinciDTRTestKit
                           'hl7.fhir.us.davinci-dtr_2.0.1@264'
 
     config options: { accepts_multiple_requests: true }
-    input :access_token,
-          description: %(
-            `Bearer` token that the client under test will send in the
-            `Authorization` header of each HTTP request to Inferno. Inferno
-            will look for this value to associate requests with this session.
-          )
+    input :client_id,
+          title: 'Client Id',
+          type: 'text',
+          optional: true,
+          locked: true,
+          description: INPUT_CLIENT_ID_LOCKED
 
     run do
       wait(
-        identifier: access_token,
+        identifier: client_id,
         message: %(
           ### Adaptive Questionnaire Retrieval
 
           1. **Questionnaire Package Request**:
             - Invoke the `$questionnaire-package` operation by sending a POST request to the following
-            endpoint to retrieve the adaptive questionnaire package:
+              endpoint to retrieve the adaptive questionnaire package:
 
               `#{questionnaire_package_url}`.
 
@@ -43,7 +44,7 @@ module DaVinciDTRTestKit
 
           2. **Initial Next Question Request**:
             - After receiving the questionnaire package, invoke the `$next-question` operation by sending
-            a POST request to the following endpoint to retrieve the first set of questions:
+              a POST request to the following endpoint to retrieve the first set of questions:
 
               `#{next_url}`.
 
@@ -51,18 +52,9 @@ module DaVinciDTRTestKit
 
           Inferno will wait for both of these requests to be made.
 
-          ### Request Identification
-
-          In order to identify requests for this session, Inferno will look for
-          an `Authorization` header with value:
-
-          ```
-          Bearer #{access_token}
-          ```
-
           ### Continuing the Tests
 
-          When both requests have been made, [Click here](#{resume_pass_url}?token=#{access_token}) to continue.
+          When both requests have been made, [Click here](#{resume_pass_url}?token=#{client_id}) to continue.
         )
       )
     end

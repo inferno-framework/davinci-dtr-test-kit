@@ -28,7 +28,7 @@ module DaVinciDTRTestKit
       skip_if request.blank?, 'A Questionnaire Package request must be made prior to running this test'
 
       assert request.url == questionnaire_package_url,
-             "Request made to wrong URL: #{request.url}. Should instead be to #{questionnaire_package_url}"
+             "Request made to wrong URL: #{request.url}. Should instead be to #{questionnaire_package_url}."
 
       assert_valid_json(request.request_body)
       input_params = FHIR.from_contents(request.request_body)

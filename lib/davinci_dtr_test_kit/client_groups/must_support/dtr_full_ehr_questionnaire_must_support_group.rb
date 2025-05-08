@@ -56,7 +56,6 @@ module DaVinciDTRTestKit
         }
       }
     )
-    input_order :access_token
 
     # Test 1: wait for the $questionnaire-package request
     test from: :dtr_full_ehr_ms_qp_request

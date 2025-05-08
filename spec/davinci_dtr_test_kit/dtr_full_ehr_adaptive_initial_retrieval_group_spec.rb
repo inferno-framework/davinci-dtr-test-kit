@@ -6,7 +6,7 @@ RSpec.describe DaVinciDTRTestKit::DTRFullEHRAdaptiveInitialRetrievalGroup, :requ
   let(:session_data_repo) { Inferno::Repositories::SessionData.new }
   let(:results_repo) { Inferno::Repositories::Results.new }
   let(:test_session) { repo_create(:test_session, test_suite_id: suite_id) }
-  let(:access_token) { 'sample_token' }
+  let(:client_id) { 'sample_id' }
   let(:next_question_request_body) do
     File.read(File.join(__dir__, '..', 'fixtures', 'next_question_initial_input_params_conformant.json'))
   end
@@ -41,17 +41,17 @@ RSpec.describe DaVinciDTRTestKit::DTRFullEHRAdaptiveInitialRetrievalGroup, :requ
     let(:package_request_body) do
       File.read(File.join(__dir__, '..', 'fixtures', 'questionnaire_package_input_params_conformant.json'))
     end
-    let(:resume_pass_url) { "/custom/#{suite_id}/resume_pass?token=#{access_token}" }
+    let(:resume_pass_url) { "/custom/#{suite_id}/resume_pass?token=#{client_id}" }
 
     it 'passes if questionnaire package and next question requests are received' do
       allow_any_instance_of(DaVinciDTRTestKit::URLs).to(receive(:questionnaire_package_url).and_return(''))
       allow_any_instance_of(DaVinciDTRTestKit::URLs).to(receive(:next_url).and_return(''))
       allow_any_instance_of(DaVinciDTRTestKit::URLs).to(receive(:resume_pass_url).and_return(''))
 
-      result = run(runnable, test_session, access_token:)
+      result = run(runnable, test_session, client_id:)
       expect(result.result).to eq('wait')
 
-      header 'Authorization', "Bearer #{access_token}"
+      header 'Authorization', "Bearer #{UDAPSecurityTestKit::MockUDAPServer.client_id_to_token(client_id, 5)}"
       post(questionnaire_package_url, package_request_body)
       expect(last_response.ok?).to be(true)
       post(next_url, package_request_body)
