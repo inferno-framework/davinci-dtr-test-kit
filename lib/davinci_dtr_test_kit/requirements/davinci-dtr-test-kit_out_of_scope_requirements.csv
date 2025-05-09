@@ -1,11 +1,12 @@
 ﻿Req Set,ID,Reason,Details
 hl7.fhir.us.davinci-dtr_2.0.1,10,Not Tested,"QuestionnaireResponse.source is not must support or required, so these systems are not required to support it."
 hl7.fhir.us.davinci-dtr_2.0.1,129,Not Tested,Cdex workflows out of initial scope
-hl7.fhir.us.davinci-dtr_2.0.1,231,Not Tested,check as a part of PAS initially
-hl7.fhir.us.davinci-dtr_2.0.1,232,Not Tested,check as a part of PAS initially
-hl7.fhir.us.davinci-dtr_2.0.1,233,Not Tested,check as a part of PAS initially
-hl7.fhir.us.davinci-dtr_2.0.1,234,Not Tested,check as a part of PAS initially
-hl7.fhir.us.davinci-dtr_2.0.1,236,Not Tested,check as a part of PAS initially
+hl7.fhir.us.davinci-dtr_2.0.1,231,Not Tested,Not compatible with the PAS approach to prior authorization submission
+hl7.fhir.us.davinci-dtr_2.0.1,232,Not Tested,Not compatible with the PAS approach to prior authorization submission
+hl7.fhir.us.davinci-dtr_2.0.1,233,Not Tested,Not compatible with the PAS approach to prior authorization submission
+hl7.fhir.us.davinci-dtr_2.0.1,234,Not Tested,Not compatible with the PAS approach to prior authorization submission
+hl7.fhir.us.davinci-dtr_2.0.1,235,Not Tested,Not compatible with the PAS approach to prior authorization submission
+hl7.fhir.us.davinci-dtr_2.0.1,236,Not Tested,Not compatible with the PAS approach to prior authorization submission
 hl7.fhir.us.davinci-dtr_2.0.1,237,Not Tested,"automatic or manual allowed, no clear impact on downstream functionality"
 hl7.fhir.us.davinci-dtr_2.0.1,238,Not Tested,"automatic or manual allowed, no clear impact on downstream functionality"
 hl7.fhir.us.davinci-dtr_2.0.1,328,Not Tested,metrics are optional at this time

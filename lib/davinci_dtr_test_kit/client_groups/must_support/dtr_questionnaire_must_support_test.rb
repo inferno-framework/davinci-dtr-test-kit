@@ -4,6 +4,8 @@ module DaVinciDTRTestKit
   class DTRQuestionnaireMustSupportTes < Inferno::Test
     include DaVinciDTRTestKit::CQLTest
     id :dtr_questionnaire_must_support
+    verifies_requirements 'hl7.fhir.us.davinci-dtr_2.0.1@15', 'hl7.fhir.us.davinci-dtr_2.0.1@65',
+                          'hl7.fhir.us.davinci-dtr_2.0.1@66', 'hl7.fhir.us.davinci-dtr_2.0.1@206'
 
     def form_type
       config.options[:form_type] || 'static'
@@ -26,7 +28,7 @@ module DaVinciDTRTestKit
         questionnaires = extract_questionnaires_from_bundles(scratch[:"#{form_type}_questionnaire_bundles"])
       else
         assert_valid_json custom_next_question_questionnaires,
-                          'Custom $next-question questionnairee not valid JSON'
+                          'Custom $next-question questionnaires not valid JSON'
         custom_questionnaires = [JSON.parse(custom_next_question_questionnaires)].flatten.compact
         questionnaires = custom_questionnaires.map { |q| FHIR.from_contents(q.to_json) }.compact
       end
