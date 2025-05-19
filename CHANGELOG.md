@@ -1,3 +1,9 @@
+# v0.16.1
+* FI-3705: Enable Users to Provide Custom Adaptive Questionnaires for Testing by @vanessuniq in https://github.com/inferno-framework/davinci-dtr-test-kit/pull/60
+* FI-3841: Questionnaire Must Support Workflow by @vanessuniq in https://github.com/inferno-framework/davinci-dtr-test-kit/pull/67
+* FI-4055: Client Auth by @karlnaden in https://github.com/inferno-framework/davinci-dtr-test-kit/pull/69
+* FI-4028: must support annotations by @elsaperelli in https://github.com/inferno-framework/davinci-dtr-test-kit/pull/70
+
 # v0.16.0
 ## Breaking Change
 This release updates the Da Vinci DTR Test Kit to use AuthInfo rather than
