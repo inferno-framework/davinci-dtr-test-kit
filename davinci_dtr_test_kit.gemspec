@@ -20,10 +20,5 @@ Gem::Specification.new do |spec|
   spec.metadata['homepage_uri'] = spec.homepage
   spec.metadata['source_code_uri'] = spec.homepage
   spec.files = `[ -d .git ] && git ls-files -z lib config/presets LICENSE`.split("\x0")
-  spec.files -= [
-    'config/presets/light_ehr_ref_server_local.json',
-    'config/presets/payer_server_adaptive_client_flow.json',
-    'config/presets/payer_server_adaptive_manual_flow.json'
-  ]
   spec.require_paths = ['lib']
 end
