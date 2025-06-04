@@ -6,22 +6,6 @@ RSpec.describe DaVinciDTRTestKit::DTRRespiratoryQuestionnairePackageGroup, :requ
   let(:group) { Inferno::Repositories::TestGroups.new.find('dtr_resp_qp') }
   let(:suite_id) { :dtr_smart_app }
   let(:questionnaire_package_url) { "/custom/#{suite_id}/fhir/Questionnaire/$questionnaire-package" }
-  let(:session_data_repo) { Inferno::Repositories::SessionData.new }
-  let(:test_session) { repo_create(:test_session, test_suite_id: suite_id) }
-
-  def run(runnable, test_session, inputs = {})
-    test_run_params = { test_session_id: test_session.id }.merge(runnable.reference_hash)
-    test_run = Inferno::Repositories::TestRuns.new.create(test_run_params)
-    inputs.each do |name, value|
-      session_data_repo.save(
-        test_session_id: test_session.id,
-        name:,
-        value:,
-        type: runnable.config.input_type(name)
-      )
-    end
-    Inferno::TestRunner.new(test_session:, test_run:).run(runnable)
-  end
 
   describe 'Behavior of questionnaire package request test' do
     let(:runnable) { group.tests.find { |test| test.id.to_s.end_with? 'dtr_resp_qp_request' } }

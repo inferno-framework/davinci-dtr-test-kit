@@ -1,23 +1,7 @@
-RSpec.describe DaVinciDTRTestKit::UpdateTest do
+RSpec.describe DaVinciDTRTestKit::UpdateTest, :runnable do
+  let(:suite_id) { 'dtr_light_ehr' }
   let(:validator_url) { ENV.fetch('FHIR_RESOURCE_VALIDATOR_URL') }
-  let(:suite) { Inferno::Repositories::TestSuites.new.find('dtr_light_ehr') }
-  let(:session_data_repo) { Inferno::Repositories::SessionData.new }
-  let(:test_session) { repo_create(:test_session, test_suite_id: suite.id) }
   let(:server_endpoint) { 'http://example.com' }
-
-  def run(runnable, inputs = {})
-    test_run_params = { test_session_id: test_session.id }.merge(runnable.reference_hash)
-    test_run = Inferno::Repositories::TestRuns.new.create(test_run_params)
-    inputs.each do |name, value|
-      session_data_repo.save(
-        test_session_id: test_session.id,
-        name:,
-        value:,
-        type: runnable.config.input_type(name)
-      )
-    end
-    Inferno::TestRunner.new(test_session:, test_run:).run(runnable)
-  end
 
   describe 'behavior of update test' do
     let(:update_test) do

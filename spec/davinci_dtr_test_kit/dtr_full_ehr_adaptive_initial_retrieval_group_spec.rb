@@ -3,9 +3,7 @@ RSpec.describe DaVinciDTRTestKit::DTRFullEHRAdaptiveInitialRetrievalGroup, :requ
   let(:suite_id) { :dtr_full_ehr }
   let(:questionnaire_package_url) { "/custom/#{suite_id}/fhir/Questionnaire/$questionnaire-package" }
   let(:next_url) { "/custom/#{suite_id}/fhir/Questionnaire/$next-question" }
-  let(:session_data_repo) { Inferno::Repositories::SessionData.new }
   let(:results_repo) { Inferno::Repositories::Results.new }
-  let(:test_session) { repo_create(:test_session, test_suite_id: suite_id) }
   let(:client_id) { 'sample_id' }
   let(:next_question_request_body) do
     File.read(File.join(__dir__, '..', 'fixtures', 'next_question_initial_input_params_conformant.json'))
@@ -14,20 +12,6 @@ RSpec.describe DaVinciDTRTestKit::DTRFullEHRAdaptiveInitialRetrievalGroup, :requ
     File.read(File.join(__dir__, '..', 'fixtures', 'next_question_initial_input_params_nonconformant.json'))
   end
   let(:next_tag) { "initial#{DaVinciDTRTestKit::CLIENT_NEXT_TAG}" }
-
-  def run(runnable, test_session, inputs = {})
-    test_run_params = { test_session_id: test_session.id }.merge(runnable.reference_hash)
-    test_run = Inferno::Repositories::TestRuns.new.create(test_run_params)
-    inputs.each do |name, value|
-      session_data_repo.save(
-        test_session_id: test_session.id,
-        name:,
-        value:,
-        type: runnable.config.input_type(name)
-      )
-    end
-    Inferno::TestRunner.new(test_session:, test_run:).run(runnable)
-  end
 
   def build_next_request(request_body)
     result = repo_create(:result, test_session_id: test_session.id)
