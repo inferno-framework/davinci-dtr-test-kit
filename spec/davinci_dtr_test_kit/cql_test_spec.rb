@@ -1,13 +1,4 @@
-require_relative 'shared_setup'
-
 RSpec.describe DaVinciDTRTestKit::CQLTest do
-  include_context('when running standard tests',
-                  'payer_server_static_package', # group
-                  suite_id = :dtr_payer_server,
-                  "/custom/#{suite_id}/fhir/Questionnaire/$questionnaire-package", # questionnaire_package_url
-                  'Static', # retrieval_method
-                  'http://example.org/fhir/R4') # url
-
   context 'when output is valid' do
     let(:scratch) do
       output_params = FHIR.from_contents(File.read(File.join(__dir__, '..', 'fixtures',
@@ -19,7 +10,7 @@ RSpec.describe DaVinciDTRTestKit::CQLTest do
       let(:runnable) { group.tests.find { |test| test.id.to_s.end_with? 'static_form_libraries_test' } }
 
       it 'passes if questionnaire package has libraries' do
-        result = run(runnable, test_session, scratch:, access_token:, retrieval_method:)
+        result = run(runnable, {access_token:, retrieval_method:})
         expect(result.result).to eq('pass'), result.result_message
       end
     end
@@ -28,7 +19,7 @@ RSpec.describe DaVinciDTRTestKit::CQLTest do
       let(:runnable) { group.tests.find { |test| test.id.to_s.end_with? 'static_form_expressions_test' } }
 
       it 'passes if questionnaire package has valid extensions' do
-        result = run(runnable, test_session, scratch:, access_token:, retrieval_method:)
+        result = run(runnable, { access_token:, retrieval_method: }, scratch)
         expect(result.result).to eq('pass'), result.result_message
       end
     end
@@ -47,7 +38,7 @@ RSpec.describe DaVinciDTRTestKit::CQLTest do
       let(:runnable) { group.tests.find { |test| test.id.to_s.end_with? 'static_form_libraries_test' } }
 
       it 'fails if questionnaire package has no libraries' do
-        result = run(runnable, test_session, scratch:, access_token:, retrieval_method:)
+        result = run(runnable, { access_token:, retrieval_method: }, scratch)
         expect(result.result).to eq('fail'), result.result_message
       end
     end
@@ -56,7 +47,7 @@ RSpec.describe DaVinciDTRTestKit::CQLTest do
       let(:runnable) { group.tests.find { |test| test.id.to_s.end_with? 'static_form_expressions_test' } }
 
       it 'fails if questionnaire package has invalid extensions' do
-        result = run(runnable, test_session, scratch:, access_token:, retrieval_method:)
+        result = run(runnable, { access_token:, retrieval_method: }, scratch)
         expect(result.result).to eq('fail'), result.result_message
       end
     end

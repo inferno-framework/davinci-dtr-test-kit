@@ -21,7 +21,6 @@ RSpec.describe DaVinciDTRTestKit::DTRFullEHRAdaptiveInitialRetrievalGroup, :requ
 
   describe 'questionnaire package request and initial next question request test' do
     let(:runnable) { group.tests.find { |test| test.id.to_s.end_with? 'dtr_full_ehr_adaptive_request' } }
-    let(:results_repo) { Inferno::Repositories::Results.new }
     let(:package_request_body) do
       File.read(File.join(__dir__, '..', 'fixtures', 'questionnaire_package_input_params_conformant.json'))
     end
@@ -32,7 +31,7 @@ RSpec.describe DaVinciDTRTestKit::DTRFullEHRAdaptiveInitialRetrievalGroup, :requ
       allow_any_instance_of(DaVinciDTRTestKit::URLs).to(receive(:next_url).and_return(''))
       allow_any_instance_of(DaVinciDTRTestKit::URLs).to(receive(:resume_pass_url).and_return(''))
 
-      result = run(runnable, test_session, client_id:)
+      result = run(runnable, client_id:)
       expect(result.result).to eq('wait')
 
       header 'Authorization', "Bearer #{UDAPSecurityTestKit::MockUDAPServer.client_id_to_token(client_id, 5)}"
@@ -66,12 +65,12 @@ RSpec.describe DaVinciDTRTestKit::DTRFullEHRAdaptiveInitialRetrievalGroup, :requ
     it 'passes if next question input parameters are conformant' do
       build_next_request(next_question_request_body)
 
-      result = run(runnable, test_session)
+      result = run(runnable)
       expect(result.result).to eq('pass'), result.result_message
     end
 
     it 'skips if no next-question request was made' do
-      result = run(runnable, test_session)
+      result = run(runnable)
       expect(result.result).to eq('skip')
       expect(result.result_message).to match(/next-question request must be made prior to running this test/)
     end
@@ -79,7 +78,7 @@ RSpec.describe DaVinciDTRTestKit::DTRFullEHRAdaptiveInitialRetrievalGroup, :requ
     it 'fails if next question request body is not a valid json' do
       build_next_request('[[')
 
-      result = run(runnable, test_session)
+      result = run(runnable)
       expect(result.result).to eq('fail')
       result_messages_string = results_repo
         .current_results_for_test_session_and_runnables(test_session.id, [runnable])
@@ -90,7 +89,7 @@ RSpec.describe DaVinciDTRTestKit::DTRFullEHRAdaptiveInitialRetrievalGroup, :requ
     it 'fails if next question request body is not a valid FHIR object' do
       build_next_request({}.to_json)
 
-      result = run(runnable, test_session)
+      result = run(runnable)
       expect(result.result).to eq('fail')
       result_messages_string = results_repo
         .current_results_for_test_session_and_runnables(test_session.id, [runnable])
@@ -101,7 +100,7 @@ RSpec.describe DaVinciDTRTestKit::DTRFullEHRAdaptiveInitialRetrievalGroup, :requ
     it 'fails if next question request body is not a Parameters resource' do
       build_next_request({ resourceType: 'Patient' }.to_json)
 
-      result = run(runnable, test_session)
+      result = run(runnable)
       expect(result.result).to eq('fail')
       result_messages_string = results_repo
         .current_results_for_test_session_and_runnables(test_session.id, [runnable])
@@ -112,7 +111,7 @@ RSpec.describe DaVinciDTRTestKit::DTRFullEHRAdaptiveInitialRetrievalGroup, :requ
     it 'fails if next question input parameters resource does not have a questionnaire-response param' do
       build_next_request(next_question_request_body_nonconformant)
 
-      result = run(runnable, test_session)
+      result = run(runnable)
       expect(result.result).to eq('fail')
       result_messages_string = results_repo
         .current_results_for_test_session_and_runnables(test_session.id, [runnable])
@@ -124,7 +123,7 @@ RSpec.describe DaVinciDTRTestKit::DTRFullEHRAdaptiveInitialRetrievalGroup, :requ
       param = FHIR::Parameters::Parameter.new(name: 'questionnaire-response', resource: FHIR::Patient.new)
       build_next_request(FHIR::Parameters.new(parameter: [param]).to_json)
 
-      result = run(runnable, test_session)
+      result = run(runnable)
       expect(result.result).to eq('fail')
       result_messages_string = results_repo
         .current_results_for_test_session_and_runnables(test_session.id, [runnable])
@@ -149,7 +148,7 @@ RSpec.describe DaVinciDTRTestKit::DTRFullEHRAdaptiveInitialRetrievalGroup, :requ
     end
 
     it 'skips if no next-question request was made' do
-      result = run(runnable, test_session)
+      result = run(runnable)
       expect(result.result).to eq('skip')
       expect(result.result_message).to match(/next-question request must be made prior to running this test/)
     end
@@ -157,7 +156,7 @@ RSpec.describe DaVinciDTRTestKit::DTRFullEHRAdaptiveInitialRetrievalGroup, :requ
     it 'fails if next question request body is not a valid json' do
       build_next_request('[[')
 
-      result = run(runnable, test_session)
+      result = run(runnable)
       expect(result.result).to eq('fail')
       result_messages_string = results_repo
         .current_results_for_test_session_and_runnables(test_session.id, [runnable])
@@ -168,7 +167,7 @@ RSpec.describe DaVinciDTRTestKit::DTRFullEHRAdaptiveInitialRetrievalGroup, :requ
     it 'fails if next question request body is not a valid FHIR object' do
       build_next_request({}.to_json)
 
-      result = run(runnable, test_session)
+      result = run(runnable)
       expect(result.result).to eq('fail')
       result_messages_string = results_repo
         .current_results_for_test_session_and_runnables(test_session.id, [runnable])
@@ -179,7 +178,7 @@ RSpec.describe DaVinciDTRTestKit::DTRFullEHRAdaptiveInitialRetrievalGroup, :requ
     it 'fails if next question input parameters resource does not have questionnaire-response param slice' do
       build_next_request(next_question_request_body_nonconformant)
 
-      result = run(runnable, test_session)
+      result = run(runnable)
       expect(result.result).to eq('fail')
       result_messages_string = results_repo
         .current_results_for_test_session_and_runnables(test_session.id, [runnable])
@@ -192,7 +191,7 @@ RSpec.describe DaVinciDTRTestKit::DTRFullEHRAdaptiveInitialRetrievalGroup, :requ
                                          'next_question_input_params_no_origin_extension.json'))
       build_next_request(request_body)
 
-      result = run(runnable, test_session)
+      result = run(runnable)
       expect(result.result).to eq('fail')
       result_messages_string = results_repo
         .current_results_for_test_session_and_runnables(test_session.id, [runnable])
@@ -205,7 +204,7 @@ RSpec.describe DaVinciDTRTestKit::DTRFullEHRAdaptiveInitialRetrievalGroup, :requ
                                          'next_question_input_params_missing_answer.json'))
       build_next_request(request_body)
 
-      result = run(runnable, test_session)
+      result = run(runnable)
       expect(result.result).to eq('fail')
       result_messages_string = results_repo
         .current_results_for_test_session_and_runnables(test_session.id, [runnable])

@@ -21,7 +21,7 @@ RSpec.describe DaVinciDTRTestKit::DTRRespiratoryQuestionnairePackageGroup, :requ
       allow_any_instance_of(DaVinciDTRTestKit::URLs).to(receive(:fhir_base_url).and_return(''))
       allow_any_instance_of(DaVinciDTRTestKit::URLs).to(receive(:resume_pass_url).and_return(''))
 
-      result = run(runnable, test_session, client_id:, smart_app_launch: 'ehr')
+      result = run(runnable, client_id:, smart_app_launch: 'ehr')
       expect(result.result).to eq('wait')
 
       encoded_client_id = Base64.strict_encode64("{\"inferno_client_id\":\"#{client_id}\"}").delete('=')
@@ -57,7 +57,7 @@ RSpec.describe DaVinciDTRTestKit::DTRRespiratoryQuestionnairePackageGroup, :requ
                             request_body:, test_session_id: test_session.id,
                             tags: [DaVinciDTRTestKit::QUESTIONNAIRE_PACKAGE_TAG])
 
-      result = run(runnable, test_session)
+      result = run(runnable)
       expect(result.result).to eq('pass'), result.result_message
     end
 
@@ -71,7 +71,7 @@ RSpec.describe DaVinciDTRTestKit::DTRRespiratoryQuestionnairePackageGroup, :requ
       repo_create(:request, result_id: result.id, request_body:, test_session_id: test_session.id,
                             tags: [DaVinciDTRTestKit::QUESTIONNAIRE_PACKAGE_TAG])
 
-      result = run(runnable, test_session)
+      result = run(runnable)
       expect(result.result).to eq('fail')
     end
   end
