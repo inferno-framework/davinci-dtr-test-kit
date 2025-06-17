@@ -3,7 +3,8 @@ RSpec.describe DaVinciDTRTestKit::DTRPayerServerQuestionnairePackageGroup, :requ
   let(:results_repo) { Inferno::Repositories::Results.new }
   let(:url) { 'https://example.com/fhir/R4' }
   let(:access_token) { 'dummy' }
-
+  let(:questionnaire_package_url) { "/custom/#{suite_id}/fhir/Questionnaire/$questionnaire-package" }
+  
   context 'when initial request/response is manually provided' do
     let(:retrieval_method) { 'Static' }
     let(:initial_static_questionnaire_request) do
@@ -24,33 +25,33 @@ RSpec.describe DaVinciDTRTestKit::DTRPayerServerQuestionnairePackageGroup, :requ
       end
     end
 
-    describe 'static Questionnaire request validation' do
+    describe 'static questionnaire request validation' do
       let(:runnable) { find_test described_class, 'static_form_request_validation_test' }
       let(:retrieval_method) { 'Static' }
-      let(:input_validation_test) do
-        Class.new(Inferno::Test) do
-          def self.suite
-            Inferno::Repositories::TestSuites.new.find('dtr_payer_server')
-          end
+      # let(:input_validation_test) do
+      #   Class.new(Inferno::Test) do
+      #     def self.suite
+      #       Inferno::Repositories::TestSuites.new.find('dtr_payer_server')
+      #     end
 
-          validator do
-            url ENV.fetch('FHIR_RESOURCE_VALIDATOR_URL')
-          end
+      #     validator do
+      #       url ENV.fetch('FHIR_RESOURCE_VALIDATOR_URL')
+      #     end
 
-          input :url, :access_token, :retrieval_method, :initial_static_questionnaire_request
+      #     input :url, :access_token, :retrieval_method, :initial_static_questionnaire_request
 
-          run do
-            resource_is_valid?(resource:, profile_url: 'http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/dtr-qpackage-input-parameters|2.0.1')
-            errors_found = messages.any? { |message| message[:type] == 'error' }
-            skip_if errors_found, 'Resource does not conform to the profile http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/dtr-qpackage-input-parameters|2.0.1'
-          end
-        end
-      end
+      #     run do
+      #       resource_is_valid?(resource:, profile_url: 'http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/dtr-qpackage-input-parameters|2.0.1')
+      #       errors_found = messages.any? { |message| message[:type] == 'error' }
+      #       skip_if errors_found, 'Resource does not conform to the profile http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/dtr-qpackage-input-parameters|2.0.1'
+      #     end
+      #   end
+      # end
 
       it 'passes if questionnaire request is conformant' do
-        allow_any_instance_of(DaVinciDTRTestKit::PayerStaticFormRequestValidationTest).to(
-          receive(:resource_is_valid?).and_return(true)
-        )
+        #allow_any_instance_of(DaVinciDTRTestKit::PayerStaticFormRequestValidationTest).to(
+        #  receive(:resource_is_valid?).and_return(true)
+        #)
 
         stub_request(:post, validation_url)
           .with(query: {
@@ -67,12 +68,32 @@ RSpec.describe DaVinciDTRTestKit::DTRPayerServerQuestionnairePackageGroup, :requ
           File.read(File.join(__dir__, '..', 'fixtures', 'questionnaire_package_input_params_non_conformant.json'))
         end
 
-        before do
-          Inferno::Repositories::Tests.new.insert(input_validation_test)
-        end
+        # before do
+        #   Inferno::Repositories::Tests.new.insert(input_validation_test)
+        # end
 
         it 'skips if questionnaire request is not conformant' do
-          result = run(input_validation_test,
+          # allow_any_instance_of(runnable).to( receive(:resource_is_valid?).and_return(false) )
+
+          stub_request(:post, validation_url)
+            .with(query: {
+                    profile: 'http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/dtr-qpackage-input-parameters|2.0.1'
+                  }
+            )
+            .to_return(status: 200, body: FHIR::OperationOutcome.new(
+                         issue: [
+                           FHIR::OperationOutcome::Issue.new(
+                             severity: 'error',
+                             code: 'invalid',
+                             details: FHIR::CodeableConcept.new(
+                               text: "Resource is not conformant to profile #{profile_url}"
+                             )
+                           )
+                         ]
+                       )
+            )
+
+          result = run(runnable,
                        { url:, access_token:, retrieval_method:, initial_static_questionnaire_request: bad_static_questionnaire_request })
           expect(result.result).to eq('skip'), result.result_message
         end
@@ -82,7 +103,6 @@ RSpec.describe DaVinciDTRTestKit::DTRPayerServerQuestionnairePackageGroup, :requ
     # all static tests should skip when flow is marked 'adaptive'
     context 'when retrieval method is adaptive' do
       let(:retrieval_method) { 'Adaptive' }
-      let(:inputs_adaptive_method) { inputs.merge(retrieval_method:) }
 
       describe 'static questionnaire package incoming request test' do
         let(:runnable) { find_test described_class, 'request_test' }
@@ -139,9 +159,9 @@ RSpec.describe DaVinciDTRTestKit::DTRPayerServerQuestionnairePackageGroup, :requ
     describe 'static questionnaire package request validation test' do
       let(:runnable) { find_test described_class, 'static_form_request_validation_test' }
       let(:retrieval_method) { 'Static' }
-      
+
       it 'skips when access_token is nil' do
-        result = run(runnable, { url:, retrieval_method: })
+        result = run(runnable, { retrieval_method: })
         expect(result.result).to eq('skip'), result.result_message
       end
 
@@ -156,7 +176,7 @@ RSpec.describe DaVinciDTRTestKit::DTRPayerServerQuestionnairePackageGroup, :requ
                               tags: [DaVinciDTRTestKit::QUESTIONNAIRE_TAG])
 
         allow_any_instance_of(runnable).to receive(:resource_is_valid?).and_return(true)
-        result = run(runnable, { url:, access_token:, retrieval_method: })
+        result = run(runnable, { access_token:, retrieval_method: })
         expect(result.result).to eq('pass'), result.result_message
       end
 
