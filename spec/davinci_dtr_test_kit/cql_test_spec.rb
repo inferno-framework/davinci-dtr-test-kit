@@ -16,7 +16,7 @@ RSpec.describe DaVinciDTRTestKit::CQLTest, :runnable do
       let(:runnable) { find_test suite, 'static_form_libraries_test' }
 
       it 'passes if questionnaire package has libraries' do
-        result = run(runnable, inputs)
+        result = run(runnable, inputs, scratch)
         expect(result.result).to eq('pass'), result.result_message
       end
     end

@@ -4,7 +4,8 @@ RSpec.describe DaVinciDTRTestKit::DTRPayerServerQuestionnairePackageGroup, :requ
   let(:url) { 'https://example.com/fhir/R4' }
   let(:access_token) { 'dummy' }
   let(:questionnaire_package_url) { "/custom/#{suite_id}/fhir/Questionnaire/$questionnaire-package" }
-  
+  let(:profile_url) { 'http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/dtr-qpackage-input-parameters|2.0.1' }
+
   context 'when initial request/response is manually provided' do
     let(:retrieval_method) { 'Static' }
     let(:initial_static_questionnaire_request) do
@@ -12,7 +13,7 @@ RSpec.describe DaVinciDTRTestKit::DTRPayerServerQuestionnairePackageGroup, :requ
     end
 
     describe 'static questionnaire package incoming request test' do
-      let(:runnable) { find_test described_class, 'request_test' }
+      let(:runnable) { find_test suite, 'request_test' }
 
       it 'passes if valid questionnaire request is manually provided' do
         result = run(runnable, { url:, access_token:, retrieval_method:, initial_static_questionnaire_request: })
@@ -26,40 +27,20 @@ RSpec.describe DaVinciDTRTestKit::DTRPayerServerQuestionnairePackageGroup, :requ
     end
 
     describe 'static questionnaire request validation' do
-      let(:runnable) { find_test described_class, 'static_form_request_validation_test' }
+      let(:runnable) { find_test suite, 'static_form_request_validation_test' }
       let(:retrieval_method) { 'Static' }
-      # let(:input_validation_test) do
-      #   Class.new(Inferno::Test) do
-      #     def self.suite
-      #       Inferno::Repositories::TestSuites.new.find('dtr_payer_server')
-      #     end
-
-      #     validator do
-      #       url ENV.fetch('FHIR_RESOURCE_VALIDATOR_URL')
-      #     end
-
-      #     input :url, :access_token, :retrieval_method, :initial_static_questionnaire_request
-
-      #     run do
-      #       resource_is_valid?(resource:, profile_url: 'http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/dtr-qpackage-input-parameters|2.0.1')
-      #       errors_found = messages.any? { |message| message[:type] == 'error' }
-      #       skip_if errors_found, 'Resource does not conform to the profile http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/dtr-qpackage-input-parameters|2.0.1'
-      #     end
-      #   end
-      # end
 
       it 'passes if questionnaire request is conformant' do
-        #allow_any_instance_of(DaVinciDTRTestKit::PayerStaticFormRequestValidationTest).to(
-        #  receive(:resource_is_valid?).and_return(true)
-        #)
+        stub_request(:post, validation_url)
+          .to_return(status: 200, body: FHIR::OperationOutcome.new.to_json)
 
         stub_request(:post, validation_url)
           .with(query: {
-                  profile: 'http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/dtr-qpackage-input-parameters|2.0.1'
+                  profile: profile_url
                 })
           .to_return(status: 200, body: FHIR::OperationOutcome.new.to_json)
 
-        result = run(runnable, { access_token:, retrieval_method:, initial_static_questionnaire_request: })
+        result = run(runnable, { url:, access_token:, retrieval_method:, initial_static_questionnaire_request: })
         expect(result.result).to eq('pass'), result.result_message
       end
 
@@ -73,13 +54,7 @@ RSpec.describe DaVinciDTRTestKit::DTRPayerServerQuestionnairePackageGroup, :requ
         # end
 
         it 'skips if questionnaire request is not conformant' do
-          # allow_any_instance_of(runnable).to( receive(:resource_is_valid?).and_return(false) )
-
           stub_request(:post, validation_url)
-            .with(query: {
-                    profile: 'http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/dtr-qpackage-input-parameters|2.0.1'
-                  }
-            )
             .to_return(status: 200, body: FHIR::OperationOutcome.new(
                          issue: [
                            FHIR::OperationOutcome::Issue.new(
@@ -90,7 +65,7 @@ RSpec.describe DaVinciDTRTestKit::DTRPayerServerQuestionnairePackageGroup, :requ
                              )
                            )
                          ]
-                       )
+                       ).to_json
             )
 
           result = run(runnable,
@@ -200,7 +175,7 @@ RSpec.describe DaVinciDTRTestKit::DTRPayerServerQuestionnairePackageGroup, :requ
                 })
           .to_return(status: 200, body: FHIR::OperationOutcome.new(issue: { severity: 'error' }).to_json)
 
-        result = run(runnable, { url:, access_token:, retrieval_method: })
+        result = run(runnable, { access_token:, retrieval_method: })
         expect(result.result).to eq('skip'), result.result_message
       end
     end
