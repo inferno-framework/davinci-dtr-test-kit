@@ -34,6 +34,14 @@ module DaVinciDTRTestKit
       }
     ]
 
+    requirement_sets(
+      {
+        identifier: 'hl7.fhir.us.davinci-dtr_2.0.1',
+        title: 'Da Vinci Documentation Templates and Rules (DTR) v2.0.1',
+        actor: 'Payer Service'
+      }
+    )
+
     # These inputs will be available to all tests in this suite
 
     input :retrieval_method,
