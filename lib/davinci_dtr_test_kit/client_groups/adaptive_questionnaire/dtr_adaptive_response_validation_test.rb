@@ -25,7 +25,7 @@ module DaVinciDTRTestKit
       as no questions are yet known.
     )
     verifies_requirements 'hl7.fhir.us.davinci-dtr_2.0.1@38', 'hl7.fhir.us.davinci-dtr_2.0.1@210',
-                          'hl7.fhir.us.davinci-dtr_2.0.1@264'
+                          'hl7.fhir.us.davinci-dtr_2.0.1@244'
 
     def profile_url
       'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaireresponse-adapt'
