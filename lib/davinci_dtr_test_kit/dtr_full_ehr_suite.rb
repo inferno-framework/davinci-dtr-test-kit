@@ -42,6 +42,14 @@ module DaVinciDTRTestKit
       }
     ]
 
+    requirement_sets(
+      {
+        identifier: 'hl7.fhir.us.davinci-dtr_2.0.1',
+        title: 'Da Vinci Documentation Templates and Rules (DTR) v2.0.1',
+        actor: 'Full EHR'
+      }
+    )
+
     suite_option :client_type,
                  title: 'Client Security Type',
                  list_options: [

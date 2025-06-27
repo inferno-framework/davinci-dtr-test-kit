@@ -43,6 +43,14 @@ module DaVinciDTRTestKit
       }
     ]
 
+    requirement_sets(
+      {
+        identifier: 'hl7.fhir.us.davinci-dtr_2.0.1',
+        title: 'Da Vinci Documentation Templates and Rules (DTR) v2.0.1',
+        actor: 'Light EHR'
+      }
+    )
+
     # Hl7 Validator Wrapper:
     fhir_resource_validator do
       igs('hl7.fhir.us.davinci-dtr#2.0.1', 'hl7.fhir.us.davinci-pas#2.0.1', 'hl7.fhir.us.davinci-crd#2.0.1')

@@ -30,7 +30,7 @@ module DaVinciDTRTestKit
       The QuestionnaireResponse resource's structure and conformance will be validated
       in the following test ('Adaptive QuestionnaireResponse is valid').
     )
-    verifies_requirements 'hl7.fhir.us.davinci-dtr_2.0.1@264'
+    verifies_requirements 'hl7.fhir.us.davinci-dtr_2.0.1@244'
 
     def assert_valid_resource_type(resource)
       type = resource.resourceType
