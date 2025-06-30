@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    davinci_dtr_test_kit (0.16.1)
+    davinci_dtr_test_kit (0.16.2)
       inferno_core (~> 0.6.15)
       jwt (~> 2.6)
       smart_app_launch_test_kit (~> 0.6.4)
@@ -351,9 +351,9 @@ GEM
       jwt (~> 2.3)
     unicode-display_width (2.6.0)
     unicode_utils (1.4.0)
-    us_core_test_kit (0.11.4)
-      inferno_core (>= 0.6.11)
-      smart_app_launch_test_kit (>= 0.6.3)
+    us_core_test_kit (0.11.5)
+      inferno_core (>= 0.6.15)
+      smart_app_launch_test_kit (>= 0.6.4)
       tls_test_kit (~> 0.3.0)
     webmock (3.25.1)
       addressable (>= 2.8.0)
