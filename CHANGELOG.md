@@ -1,3 +1,6 @@
+# v0.16.2
+* FI-4143: Requirements Conversion by @tstrass in https://github.com/inferno-framework/davinci-dtr-test-kit/pull/72
+
 # v0.16.1
 * FI-3705: Enable Users to Provide Custom Adaptive Questionnaires for Testing by @vanessuniq in https://github.com/inferno-framework/davinci-dtr-test-kit/pull/60
 * FI-3841: Questionnaire Must Support Workflow by @vanessuniq in https://github.com/inferno-framework/davinci-dtr-test-kit/pull/67
