@@ -1,7 +1,5 @@
 RSpec.describe DaVinciDTRTestKit::ValidationTest, :runnable do
-  let(:validation_url) { "#{ENV.fetch('FHIR_RESOURCE_VALIDATOR_URL')}/validate" }
   let(:suite_id) { 'dtr_light_ehr' }
-  let(:test_session) { repo_create(:test_session, test_suite_id: suite.id) }
 
   describe 'profile validation test' do
     let(:profile_validation_test) do
