@@ -35,9 +35,6 @@ module DaVinciDTRTestKit
         resource_is_valid?(resource: request, profile_url: profile_with_version)
       end
 
-      # TODO FIXME
-      # binding.pry
-
       errors_found = messages.any? { |message| message[:type] == 'error' }
       skip_if errors_found, "Resource does not conform to the profile #{profile_with_version}"
     end

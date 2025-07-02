@@ -58,12 +58,6 @@ RSpec.describe DaVinciDTRTestKit::DTRPayerServerQuestionnairePackageGroup, :requ
         stub_request(:post, validation_url)
           .to_return(status: 200, body: validation_success)
 
-        stub_request(:post, validation_url)
-          .with(query: {
-                  profile: profile_url
-                })
-          .to_return(status: 200, body: validation_success)
-
         result = run(runnable, { url:, access_token:, retrieval_method:, initial_static_questionnaire_request: })
         expect(result.result).to eq('pass'), result.result_message
       end
@@ -75,39 +69,6 @@ RSpec.describe DaVinciDTRTestKit::DTRPayerServerQuestionnairePackageGroup, :requ
         result = run(runnable, { url:, access_token:, retrieval_method:, initial_static_questionnaire_request: })
         expect(result.result).to eq('skip'), result.result_message
       end
-=begin
-      describe 'invalid request passed manually' do
-        let(:bad_static_questionnaire_request) do
-          File.read(File.join(__dir__, '..', 'fixtures', 'questionnaire_package_input_params_non_conformant.json'))
-        end
-
-        # before do
-        #   Inferno::Repositories::Tests.new.insert(input_validation_test)
-        # end
-
-        it 'skips if questionnaire request is not conformant' do
-          validation_request = stub_request(:post, validation_url)
-                                 .to_return(status: 200,
-                                            body: FHIR::OperationOutcome.new(
-                                              issue: [
-                                                FHIR::OperationOutcome::Issue.new(
-                                                  severity: 'error',
-                                                  code: 'invalid',
-                                                  details: FHIR::CodeableConcept.new(
-                                                    text: "Resource is not conformant to profile #{profile_url}"
-                                                  )
-                                                )
-                                              ]
-                                            ).to_json)
-
-          result = run(runnable,
-                       { url:, access_token:, retrieval_method:, initial_static_questionnaire_request: bad_static_questionnaire_request })
-
-          expect(result.result).to eq('skip'), result.result_message
-          expect(validation_request).to have_been_made.at_least_once
-        end
-      end
-=end
     end
 
     # all static tests should skip when flow is marked 'adaptive'
