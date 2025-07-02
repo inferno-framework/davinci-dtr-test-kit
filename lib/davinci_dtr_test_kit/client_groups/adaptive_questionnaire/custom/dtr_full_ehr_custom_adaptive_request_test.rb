@@ -19,8 +19,8 @@ module DaVinciDTRTestKit
          the user-provided list. If a `$next-question` request is received when the list is empty,
          Inferno will mark the `QuestionnaireResponse` as completed.
     )
-    verifies_requirements 'hl7.fhir.us.davinci-dtr_2.0.1@165', 'hl7.fhir.us.davinci-dtr_2.0.1@262',
-                          'hl7.fhir.us.davinci-dtr_2.0.1@264'
+    verifies_requirements 'hl7.fhir.us.davinci-dtr_2.0.1@165', 'hl7.fhir.us.davinci-dtr_2.0.1@242',
+                          'hl7.fhir.us.davinci-dtr_2.0.1@244'
 
     config options: { accepts_multiple_requests: true }
 
