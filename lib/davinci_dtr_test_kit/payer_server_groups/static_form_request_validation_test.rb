@@ -4,6 +4,7 @@ module DaVinciDTRTestKit
   class PayerStaticFormRequestValidationTest < Inferno::Test
     include DaVinciDTRTestKit::ValidationTest
     include URLs
+
     id :dtr_v201_payer_static_form_request_validation_test
     title 'User Input Validation:  Client sends payer server a request for a static form'
     description %(
@@ -19,7 +20,9 @@ module DaVinciDTRTestKit
 
     run do
       skip_if retrieval_method == 'Adaptive', 'Performing only adaptive flow tests - only one flow is required.'
+
       profile_with_version = 'http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/dtr-qpackage-input-parameters|2.0.1'
+
       if initial_static_questionnaire_request.nil?
         skip_if access_token.nil?, 'No access token provided - required for client flow.'
         requests = load_tagged_requests(QUESTIONNAIRE_TAG)
@@ -31,6 +34,10 @@ module DaVinciDTRTestKit
         request = FHIR.from_contents(initial_static_questionnaire_request)
         resource_is_valid?(resource: request, profile_url: profile_with_version)
       end
+
+      # TODO FIXME
+      # binding.pry
+
       errors_found = messages.any? { |message| message[:type] == 'error' }
       skip_if errors_found, "Resource does not conform to the profile #{profile_with_version}"
     end
