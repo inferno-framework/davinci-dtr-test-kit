@@ -6,22 +6,6 @@ RSpec.describe DaVinciDTRTestKit::DTRRespiratoryQuestionnairePackageGroup, :requ
   let(:group) { Inferno::Repositories::TestGroups.new.find('dtr_resp_qp') }
   let(:suite_id) { :dtr_smart_app }
   let(:questionnaire_package_url) { "/custom/#{suite_id}/fhir/Questionnaire/$questionnaire-package" }
-  let(:session_data_repo) { Inferno::Repositories::SessionData.new }
-  let(:test_session) { repo_create(:test_session, test_suite_id: suite_id) }
-
-  def run(runnable, test_session, inputs = {})
-    test_run_params = { test_session_id: test_session.id }.merge(runnable.reference_hash)
-    test_run = Inferno::Repositories::TestRuns.new.create(test_run_params)
-    inputs.each do |name, value|
-      session_data_repo.save(
-        test_session_id: test_session.id,
-        name:,
-        value:,
-        type: runnable.config.input_type(name)
-      )
-    end
-    Inferno::TestRunner.new(test_session:, test_run:).run(runnable)
-  end
 
   describe 'Behavior of questionnaire package request test' do
     let(:runnable) { group.tests.find { |test| test.id.to_s.end_with? 'dtr_resp_qp_request' } }
@@ -37,7 +21,7 @@ RSpec.describe DaVinciDTRTestKit::DTRRespiratoryQuestionnairePackageGroup, :requ
       allow_any_instance_of(DaVinciDTRTestKit::URLs).to(receive(:fhir_base_url).and_return(''))
       allow_any_instance_of(DaVinciDTRTestKit::URLs).to(receive(:resume_pass_url).and_return(''))
 
-      result = run(runnable, test_session, client_id:, smart_app_launch: 'ehr')
+      result = run(runnable, client_id:, smart_app_launch: 'ehr')
       expect(result.result).to eq('wait')
 
       encoded_client_id = Base64.strict_encode64("{\"inferno_client_id\":\"#{client_id}\"}").delete('=')
@@ -73,7 +57,7 @@ RSpec.describe DaVinciDTRTestKit::DTRRespiratoryQuestionnairePackageGroup, :requ
                             request_body:, test_session_id: test_session.id,
                             tags: [DaVinciDTRTestKit::QUESTIONNAIRE_PACKAGE_TAG])
 
-      result = run(runnable, test_session)
+      result = run(runnable)
       expect(result.result).to eq('pass'), result.result_message
     end
 
@@ -87,7 +71,7 @@ RSpec.describe DaVinciDTRTestKit::DTRRespiratoryQuestionnairePackageGroup, :requ
       repo_create(:request, result_id: result.id, request_body:, test_session_id: test_session.id,
                             tags: [DaVinciDTRTestKit::QUESTIONNAIRE_PACKAGE_TAG])
 
-      result = run(runnable, test_session)
+      result = run(runnable)
       expect(result.result).to eq('fail')
     end
   end

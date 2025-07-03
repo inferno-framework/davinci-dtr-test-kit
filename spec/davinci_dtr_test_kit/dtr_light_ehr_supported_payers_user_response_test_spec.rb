@@ -7,7 +7,6 @@ RSpec.describe DaVinciDTRTestKit::DTRLightEHRSupportedPayersUserResponseTest, :r
   let(:unique_url_id) { '12345' }
   let(:supported_payer_url) { "/custom/#{suite_id}/#{unique_url_id}/supported-payers" }
   let(:results_repo) { Inferno::Repositories::Results.new }
-  let(:test_session) { repo_create(:test_session, test_suite_id: suite_id) }
   let(:result) { repo_create(:result, test_session_id: test_session.id) }
 
   def create_supported_payers_request(user_response = nil)

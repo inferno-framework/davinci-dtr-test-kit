@@ -1,23 +1,6 @@
-RSpec.describe DaVinciDTRTestKit::CreateTest do
-  let(:validator_url) { ENV.fetch('FHIR_RESOURCE_VALIDATOR_URL') }
-  let(:suite) { Inferno::Repositories::TestSuites.new.find('dtr_light_ehr') }
-  let(:session_data_repo) { Inferno::Repositories::SessionData.new }
-  let(:test_session) { repo_create(:test_session, test_suite_id: suite.id) }
+RSpec.describe DaVinciDTRTestKit::CreateTest, :runnable do
+  let(:suite_id) { 'dtr_light_ehr' }
   let(:server_endpoint) { 'http://example.com' }
-
-  def run(runnable, inputs = {})
-    test_run_params = { test_session_id: test_session.id }.merge(runnable.reference_hash)
-    test_run = Inferno::Repositories::TestRuns.new.create(test_run_params)
-    inputs.each do |name, value|
-      session_data_repo.save(
-        test_session_id: test_session.id,
-        name:,
-        value:,
-        type: runnable.config.input_type(name)
-      )
-    end
-    Inferno::TestRunner.new(test_session:, test_run:).run(runnable)
-  end
 
   describe 'Behavior of create test' do
     let(:create_test) do
@@ -99,7 +82,7 @@ RSpec.describe DaVinciDTRTestKit::CreateTest do
     end
 
     it 'passes if a 201 is received' do
-      validation_request = stub_request(:post, "#{validator_url}/validate")
+      validation_request = stub_request(:post, validation_url)
         .to_return(status: 200, body: operation_outcome_success.to_json)
       questionnaire_response_create_request = stub_request(:post, "#{server_endpoint}/QuestionnaireResponse")
         .to_return(status: 201, body: create_resources.to_json)
@@ -148,7 +131,7 @@ RSpec.describe DaVinciDTRTestKit::CreateTest do
     end
 
     it 'skips if passed in QuestionnaireResponse resource is invalid' do
-      validation_request = stub_request(:post, "#{validator_url}/validate")
+      validation_request = stub_request(:post, validation_url)
         .to_return(status: 200, body: operation_outcome_failure.to_json)
 
       result = run(create_test, create_resources: create_resources.to_json, server_endpoint:)
@@ -160,7 +143,7 @@ RSpec.describe DaVinciDTRTestKit::CreateTest do
     end
 
     it 'fails if QuestionnaireResponse creation interaction returns non 201' do
-      validation_request = stub_request(:post, "#{validator_url}/validate")
+      validation_request = stub_request(:post, validation_url)
         .to_return(status: 200, body: operation_outcome_success.to_json)
       questionnaire_response_create_request = stub_request(:post, "#{server_endpoint}/QuestionnaireResponse")
         .to_return(status: 400)

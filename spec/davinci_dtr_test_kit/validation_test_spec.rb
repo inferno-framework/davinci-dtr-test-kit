@@ -1,22 +1,5 @@
-RSpec.describe DaVinciDTRTestKit::ValidationTest do
-  let(:validation_url) { "#{ENV.fetch('FHIR_RESOURCE_VALIDATOR_URL')}/validate" }
-  let(:suite) { Inferno::Repositories::TestSuites.new.find('dtr_light_ehr') }
-  let(:session_data_repo) { Inferno::Repositories::SessionData.new }
-  let(:test_session) { repo_create(:test_session, test_suite_id: suite.id) }
-
-  def run(runnable, inputs = {})
-    test_run_params = { test_session_id: test_session.id }.merge(runnable.reference_hash)
-    test_run = Inferno::Repositories::TestRuns.new.create(test_run_params)
-    inputs.each do |name, value|
-      session_data_repo.save(
-        test_session_id: test_session.id,
-        name:,
-        value:,
-        type: runnable.config.input_type(name)
-      )
-    end
-    Inferno::TestRunner.new(test_session:, test_run:).run(runnable)
-  end
+RSpec.describe DaVinciDTRTestKit::ValidationTest, :runnable do
+  let(:suite_id) { 'dtr_light_ehr' }
 
   describe 'profile validation test' do
     let(:profile_validation_test) do
