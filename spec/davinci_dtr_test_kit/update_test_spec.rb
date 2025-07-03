@@ -1,6 +1,5 @@
 RSpec.describe DaVinciDTRTestKit::UpdateTest, :runnable do
   let(:suite_id) { 'dtr_light_ehr' }
-  let(:validator_url) { ENV.fetch('FHIR_RESOURCE_VALIDATOR_URL') }
   let(:server_endpoint) { 'http://example.com' }
 
   describe 'behavior of update test' do
@@ -85,7 +84,7 @@ RSpec.describe DaVinciDTRTestKit::UpdateTest, :runnable do
     end
 
     it 'passes if a 200 is received' do
-      validation_request = stub_request(:post, "#{validator_url}/validate")
+      validation_request = stub_request(:post, validation_url)
         .to_return(status: 200, body: operation_outcome_success.to_json)
       questionnaire_response_update_request =
         stub_request(:put, "#{server_endpoint}/QuestionnaireResponse/#{update_resource_id}")
@@ -98,7 +97,7 @@ RSpec.describe DaVinciDTRTestKit::UpdateTest, :runnable do
     end
 
     it 'passes if a 201 is received' do
-      validation_request = stub_request(:post, "#{validator_url}/validate")
+      validation_request = stub_request(:post, validation_url)
         .to_return(status: 200, body: operation_outcome_success.to_json)
       questionnaire_response_update_request =
         stub_request(:put, "#{server_endpoint}/QuestionnaireResponse/#{update_resource_id}")
@@ -148,7 +147,7 @@ RSpec.describe DaVinciDTRTestKit::UpdateTest, :runnable do
     end
 
     it 'skips if passed in QuestionnaireResponse resource is invalid' do
-      validation_request = stub_request(:post, "#{validator_url}/validate")
+      validation_request = stub_request(:post, validation_url)
         .to_return(status: 200, body: operation_outcome_failure.to_json)
 
       result = run(update_test, update_resources: update_resources.to_json, server_endpoint:)
@@ -160,7 +159,7 @@ RSpec.describe DaVinciDTRTestKit::UpdateTest, :runnable do
     end
 
     it 'fails if QuestionnaireResponse creation interaction returns non 201/200' do
-      validation_request = stub_request(:post, "#{validator_url}/validate")
+      validation_request = stub_request(:post, validation_url)
         .to_return(status: 200, body: operation_outcome_success.to_json)
       questionnaire_response_update_request =
         stub_request(:put, "#{server_endpoint}/QuestionnaireResponse/#{update_resource_id}").to_return(status: 400)

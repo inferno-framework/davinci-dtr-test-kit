@@ -1,5 +1,4 @@
 RSpec.describe DaVinciDTRTestKit::CreateTest, :runnable do
-  let(:validator_url) { ENV.fetch('FHIR_RESOURCE_VALIDATOR_URL') }
   let(:suite_id) { 'dtr_light_ehr' }
   let(:server_endpoint) { 'http://example.com' }
 
@@ -83,7 +82,7 @@ RSpec.describe DaVinciDTRTestKit::CreateTest, :runnable do
     end
 
     it 'passes if a 201 is received' do
-      validation_request = stub_request(:post, "#{validator_url}/validate")
+      validation_request = stub_request(:post, validation_url)
         .to_return(status: 200, body: operation_outcome_success.to_json)
       questionnaire_response_create_request = stub_request(:post, "#{server_endpoint}/QuestionnaireResponse")
         .to_return(status: 201, body: create_resources.to_json)
@@ -132,7 +131,7 @@ RSpec.describe DaVinciDTRTestKit::CreateTest, :runnable do
     end
 
     it 'skips if passed in QuestionnaireResponse resource is invalid' do
-      validation_request = stub_request(:post, "#{validator_url}/validate")
+      validation_request = stub_request(:post, validation_url)
         .to_return(status: 200, body: operation_outcome_failure.to_json)
 
       result = run(create_test, create_resources: create_resources.to_json, server_endpoint:)
@@ -144,7 +143,7 @@ RSpec.describe DaVinciDTRTestKit::CreateTest, :runnable do
     end
 
     it 'fails if QuestionnaireResponse creation interaction returns non 201' do
-      validation_request = stub_request(:post, "#{validator_url}/validate")
+      validation_request = stub_request(:post, validation_url)
         .to_return(status: 200, body: operation_outcome_success.to_json)
       questionnaire_response_create_request = stub_request(:post, "#{server_endpoint}/QuestionnaireResponse")
         .to_return(status: 400)
