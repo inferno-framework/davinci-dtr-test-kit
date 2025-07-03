@@ -4,7 +4,7 @@ RSpec.describe DaVinciDTRTestKit::CQLTest, :runnable do
   let(:access_token) { 'dummy' }
   let(:retrieval_method) { 'Static' }
   let(:inputs) { { url:, access_token:, retrieval_method: } }
-  
+
   context 'when output is valid' do
     let(:scratch) do
       output_params = FHIR.from_contents(File.read(File.join(__dir__, '..', 'fixtures',

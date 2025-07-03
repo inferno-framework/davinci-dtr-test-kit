@@ -1,4 +1,4 @@
-RSpec.describe DaVinciDTRTestKit::DTRRespiratoryRenderingGroup, :runnable, :request do
+RSpec.describe DaVinciDTRTestKit::DTRRespiratoryRenderingGroup, :request, :runnable do
   def app
     Inferno::Web.app
   end

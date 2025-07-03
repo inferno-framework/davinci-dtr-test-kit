@@ -1,5 +1,6 @@
 RSpec.describe DaVinciDTRTestKit::DTRPayerServerQuestionnairePackageGroup, :request do
   let(:suite_id) { 'dtr_payer_server' }
+
   context 'when initial request/response is manually provided' do
     let(:initial_static_questionnaire_request) do
       File.read(File.join(__dir__, '..', 'fixtures', 'questionnaire_package_input_params_conformant.json'))
@@ -16,7 +17,7 @@ RSpec.describe DaVinciDTRTestKit::DTRPayerServerQuestionnairePackageGroup, :requ
         output_params:
       }
     end
-    
+
     describe 'static response validation test' do
       let(:output_validation_test) do
         Class.new(Inferno::Test) do

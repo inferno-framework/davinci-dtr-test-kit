@@ -29,7 +29,7 @@ RSpec.describe DaVinciDTRTestKit::DTRPayerServerQuestionnairePackageGroup, :requ
       sessionId: test_session.id
     }.to_json
   end
-  
+
   context 'when initial request/response is manually provided' do
     let(:retrieval_method) { 'Static' }
     let(:initial_static_questionnaire_request) do
