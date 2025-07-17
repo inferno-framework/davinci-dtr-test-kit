@@ -4,7 +4,6 @@ Gem::Specification.new do |spec|
   spec.name          = 'davinci_dtr_test_kit'
   spec.version       = DaVinciDTRTestKit::VERSION
   spec.authors       = ['Karl Naden', 'Tom Strassner', 'Robert Passas']
-  spec.email         = ['inferno@groups.mitre.org']
   spec.summary       = 'Da Vinci DTR Test Kit'
   spec.description   = 'Test Kit for the Da Vinci Documentation Templates and Rules (DTR) FHIR Implementation Guide'
   spec.homepage      = 'https://github.com/inferno-framework/davinci-dtr-test-kit'
