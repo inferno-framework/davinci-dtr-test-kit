@@ -1,3 +1,7 @@
+# v0.17.0
+* FI-3815: Update Test Kit with new RSpec features by @Shaumik-Ashraf in https://github.com/inferno-framework/davinci-dtr-test-kit/pull/74
+* FI-4182: Remove inferno@groups.mitre.org email from gemspec by @arscan in https://github.com/inferno-framework/davinci-dtr-test-kit/pull/75
+
 # v0.16.2
 * FI-4143: Requirements Conversion by @tstrass in https://github.com/inferno-framework/davinci-dtr-test-kit/pull/72
 
