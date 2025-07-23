@@ -4,7 +4,7 @@ module DaVinciDTRTestKit
       @tests_failed ||= {}
     end
 
-    def validate_resource(fhir_resource, resource_type, profile_url, index)
+    def validate_resource(fhir_resource, resource_type, profile_url, index) # rubocop:disable Naming/PredicateMethod
       begin
         assert fhir_resource.present?, 'Resource does not contain a recognized FHIR object'
         assert_resource_type(resource_type, resource: fhir_resource)
