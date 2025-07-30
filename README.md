@@ -37,9 +37,7 @@ requirements and may change how these are tested.
 ## Test Scope and Limitations
 
 The DTR specification is complex and evolving and these tests do not yet
-cover the full scope of the specification. In particular, tests have been
-started but not yet released Light DTR EMR actors responsible for launching
-a DTR SMART App and serving data that the app can use to populate questionnaires.
+cover the full scope of the specification.
 
 For the implemented actors, see suite-specific documentation on current limitations
 for the [payer server](lib/davinci_dtr_test_kit/docs/dtr_payer_server_suite_description_v201.md#limitations),

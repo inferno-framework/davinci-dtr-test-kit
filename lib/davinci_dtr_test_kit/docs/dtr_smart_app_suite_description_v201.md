@@ -197,3 +197,11 @@ to retrieve questionnaires.
 Not all questionnaire features that are must support within the DTR IG are currently represented
 in questionnaires tested by the IG. Additional questionnaires testing additional features will
 be added in the future.
+
+### Client data access
+
+DTR SMART Apps are required to support US Core client capabilities to access data used in
+the completion of questionnaires. While clients must be able to fetch data to demonstrate
+pre-population capabilities, this test suite does not currently check that the app
+can access all US Core and DTR data required by the
+[DTR SMART Client Capability Statement](https://hl7.org/fhir/us/davinci-dtr/STU2/CapabilityStatement-dtr-smart-client.html).
