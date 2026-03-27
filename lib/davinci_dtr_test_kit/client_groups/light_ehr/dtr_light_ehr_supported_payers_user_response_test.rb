@@ -6,7 +6,7 @@ module DaVinciDTRTestKit
     include URLs
     id :dtr_light_ehr_sp_user_response
     title %(
-      [USER INPUT VERIFICATION] Tester-provided supported payers response is conformant
+      Tester-provided supported payers response is conformant
     )
     description %(
       This test verifies that the user-provided response conforms
@@ -14,6 +14,7 @@ module DaVinciDTRTestKit
       be omitted if the tester does not provide a custom response in the
       **Custom Supported Payers Response** input.
     )
+    simulation_verification
 
     input :user_response, type: :textarea, optional: true
 

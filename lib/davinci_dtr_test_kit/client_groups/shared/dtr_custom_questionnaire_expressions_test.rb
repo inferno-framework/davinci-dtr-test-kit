@@ -5,13 +5,14 @@ module DaVinciDTRTestKit
 
     id :dtr_custom_questionnaire_expressions
     title %(
-      [USER INPUT VERIFICATION] Custom questionnaire(s) contain items with expressions
+      Custom questionnaire(s) contain items with expressions
       necessary for pre-population
     )
     description %(
       Inferno checks that the custom response has appropriate expressions and that expressions are
       written in cql.
     )
+    simulation_verification
 
     def form_type
       config.options[:form_type] || 'static'

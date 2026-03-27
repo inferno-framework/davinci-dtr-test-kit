@@ -92,17 +92,19 @@ module DaVinciDTRTestKit
       # Test 8: verify the custom responses has the necessary extensions for pre-population
       test from: :dtr_custom_questionnaire_extensions do
         title %(
-          [USER INPUT VERIFICATION] Custom Questionnaires for $next-question Responses contain extensions
+          Custom Questionnaires for $next-question Responses contain extensions
           necessary for pre-population
         )
+        simulation_verification
         input :custom_next_question_questionnaires
       end
       # Test 9: verify custom responses has necessary expressions for pre-population
       test from: :dtr_custom_questionnaire_expressions do
         title %(
-          [USER INPUT VERIFICATION] Custom Questionnaires for $next-question Responses contain items with
+          Custom Questionnaires for $next-question Responses contain items with
           expressions necessary for pre-population
         )
+        simulation_verification
         input :custom_next_question_questionnaires
       end
     end
