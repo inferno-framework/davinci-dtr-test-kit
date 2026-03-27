@@ -4,6 +4,7 @@ module DaVinciDTRTestKit
   class PayerAdaptiveFormQuestionnaireResponseTest < Inferno::Test
     include DaVinciDTRTestKit::ValidationTest
     include DaVinciDTRTestKit::CQLTest
+
     id :payer_server_adaptive_response_validation_test
     title 'Validate that the adaptive response conforms to the DTR Questionnaire Package operation definition'
     # output :questionnaire_response

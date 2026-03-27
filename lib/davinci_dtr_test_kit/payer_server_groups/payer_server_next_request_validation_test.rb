@@ -3,6 +3,7 @@ module DaVinciDTRTestKit
   class PayerAdaptiveFormNextRequestTest < Inferno::Test
     include URLs
     include DaVinciDTRTestKit::ValidationTest
+
     title 'User Input Validation:  Next Question request is valid'
     description %(
       This test validates the conformance of the client's request to the

@@ -3,6 +3,7 @@ require_relative '../../urls'
 module DaVinciDTRTestKit
   class DTRLightEHRSupportedPayersEndpointTest < Inferno::Test
     include URLs
+
     id :dtr_light_ehr_sp_endpoint
     title 'Client can request an app\'s supported payers list'
     description %(

@@ -63,7 +63,7 @@ module DaVinciDTRTestKit
     end
 
     def verify_questionnaire_extensions(questionnaires)
-      assert questionnaires&.any? && questionnaires.all? { |q| q.is_a? FHIR::Questionnaire }, 'No questionnaires found.'
+      assert questionnaires&.any? && questionnaires.all?(FHIR::Questionnaire), 'No questionnaires found.'
       questionnaires.each_with_index { |q, q_index| check_questionnaire_extensions(q, q_index) }
       check_library_references
       assert extension_presence.value?(true), 'No extensions found. Questionnaire must demonstrate prepopulation.'
@@ -112,7 +112,7 @@ module DaVinciDTRTestKit
     end
 
     def verify_questionnaire_items(questionnaires, final_cql_test: false)
-      assert questionnaires&.any? && questionnaires.all? { |q| q.is_a? FHIR::Questionnaire }, 'No questionnaires found.'
+      assert questionnaires&.any? && questionnaires.all?(FHIR::Questionnaire), 'No questionnaires found.'
       questionnaires.each_with_index { |q, q_index| check_questionnaire_items(q, q_index) }
 
       begin
@@ -324,7 +324,7 @@ module DaVinciDTRTestKit
 
     def extract_contained_questionnaires(questionnaire_responses)
       questionnaire_responses&.filter_map do |qr|
-        qr.contained&.filter { |resource| resource.is_a?(FHIR::Questionnaire) }
+        qr.contained&.grep(FHIR::Questionnaire)
       end&.flatten&.compact
     end
 

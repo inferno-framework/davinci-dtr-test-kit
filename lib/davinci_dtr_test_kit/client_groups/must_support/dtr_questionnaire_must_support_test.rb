@@ -3,6 +3,7 @@ require_relative '../../cql_test'
 module DaVinciDTRTestKit
   class DTRQuestionnaireMustSupportTes < Inferno::Test
     include DaVinciDTRTestKit::CQLTest
+
     id :dtr_questionnaire_must_support
     verifies_requirements 'hl7.fhir.us.davinci-dtr_2.0.1@15', 'hl7.fhir.us.davinci-dtr_2.0.1@65',
                           'hl7.fhir.us.davinci-dtr_2.0.1@66', 'hl7.fhir.us.davinci-dtr_2.0.1@206'
@@ -33,7 +34,7 @@ module DaVinciDTRTestKit
         questionnaires = custom_questionnaires.map { |q| FHIR.from_contents(q.to_json) }.compact
       end
 
-      skip_if questionnaires.blank? || questionnaires.none? { |q| q.is_a?(FHIR::Questionnaire) },
+      skip_if questionnaires.blank? || questionnaires.none?(FHIR::Questionnaire),
               'No Questionnaire resources found.'
 
       skip { assert_must_support_elements_present(questionnaires, profile_url) }

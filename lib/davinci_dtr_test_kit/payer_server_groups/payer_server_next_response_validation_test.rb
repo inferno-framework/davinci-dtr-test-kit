@@ -2,6 +2,7 @@ require_relative '../validation_test'
 module DaVinciDTRTestKit
   class PayerAdaptiveFormNextResponseTest < Inferno::Test
     include DaVinciDTRTestKit::ValidationTest
+
     id :payer_server_next_response_validation_test
     title 'Inferno sends payer server a request for subsequent adaptive forms - validate the responses'
     description %(

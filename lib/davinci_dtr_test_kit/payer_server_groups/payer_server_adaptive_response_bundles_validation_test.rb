@@ -2,6 +2,7 @@ require_relative '../validation_test'
 module DaVinciDTRTestKit
   class PayerAdaptiveFormResponseBundlesTest < Inferno::Test
     include DaVinciDTRTestKit::ValidationTest
+
     id :payer_server_adaptive_response_bundles_validation_test
     title 'Validate that the adaptive response contains valid Questionnaire Bundle resources'
     description %(

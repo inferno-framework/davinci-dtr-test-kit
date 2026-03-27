@@ -4,6 +4,7 @@ require_relative '../../tags'
 module DaVinciDTRTestKit
   class DTRLightEHRSupportedPayersUserResponseTest < Inferno::Test
     include URLs
+
     id :dtr_light_ehr_sp_user_response
     title %(
       Tester-provided supported payers response is conformant

@@ -3,6 +3,7 @@ require_relative '../validation_test'
 module DaVinciDTRTestKit
   class StaticRFormRequestTest < Inferno::Test
     include URLs
+
     title 'Validate the questionnaires returned by the payer server'
     description %(
       Inferno will validate questionnaires returned by the payer server.

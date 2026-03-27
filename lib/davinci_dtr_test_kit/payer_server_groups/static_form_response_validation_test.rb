@@ -6,6 +6,7 @@ module DaVinciDTRTestKit
     include URLs
     include DaVinciDTRTestKit::ValidationTest
     include DaVinciDTRTestKit::CQLTest
+
     id :dtr_v201_payer_static_form_response_test
     title 'Validate that the static response conforms to the DTR Questionnaire Package operation definition.'
     description %(
