@@ -3,6 +3,7 @@ require_relative '../../urls'
 module DaVinciDTRTestKit
   class DTRLightEHRSupportedPayersConfigTest < Inferno::Test
     include URLs
+
     id :dtr_light_ehr_sp_config
     title 'Demonstrate supported payers configuration'
     description %(

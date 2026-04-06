@@ -21,8 +21,10 @@ RSpec.describe DaVinciDTRTestKit::DTRPayerServerQuestionnairePackageGroup, :requ
       outcomes: [
         {
           issues: [
-            level: 'ERROR',
-            message: "Resource is not conformant to #{profile_url}"
+            {
+              level: 'ERROR',
+              message: "Resource is not conformant to #{profile_url}"
+            }
           ]
         }
       ],

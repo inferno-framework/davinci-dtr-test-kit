@@ -1,7 +1,7 @@
 module DaVinciDTRTestKit
   class DTRCustomNextQuestionResponseValidationTest < Inferno::Test
     id :dtr_custom_next_questionnaire_validation
-    title '[USER INPUT VERIFICATION] Custom Questionnaires for $next-question Responses are valid for this workflow'
+    title 'Custom Questionnaires for $next-question Responses are valid for this workflow'
     description %(
       Inferno will validate that the user-provided Questionnaire resources to be included in
       each `$next-question` response are correct for this workflow.
@@ -14,6 +14,7 @@ module DaVinciDTRTestKit
 
       If any of these conditions are not met, the test will fail.
     )
+    simulation_verification
 
     input :custom_next_question_questionnaires,
           title: 'Custom Questionnaire resources to include in each $next-question Response',

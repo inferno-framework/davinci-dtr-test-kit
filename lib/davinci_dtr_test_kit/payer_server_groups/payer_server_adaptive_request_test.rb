@@ -3,6 +3,7 @@ require_relative '../urls'
 module DaVinciDTRTestKit
   class AdaptiveFormTest < Inferno::Test
     include URLs
+
     title 'Confirm the client completes the DTR Adaptive Questionnaire work flow'
     description %(
       Inferno will wait for a DTR questionnaire package request from the client. Upon receipt, Inferno will generate and

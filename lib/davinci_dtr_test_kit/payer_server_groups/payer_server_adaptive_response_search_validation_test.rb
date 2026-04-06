@@ -2,6 +2,7 @@ require_relative '../validation_test'
 module DaVinciDTRTestKit
   class PayerAdaptiveFormResponseSearchTest < Inferno::Test
     include DaVinciDTRTestKit::ValidationTest
+
     id :payer_server_adaptive_response_search_validation_test
     title 'Validate that the adaptive response contains a valid Adaptive Form Search resource'
     description %(

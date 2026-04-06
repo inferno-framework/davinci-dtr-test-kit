@@ -4,7 +4,7 @@ module DaVinciDTRTestKit
     include DaVinciDTRTestKit::CQLTest
 
     id :dtr_custom_qp_validation
-    title '[USER INPUT VERIFICATION] Custom Questionnaire Package response is valid'
+    title 'Custom Questionnaire Package response is valid'
     description %(
       Inferno will validate that the user provided response to the questionnaire-package operation is conformant
       to the
@@ -19,6 +19,7 @@ module DaVinciDTRTestKit
       to the bound ValueSet. Quantity, Coding, and code element bindings will fail if their code/system are not found in
       the valueset.
     )
+    simulation_verification
 
     input :custom_questionnaire_package_response,
           title: 'Custom Questionnaire Package Response JSON',

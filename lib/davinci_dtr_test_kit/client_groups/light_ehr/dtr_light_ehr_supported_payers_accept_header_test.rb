@@ -4,6 +4,7 @@ require_relative '../../tags'
 module DaVinciDTRTestKit
   class DTRLightEHRSupportedPayersAcceptHeaderTest < Inferno::Test
     include URLs
+
     id :dtr_light_ehr_sp_accept_header
     title 'Client uses the required Accept HTTP header value'
     description %(

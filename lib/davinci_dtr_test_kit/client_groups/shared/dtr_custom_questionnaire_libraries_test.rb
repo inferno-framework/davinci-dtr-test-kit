@@ -5,13 +5,14 @@ module DaVinciDTRTestKit
 
     id :dtr_custom_questionnaire_libraries
     title %(
-      [USER INPUT VERIFICATION] Custom Questionnaire Package response parameters contain libraries
+      Custom Questionnaire Package response parameters contain libraries
       necessary for pre-population
     )
     description %(
       Inferno check that the custom response contains no duplicate library names
       and that libraries contain cql and elm data.
     )
+    simulation_verification
 
     def form_type
       config.options[:form_type] || 'static'
