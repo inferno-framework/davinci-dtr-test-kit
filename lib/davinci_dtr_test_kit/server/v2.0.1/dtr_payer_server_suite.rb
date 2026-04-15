@@ -1,7 +1,7 @@
 require_relative 'payer_server_static_group'
 require_relative 'payer_server_adaptive_group'
 require_relative '../../tags'
-require_relative '../../cross_suite/endpoints/cors'
+require_relative '../../cross_suite/cors'
 require_relative '../endpoints/simple_token_endpoint'
 require_relative '../endpoints/questionnaire_package_proxy_endpoint'
 require_relative '../endpoints/next_question_proxy_endpoint'
