@@ -65,7 +65,7 @@ RSpec.describe DaVinciDTRTestKit::DTRFullEHRCustomAdaptiveWorkflowGroup, :reques
 
     it 'returns the expected Questionnaire for each next-question request' do
       allow_any_instance_of(DaVinciDTRTestKit::URLs).to(receive(:next_url).and_return(''))
-      allow_any_instance_of(DaVinciDTRTestKit::MockPayer::NextQuestionEndpoint).to(
+      allow_any_instance_of(DaVinciDTRTestKit::MockPayer::FullEHRNextQuestionEndpoint).to(
         receive(:evaluate_fhirpath).and_return([])
       )
       result = run(runnable, client_id:, adaptive_custom_questionnaire_package_response:,
