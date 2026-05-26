@@ -70,6 +70,10 @@ module DaVinciDTRTestKit
       exclude_message do |message|
         message.message.match?(/\A\S+: \S+: URL value '.*' does not resolve/)
       end
+
+      validation_context do
+        snomedCT '731000124108'
+      end
     end
 
     allow_cors QUESTIONNAIRE_PACKAGE_PATH, NEXT_PATH
