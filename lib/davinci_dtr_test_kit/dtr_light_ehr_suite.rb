@@ -57,7 +57,7 @@ module DaVinciDTRTestKit
     ].freeze
 
     US_CORE_3_MESSAGE_FILTERS = DTR_MESSAGE_FILTERS +
-                                  USCoreTestKit::USCoreV311::USCoreTestSuite::VALIDATION_MESSAGE_FILTERS
+                                USCoreTestKit::USCoreV311::USCoreTestSuite::VALIDATION_MESSAGE_FILTERS
 
     # Hl7 Validator Wrapper:
     fhir_resource_validator do
