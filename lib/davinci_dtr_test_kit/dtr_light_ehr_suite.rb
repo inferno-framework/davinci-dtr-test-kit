@@ -17,6 +17,7 @@ require_relative 'endpoints/mock_payer/light_ehr_supported_payer_endpoint'
 require_relative 'client_groups/light_ehr/dtr_light_ehr_supported_endpoints_group'
 require 'smart_app_launch/smart_stu1_suite'
 require 'smart_app_launch/smart_stu2_suite'
+require 'us_core_test_kit/generated/v3.1.1/us_core_test_suite'
 
 module DaVinciDTRTestKit
   class DTRLightEHRSuite < Inferno::TestSuite
@@ -51,12 +52,23 @@ module DaVinciDTRTestKit
       }
     )
 
+    DTR_MESSAGE_FILTERS = [
+      /\A\S+: \S+: URL value '.*' does not resolve/
+    ].freeze
+
+    US_CORE_3_MESSAGE_FILTERS = DTR_MESSAGE_FILTERS +
+                                USCoreTestKit::USCoreV311::USCoreTestSuite::VALIDATION_MESSAGE_FILTERS
+
     # Hl7 Validator Wrapper:
     fhir_resource_validator do
       igs('hl7.fhir.us.davinci-dtr#2.0.1', 'hl7.fhir.us.davinci-pas#2.0.1', 'hl7.fhir.us.davinci-crd#2.0.1')
 
       exclude_message do |message|
-        message.message.match?(/\A\S+: \S+: URL value '.*' does not resolve/)
+        US_CORE_3_MESSAGE_FILTERS.any? { |match_template| message.message.match?(match_template) }
+      end
+
+      validation_context do
+        snomedCT '731000124108'
       end
     end
 
