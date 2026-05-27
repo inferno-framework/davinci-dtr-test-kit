@@ -1,3 +1,15 @@
+# v0.17.1
+* FI-4124: add smart app limitation documentation by @karlnaden in:
+https://github.com/inferno-framework/davinci-dtr-test-kit/pull/77
+* Add notice file by @karlnaden in:
+https://github.com/inferno-framework/davinci-dtr-test-kit/pull/78
+* Add simulation Verification flags by @ljtucker in:
+https://github.com/inferno-framework/davinci-dtr-test-kit/pull/82
+* ID-103: Pre 2.2 reorg. Separate tests into folders by actor by @karlnaden in:
+https://github.com/inferno-framework/davinci-dtr-test-kit/pull/84
+* ID-145 Gem spec updates and Specifying US snomedCT versions in fhir_resource_validator definitions by @FlexonyoPizza in:
+https://github.com/inferno-framework/davinci-dtr-test-kit/pull/85
+
 # v0.17.0
 * FI-3815: Update Test Kit with new RSpec features by @Shaumik-Ashraf in https://github.com/inferno-framework/davinci-dtr-test-kit/pull/74
 * FI-4182: Remove inferno@groups.mitre.org email from gemspec by @arscan in https://github.com/inferno-framework/davinci-dtr-test-kit/pull/75
