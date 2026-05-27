@@ -7,7 +7,7 @@ https://github.com/inferno-framework/davinci-dtr-test-kit/pull/78
 https://github.com/inferno-framework/davinci-dtr-test-kit/pull/82
 * ID-103: Pre 2.2 reorg. Separate tests into folders by actor by @karlnaden in:
 https://github.com/inferno-framework/davinci-dtr-test-kit/pull/84
-* ID-145 Gem spec updates and Specifying US snomedCT versions in fhir_resource_validator definitions by @FlexonyoPizza in:
+* ID-134 Gem spec updates and Specifying US snomedCT versions in fhir_resource_validator definitions by @FlexonyoPizza in:
 https://github.com/inferno-framework/davinci-dtr-test-kit/pull/85
 
 # v0.17.0
