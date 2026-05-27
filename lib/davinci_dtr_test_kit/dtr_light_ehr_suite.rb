@@ -53,10 +53,7 @@ module DaVinciDTRTestKit
     )
 
     DTR_MESSAGE_FILTERS = [
-      /\A\S+: \S+: URL value '.*' does not resolve/,
-      %r{This element is not allowed by the profile http://hl7\.org/fhir/tools/StructureDefinition/CDSHooksExtensions\|1\.1\.2},
-      /CDSHooksRequest.extension: Unrecognized property/,
-      /No definition could be found for URL value/
+      /\A\S+: \S+: URL value '.*' does not resolve/
     ].freeze
 
     US_CORE_3_MESSAGE_FILTERS = DTR_MESSAGE_FILTERS +
@@ -66,9 +63,6 @@ module DaVinciDTRTestKit
     fhir_resource_validator do
       igs('hl7.fhir.us.davinci-dtr#2.0.1', 'hl7.fhir.us.davinci-pas#2.0.1', 'hl7.fhir.us.davinci-crd#2.0.1')
 
-      exclude_message do |message|
-        message.message.match?(/\A\S+: \S+: URL value '.*' does not resolve/)
-      end
       exclude_message do |message|
         US_CORE_3_MESSAGE_FILTERS.any? { |match_template| message.message.match?(match_template) }
       end
