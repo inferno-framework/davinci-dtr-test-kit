@@ -85,17 +85,20 @@ using the following steps:
 
 1. Start an Inferno session of the Da Vinci DTR SMART App Test Suite.
 1. Select test 1.1.1 _Retrieving the Static Questionnaire_ from the menu on the left.
-1. Click the "Run All Tests" button in the upper right.
-1. In the "SMART App Launch" select `Standalone Launch` and in the "client_id" input, put `sample`.
-1. Click the "submit" button in the dialog that appears. The client tests will now be waiting for requests.
+1. From the preset dropdown (typically in the upper left), selec the "Run Against the Payer Server Suite" option.
+1. Click the "Run Tests" button in the upper right.
+1. Click the "submit" button in the dialog that appears.
+1. A "User Action Required" will appear indicating that Inferno is waiting for request for questionnaires from
+   the client. The DTR Payer Server Suite will simulate these requests.
 1. Start an Inferno session of the DTR Payer Server test suite.
 1. Select test 1 _Static Questionnaire Package Retrieval_ from the menu on the left.
-1. Select the _Run Against DTR SMART App Tests_ option from the Preset dropdown in the
+1. Select the _Run Against DTR SMART App Suite_ option from the Preset dropdown in the
    upper left.
-1. Click the "Run All Tests" button in the upper right.
+1. Click the "Run Tests" button in the upper right.
 1. Click the "submit" button in the dialog that appears. The server tests will now make requests
    against the client test session, which will respond with a static questionnaire that the
    these server tests can validate.
+1. Once the server tests have completed, return to the SMART App test session and click the link in the dialog to continue the tests. Inferno will finish evaluating the interactions and complete the tests.
 
 At this time, only the standard questionnaire functionality can be tested using this approach.
 

@@ -1,5 +1,5 @@
 {
-  "title": "Run Against DTR SMART App Tests",
+  "title": "Run Against the SMART App Suite",
   "id": "payer_server_run_against_smart_app_tests",
   "test_suite_id": "dtr_payer_server",
   "inputs": [
@@ -14,7 +14,7 @@
       "description": "Required for All Flows",
       "title": "FHIR Server Base Url",
       "type": "text",
-      "value": "https://inferno.healthit.gov/suites/custom/dtr_smart_app/fhir"
+      "value": "<%= Inferno::Application['base_url'] %>/custom/dtr_smart_app/fhir"
     },
     {
       "name": "initial_static_questionnaire_request",
