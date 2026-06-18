@@ -1,4 +1,4 @@
-require_relative '../../../cross_suite/dtr_questionnaire_response_validation'
+require_relative '../../../cross_suite/v2.0.1/dtr_questionnaire_response_validation'
 
 module DaVinciDTRTestKit
   class DTRFullEHRQuestionnaireResponseConformanceTest < Inferno::Test

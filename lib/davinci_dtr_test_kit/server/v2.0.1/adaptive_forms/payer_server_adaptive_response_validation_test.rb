@@ -1,5 +1,5 @@
 require_relative '../../validation_test'
-require_relative '../../../cross_suite/cql_test'
+require_relative '../../../cross_suite/v2.0.1/cql_test'
 
 module DaVinciDTRTestKit
   class PayerAdaptiveFormQuestionnaireResponseTest < Inferno::Test

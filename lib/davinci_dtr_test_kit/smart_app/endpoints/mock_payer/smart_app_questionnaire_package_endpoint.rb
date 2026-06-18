@@ -1,5 +1,5 @@
 require_relative '../mock_authorization'
-require_relative '../../../full_ehr/endpoints/mock_payer/full_ehr_questionnaire_package_endpoint'
+require_relative '../../../full_ehr/v2.0.1/full_ehr_questionnaire_package_endpoint'
 
 module DaVinciDTRTestKit
   module MockPayer

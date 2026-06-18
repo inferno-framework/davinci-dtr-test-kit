@@ -1,6 +1,6 @@
 require 'udap_security_test_kit'
-require_relative '../mock_payer'
-require_relative '../../fixtures'
+require_relative '../endpoints/mock_payer'
+require_relative '../fixtures'
 
 module DaVinciDTRTestKit
   module MockPayer
