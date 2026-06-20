@@ -1,14 +1,14 @@
 require 'udap_security_test_kit'
 require_relative '../endpoints/mock_payer'
+require_relative '../../cross_suite/fhirpath_utils'
 require_relative '../fixture_loader'
 require_relative '../../tags'
 
 module DaVinciDTRTestKit
   module MockPayer
-    class FhirpathServiceError < StandardError; end
-
     class FullEHRV220QuestionnairePackageEndpoint < Inferno::DSL::SuiteEndpoint
       include MockPayer
+      include DaVinciDTRTestKit::FhirpathUtils
 
       def test_run_identifier
         return request.params[:session_path] if request.params[:session_path].present?
@@ -96,27 +96,6 @@ module DaVinciDTRTestKit
         operation_outcome('error', 'invalid', e.message)
       end
 
-      def replace_tokens_in_string(string, request)
-        return string unless string.include?('{{')
-
-        tokens_to_replace = string.scan(/\{\{([^}]+)\}\}/).flatten
-        replacements = tokens_to_replace.each_with_object({}) do |expression, dictionary|
-          next if dictionary.key?("{{#{expression}}}")
-
-          dictionary["{{#{expression}}}"] = calculate_expression_string_value(request, expression)
-        end
-
-        string.gsub(/\{\{.*?\}\}/, replacements)
-      end
-
-      def calculate_expression_string_value(request, expression)
-        JSON.parse(execute_fhirpath(request.to_json, expression).body)
-          .map { |result| result['element'] }
-          .map { |element| element.is_a?(Array) || element.is_a?(Hash) ? nil : element }
-          .compact
-          .join(',')
-      end
-
       # ***********************************************************************
       # Selection of parameter entries from the Template
       # ***********************************************************************
@@ -145,37 +124,7 @@ module DaVinciDTRTestKit
         return false unless criteria.present?
 
         fhirpath_result = execute_fhirpath(request_parameters.to_json, criteria)
-        interpret_result_as_boolean(fhirpath_result)
-      end
-
-      def interpret_result_as_boolean(fhirpath_result)
-        results = JSON.parse(fhirpath_result.body)
-        if results.empty? || results.size > 1
-          false
-        elsif results.first['type'] == 'boolean'
-          results.first['element']
-        else
-          true
-        end
-      rescue JSON::ParserError
-        false
-      end
-
-      # ***********************************************************************
-      # FHIRPath exection
-      # ***********************************************************************
-
-      def fhirpath_evaluator
-        @fhirpath_evaluator ||= Inferno::DSL::FhirpathEvaluation::Evaluator.new
-      end
-
-      def execute_fhirpath(body, query)
-        fhirpath_result = fhirpath_evaluator.call_fhirpath_service(body, query)
-        return fhirpath_result if fhirpath_result.status.to_s.starts_with?('2')
-
-        raise FhirpathServiceError,
-              "FHIRPath service returned #{fhirpath_result.status} for query '#{query}' " \
-              "on resource #{body}: #{fhirpath_result.body}"
+        interpret_fhirpath_result_as_boolean(fhirpath_result)
       end
 
       # ***********************************************************************
