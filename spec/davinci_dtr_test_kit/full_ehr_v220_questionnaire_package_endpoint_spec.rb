@@ -151,7 +151,7 @@ RSpec.describe DaVinciDTRTestKit::MockPayer::FullEHRV220QuestionnairePackageEndp
   describe 'When responding' do
     def post_with_token
       header('Authorization', "Bearer #{UDAPSecurityTestKit::MockUDAPServer.client_id_to_token(client_id, 5)}")
-      post_json(server_endpoint, valid_request_body)
+      post(server_endpoint, valid_request_body, 'CONTENT_TYPE' => 'application/json')
     end
 
     def param_names
@@ -161,7 +161,7 @@ RSpec.describe DaVinciDTRTestKit::MockPayer::FullEHRV220QuestionnairePackageEndp
       run(no_template_test, client_id:)
 
       header('Authorization', "Bearer #{UDAPSecurityTestKit::MockUDAPServer.client_id_to_token(client_id, 5)}")
-      post_json(server_endpoint, valid_request_body)
+      post(server_endpoint, valid_request_body, 'CONTENT_TYPE' => 'application/json')
 
       expect(last_response.status).to eq(500)
       expect(JSON.parse(last_response.body)['resourceType']).to eq('OperationOutcome')
@@ -172,7 +172,7 @@ RSpec.describe DaVinciDTRTestKit::MockPayer::FullEHRV220QuestionnairePackageEndp
 
       expired_token = UDAPSecurityTestKit::MockUDAPServer.client_id_to_token(client_id, -1)
       header('Authorization', "Bearer #{expired_token}")
-      post_json(server_endpoint, valid_request_body)
+      post(server_endpoint, valid_request_body, 'CONTENT_TYPE' => 'application/json')
 
       expect(last_response.status).to eq(401)
     end
@@ -182,7 +182,7 @@ RSpec.describe DaVinciDTRTestKit::MockPayer::FullEHRV220QuestionnairePackageEndp
 
       expired_token = UDAPSecurityTestKit::MockUDAPServer.client_id_to_token(client_id, -1)
       header('Authorization', "Bearer #{expired_token}")
-      post_json(server_endpoint, valid_request_body)
+      post(server_endpoint, valid_request_body, 'CONTENT_TYPE' => 'application/json')
 
       expect(last_response.status).to eq(401)
       expect(last_response.headers['Access-Control-Allow-Origin']).to eq('*')
@@ -191,7 +191,7 @@ RSpec.describe DaVinciDTRTestKit::MockPayer::FullEHRV220QuestionnairePackageEndp
     it 'uses the session_path query parameter as the test run identifier when no Authorization header is present' do
       run(input_template_test, client_id:, qp_response_template: valid_parameters_template_json)
 
-      post_json("#{server_endpoint}?session_path=#{client_id}", valid_request_body)
+      post("#{server_endpoint}?session_path=#{client_id}", valid_request_body, 'CONTENT_TYPE' => 'application/json')
 
       expect(last_response.status).to eq(200)
       tagged = requests_repo.tagged_requests(test_session.id, [DaVinciDTRTestKit::QUESTIONNAIRE_PACKAGE_TAG])
@@ -213,7 +213,7 @@ RSpec.describe DaVinciDTRTestKit::MockPayer::FullEHRV220QuestionnairePackageEndp
       run(input_template_test, client_id:, qp_response_template: valid_parameters_template_json)
 
       header('Authorization', "Bearer #{UDAPSecurityTestKit::MockUDAPServer.client_id_to_token(client_id, 5)}")
-      post_json(server_endpoint, valid_request_body)
+      post(server_endpoint, valid_request_body, 'CONTENT_TYPE' => 'application/json')
 
       expect(last_response.headers['Access-Control-Allow-Origin']).to eq('*')
     end
@@ -222,7 +222,7 @@ RSpec.describe DaVinciDTRTestKit::MockPayer::FullEHRV220QuestionnairePackageEndp
       run(input_template_test, client_id:, qp_response_template: valid_parameters_template_json)
 
       header('Authorization', "Bearer #{UDAPSecurityTestKit::MockUDAPServer.client_id_to_token(client_id, 5)}")
-      post_json(server_endpoint, valid_request_body)
+      post(server_endpoint, valid_request_body, 'CONTENT_TYPE' => 'application/json')
 
       tagged = requests_repo.tagged_requests(test_session.id, [DaVinciDTRTestKit::QUESTIONNAIRE_PACKAGE_TAG])
       expect(tagged.length).to eq(1)
@@ -232,7 +232,7 @@ RSpec.describe DaVinciDTRTestKit::MockPayer::FullEHRV220QuestionnairePackageEndp
       run(workflow_tagged_test, client_id:, qp_response_template: valid_parameters_template_json)
 
       header('Authorization', "Bearer #{UDAPSecurityTestKit::MockUDAPServer.client_id_to_token(client_id, 5)}")
-      post_json(server_endpoint, valid_request_body)
+      post(server_endpoint, valid_request_body, 'CONTENT_TYPE' => 'application/json')
 
       tagged = requests_repo.tagged_requests(
         test_session.id,
@@ -283,6 +283,19 @@ RSpec.describe DaVinciDTRTestKit::MockPayer::FullEHRV220QuestionnairePackageEndp
 
         expect(last_response.status).to eq(200)
         expect(param_names).to include('AlwaysIncluded', 'Conditional')
+      end
+
+      it 'strips the inclusion-criteria extension from an included parameter' do
+        stub_request(:post, /#{Regexp.quote(fhirpath_url)}/).to_return(
+          status: 200, body: [{ type: 'boolean', element: true }].to_json,
+          headers: { 'Content-Type' => 'application/json' }
+        )
+        post_with_token
+
+        conditional_param = JSON.parse(last_response.body).fetch('parameter', [])
+          .find { |p| p['name'] == 'Conditional' }
+        extension_urls = conditional_param&.fetch('extension', [])&.map { |e| e['url'] } || []
+        expect(extension_urls).not_to include('urn:inferno:dtr:inclusion-criteria')
       end
 
       it 'includes a parameter when FHIRPath returns a single non-boolean result' do
@@ -394,6 +407,15 @@ RSpec.describe DaVinciDTRTestKit::MockPayer::FullEHRV220QuestionnairePackageEndp
 
         expect(last_response.status).to eq(200)
         expect(param_names).to include('RangeLimited', 'AlwaysIncluded')
+      end
+
+      it 'strips the request-range extension from an included parameter' do
+        post_with_token
+
+        range_param = JSON.parse(last_response.body).fetch('parameter', [])
+          .find { |p| p['name'] == 'RangeLimited' }
+        extension_urls = range_param&.fetch('extension', [])&.map { |e| e['url'] } || []
+        expect(extension_urls).not_to include('urn:inferno:dtr:request-range')
       end
 
       it 'still includes the parameter on the second request (request 2, top of 1-2)' do
@@ -720,7 +742,7 @@ RSpec.describe DaVinciDTRTestKit::MockPayer::FullEHRV220QuestionnairePackageEndp
         run(parameters_fixture_test, client_id:)
 
         header('Authorization', "Bearer #{UDAPSecurityTestKit::MockUDAPServer.client_id_to_token(client_id, 5)}")
-        post_json(server_endpoint, valid_request_body)
+        post(server_endpoint, valid_request_body, 'CONTENT_TYPE' => 'application/json')
 
         expect(last_response.status).to eq(200)
         expect(JSON.parse(last_response.body)['resourceType']).to eq('Parameters')
@@ -730,7 +752,7 @@ RSpec.describe DaVinciDTRTestKit::MockPayer::FullEHRV220QuestionnairePackageEndp
         run(bundle_fixture_test, client_id:)
 
         header('Authorization', "Bearer #{UDAPSecurityTestKit::MockUDAPServer.client_id_to_token(client_id, 5)}")
-        post_json(server_endpoint, valid_request_body)
+        post(server_endpoint, valid_request_body, 'CONTENT_TYPE' => 'application/json')
 
         expect(last_response.status).to eq(500)
         expect(JSON.parse(last_response.body)['resourceType']).to eq('OperationOutcome')
@@ -740,7 +762,7 @@ RSpec.describe DaVinciDTRTestKit::MockPayer::FullEHRV220QuestionnairePackageEndp
         run(missing_fixture_test, client_id:)
 
         header('Authorization', "Bearer #{UDAPSecurityTestKit::MockUDAPServer.client_id_to_token(client_id, 5)}")
-        post_json(server_endpoint, valid_request_body)
+        post(server_endpoint, valid_request_body, 'CONTENT_TYPE' => 'application/json')
 
         expect(last_response.status).to eq(500)
         expect(JSON.parse(last_response.body)['resourceType']).to eq('OperationOutcome')
@@ -752,7 +774,7 @@ RSpec.describe DaVinciDTRTestKit::MockPayer::FullEHRV220QuestionnairePackageEndp
         run(non_fhir_fixture_test, client_id:)
 
         header('Authorization', "Bearer #{UDAPSecurityTestKit::MockUDAPServer.client_id_to_token(client_id, 5)}")
-        post_json(server_endpoint, valid_request_body)
+        post(server_endpoint, valid_request_body, 'CONTENT_TYPE' => 'application/json')
 
         expect(last_response.status).to eq(500)
         expect(JSON.parse(last_response.body)['resourceType']).to eq('OperationOutcome')
@@ -764,7 +786,7 @@ RSpec.describe DaVinciDTRTestKit::MockPayer::FullEHRV220QuestionnairePackageEndp
         run(input_template_test, client_id:, qp_response_template: valid_parameters_template_json)
 
         header('Authorization', "Bearer #{UDAPSecurityTestKit::MockUDAPServer.client_id_to_token(client_id, 5)}")
-        post_json(server_endpoint, valid_request_body)
+        post(server_endpoint, valid_request_body, 'CONTENT_TYPE' => 'application/json')
 
         expect(last_response.status).to eq(200)
         expect(last_response.headers['Content-Type']).to include('application/fhir+json')
@@ -775,7 +797,7 @@ RSpec.describe DaVinciDTRTestKit::MockPayer::FullEHRV220QuestionnairePackageEndp
         run(input_template_test, client_id:)
 
         header('Authorization', "Bearer #{UDAPSecurityTestKit::MockUDAPServer.client_id_to_token(client_id, 5)}")
-        post_json(server_endpoint, valid_request_body)
+        post(server_endpoint, valid_request_body, 'CONTENT_TYPE' => 'application/json')
 
         expect(last_response.status).to eq(400)
         parsed = JSON.parse(last_response.body)
@@ -787,7 +809,7 @@ RSpec.describe DaVinciDTRTestKit::MockPayer::FullEHRV220QuestionnairePackageEndp
         run(input_template_test, client_id:, qp_response_template: '{"foo": "bar"}')
 
         header('Authorization', "Bearer #{UDAPSecurityTestKit::MockUDAPServer.client_id_to_token(client_id, 5)}")
-        post_json(server_endpoint, valid_request_body)
+        post(server_endpoint, valid_request_body, 'CONTENT_TYPE' => 'application/json')
 
         expect(last_response.status).to eq(400)
         expect(JSON.parse(last_response.body)['resourceType']).to eq('OperationOutcome')
@@ -798,7 +820,7 @@ RSpec.describe DaVinciDTRTestKit::MockPayer::FullEHRV220QuestionnairePackageEndp
         run(input_template_test, client_id:, qp_response_template: bundle_json)
 
         header('Authorization', "Bearer #{UDAPSecurityTestKit::MockUDAPServer.client_id_to_token(client_id, 5)}")
-        post_json(server_endpoint, valid_request_body)
+        post(server_endpoint, valid_request_body, 'CONTENT_TYPE' => 'application/json')
 
         expect(last_response.status).to eq(400)
         expect(JSON.parse(last_response.body)['resourceType']).to eq('OperationOutcome')
@@ -811,7 +833,7 @@ RSpec.describe DaVinciDTRTestKit::MockPayer::FullEHRV220QuestionnairePackageEndp
         run(input_template_test, client_id:, qp_response_template: oo_json)
 
         header('Authorization', "Bearer #{UDAPSecurityTestKit::MockUDAPServer.client_id_to_token(client_id, 5)}")
-        post_json(server_endpoint, valid_request_body)
+        post(server_endpoint, valid_request_body, 'CONTENT_TYPE' => 'application/json')
 
         expect(last_response.status).to eq(400)
         expect(JSON.parse(last_response.body)['resourceType']).to eq('OperationOutcome')
