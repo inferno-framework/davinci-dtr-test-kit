@@ -27,8 +27,9 @@ RSpec.describe DaVinciDTRTestKit::FixtureLoader do
 
       it 'caches the result on subsequent calls' do
         first_call = loader[path]
-        expect(File).to_not receive(:read)
+        allow(File).to receive(:read)
         second_call = loader[path]
+        expect(File).to_not have_received(:read)
         expect(second_call).to equal(first_call)
       end
     end

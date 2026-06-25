@@ -1,6 +1,6 @@
 require 'davinci_dtr_test_kit/full_ehr/v2.2.0/interaction/interaction_wait_test'
 
-RSpec.describe DaVinciDTRTestKit::MockPayer::FullEHRV220QuestionnairePackageEndpoint, :request do
+RSpec.describe DaVinciDTRTestKit::MockPayer::FullEHRV220QuestionnairePackageEndpoint, :request do # rubocop:disable RSpec/SpecFilePathFormat
   let(:suite_id) { 'dtr_full_ehr_v220' }
   let(:suite) { Inferno::Repositories::TestSuites.new.find(suite_id) }
   let(:session_data_repo) { Inferno::Repositories::SessionData.new }
@@ -295,7 +295,7 @@ RSpec.describe DaVinciDTRTestKit::MockPayer::FullEHRV220QuestionnairePackageEndp
         conditional_param = JSON.parse(last_response.body).fetch('parameter', [])
           .find { |p| p['name'] == 'Conditional' }
         extension_urls = conditional_param&.fetch('extension', [])&.map { |e| e['url'] } || []
-        expect(extension_urls).not_to include('urn:inferno:dtr:inclusion-criteria')
+        expect(extension_urls).to_not include('urn:inferno:dtr:inclusion-criteria')
       end
 
       it 'includes a parameter when FHIRPath returns a single non-boolean result' do
@@ -415,7 +415,7 @@ RSpec.describe DaVinciDTRTestKit::MockPayer::FullEHRV220QuestionnairePackageEndp
         range_param = JSON.parse(last_response.body).fetch('parameter', [])
           .find { |p| p['name'] == 'RangeLimited' }
         extension_urls = range_param&.fetch('extension', [])&.map { |e| e['url'] } || []
-        expect(extension_urls).not_to include('urn:inferno:dtr:request-range')
+        expect(extension_urls).to_not include('urn:inferno:dtr:request-range')
       end
 
       it 'still includes the parameter on the second request (request 2, top of 1-2)' do

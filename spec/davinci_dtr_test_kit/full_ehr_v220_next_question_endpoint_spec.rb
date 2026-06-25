@@ -1,6 +1,6 @@
 require 'davinci_dtr_test_kit/full_ehr/v2.2.0/interaction/interaction_wait_test'
 
-RSpec.describe DaVinciDTRTestKit::MockPayer::FullEHRV220NextQuestionEndpoint, :request do
+RSpec.describe DaVinciDTRTestKit::MockPayer::FullEHRV220NextQuestionEndpoint, :request do # rubocop:disable RSpec/SpecFilePathFormat
   let(:suite_id) { 'dtr_full_ehr_v220' }
   let(:suite) { Inferno::Repositories::TestSuites.new.find(suite_id) }
   let(:session_data_repo) { Inferno::Repositories::SessionData.new }
@@ -944,14 +944,17 @@ RSpec.describe DaVinciDTRTestKit::MockPayer::FullEHRV220NextQuestionEndpoint, :r
         ).to_json
       end
 
-      it 'sets the QuestionnaireResponse status to completed when all required items are answered' do
+      it 'keeps the QuestionnaireResponse status as in-progress when new questions are added, ' \
+         'even if answers are present' do
+        # Q1 is not yet in the contained questionnaire, so the endpoint adds it (@new_questions_added = true).
+        # Even though Q1 is answered in the QR, completion must not fire when new questions were disclosed.
         header('Authorization', "Bearer #{UDAPSecurityTestKit::MockUDAPServer.client_id_to_token(client_id, 5)}")
         post(nq_server_endpoint, nq_request_body(with_answer: true),
              'CONTENT_TYPE' => 'application/json',
              'REQUEST_PATH' => nq_server_endpoint)
 
         expect(last_response.status).to eq(200)
-        expect(JSON.parse(last_response.body)['status']).to eq('completed')
+        expect(JSON.parse(last_response.body)['status']).to eq('in-progress')
       end
 
       it 'sets the QuestionnaireResponse status to completed when all required items are pre-existing and answered' do
@@ -967,6 +970,7 @@ RSpec.describe DaVinciDTRTestKit::MockPayer::FullEHRV220NextQuestionEndpoint, :r
       it 'sets the QuestionnaireResponse status to completed when the required item answer value is boolean false' do
         # Regression guard: answer_completed_and_valid? must use !nil? not .present? so that
         # false (a valid boolean answer) is not mistaken for a missing answer.
+        # Q1 is pre-existing in the contained questionnaire so no new questions are added.
         false_answer_body = FHIR::Parameters.new(
           parameter: [
             FHIR::Parameters::Parameter.new(
@@ -983,7 +987,8 @@ RSpec.describe DaVinciDTRTestKit::MockPayer::FullEHRV220NextQuestionEndpoint, :r
                         url: 'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-questionnaireAdaptive',
                         valueBoolean: true
                       )
-                    ]
+                    ],
+                    item: [FHIR::Questionnaire::Item.new(linkId: 'Q1', type: 'string', required: true)]
                   )
                 ],
                 item: [

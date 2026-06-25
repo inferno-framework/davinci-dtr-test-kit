@@ -1,0 +1,83 @@
+require_relative '../../../urls'
+require_relative '../../../tags'
+require_relative '../../../cross_suite/v2.2.0/multi_request_message_helper'
+
+module DaVinciDTRTestKit
+  class DTRFullEHRV220NextQuestionResponseValidationTest < Inferno::Test
+    include URLs
+    include MultiRequestMessageHelper
+
+    id :dtr_full_ehr_v220_nq_response_validation
+    title 'Next Question responses are valid'
+    description %(
+      This test validates the conformance of the Inferno's simulated response to the
+      output of the [DTR Next Question Operation](https://hl7.org/fhir/us/davinci-dtr/2.2.0/en/OperationDefinition-DTR-Questionnaire-next-question.html).
+      Because there is a single out parameter named "return" and its type is a FHIR QuestionnaireResponse resource,
+      the [Parameters format is not used](https://www.hl7.org/fhir/R4/operations.html#response)
+      and the response is expected to be a raw QuestionnaireResponse conforming to the
+      [DTR Questionnaire Response for adaptive form](https://hl7.org/fhir/us/davinci-dtr/2.2.0/en/StructureDefinition-dtr-questionnaireresponse-adapt.html)
+      profile.
+
+      The test verifies the presence of mandatory elements and that elements with required bindings contain appropriate
+      values. CodeableConcept element bindings will fail if none of their codings have a code/system belonging
+      to the bound ValueSet. Quantity, Coding, and code element bindings will fail if their code/system are not found in
+      the valueset.
+    )
+    simulation_verification
+
+    def target_tags
+      tags = [CLIENT_NEXT_TAG]
+      tags << config.options[:dtr_workflow_tag] if config.options[:dtr_workflow_tag].present?
+
+      tags
+    end
+
+    run do
+      requests = load_tagged_requests(*target_tags)
+      skip_if requests.blank?, 'A Next Question request must be made prior to running this test'
+
+      requests.each_with_index do |nq_request, request_index|
+        unless nq_request.url == next_url
+          add_request_message(
+            'error',
+            "Request made to wrong URL: #{nq_request.url}. Should instead be to #{next_url}.",
+            request_index
+          )
+        end
+
+        response_body = parse_fhir_request_entity(nq_request.response_body, 'Response', request_index)
+        unless response_body.present?
+          add_request_message(
+            'error',
+            'Response does not contain a recognized FHIR resource',
+            request_index
+          )
+          next
+        end
+        questionnaire_respnose =
+          if response_body.is_a?(FHIR::QuestionnaireResponse)
+            response_body
+          else
+            add_request_message(
+              'error',
+              'Response is not FHIR QuestionnaireResponse resource',
+              request_index
+            )
+            if response_body.is_a?(FHIR::Parameters)
+              response_body.parameter.find do |param|
+                param.name == 'return'
+              end&.resource
+            end
+          end
+        next unless questionnaire_respnose.present?
+
+        resource_is_valid?(resource: questionnaire_respnose,
+                           profile_url: 'http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/dtr-questionnaireresponse-adapt|2.2.0')
+      end
+
+      assert_no_error_messages(
+        "#{requests_with_errors_prefix}Non-conformant $next-question response(s). See Messages for details."
+      )
+    end
+  end
+end

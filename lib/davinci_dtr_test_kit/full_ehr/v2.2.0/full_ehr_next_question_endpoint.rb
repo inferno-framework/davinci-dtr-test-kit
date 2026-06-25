@@ -288,8 +288,9 @@ module DaVinciDTRTestKit
       # ***********************************************************************
 
       def update_response
+        @new_questions_added = false
         add_questions_from_questionnaire_template
-        complete_questionnaire_response if questionnaire_response_completed?
+        complete_questionnaire_response if !@new_questions_added && questionnaire_response_completed?
         request_questionnaire_response
       rescue FhirpathServiceError => e
         raise if template_from_fixture?
@@ -316,6 +317,7 @@ module DaVinciDTRTestKit
         strip_inferno_extensions(new_item)
         new_item.item = []
         target_list << new_item
+        @new_questions_added = true
         add_children_if_needed(item, new_item)
       end
 

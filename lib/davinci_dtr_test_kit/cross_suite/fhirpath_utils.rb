@@ -42,7 +42,7 @@ module DaVinciDTRTestKit
     end
 
     def calculate_expression_string_value(request, expression)
-      JSON.parse(execute_fhirpath(request.to_json, expression).body)
+      JSON.parse(execute_fhirpath(request, expression).body)
         .map { |result| result['element'] }
         .map { |element| element.is_a?(Array) || element.is_a?(Hash) ? nil : element }
         .compact

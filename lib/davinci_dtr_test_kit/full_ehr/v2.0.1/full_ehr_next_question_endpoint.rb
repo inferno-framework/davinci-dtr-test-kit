@@ -68,8 +68,6 @@ module DaVinciDTRTestKit
 
       def build_questionnaire_next_response
         input_parameters = parse_fhir_object(request.body.string)
-        return input_parameters if input_parameters.is_a?(FHIR::OperationOutcome)
-
         questionnaire_response = extract_questionnaire_response(input_parameters)
         return questionnaire_response if questionnaire_response.is_a?(FHIR::OperationOutcome)
 
@@ -94,6 +92,8 @@ module DaVinciDTRTestKit
         end
 
         questionnaire_response
+      rescue MockPayer::ParseError => e
+        operation_outcome('error', 'invalid', e.message)
       end
 
       def extract_questionnaire_response(input_parameters)
