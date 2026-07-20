@@ -21,7 +21,7 @@ module DaVinciDTRTestKit
     extend CORS
 
     id :dtr_smart_app
-    title 'Da Vinci DTR SMART App Test Suite'
+    title 'Da Vinci DTR SMART App Test Suite v2.0.1'
     description File.read(File.join(__dir__, 'dtr_smart_app_suite_description_v201.md'))
 
     links [

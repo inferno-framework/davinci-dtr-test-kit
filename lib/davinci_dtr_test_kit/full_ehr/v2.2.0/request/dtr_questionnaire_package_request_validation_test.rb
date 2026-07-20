@@ -58,7 +58,8 @@ module DaVinciDTRTestKit
         end
 
         resource_is_valid?(resource: input_params,
-                           profile_url: 'http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/dtr-qpackage-input-parameters|2.2.0')
+                           profile_url: 'http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/dtr-qpackage-input-parameters|2.2.0',
+                           message_prefix: request_prefix(request_index))
       end
 
       assert_no_error_messages(

@@ -136,7 +136,7 @@ RSpec.describe DaVinciDTRTestKit::DTRPayerServerV220::InteractionTest do # ruboc
   describe 'input parsing: $questionnaire-package parameters' do
     it 'parses a single Parameters JSON and makes one QP request' do
       stub_request(:post, qp_url).to_return(status: 200, body: static_qp_response)
-      result = run(test_class, url:, questionnaire_package_parameters: single_parameters_input)
+      result = run(test_class, url:, questionnaire_package_request_parameters: single_parameters_input)
       expect(result.result).to eq('pass'), result.result_message
       expect(WebMock).to have_requested(:post, qp_url).once
     end
@@ -144,7 +144,7 @@ RSpec.describe DaVinciDTRTestKit::DTRPayerServerV220::InteractionTest do # ruboc
     it 'parses an array of Parameters JSON and makes one QP request per entry' do
       two_params = [JSON.parse(single_parameters_input), JSON.parse(single_parameters_input)].to_json
       stub_request(:post, qp_url).to_return(status: 200, body: static_qp_response)
-      result = run(test_class, url:, questionnaire_package_parameters: two_params)
+      result = run(test_class, url:, questionnaire_package_request_parameters: two_params)
       expect(result.result).to eq('pass'), result.result_message
       expect(WebMock).to have_requested(:post, qp_url).twice
     end
@@ -153,14 +153,14 @@ RSpec.describe DaVinciDTRTestKit::DTRPayerServerV220::InteractionTest do # ruboc
       mixed = [JSON.parse(single_parameters_input),
                { 'resourceType' => 'Patient' }].to_json
       stub_request(:post, qp_url).to_return(status: 200, body: static_qp_response)
-      result = run(test_class, url:, questionnaire_package_parameters: mixed)
+      result = run(test_class, url:, questionnaire_package_request_parameters: mixed)
       expect(result.result).to eq('pass'), result.result_message
       expect(WebMock).to have_requested(:post, qp_url).once
       expect(result_messages.map(&:message).join).to match(/skipping.*Parameters/)
     end
 
-    it 'fails when questionnaire_package_parameters is not valid JSON' do
-      result = run(test_class, url:, questionnaire_package_parameters: 'not json')
+    it 'fails when questionnaire_package_request_parameters is not valid JSON' do
+      result = run(test_class, url:, questionnaire_package_request_parameters: 'not json')
       expect(result.result).to eq('fail'), result.result_message
     end
   end
@@ -172,7 +172,7 @@ RSpec.describe DaVinciDTRTestKit::DTRPayerServerV220::InteractionTest do # ruboc
   describe 'input parsing: QuestionnaireResponse templates' do
     it 'treats nil templates as no adaptive follow-up (no NQ requests)' do
       stub_request(:post, qp_url).to_return(status: 200, body: adaptive_qp_response)
-      result = run(test_class, url:, questionnaire_package_parameters: single_parameters_input)
+      result = run(test_class, url:, questionnaire_package_request_parameters: single_parameters_input)
       expect(result.result).to eq('pass'), result.result_message
       expect(WebMock).to_not have_requested(:post, nq_url)
     end
@@ -181,7 +181,7 @@ RSpec.describe DaVinciDTRTestKit::DTRPayerServerV220::InteractionTest do # ruboc
       stub_request(:post, qp_url).to_return(status: 200, body: adaptive_qp_response)
       stub_request(:post, nq_url).to_return(status: 200, body: completed_nq_response)
       result = run(test_class, url:,
-                               questionnaire_package_parameters: single_parameters_input,
+                               questionnaire_package_request_parameters: single_parameters_input,
                                questionnaire_response_templates: qr_template)
       expect(result.result).to eq('pass'), result.result_message
       expect(WebMock).to have_requested(:post, nq_url).once
@@ -193,7 +193,7 @@ RSpec.describe DaVinciDTRTestKit::DTRPayerServerV220::InteractionTest do # ruboc
       stub_request(:post, qp_url).to_return(status: 200, body: adaptive_qp_response)
       stub_request(:post, nq_url).to_return(status: 200, body: completed_nq_response)
       result = run(test_class, url:,
-                               questionnaire_package_parameters: single_parameters_input,
+                               questionnaire_package_request_parameters: single_parameters_input,
                                questionnaire_response_templates: mixed_templates)
       expect(result.result).to eq('pass'), result.result_message
       expect(result_messages.map(&:message).join).to match(/skipping.*QuestionnaireResponse/)
@@ -201,7 +201,7 @@ RSpec.describe DaVinciDTRTestKit::DTRPayerServerV220::InteractionTest do # ruboc
 
     it 'fails when questionnaire_response_templates is not valid JSON' do
       result = run(test_class, url:,
-                               questionnaire_package_parameters: single_parameters_input,
+                               questionnaire_package_request_parameters: single_parameters_input,
                                questionnaire_response_templates: 'not json')
       expect(result.result).to eq('fail'), result.result_message
     end
@@ -218,7 +218,7 @@ RSpec.describe DaVinciDTRTestKit::DTRPayerServerV220::InteractionTest do # ruboc
         status: 200,
         body: FHIR::ValueSet.new(url: 'http://example.com/vs', status: 'draft').to_json
       )
-      result = run(test_class, url:, questionnaire_package_parameters: single_parameters_input)
+      result = run(test_class, url:, questionnaire_package_request_parameters: single_parameters_input)
       expect(result.result).to eq('pass'), result.result_message
       expect(WebMock).to have_requested(:post, vs_expand_url).once
     end
@@ -241,7 +241,7 @@ RSpec.describe DaVinciDTRTestKit::DTRPayerServerV220::InteractionTest do # ruboc
         ]
       ).to_json
       stub_request(:post, qp_url).to_return(status: 200, body: already_expanded)
-      result = run(test_class, url:, questionnaire_package_parameters: single_parameters_input)
+      result = run(test_class, url:, questionnaire_package_request_parameters: single_parameters_input)
       expect(result.result).to eq('pass'), result.result_message
       expect(WebMock).to_not have_requested(:post, vs_expand_url)
     end
@@ -256,7 +256,7 @@ RSpec.describe DaVinciDTRTestKit::DTRPayerServerV220::InteractionTest do # ruboc
       stub_request(:post, qp_url).to_return(status: 200, body: adaptive_qp_response)
       stub_request(:post, nq_url).to_return(status: 200, body: completed_nq_response)
       result = run(test_class, url:,
-                               questionnaire_package_parameters: single_parameters_input,
+                               questionnaire_package_request_parameters: single_parameters_input,
                                questionnaire_response_templates: qr_template)
       expect(result.result).to eq('pass'), result.result_message
       expect(WebMock).to have_requested(:post, nq_url).once
@@ -270,7 +270,7 @@ RSpec.describe DaVinciDTRTestKit::DTRPayerServerV220::InteractionTest do # ruboc
         { status: 200, body: completed_nq_response }
       )
       result = run(test_class, url:,
-                               questionnaire_package_parameters: single_parameters_input,
+                               questionnaire_package_request_parameters: single_parameters_input,
                                questionnaire_response_templates: qr_template(answer_items: ['Q1']))
       expect(result.result).to eq('pass'), result.result_message
       expect(WebMock).to have_requested(:post, nq_url).twice
@@ -285,7 +285,7 @@ RSpec.describe DaVinciDTRTestKit::DTRPayerServerV220::InteractionTest do # ruboc
         { status: 200, body: inprogress_nq_response(items: ['Q1']) }
       )
       result = run(test_class, url:,
-                               questionnaire_package_parameters: single_parameters_input,
+                               questionnaire_package_request_parameters: single_parameters_input,
                                questionnaire_response_templates: qr_template(answer_items: ['Q1']))
       expect(result.result).to eq('pass'), result.result_message
       expect(result_messages.map(&:message).join).to match(/did not result in a completed form/)
@@ -294,7 +294,7 @@ RSpec.describe DaVinciDTRTestKit::DTRPayerServerV220::InteractionTest do # ruboc
     it 'skips the NQ loop for adaptive questionnaires when no template is provided' do
       stub_request(:post, qp_url).to_return(status: 200, body: adaptive_qp_response)
       result = run(test_class, url:,
-                               questionnaire_package_parameters: single_parameters_input)
+                               questionnaire_package_request_parameters: single_parameters_input)
       expect(result.result).to eq('pass'), result.result_message
       expect(WebMock).to_not have_requested(:post, nq_url)
       expect(result_messages.map(&:message).join).to match(/No QuestionnaireResponse template/)
@@ -303,7 +303,7 @@ RSpec.describe DaVinciDTRTestKit::DTRPayerServerV220::InteractionTest do # ruboc
     it 'does not attempt NQ requests for static (non-adaptive) questionnaires' do
       stub_request(:post, qp_url).to_return(status: 200, body: static_qp_response)
       result = run(test_class, url:,
-                               questionnaire_package_parameters: single_parameters_input,
+                               questionnaire_package_request_parameters: single_parameters_input,
                                questionnaire_response_templates: qr_template)
       expect(result.result).to eq('pass'), result.result_message
       expect(WebMock).to_not have_requested(:post, nq_url)
@@ -313,7 +313,7 @@ RSpec.describe DaVinciDTRTestKit::DTRPayerServerV220::InteractionTest do # ruboc
       stub_request(:post, qp_url).to_return(status: 200, body: adaptive_qp_response)
       stub_request(:post, nq_url).to_return(status: 500, body: 'error')
       result = run(test_class, url:,
-                               questionnaire_package_parameters: single_parameters_input,
+                               questionnaire_package_request_parameters: single_parameters_input,
                                questionnaire_response_templates: qr_template)
       expect(result.result).to eq('pass'), result.result_message
       expect(result_messages.map(&:message).join).to match(/did not result in a completed form/)

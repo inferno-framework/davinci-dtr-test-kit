@@ -5,7 +5,7 @@ module DaVinciDTRTestKit
   module DTRPayerServerV220
     class DTRPayerServerSuiteV220 < Inferno::TestSuite
       id :dtr_payer_server_v220
-      title 'Da Vinci DTR Client Simulator Suite' # Payer Server v2.2.0 Test Suite' - currently no verification, just simulation  # rubocop:disable Layout/LineLength
+      title 'Da Vinci DTR Client Simulator Suite v2.2.0' # Payer Server v2.2.0 Test Suite' - currently no verification, just simulation  # rubocop:disable Layout/LineLength
       description File.read(File.join(__dir__, 'dtr_payer_server_suite_description_v220.md'))
 
       links [

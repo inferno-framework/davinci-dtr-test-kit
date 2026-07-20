@@ -37,7 +37,7 @@ RSpec.describe DaVinciDTRTestKit::MockPayer::FullEHRV220QuestionnairePackageEndp
     Class.new(DaVinciDTRTestKit::DTRFullEHRV220InteractionWaitTest) do
       id :dtr_full_ehr_v220_qp_endpoint_spec_parameters_fixture_test
       config options: {
-        qp_response_template_fixture: 'questionnaire_package_parameters_example.json',
+        qp_response_template_fixture: 'questionnaire_package_request_parameters_example.json',
         dtr_workflow_tag: nil
       }
     end
@@ -737,7 +737,7 @@ RSpec.describe DaVinciDTRTestKit::MockPayer::FullEHRV220QuestionnairePackageEndp
     context 'when using a fixture-based response template' do
       it 'returns 200 with the fixture Parameters as the response body' do
         allow(File).to receive(:read).and_call_original
-        allow(File).to receive(:read).with(end_with('questionnaire_package_parameters_example.json'))
+        allow(File).to receive(:read).with(end_with('questionnaire_package_request_parameters_example.json'))
           .and_return(valid_parameters_template_json)
         run(parameters_fixture_test, client_id:)
 

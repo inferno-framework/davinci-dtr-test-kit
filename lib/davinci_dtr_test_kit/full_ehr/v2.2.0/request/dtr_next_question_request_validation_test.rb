@@ -21,7 +21,7 @@ module DaVinciDTRTestKit
     )
 
     def target_tags
-      tags = [QUESTIONNAIRE_PACKAGE_TAG]
+      tags = [CLIENT_NEXT_TAG]
       tags << config.options[:dtr_workflow_tag] if config.options[:dtr_workflow_tag].present?
 
       tags
@@ -29,13 +29,13 @@ module DaVinciDTRTestKit
 
     run do
       requests = load_tagged_requests(*target_tags)
-      skip_if requests.blank?, 'A Questionnaire Package request must be made prior to running this test'
+      skip_if requests.blank?, 'A $next-question request must be made prior to running this test'
 
       requests.each_with_index do |qp_request, request_index|
-        unless qp_request.url == questionnaire_package_url
+        unless qp_request.url == next_url
           add_request_message(
             'error',
-            "Request made to wrong URL: #{qp_request.url}. Should instead be to #{questionnaire_package_url}.",
+            "Request made to wrong URL: #{qp_request.url}. Should instead be to #{next_url}.",
             request_index
           )
         end
@@ -49,21 +49,27 @@ module DaVinciDTRTestKit
           )
           next
         end
-        unless input_params.is_a?(FHIR::Parameters)
+
+        if input_params.is_a?(FHIR::QuestionnaireResponse)
+          resource_is_valid?(resource: input_params,
+                             profile_url: 'http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/dtr-questionnaireresponse-adapt|2.2.0',
+                             message_prefix: request_prefix(request_index))
+
+        elsif input_params.is_a?(FHIR::Parameters)
+          resource_is_valid?(resource: input_params,
+                             profile_url: 'http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/dtr-next-question-input-parameters|2.2.0',
+                             message_prefix: request_prefix(request_index))
+        else
           add_request_message(
             'error',
             'Request is not FHIR Parameters resource',
             request_index
           )
-          next
         end
-
-        resource_is_valid?(resource: input_params,
-                           profile_url: 'http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/dtr-qpackage-input-parameters|2.2.0')
       end
 
       assert_no_error_messages(
-        "#{requests_with_errors_prefix}Non-conformant $questionnaire-package request(s). See Messages for details."
+        "#{requests_with_errors_prefix}Non-conformant $next-question request(s). See Messages for details."
       )
     end
   end

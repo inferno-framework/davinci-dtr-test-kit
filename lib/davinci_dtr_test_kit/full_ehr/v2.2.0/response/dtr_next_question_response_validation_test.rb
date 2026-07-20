@@ -54,7 +54,7 @@ module DaVinciDTRTestKit
           )
           next
         end
-        questionnaire_respnose =
+        questionnaire_response =
           if response_body.is_a?(FHIR::QuestionnaireResponse)
             response_body
           else
@@ -69,10 +69,11 @@ module DaVinciDTRTestKit
               end&.resource
             end
           end
-        next unless questionnaire_respnose.present?
+        next unless questionnaire_response.present?
 
-        resource_is_valid?(resource: questionnaire_respnose,
-                           profile_url: 'http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/dtr-questionnaireresponse-adapt|2.2.0')
+        resource_is_valid?(resource: questionnaire_response,
+                           profile_url: 'http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/dtr-questionnaireresponse-adapt|2.2.0',
+                           message_prefix: request_prefix(request_index))
       end
 
       assert_no_error_messages(

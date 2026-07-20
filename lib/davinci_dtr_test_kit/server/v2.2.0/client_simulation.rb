@@ -3,20 +3,21 @@ require_relative '../../tags'
 module DaVinciDTRTestKit
   module DTRPayerServerV220
     module ClientSimulation
-      def questionnaire_interaction(fhir_base_url, questionnaire_package_parameters, questionnaire_response_templates)
-        adaptive_questionnaire_interaction(fhir_base_url, questionnaire_package_parameters,
+      def questionnaire_interaction(fhir_base_url, questionnaire_package_request_parameters,
+                                    questionnaire_response_templates)
+        adaptive_questionnaire_interaction(fhir_base_url, questionnaire_package_request_parameters,
                                            questionnaire_response_templates)
       end
 
-      def static_questionnaire_interaction(fhir_base_url, questionnaire_package_parameters)
-        qp_response = make_questionnaire_package_request(fhir_base_url, questionnaire_package_parameters)
+      def static_questionnaire_interaction(fhir_base_url, questionnaire_package_request_parameters)
+        qp_response = make_questionnaire_package_request(fhir_base_url, questionnaire_package_request_parameters)
         package_bundles = extract_response_package_bundles(qp_response)
         find_and_expand_value_sets(package_bundles, fhir_base_url)
       end
 
-      def adaptive_questionnaire_interaction(fhir_base_url, questionnaire_package_parameters,
+      def adaptive_questionnaire_interaction(fhir_base_url, questionnaire_package_request_parameters,
                                              questionnaire_response_templates)
-        qp_response = make_questionnaire_package_request(fhir_base_url, questionnaire_package_parameters)
+        qp_response = make_questionnaire_package_request(fhir_base_url, questionnaire_package_request_parameters)
         package_bundles = extract_response_package_bundles(qp_response)
         find_and_expand_value_sets(package_bundles, fhir_base_url)
         adaptive_questionnaire_details = extract_adaptive_questionnaires(package_bundles,

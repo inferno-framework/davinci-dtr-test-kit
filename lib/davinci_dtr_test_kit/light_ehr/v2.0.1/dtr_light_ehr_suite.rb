@@ -21,7 +21,7 @@ require 'us_core_test_kit/generated/v3.1.1/us_core_test_suite'
 module DaVinciDTRTestKit
   class DTRLightEHRSuite < Inferno::TestSuite
     id :dtr_light_ehr
-    title 'Da Vinci DTR Light EHR Test Suite'
+    title 'Da Vinci DTR Light EHR Test Suite v2.0.1'
     description File.read(File.join(__dir__, 'dtr_light_ehr_suite_description_v201.md'))
 
     links [

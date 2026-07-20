@@ -33,12 +33,13 @@ module DaVinciDTRTestKit
       input :url,
             title: 'Payer FHIR Server Base Url',
             description: 'Base FHIR URL implementing the DTR server operations.'
-      input :questionnaire_package_parameters,
-            title: '$questionnaire-package Parameters',
+      input :questionnaire_package_request_parameters,
+            title: '$questionnaire-package Request Parameters',
             description: %(
-              Tester-provided list of one or more Parameters resources in json format
-              that Inferno will use as the request body when invoking the
-              `Questionnaire/$questionnaire-package` operation.
+              Tester-provided list of one or more $questionnaire-package requests each
+              as a Parameters resource in json format. Inferno will call the
+              `Questionnaire/$questionnaire-package` operation once for each
+              with the request as the body of the invocation.
             ),
             type: 'textarea'
       input :questionnaire_response_templates,
@@ -46,7 +47,7 @@ module DaVinciDTRTestKit
             description: %(
               Tester-provided list of one or more QuestionnaireResponse resources in json format
               that Inferno will use to populate answers for adaptive forms for the purpose
-              of making `Qusetionnaire/$next-question` requests to complete these forms.
+              of building `Qusetionnaire/$next-question` requests to complete these forms.
               If not provided, no `$next-question` requests will be performed.
             ),
             type: 'textarea',
@@ -54,13 +55,13 @@ module DaVinciDTRTestKit
       input :backend_services_smart_auth_info
 
       run do
-        parameters = extract_fhir_parameters(questionnaire_package_parameters)
+        parameters = extract_fhir_parameters(questionnaire_package_request_parameters)
         templates = extract_fhir_questionnaire_response_templates(questionnaire_response_templates)
         parameters.each { |parameter| questionnaire_interaction(url, parameter, templates) }
       end
 
-      def extract_fhir_parameters(questionnaire_package_parameters)
-        parameters_list = Array.wrap(parsed_json_if_valid(questionnaire_package_parameters,
+      def extract_fhir_parameters(questionnaire_package_request_parameters)
+        parameters_list = Array.wrap(parsed_json_if_valid(questionnaire_package_request_parameters,
                                                           'Provided well-formed $questionnaire-package bodies.',
                                                           continue: false))
         parameters_list.map.with_index do |entry, index|

@@ -22,7 +22,7 @@ module DaVinciDTRTestKit
     extend CORS
 
     id :dtr_full_ehr_v220
-    title 'Da Vinci DTR Full EHR Test Suite v2.2.0'
+    title 'Da Vinci DTR Client Test Suite v2.2.0'
     description File.read(File.join(__dir__, 'dtr_full_ehr_suite_description_v220.md'))
 
     links [

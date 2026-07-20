@@ -11,7 +11,7 @@ module DaVinciDTRTestKit
     extend CORS
 
     id :dtr_payer_server
-    title 'Da Vinci DTR Payer Server Test Suite'
+    title 'Da Vinci DTR Payer Server Test Suite v2.0.1'
     description File.read(File.join(__dir__, 'dtr_payer_server_suite_description_v201.md'))
 
     links [
