@@ -1,6 +1,6 @@
 require 'udap_security_test_kit'
-require_relative '../mock_payer'
-require_relative '../../fixtures'
+require_relative '../endpoints/mock_payer'
+require_relative '../fixtures'
 
 module DaVinciDTRTestKit
   module MockPayer
@@ -45,9 +45,11 @@ module DaVinciDTRTestKit
 
       private
 
-      def build_questionnaire_package_response
+      def build_questionnaire_package_response # rubocop:disable Metrics/CyclomaticComplexity
         input_parameters = parse_fhir_object(request.body.string)
-        return input_parameters if input_parameters.is_a?(FHIR::OperationOutcome)
+        unless input_parameters.is_a?(FHIR::Parameters)
+          return operation_outcome('error', 'invalid', 'Request body must be a FHIR Parameters resource.')
+        end
 
         questionnaire_package = Fixtures.questionnaire_package_for_test(test.id)
         unless questionnaire_package
@@ -69,6 +71,8 @@ module DaVinciDTRTestKit
         outcome_param = build_outcome_param(issues)
 
         FHIR::Parameters.new(parameter: [package_bundle_param, outcome_param])
+      rescue MockPayer::ParseError => e
+        operation_outcome('error', 'invalid', e.message)
       end
 
       def find_questionnaire_canonical(questionnaire_package)

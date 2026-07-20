@@ -1,6 +1,6 @@
 require_relative '../../../urls'
 require_relative '../../validation_test'
-require_relative '../../../cross_suite/cql_test'
+require_relative '../../../cross_suite/v2.0.1/cql_test'
 
 module DaVinciDTRTestKit
   class PayerStaticFormResponseTest < Inferno::Test

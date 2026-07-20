@@ -1,0 +1,19 @@
+{
+  "title": "Run Against the Client Simulation Suite",
+  "id": "v220-full-ehr-suite-against-payer-server-suite",
+  "test_suite_id": "dtr_full_ehr_v220",
+  "inputs": [
+    {
+        "name": "client_id",
+        "description": "Testers may provide a specific value for Inferno to assign as the client id. If no value is provided, the Inferno session id will be used.",
+        "title": "Client Id",
+        "value": "demo"
+    },
+    {
+        "name": "smart_jwk_set",
+        "description": "The SMART client's JSON Web Key Set including the key(s) Inferno will need to verify signatures on token requests made by the client. May be provided as either a publicly accessible url containing the JWKS, or the raw JWKS JSON.",
+        "title": "SMART Confidential Asymmetric JSON Web Key Set (JWKS)",
+        "value": "<%= Inferno::Application['base_url'] %>/custom/smart_stu2/.well-known/jwks.json"
+    }
+  ]
+}

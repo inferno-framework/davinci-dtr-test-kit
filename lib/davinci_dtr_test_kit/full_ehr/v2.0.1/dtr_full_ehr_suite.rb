@@ -10,8 +10,8 @@ require_relative 'dtr_client_payer_auth_smart_group'
 require_relative 'dtr_client_payer_auth_udap_group'
 require_relative '../../cross_suite/cors'
 require_relative '../endpoints/mock_udap_smart_server/token_endpoint'
-require_relative '../endpoints/mock_payer/full_ehr_questionnaire_package_endpoint'
-require_relative '../endpoints/mock_payer/full_ehr_next_question_endpoint'
+require_relative 'full_ehr_questionnaire_package_endpoint'
+require_relative 'full_ehr_next_question_endpoint'
 require_relative '../dtr_full_ehr_options'
 
 module DaVinciDTRTestKit
@@ -68,6 +68,10 @@ module DaVinciDTRTestKit
 
       exclude_message do |message|
         message.message.match?(/\A\S+: \S+: URL value '.*' does not resolve/)
+      end
+
+      validation_context do
+        snomedCT '731000124108'
       end
     end
 

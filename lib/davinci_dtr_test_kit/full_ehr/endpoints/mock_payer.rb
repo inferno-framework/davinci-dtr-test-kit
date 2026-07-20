@@ -1,9 +1,15 @@
 module DaVinciDTRTestKit
   module MockPayer
-    def parse_fhir_object(str)
-      FHIR.from_contents(str)
+    class ParseError < StandardError; end
+
+    def parse_fhir_object(str, entity: 'Request')
+      FHIR.from_contents(str).tap do |result|
+        raise ParseError, "#{entity} does not contain a valid FHIR resource." if result.nil?
+      end
+    rescue ParseError
+      raise
     rescue StandardError
-      operation_outcome('error', 'invalid', 'No valid input parameters')
+      raise ParseError, "#{entity} does not contain valid JSON."
     end
 
     def find_questionnaire_response(input_parameters)

@@ -93,7 +93,8 @@ module DaVinciDTRTestKit
       section of the
       [open-source code repository](https://github.com/inferno-framework/davinci-dtr-test-kit).
     DESCRIPTION
-    suite_ids [:dtr_payer_server, :dtr_smart_app, :dtr_full_ehr, :dtr_light_ehr]
+    suite_ids [:dtr_payer_server, :dtr_smart_app, :dtr_full_ehr, :dtr_light_ehr,
+               :dtr_payer_server_v220, :dtr_full_ehr_v220]
     tags ['Da Vinci', 'DTR']
     last_updated LAST_UPDATED
     version VERSION

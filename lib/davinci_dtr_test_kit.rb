@@ -1,5 +1,7 @@
 require_relative 'davinci_dtr_test_kit/metadata'
 require_relative 'davinci_dtr_test_kit/server/v2.0.1/dtr_payer_server_suite'
+require_relative 'davinci_dtr_test_kit/server/v2.2.0/dtr_payer_server_suite'
 require_relative 'davinci_dtr_test_kit/smart_app/v2.0.1/dtr_smart_app_suite'
 require_relative 'davinci_dtr_test_kit/full_ehr/v2.0.1/dtr_full_ehr_suite'
+require_relative 'davinci_dtr_test_kit/full_ehr/v2.2.0/dtr_full_ehr_suite'
 require_relative 'davinci_dtr_test_kit/light_ehr/v2.0.1/dtr_light_ehr_suite'
