@@ -48,5 +48,6 @@ issues with the requests.
 1. Return to the client session and click the link to indicate that all requests have been made.
    Respond to additional "User Action Required" dialogs that appear asking for attestations.
 
+Note that 4 $next-question requests should have been made.
 Request and response evaluation within the client session fail at this time due to known
 issues with the requests.
