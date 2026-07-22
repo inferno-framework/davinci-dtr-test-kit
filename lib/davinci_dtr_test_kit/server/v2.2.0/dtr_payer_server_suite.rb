@@ -5,7 +5,7 @@ module DaVinciDTRTestKit
   module DTRPayerServerV220
     class DTRPayerServerSuiteV220 < Inferno::TestSuite
       id :dtr_payer_server_v220
-      title 'Da Vinci DTR Client Simulator Suite v2.2.0' # Payer Server v2.2.0 Test Suite' - currently no verification, just simulation  # rubocop:disable Layout/LineLength
+      title 'Da Vinci Payer Server Test Suite v2.2.0'
       description File.read(File.join(__dir__, 'dtr_payer_server_suite_description_v220.md'))
 
       links [
@@ -27,13 +27,13 @@ module DaVinciDTRTestKit
         }
       ]
 
-      # requirement_sets(
-      #   {
-      #     identifier: 'hl7.fhir.us.davinci-dtr_2.0.1',
-      #     title: 'Da Vinci Documentation Templates and Rules (DTR) v2.0.1',
-      #     actor: 'Payer Service'
-      #   }
-      # )
+      requirement_sets(
+        {
+          identifier: 'hl7.fhir.us.davinci-dtr_2.2.0',
+          title: 'Da Vinci Documentation Templates and Rules (DTR) v2.2.0',
+          actor: 'Payer Service'
+        }
+      )
 
       fhir_resource_validator do
         igs('hl7.fhir.us.davinci-dtr#2.2.0')
