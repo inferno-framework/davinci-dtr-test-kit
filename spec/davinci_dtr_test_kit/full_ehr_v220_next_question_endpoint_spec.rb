@@ -968,7 +968,7 @@ RSpec.describe DaVinciDTRTestKit::MockPayer::FullEHRV220NextQuestionEndpoint, :r
       end
 
       it 'sets the QuestionnaireResponse status to completed when the required item answer value is boolean false' do
-        # Regression guard: answer_completed_and_valid? must use !nil? not .present? so that
+        # Regression guard: QuestionnaireResponseCompleteness#answer_present? must use !nil? not .present? so that
         # false (a valid boolean answer) is not mistaken for a missing answer.
         # Q1 is pre-existing in the contained questionnaire so no new questions are added.
         false_answer_body = FHIR::Parameters.new(

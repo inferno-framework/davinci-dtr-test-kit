@@ -1,10 +1,12 @@
 require_relative '../../../urls'
 require_relative '../../../cross_suite/v2.2.0/multi_request_message_helper'
+require_relative '../../../cross_suite/v2.2.0/questionnaire_response_completeness'
 
 module DaVinciDTRTestKit
   class DTRFullEHRV220NextQuestionRequestValidationTest < Inferno::Test
     include URLs
     include MultiRequestMessageHelper
+    include QuestionnaireResponseCompleteness
 
     id :dtr_full_ehr_v220_nq_request_validation
     title 'Next Question request is valid'
@@ -18,13 +20,49 @@ module DaVinciDTRTestKit
       values. CodeableConcept element bindings will fail if none of their codings have a code/system belonging
       to the bound ValueSet. Quantity, Coding, and code element bindings will fail if their code/system are not found in
       the valueset.
+
+      This test also verifies that all of the required questions in the QuestionnaireResponse provided in the
+      request have been answered, because the client is not allowed to indicate that the user is ready for
+      the next question until the answers to the current QuestionnaireResponse pass validation rules. The
+      required questions are the items marked `required` in the Questionnaire contained within the
+      QuestionnaireResponse. Note that `enableWhen` conditions are not considered, so a required question
+      is expected to be answered even if its enabling condition is not met.
     )
+    verifies_requirements 'hl7.fhir.us.davinci-dtr_2.2.0@spec-146'
 
     def target_tags
       tags = [CLIENT_NEXT_TAG]
       tags << config.options[:dtr_workflow_tag] if config.options[:dtr_workflow_tag].present?
 
       tags
+    end
+
+    def questionnaire_response_from_parameters(input_params)
+      resource = input_params.parameter.find { |param| param.name == 'questionnaire-response' }&.resource
+      resource if resource.is_a?(FHIR::QuestionnaireResponse)
+    end
+
+    def check_required_questions_answered(questionnaire_response, request_index)
+      questionnaire = contained_questionnaire(questionnaire_response)
+      if questionnaire.blank?
+        add_request_message(
+          'error',
+          'Unable to verify that all required questions have been answered: the QuestionnaireResponse ' \
+          'does not include a contained Questionnaire.',
+          request_index
+        )
+        return
+      end
+
+      unanswered_link_ids = unanswered_required_link_ids(questionnaire, questionnaire_response)
+      return if unanswered_link_ids.empty?
+
+      add_request_message(
+        'error',
+        'All required questions must be answered before requesting the next question. No answer found ' \
+        "for required item(s): #{unanswered_link_ids.map { |link_id| "`#{link_id}`" }.to_sentence}.",
+        request_index
+      )
     end
 
     run do
@@ -54,11 +92,14 @@ module DaVinciDTRTestKit
           resource_is_valid?(resource: input_params,
                              profile_url: 'http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/dtr-questionnaireresponse-adapt|2.2.0',
                              message_prefix: request_prefix(request_index))
+          check_required_questions_answered(input_params, request_index)
 
         elsif input_params.is_a?(FHIR::Parameters)
           resource_is_valid?(resource: input_params,
                              profile_url: 'http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/dtr-next-question-input-parameters|2.2.0',
                              message_prefix: request_prefix(request_index))
+          questionnaire_response = questionnaire_response_from_parameters(input_params)
+          check_required_questions_answered(questionnaire_response, request_index) if questionnaire_response.present?
         else
           add_request_message(
             'error',
