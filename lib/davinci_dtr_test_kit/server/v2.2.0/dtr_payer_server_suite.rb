@@ -79,14 +79,14 @@ module DaVinciDTRTestKit
           title 'Questionnaire Interactions'
 
           group do
-            title 'Request Validation'
-            simulation_verification
-          end
-
-          group do
             title 'Interactions'
             # TODO: make #questionnaire_interaction identify static/adaptive questionnaires
             test from: :dtr_v220_payer_interaction
+          end
+
+          group do
+            title 'Request Validation'
+            simulation_verification
           end
         end
 
@@ -170,6 +170,8 @@ module DaVinciDTRTestKit
 
       group do
         title 'Log Questionnaire Error Support'
+        # TODO
+        # (optionally ?) perform $q-p operation and validate input
 
         # TODO
         # oper-1 - shall support it
