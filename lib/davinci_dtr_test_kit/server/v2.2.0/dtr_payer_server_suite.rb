@@ -111,9 +111,6 @@ module DaVinciDTRTestKit
           # spec-122 - [NOT TESTED in 2.0] QR.Q points to canonical of the Q provided
           # spec-139 - All references in QR are to contained or client resources
           # spec-141 - contained resources only in item.answer
-
-          # TODO
-          # oper-9 - make a request with a known bad questionnaire url
         end
 
         group do
@@ -181,7 +178,12 @@ module DaVinciDTRTestKit
         title 'Error Handling'
 
         # TODO
+        # oper-9 - make a request with a known bad questionnaire url
+
+        # TODO
         # spec-130 - 4xx w/OO for issues with source data
+
+        # TODO
         # spec-147 - 400 w/OO for invalid QR
       end
     end
