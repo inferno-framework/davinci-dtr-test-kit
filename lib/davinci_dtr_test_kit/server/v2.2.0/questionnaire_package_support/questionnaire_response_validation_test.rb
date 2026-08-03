@@ -11,27 +11,13 @@ module DaVinciDTRTestKit
       include QuestionnaireOperationValidation
 
       id :dtr_v220_payer_questionnaire_response_validation
-      # TODO: this is all placeholder just to demonstrate what the basic
-      #       response validation will look like
 
-      title 'Validate that the response conforms to the DTR Questionnaire Package operation definition.'
+      title 'Verify that the response conforms to the DTR Questionnaire Package Output Parameters profile'
       description %(
-        Inferno will validate that the payer server's response to the
-        questionnaire-package operation is conformant to the [Questionnaire
-        Package operation
-        definition](https://hl7.org/fhir/us/davinci-dtr/2.2.0/en/OperationDefinition-questionnaire-package.html).
-        This includes verifying that the response conforms to the [DTR
-        Questionnaire Package Bundle
-        profile](https://hl7.org/fhir/us/davinci-dtr/2.2.0/en/StructureDefinition-DTR-QPackageBundle.html)
-        and, in the event that the server includes that Bundle in a Parameters
-        object, the [DTR Questionnaire Package Output Parameters
+        Inferno will verify that the payer server's response to the
+        questionnaire-package operation conforms to the [Questionnaire Package
+        Output Parameters
         profile](https://hl7.org/fhir/us/davinci-dtr/2.2.0/en/StructureDefinition-dtr-qpackage-output-parameters.html).
-
-        It verifies the presence of mandatory elements and that elements with
-        required bindings contain appropriate values. CodeableConcept element
-        bindings will fail if none of their codings have a code/system belonging
-        to the bound ValueSet. Quantity, Coding, and code element bindings will
-        fail if their code/system are not found in the valueset.
       )
       verifies_requirements 'hl7.fhir.us.davinci-dtr_2.2.0@oper-10'
       input :url
@@ -41,14 +27,36 @@ module DaVinciDTRTestKit
 
         skip_if requests.blank?, 'No $questionnaire-package requests were made'
 
-        requests.each do |request|
-          assert_response_status([200, 201], response: request.response)
+        requests.each_with_index do |request, index|
+          unless [200, 201].include? request.response[:status]
+            add_message(
+              'error',
+              "Request #{index} was unsuccessful."
+            )
+          end
+
+          JSON.parse(request.response_body)
 
           resource = FHIR.from_contents(request.response_body)
 
-          # NOTE: This interface is not finalized
-          perform_questionnaire_package_validation(resource)
+          if resource.nil?
+            add_message(
+              'error',
+              "Response #{index} did not contain FHIR resources."
+            )
+
+            next
+          end
+
+          perform_questionnaire_package_response_validation(resource, index)
+        rescue JSON::ParserError
+          add_message(
+            'error',
+            "Response #{index} contained invalid JSON."
+          )
         end
+
+        assert_no_error_messages('Not all responses were valid. See messages for details.')
       end
     end
   end

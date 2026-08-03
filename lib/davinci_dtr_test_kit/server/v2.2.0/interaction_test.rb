@@ -47,7 +47,7 @@ module DaVinciDTRTestKit
             description: %(
               Tester-provided list of one or more QuestionnaireResponse resources in json format
               that Inferno will use to populate answers for adaptive forms for the purpose
-              of building `Qusetionnaire/$next-question` requests to complete these forms.
+              of building `Questionnaire/$next-question` requests to complete these forms.
               If not provided, no `$next-question` requests will be performed.
             ),
             type: 'textarea',
