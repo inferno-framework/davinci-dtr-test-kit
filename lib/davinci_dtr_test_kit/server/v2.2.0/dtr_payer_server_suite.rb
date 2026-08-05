@@ -3,6 +3,7 @@ require_relative 'interaction_test'
 require_relative 'log_questionnaire_errors_support_test'
 require_relative 'questionnaire_package_support/questionnaire_response_validation_test'
 require_relative 'questionnaire_design/cql_library_validation_test'
+require_relative 'dtr_payer_server_capability_statement_test'
 
 module DaVinciDTRTestKit
   module DTRPayerServerV220
@@ -66,6 +67,12 @@ module DaVinciDTRTestKit
 
         # TODO
         # conf-1 - CS matches CS in the IG
+        # fhir_client do
+        fhir_client do
+          url :url
+        end
+
+        test from: :dtr_payer_server_v220_capability_statement_test
       end
 
       group from: :'smart_stu2-smart_backend_services' do
