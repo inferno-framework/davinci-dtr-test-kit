@@ -8,6 +8,7 @@ require_relative 'questionnaire_package_support/questionnaire_response_reference
 require_relative 'questionnaire_package_support/contained_questionnaire_response_references_test'
 require_relative 'next_question_support/next_question_response_references_test'
 require_relative 'next_question_support/next_contained_questionnaire_response_references_test'
+require_relative 'questionnaire_package_support/adaptive_questionnaire_response_validation_test'
 
 module DaVinciDTRTestKit
   module DTRPayerServerV220
@@ -146,6 +147,8 @@ module DaVinciDTRTestKit
 
           # TODO
           # spec-23 - adaptive form validation [DONE]
+          test from: :dtr_v220_payer_adaptive_questionnaire_response_validation
+
           # spec-24 - [NOT TESTED in 2.0] url shall be a sub-url, accessed using same credentials
 
           # TODO
