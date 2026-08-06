@@ -94,4 +94,24 @@ RSpec.describe DaVinciDTRTestKit::DTRPayerServerV220::QuestionnaireResponseValid
 
     expect(result_messages.first.message).to include('No Questionnaire Bundle')
   end
+
+  it 'passes if a valid response is returned' do
+    parameters =
+      FHIR::Parameters.new(
+        parameter: [
+          {
+            name: 'packagebundle',
+            resource: FHIR::Bundle.new
+          }
+        ]
+      )
+    request = repo_create(:request, response_body: parameters.to_json)
+
+    allow_any_instance_of(described_class).to receive(:requests).and_return([request])
+    allow_any_instance_of(described_class).to receive(:resource_is_valid?).and_return(true)
+
+    result = run(described_class, url:)
+
+    expect(result.result).to eq('pass')
+  end
 end
