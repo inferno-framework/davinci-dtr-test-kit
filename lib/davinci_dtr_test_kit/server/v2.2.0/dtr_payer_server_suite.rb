@@ -1,6 +1,7 @@
 require 'smart_app_launch_test_kit'
 require_relative 'interaction_test'
 require_relative 'questionnaire_package_support/questionnaire_response_validation_test'
+require_relative 'questionnaire_design/cql_library_validation_test'
 
 module DaVinciDTRTestKit
   module DTRPayerServerV220
@@ -32,7 +33,7 @@ module DaVinciDTRTestKit
         {
           identifier: 'hl7.fhir.us.davinci-dtr_2.2.0',
           title: 'Da Vinci Documentation Templates and Rules (DTR) v2.2.0',
-          actor: 'Payer Service'
+          actor: 'DTR Server'
         }
       )
 
@@ -101,6 +102,7 @@ module DaVinciDTRTestKit
           # oper-12 - [NOT TESTED in 2.0] include Questionnaire as 1st entry, [TESTED] and CQL libraries
           # oper-14 - [NOT TESTED in 2.0] Bundle includes all VS instances
           # oper-16 - [NOT TESTED in 2.0] references are version specific
+          #           NOTE: ONLY Library references are currently tested
           test from: :dtr_v220_payer_questionnaire_response_validation
 
           # TODO: embedded QR validation
@@ -128,19 +130,15 @@ module DaVinciDTRTestKit
           # spec-17 - verify that Questionnaires use enableWhen/enableWhenExpression
           # spec-18 - verify CQL is used for expressions [DONE]
           # spec-54 - Qs include population logic [DONE]
+          # spec-96 - [NOT TESTED in 2.0] CQL and ELM are provided in expressions
 
           # TODO
           # spec-93 - [NOT TESTED in 2.0] CQL has context of "Patient"
           # spec-94 - [NOT TESTED in 2.0] CQL follows SDC rules for determining context
+          # spec-97 [QUESTIONABLE] - [NOT TESTED in 2.0] variables reference library if multiple libraries are used
 
           # TODO
-          # spec-87 - libraries are referenced with cqf-library extension and included [DONE]
-          # spec-98 - Library names shall be unique within a Q package [DONE]
-          # spec-95 - CQL and ELM are provided in libraries [DONE]
-          # spec-99 - Libraries send CQL and ELM in content.data [DONE]
-          # oper-13 - Libraries include both CQL and EML representations [DONE]
-          # spec-96 - [NOT TESTED in 2.0] CQL and ELM are provided in expressions
-          # spec-97 [QUESTIONABLE] - [NOT TESTED in 2.0] variables reference library if multiple libraries are used
+          test from: :dtr_v220_payer_cql_library_validation
 
           # TODO
           # spec-160 - contained binary resources shall be pdfs or xhtml
