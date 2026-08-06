@@ -21,6 +21,7 @@ require_relative 'questionnaire_design/questionnaire_prepopulation_test'
 require_relative 'questionnaire_design/questionnaire_relevance_logic_test'
 require_relative 'questionnaire_package_support/source_data_error_test'
 require_relative 'questionnaire_design/contained_binary_test'
+require_relative 'questionnaire_package_support/value_set_validation_test'
 
 module DaVinciDTRTestKit
   module DTRPayerServerV220
@@ -137,10 +138,10 @@ module DaVinciDTRTestKit
         group do
           title 'Questionnaire/$questionnaire-package Support'
           # oper-12 - [NOT TESTED in 2.0] include Questionnaire as 1st entry, [TESTED] and CQL libraries
-          # oper-14 - [NOT TESTED in 2.0] Bundle includes all VS instances
           # oper-16 - [NOT TESTED in 2.0] references are version specific
           #           NOTE: ONLY Library references are currently tested
           test from: :dtr_v220_payer_questionnaire_response_validation
+          test from: :dtr_v220_payer_value_set_validation
 
           # TODO: embedded QR validation
           # spec-25 - [NOT TESTED in 2.0] QR has contained Q
