@@ -1,9 +1,10 @@
 RSpec.describe DaVinciDTRTestKit::DTRFullEHRV220QuestionnaireAdaptiveMustSupportTest do # rubocop:disable RSpec/SpecFilePathFormat
   let(:suite_id) { 'dtr_full_ehr_v220' }
   let(:result) { repo_create(:result, test_session_id: test_session.id) }
-  let(:tags) { [DaVinciDTRTestKit::CLIENT_QUESTIONNAIRE_MUST_SUPPORT] }
+  let(:tags) { [DaVinciDTRTestKit::CLIENT_QUESTIONNAIRE_MUST_SUPPORT, DaVinciDTRTestKit::CLIENT_NEXT_TAG] }
 
-  def create_tagged_request(response_body, url: '/custom/dtr_full_ehr_v220/fhir/Questionnaire/$questionnaire-package')
+  def create_tagged_request(response_body, url: '/custom/dtr_full_ehr_v220/fhir/Questionnaire/$next-question',
+                            request_tags: tags)
     repo_create(
       :request,
       direction: 'incoming',
@@ -11,7 +12,7 @@ RSpec.describe DaVinciDTRTestKit::DTRFullEHRV220QuestionnaireAdaptiveMustSupport
       test_session_id: test_session.id,
       result:,
       response_body:,
-      tags:,
+      tags: request_tags,
       status: 200
     )
   end
@@ -36,21 +37,6 @@ RSpec.describe DaVinciDTRTestKit::DTRFullEHRV220QuestionnaireAdaptiveMustSupport
     }
   end
 
-  def standard_questionnaire(link_id: 'Standard')
-    { resourceType: 'Questionnaire', status: 'active', item: [{ linkId: link_id, type: 'string' }] }
-  end
-
-  def questionnaire_package_output_json(*questionnaire_hashes)
-    {
-      resourceType: 'Parameters',
-      parameter: [
-        { name: 'packagebundle',
-          resource: { resourceType: 'Bundle', type: 'collection',
-                      entry: questionnaire_hashes.map { |q| { resource: q } } } }
-      ]
-    }.to_json
-  end
-
   def next_question_output_json(questionnaire_hash)
     {
       resourceType: 'Parameters',
@@ -61,24 +47,39 @@ RSpec.describe DaVinciDTRTestKit::DTRFullEHRV220QuestionnaireAdaptiveMustSupport
     }.to_json
   end
 
+  # $questionnaire-package's adaptive-flagged entries conform to the adaptive *search* profile
+  # (dtr-questionnaire-adapt-search), not dtr-questionnaire-adapt, so this test only reads
+  # $next-question responses -- the actual in-progress adaptive form.
+  def questionnaire_package_output_json(questionnaire_hash)
+    {
+      resourceType: 'Parameters',
+      parameter: [
+        { name: 'packagebundle',
+          resource: { resourceType: 'Bundle', type: 'collection', entry: [{ resource: questionnaire_hash }] } }
+      ]
+    }.to_json
+  end
+
   it 'skips when no requests have been made' do
     result = run(described_class)
     expect(result.result).to eq('skip')
     expect(result.result_message).to match(/Requests must be made/)
   end
 
-  it 'also extracts adaptive Questionnaires from a $next-question output Parameters response' do
+  it 'ignores $questionnaire-package responses, even with a conformant adaptive-shaped Questionnaire' do
     create_tagged_request(
-      next_question_output_json(conformant_adaptive_questionnaire),
-      url: '/custom/dtr_full_ehr_v220/fhir/Questionnaire/$next-question'
+      questionnaire_package_output_json(conformant_adaptive_questionnaire),
+      url: '/custom/dtr_full_ehr_v220/fhir/Questionnaire/$questionnaire-package',
+      request_tags: [DaVinciDTRTestKit::CLIENT_QUESTIONNAIRE_MUST_SUPPORT]
     )
 
     result = run(described_class)
-    expect(result.result).to eq('pass'), result.result_message
+    expect(result.result).to eq('skip')
+    expect(result.result_message).to match(/Requests must be made/)
   end
 
-  it 'skips when the questionnaire-package bundle has no adaptive Questionnaire' do
-    create_tagged_request(questionnaire_package_output_json(standard_questionnaire))
+  it 'skips when the tagged requests contain no adaptive Questionnaires' do
+    create_tagged_request({ resourceType: 'QuestionnaireResponse', status: 'in-progress' }.to_json)
 
     result = run(described_class)
     expect(result.result).to eq('skip')
@@ -91,24 +92,15 @@ RSpec.describe DaVinciDTRTestKit::DTRFullEHRV220QuestionnaireAdaptiveMustSupport
       extension: [{ url: 'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-questionnaireAdaptive',
                     valueBoolean: true }]
     }
-    create_tagged_request(questionnaire_package_output_json(incomplete))
+    create_tagged_request(next_question_output_json(incomplete))
 
     result = run(described_class)
     expect(result.result).to eq('fail')
     expect(result.result_message).to include('item.enableWhen')
   end
 
-  it 'passes when a fully conformant adaptive Questionnaire is present' do
-    create_tagged_request(questionnaire_package_output_json(conformant_adaptive_questionnaire))
-
-    result = run(described_class)
-    expect(result.result).to eq('pass'), result.result_message
-  end
-
-  it 'only evaluates the adaptive Questionnaire when the bundle has both standard and adaptive entries' do
-    create_tagged_request(
-      questionnaire_package_output_json(standard_questionnaire, conformant_adaptive_questionnaire)
-    )
+  it 'passes when a fully conformant adaptive Questionnaire is present in a $next-question response' do
+    create_tagged_request(next_question_output_json(conformant_adaptive_questionnaire))
 
     result = run(described_class)
     expect(result.result).to eq('pass'), result.result_message

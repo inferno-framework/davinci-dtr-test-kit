@@ -25,9 +25,10 @@ module DaVinciDTRTestKit
       This includes the following elements:
       - #{MUST_SUPPORT_METADATA.must_support_strings.join("\n      - ")}
     )
+    simulation_verification
 
     def target_tags
-      [CLIENT_QUESTIONNAIRE_MUST_SUPPORT]
+      [CLIENT_QUESTIONNAIRE_MUST_SUPPORT, CLIENT_NEXT_TAG]
     end
 
     run do
