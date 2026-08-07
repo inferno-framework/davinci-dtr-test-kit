@@ -27,7 +27,7 @@ module DaVinciDTRTestKit
     )
 
     def target_tags
-      [CLIENT_QUESTIONNAIRE_MUST_SUPPORT, QUESTIONNAIRE_PACKAGE_TAG]
+      [CLIENT_QUESTIONNAIRE_MUST_SUPPORT]
     end
 
     run do
