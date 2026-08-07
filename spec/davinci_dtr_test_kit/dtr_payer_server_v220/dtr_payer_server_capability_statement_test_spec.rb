@@ -5,7 +5,6 @@ RSpec.describe DaVinciDTRTestKit::DTRPayerServerV220::DTRPayerServerCapabilitySt
   let(:test) do
     Class.new(described_class) do
       fhir_client { url :server_endpoint }
-
       input :server_endpoint
     end
   end
@@ -30,10 +29,10 @@ RSpec.describe DaVinciDTRTestKit::DTRPayerServerV220::DTRPayerServerCapabilitySt
       )
   end
 
-  described_class::SUPPORTED_DTR_CAPABILITY_STATEMENTS.each do |canonical_url|
-    it "passes when the CapabilityStatement declares #{canonical_url}" do
+  described_class::SUPPORTED_DTR_CAPABILITY_STATEMENTS.each do |conformant_url|
+    it "passes when the CapabilityStatement declares #{conformant_url}" do
       stub_capability_statement(
-        capability_statement(instantiates: [canonical_url])
+        capability_statement(instantiates: [conformant_url])
       )
 
       result = run(test, server_endpoint:)
@@ -42,7 +41,7 @@ RSpec.describe DaVinciDTRTestKit::DTRPayerServerV220::DTRPayerServerCapabilitySt
     end
   end
 
-  it 'passes when the CapabilityStatement declares a versioned supported canonical' do
+  it 'passes when the CapabilityStatement declares a versioned supported conformant' do
     stub_capability_statement(
       capability_statement(
         instantiates: [

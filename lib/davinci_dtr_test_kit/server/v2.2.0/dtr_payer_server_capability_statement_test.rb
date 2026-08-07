@@ -8,7 +8,7 @@ module DaVinciDTRTestKit
       description %(
         The DTR IG [requires](https://hl7.org/fhir/us/davinci-dtr/2.2.0/en/confexpectations.html#conformance-to-this-implementation-guide)
         systems to conform to at least one of its defined CapabilityStatements. This test retrieves
-        the system CapabilityStateme and verifies that it declares conformance to a supported DTR configuration.
+        the system CapabilityStatement and verifies that it declares conformance to a supported DTR configuration.
       )
 
       verifies_requirements 'hl7.fhir.us.davinci-dtr_2.2.0@conf-1'
@@ -28,8 +28,8 @@ module DaVinciDTRTestKit
         assert_response_status(200)
         assert_resource_type(:capability_statement)
 
-        declared_capability_statement_urls = Array(resource.instantiates).map do |canonical|
-          canonical.to_s.split('|').first
+        declared_capability_statement_urls = Array(resource.instantiates).map do |conformant|
+          conformant.to_s.split('|').first
         end
 
         matching_capability_statements =
