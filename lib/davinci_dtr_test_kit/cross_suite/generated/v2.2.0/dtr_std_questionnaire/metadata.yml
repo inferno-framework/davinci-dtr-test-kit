@@ -12,4 +12,5 @@
   :slices: []
   :elements:
   - :path: item.enableWhen
-  :recursive_elements: []
+  :recursive_elements:
+  - item

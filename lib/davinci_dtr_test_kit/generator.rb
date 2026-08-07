@@ -67,8 +67,13 @@ module DaVinciDTRTestKit
       self.ig_metadata = IGMetadata.new
       ig_metadata.ig_version = "v#{ig_resources.ig_resource.version}"
       ig_metadata.profiles = target_profiles.map do |profile|
-        ProfileMetadataExtractor.new(profile.url, ig_resources,
-                                     TARGET_PROFILES_AND_ELEMENT_SCOPE[profile.url]).profile_metadata
+        element_scope = TARGET_PROFILES_AND_ELEMENT_SCOPE[profile.url]
+        profile_metadata = ProfileMetadataExtractor.new(profile.url, ig_resources, element_scope).profile_metadata
+
+        # handle gap when looking at differential
+        profile_metadata.must_supports[:recursive_elements] << 'item' if element_scope == 'differential'
+
+        profile_metadata
       end
 
       FileUtils.mkdir_p(base_output_dir)

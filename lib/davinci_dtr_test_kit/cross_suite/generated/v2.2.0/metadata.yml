@@ -192,7 +192,8 @@
     :slices: []
     :elements:
     - :path: item.enableWhen
-    :recursive_elements: []
+    :recursive_elements:
+    - item
 - :resource: Questionnaire
   :profile_url: http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/dtr-std-questionnaire
   :profile_name: DTR Standard Questionnaire
@@ -206,4 +207,5 @@
     :slices: []
     :elements:
     - :path: item.enableWhen
-    :recursive_elements: []
+    :recursive_elements:
+    - item
