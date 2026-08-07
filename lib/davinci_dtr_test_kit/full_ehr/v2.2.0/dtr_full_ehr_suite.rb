@@ -13,6 +13,9 @@ require_relative '../endpoints/mock_udap_smart_server/token_endpoint'
 require_relative 'full_ehr_questionnaire_package_endpoint'
 require_relative 'full_ehr_next_question_endpoint'
 require_relative '../dtr_full_ehr_options'
+require_relative 'must_support/dtr_questionnaire_base_must_support_test'
+require_relative 'must_support/dtr_questionnaire_adaptive_must_support_test'
+require_relative 'must_support/dtr_questionnaire_standard_must_support_test'
 
 require_relative 'dtr_full_ehr_workflow_static_group'
 require_relative 'dtr_full_ehr_workflow_adaptive_group'
@@ -100,23 +103,27 @@ module DaVinciDTRTestKit
 
     group from: :dtr_client_payer_registration
     group do
-      id :dtr_full_ehr_basic_workflows
-      title 'Basic Workflows'
+      id :dtr_full_ehr_v220_questionnaire_workflows
+      title 'Questionnaire Workflows'
 
       group from: :dtr_full_ehr_v220_workflow_static
       group from: :dtr_full_ehr_v220_workflow_adaptive
     end
-    # group do
-    #   id :dtr_full_ehr_questionnaire_functionality
-    #   title 'Questionnaire Functionality Coverage'
-    #   description %(
-    #     Tests in this group validate that the client can complete additional DTR workflows
-    #     covering additional pre-population features of questionnaires.
-    #   )
-    #   group from: :dtr_full_ehr_static_dinner_workflow
-    #   group from: :dtr_full_ehr_adaptive_dinner_workflow
-    # end
-    # group from: :dtr_full_ehr_questionnaire_ms
+
+    group do
+      id :dtr_full_ehr_v220_coverage
+      title 'Questionnaire Feature Coverage'
+
+      group do
+        id :dtr_full_ehr_v220_questionnaire_must_support
+        title 'Questionnaire Must Support'
+        run_as_group
+
+        test from: :dtr_full_ehr_v220_questionnaire_base_must_support
+        test from: :dtr_full_ehr_v220_questionnaire_adaptive_must_support
+        test from: :dtr_full_ehr_v220_questionnaire_standard_must_support
+      end
+    end
 
     group from: :dtr_client_payer_auth_smart,
           required_suite_options: {

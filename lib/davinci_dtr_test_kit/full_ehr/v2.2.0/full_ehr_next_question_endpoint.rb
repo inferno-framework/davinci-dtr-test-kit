@@ -21,7 +21,13 @@ module DaVinciDTRTestKit
       end
 
       def tags
-        [CLIENT_NEXT_TAG, test.config.options[:dtr_workflow_tag].presence].compact
+        tags = [CLIENT_NEXT_TAG]
+        tags << test.config.options[:dtr_workflow_tag] if test.config.options[:dtr_workflow_tag].present?
+        unless test.config.options[:dtr_exclude_from_questionnaire_must_support]
+          tags << CLIENT_QUESTIONNAIRE_MUST_SUPPORT
+        end
+
+        tags
       end
 
       def make_response

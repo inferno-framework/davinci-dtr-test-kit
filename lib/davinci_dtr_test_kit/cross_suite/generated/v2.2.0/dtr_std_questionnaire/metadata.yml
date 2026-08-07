@@ -6,6 +6,7 @@
 :must_supports:
   :extensions:
   - :id: Questionnaire.item.extension:enableWhenExpression
+    :slice_name: enableWhenExpression
     :path: item.extension
     :url: http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-enableWhenExpression
     :modifier_extension: false
