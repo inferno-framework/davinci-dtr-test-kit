@@ -7,25 +7,13 @@ require_relative 'response/dtr_next_question_response_validation_test'
 require_relative 'questionnaire_response/questionnaire_response_completion_attestation_test'
 
 module DaVinciDTRTestKit
-  class DTRFullEHRV220WorkflowAdaptive < Inferno::TestGroup
-    title 'Adaptive Questionnaire'
-    id :dtr_full_ehr_v220_workflow_adaptive
+  class DTRFullEHRV220AbstractAdaptive < Inferno::TestGroup
+    title 'Adaptive or Standard Questionnaire'
+    id :dtr_full_ehr_v220_abstract_adaptive
     description <<~DESCRIPTION
-      During this group, the DTR Full EHR will demonstrate its ability to complete
-      an adaptive Questionnaire.
+      Abstract group testing adaptive qustionnaires, and optionally standard ones as well
     DESCRIPTION
     run_as_group
-
-    config(
-      options: {
-        qp_single_use: true,
-        dtr_workflow_tag: 'adaptive',
-        qp_response_template_fixture: File.join('dinner_adaptive',
-                                                'parameters_questionnaire_dinner_order_adaptive.json'),
-        nq_questionnaire_template_fixture: File.join('dinner_adaptive',
-                                                     'dinner_order_adaptive_next_question_template.json')
-      }
-    )
 
     group do
       title 'Interaction'

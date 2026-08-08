@@ -13,12 +13,13 @@ require_relative '../endpoints/mock_udap_smart_server/token_endpoint'
 require_relative 'full_ehr_questionnaire_package_endpoint'
 require_relative 'full_ehr_next_question_endpoint'
 require_relative '../dtr_full_ehr_options'
+require_relative 'must_support/dtr_additional_questionnaires_interaction_group'
 require_relative 'must_support/dtr_questionnaire_base_must_support_test'
 require_relative 'must_support/dtr_questionnaire_adaptive_must_support_test'
 require_relative 'must_support/dtr_questionnaire_standard_must_support_test'
 
 require_relative 'dtr_full_ehr_workflow_static_group'
-require_relative 'dtr_full_ehr_workflow_adaptive_group'
+require_relative 'workflows/dtr_full_ehr_workflow_adaptive_group'
 
 module DaVinciDTRTestKit
   class DTRFullEHRSuiteV220 < Inferno::TestSuite
@@ -113,6 +114,8 @@ module DaVinciDTRTestKit
     group do
       id :dtr_full_ehr_v220_coverage
       title 'Questionnaire Feature Coverage'
+
+      group from: :dtr_full_ehr_v220_additional_qustionnaires_for_ms
 
       group do
         id :dtr_full_ehr_v220_questionnaire_must_support
