@@ -575,13 +575,12 @@ RSpec.describe DaVinciDTRTestKit::MockPayer::FullEHRV220NextQuestionEndpoint, :r
         expect(result.result_message).to include('expected a Questionnaire')
       end
 
-      it 'fails before waiting when the nq_questionnaire_template_input is an empty array' do
+      it 'proceeds to wait when the nq_questionnaire_template_input is an empty array' do
         result = run(nq_input_test, client_id:,
                                     qp_response_template: adaptive_questionnaire_package_json,
                                     nq_questionnaire_template: [].to_json)
 
-        expect(result.result).to eq('fail')
-        expect(result.result_message).to include('does not contain any Questionnaire')
+        expect(result.result).to eq('wait')
       end
 
       it 'fails before waiting when any entry in the nq_questionnaire_template_input array ' \

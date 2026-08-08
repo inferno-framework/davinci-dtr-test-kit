@@ -129,7 +129,6 @@ module DaVinciDTRTestKit
       parsed_json = JSON.parse(value)
       is_array = parsed_json.is_a?(Array)
       questionnaire_jsons = is_array ? parsed_json : [parsed_json]
-      assert questionnaire_jsons.present?, "Input '#{input_name}' does not contain any Questionnaire resources."
 
       questionnaire_jsons.each_with_index do |questionnaire_json, index|
         next if parse_template_questionnaire(questionnaire_json).present?
