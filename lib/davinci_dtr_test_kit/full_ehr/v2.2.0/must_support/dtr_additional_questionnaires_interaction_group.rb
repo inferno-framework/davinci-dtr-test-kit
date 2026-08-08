@@ -34,7 +34,10 @@ module DaVinciDTRTestKit
           type: 'textarea',
           optional: false,
           description: %(
-            Template for $next-question responses for Inferno to send back.
+            Template for $next-question responses for Inferno to send back. May be a single
+            Questionnaire or a JSON array of Questionnaires; when an array is provided, Inferno
+            selects the first Questionnaire whose url (and version, if the request's contained
+            Questionnaire has one) matches the contained Questionnaire in the request.
           ),
           default: File.read(File.join(__dir__, '..', '..', 'fixtures', 'empty_templates',
                                        'next_question_template_empty.json'))

@@ -1,9 +1,11 @@
 require_relative '../../descriptions'
 require_relative '../../../urls'
+require_relative '../next_question_template_questionnaires'
 
 module DaVinciDTRTestKit
   class DTRFullEHRV220InteractionWaitTest < Inferno::Test
     include URLs
+    include NextQuestionTemplateQuestionnaires
 
     id :dtr_full_ehr_v220_interaction_wait
     title 'Retrieve and complete the Questionnaire'
@@ -54,6 +56,8 @@ module DaVinciDTRTestKit
     output :continuation_url
 
     run do
+      validate_response_template_inputs
+
       continuation_url = "#{resume_pass_url}?token=#{client_id}"
       output(continuation_url:)
 
@@ -83,6 +87,58 @@ module DaVinciDTRTestKit
           [Click here](#{continuation_url}) to continue.
         )
       )
+    end
+
+    private
+
+    def validate_response_template_inputs
+      validate_qp_response_template_input
+      validate_nq_questionnaire_template_input
+    end
+
+    def validate_qp_response_template_input
+      input_name = config.options[:qp_response_template_input]
+      return if input_name.blank?
+
+      value = send(input_name)
+      assert value.present?, "No response template provided by the user in input '#{input_name}'."
+
+      parsed = parse_qp_template_value(value, input_name)
+      assert parsed.is_a?(FHIR::Parameters),
+             "Input '#{input_name}' must contain a Parameters resource for the $questionnaire-package " \
+             'response template.'
+    end
+
+    def parse_qp_template_value(value, input_name)
+      FHIR.from_contents(value)
+    rescue StandardError
+      assert false, "Input '#{input_name}' does not contain valid JSON."
+    end
+
+    # Unlike the endpoint's own parsing (which silently discards array entries that aren't
+    # Questionnaires, since the tester may legitimately be mid-workflow when a request comes in),
+    # this pre-wait check fails on the first bad entry: there's no reason to let the tester start
+    # the interaction with a template that's already known to be broken.
+    def validate_nq_questionnaire_template_input
+      input_name = config.options[:nq_questionnaire_template_input]
+      return if input_name.blank?
+
+      value = send(input_name)
+      assert value.present?, "No response template provided by the user in input '#{input_name}'."
+
+      parsed_json = JSON.parse(value)
+      is_array = parsed_json.is_a?(Array)
+      questionnaire_jsons = is_array ? parsed_json : [parsed_json]
+      assert questionnaire_jsons.present?, "Input '#{input_name}' does not contain any Questionnaire resources."
+
+      questionnaire_jsons.each_with_index do |questionnaire_json, index|
+        next if parse_template_questionnaire(questionnaire_json).present?
+
+        location = is_array ? "at index #{index} of input '#{input_name}'" : "in input '#{input_name}'"
+        assert false, "Invalid $next-question response template: expected a Questionnaire #{location}."
+      end
+    rescue JSON::ParserError
+      assert false, "Input '#{input_name}' does not contain valid JSON."
     end
   end
 end

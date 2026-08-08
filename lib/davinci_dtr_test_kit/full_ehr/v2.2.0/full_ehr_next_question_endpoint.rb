@@ -4,6 +4,7 @@ require_relative '../../cross_suite/fhirpath_utils'
 require_relative '../../cross_suite/response_selection_utils'
 require_relative '../fixture_loader'
 require_relative '../../tags'
+require_relative 'next_question_template_questionnaires'
 
 module DaVinciDTRTestKit
   module MockPayer
@@ -11,6 +12,7 @@ module DaVinciDTRTestKit
       include MockPayer
       include DaVinciDTRTestKit::FhirpathUtils
       include DaVinciDTRTestKit::ResponseSelectionUtils
+      include DaVinciDTRTestKit::NextQuestionTemplateQuestionnaires
 
       def test_run_identifier
         return request.params[:session_path] if request.params[:session_path].present?
@@ -263,6 +265,17 @@ module DaVinciDTRTestKit
       end
 
       def parse_questionnaire_response_input_template(value, input_name)
+        parsed_json = JSON.parse(value)
+        if parsed_json.is_a?(Array)
+          matching_questionnaire_template(questionnaires_from_template_value(value), input_name)
+        else
+          parse_single_questionnaire_template(value, input_name)
+        end
+      rescue JSON::ParserError
+        operation_outcome('error', 'invalid', "Input #{input_name} does not contain valid JSON.")
+      end
+
+      def parse_single_questionnaire_template(value, input_name)
         parsed = parse_fhir_object(value, entity: "Input #{input_name}")
         unless parsed.is_a?(FHIR::Questionnaire)
           return operation_outcome('error', 'invalid',
@@ -272,6 +285,22 @@ module DaVinciDTRTestKit
         parsed
       rescue MockPayer::ParseError => e
         operation_outcome('error', 'invalid', e.message)
+      end
+
+      def matching_questionnaire_template(questionnaires, input_name)
+        matching = questionnaires.find { |questionnaire| questionnaire_template_matches_request?(questionnaire) }
+        return matching if matching.present?
+
+        operation_outcome('error', 'invalid',
+                          'Invalid input response template for $next-question: ' \
+                          "No Questionnaire in input '#{input_name}' matches " \
+                          "#{questionnaire_canonical_url(request_questionnaire)}.")
+      end
+
+      def questionnaire_template_matches_request?(questionnaire)
+        return false unless questionnaire.url == request_questionnaire.url
+
+        request_questionnaire.version.blank? || questionnaire.version == request_questionnaire.version
       end
 
       # ***********************************************************************
