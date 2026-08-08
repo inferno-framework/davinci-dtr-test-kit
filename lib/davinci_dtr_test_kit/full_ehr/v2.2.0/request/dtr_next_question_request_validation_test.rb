@@ -1,10 +1,12 @@
 require_relative '../../../urls'
 require_relative '../../../cross_suite/v2.2.0/multi_request_message_helper'
+require_relative '../../short_circuit_interaction_verification'
 
 module DaVinciDTRTestKit
   class DTRFullEHRV220NextQuestionRequestValidationTest < Inferno::Test
     include URLs
     include MultiRequestMessageHelper
+    include ShortCircuitInteractionVerification
 
     id :dtr_full_ehr_v220_nq_request_validation
     title 'Next Question request is valid'
@@ -28,6 +30,8 @@ module DaVinciDTRTestKit
     end
 
     run do
+      check_for_short_circuit(ok_message: config.options[:short_circuit_pass_message])
+
       requests = load_tagged_requests(*target_tags)
       skip_if requests.blank?, 'A $next-question request must be made prior to running this test'
 

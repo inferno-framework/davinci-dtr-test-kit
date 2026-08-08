@@ -256,27 +256,28 @@ module DaVinciDTRTestKit
           .find { |input| input['name'] == input_name }
           &.dig('value')
 
+        title = input_title(input_name)
         unless value.present?
           return operation_outcome('error', 'invalid',
-                                   "No response template provided by the user in input '#{input_name}'.")
+                                   "No response template provided by the user in input '#{title}'.")
         end
 
-        parse_questionnaire_response_input_template(value, input_name)
+        parse_questionnaire_response_input_template(value, title)
       end
 
-      def parse_questionnaire_response_input_template(value, input_name)
+      def parse_questionnaire_response_input_template(value, title)
         parsed_json = JSON.parse(value)
         if parsed_json.is_a?(Array)
-          matching_questionnaire_template(questionnaires_from_template_value(value), input_name)
+          matching_questionnaire_template(questionnaires_from_template_value(value), title)
         else
-          parse_single_questionnaire_template(value, input_name)
+          parse_single_questionnaire_template(value, title)
         end
       rescue JSON::ParserError
-        operation_outcome('error', 'invalid', "Input #{input_name} does not contain valid JSON.")
+        operation_outcome('error', 'invalid', "Input #{title} does not contain valid JSON.")
       end
 
-      def parse_single_questionnaire_template(value, input_name)
-        parsed = parse_fhir_object(value, entity: "Input #{input_name}")
+      def parse_single_questionnaire_template(value, title)
+        parsed = parse_fhir_object(value, entity: "Input #{title}")
         unless parsed.is_a?(FHIR::Questionnaire)
           return operation_outcome('error', 'invalid',
                                    'Invalid input response template for $next-question: ' \
@@ -287,14 +288,20 @@ module DaVinciDTRTestKit
         operation_outcome('error', 'invalid', e.message)
       end
 
-      def matching_questionnaire_template(questionnaires, input_name)
+      def matching_questionnaire_template(questionnaires, title)
         matching = questionnaires.find { |questionnaire| questionnaire_template_matches_request?(questionnaire) }
         return matching if matching.present?
 
         operation_outcome('error', 'invalid',
                           'Invalid input response template for $next-question: ' \
-                          "No Questionnaire in input '#{input_name}' matches " \
+                          "No Questionnaire in input '#{title}' matches " \
                           "#{questionnaire_canonical_url(request_questionnaire)}.")
+      end
+
+      # test.config.options input references are stored as input names; testers only see the
+      # input's title in the Inferno UI, so client-facing messages should use that instead.
+      def input_title(input_name)
+        test.config.input(input_name.to_sym)&.title || input_name
       end
 
       def questionnaire_template_matches_request?(questionnaire)

@@ -1,11 +1,13 @@
 require_relative '../../descriptions'
 require_relative '../../../urls'
 require_relative '../next_question_template_questionnaires'
+require_relative '../../short_circuit_interaction_verification'
 
 module DaVinciDTRTestKit
   class DTRFullEHRV220InteractionWaitTest < Inferno::Test
     include URLs
     include NextQuestionTemplateQuestionnaires
+    include ShortCircuitInteractionVerification
 
     id :dtr_full_ehr_v220_interaction_wait
     title 'Retrieve and complete the Questionnaire'
@@ -56,6 +58,12 @@ module DaVinciDTRTestKit
     output :continuation_url
 
     run do
+      clear_short_circuit_flag
+      unless run_tests?
+        short_circuit_validation_tests(:pass)
+        short_circuit_pass(message: config.options[:short_circuit_pass_message])
+      end
+
       validate_response_template_inputs
 
       continuation_url = "#{resume_pass_url}?token=#{client_id}"
@@ -63,12 +71,17 @@ module DaVinciDTRTestKit
 
       wait(
         identifier: client_id,
-        timeout: 600,
+        timeout: 1200,
         message: %(
-          ### Questionnaires
+          Inferno will wait while the tester uses the system to complete
+          one or more DTR Questionnaires retrieved from Inferno's simulated
+          payer server.
 
-          Inferno will wait while the tester launches DTR within the client system and uses it
-          to complete a questionnaire.
+          When all Questionnaire returned by Inferno during this period
+          have been completed and saved to the EHR [Click here](#{continuation_url})
+          to continue.
+
+          ### Endpoints
 
           Available endpoints on Inferno's simulated payer server include
 
@@ -80,39 +93,53 @@ module DaVinciDTRTestKit
 
           Requests must be authenticated by first obtaining an access token
           for client `#{client_id}` from Inferno's token endpoint: `#{token_url}`.
-
-          ### Continuing the Tests
-
-          When the questionnaire has been completed and saved to the EHR
-          [Click here](#{continuation_url}) to continue.
+          Only requests including an obtained access token as a bearer token
+          in the `Authentication` header of the HTTP request will be recognized
+          as associated with this session and return successful responses.
         )
       )
     end
 
+    # other things that might go into the wait message
+    # - Whether multiple successful $questionnaire-package requests are allowed (options)
+    # - specific instructions for completion (TODO)
+    # - whether the Questionnaires are provided by Inferno or the tester (options)
+
     private
+
+    def run_tests?
+      input_name = config.options[:short_circuit_pass_input]
+      return true if input_name.blank?
+
+      send(input_name) == 'true'
+    end
 
     def validate_response_template_inputs
       validate_qp_response_template_input
       validate_nq_questionnaire_template_input
+    rescue Inferno::Exceptions::AssertionException => e
+      short_circuit_validation_tests(:skip)
+      raise e
     end
 
     def validate_qp_response_template_input
       input_name = config.options[:qp_response_template_input]
       return if input_name.blank?
 
+      title = input_title(input_name)
       value = send(input_name)
-      assert value.present?, "No response template provided by the user in input '#{input_name}'."
+      assert value.present?, "No response template provided by the user in input '#{title}'."
 
-      parsed = parse_qp_template_value(value, input_name)
+      parsed = parse_qp_template_value(value, title)
       assert parsed.is_a?(FHIR::Parameters),
-             "Input '#{input_name}' must contain a Parameters resource for the $questionnaire-package " \
+             "Input '#{title}' must contain a Parameters resource for the $questionnaire-package " \
              'response template.'
     end
 
-    def parse_qp_template_value(value, input_name)
+    def parse_qp_template_value(value, title)
       FHIR.from_contents(value)
     rescue StandardError
-      assert false, "Input '#{input_name}' does not contain valid JSON."
+      assert false, "Input '#{title}' does not contain valid JSON."
     end
 
     # Unlike the endpoint's own parsing (which silently discards array entries that aren't
@@ -123,8 +150,9 @@ module DaVinciDTRTestKit
       input_name = config.options[:nq_questionnaire_template_input]
       return if input_name.blank?
 
+      title = input_title(input_name)
       value = send(input_name)
-      assert value.present?, "No response template provided by the user in input '#{input_name}'."
+      assert value.present?, "No response template provided by the user in input '#{title}'."
 
       parsed_json = JSON.parse(value)
       is_array = parsed_json.is_a?(Array)
@@ -133,11 +161,17 @@ module DaVinciDTRTestKit
       questionnaire_jsons.each_with_index do |questionnaire_json, index|
         next if parse_template_questionnaire(questionnaire_json).present?
 
-        location = is_array ? "at index #{index} of input '#{input_name}'" : "in input '#{input_name}'"
+        location = is_array ? "at index #{index} of input '#{title}'" : "in input '#{title}'"
         assert false, "Invalid $next-question response template: expected a Questionnaire #{location}."
       end
     rescue JSON::ParserError
-      assert false, "Input '#{input_name}' does not contain valid JSON."
+      assert false, "Input '#{title}' does not contain valid JSON."
+    end
+
+    # config.options input references are stored as input names (e.g. 'additional_ms_qp_responses');
+    # testers only ever see the input's title in the UI, so error messages should use that instead.
+    def input_title(input_name)
+      config.input(input_name.to_sym)&.title || input_name
     end
   end
 end

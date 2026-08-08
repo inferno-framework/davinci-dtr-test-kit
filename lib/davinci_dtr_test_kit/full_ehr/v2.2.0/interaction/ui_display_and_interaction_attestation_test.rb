@@ -1,9 +1,11 @@
 require 'securerandom'
 require_relative '../../../urls'
+require_relative '../../short_circuit_interaction_verification'
 
 module DaVinciDTRTestKit
   class DTRFullEHRV220UIDisplayAndInteractionAttestationTest < Inferno::Test
     include URLs
+    include ShortCircuitInteractionVerification
 
     id :dtr_full_ehr_v220_ui_display_and_interaction
     title 'Client correctly displays and allows users to interact with the questionnaire(s)'
@@ -23,6 +25,8 @@ module DaVinciDTRTestKit
     end
 
     run do
+      check_for_short_circuit(ok_message: config.options[:short_circuit_pass_message])
+
       # first check that there were successful $questionnaire-package requests
       requests = load_tagged_requests(*target_tags)
       skip_if requests.none? { |request| request.status.to_s.starts_with?('2') },
