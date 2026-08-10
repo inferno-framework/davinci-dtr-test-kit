@@ -10,7 +10,7 @@ module DaVinciDTRTestKit
     include ShortCircuitInteractionVerification
 
     id :dtr_full_ehr_v220_interaction_wait
-    title 'Retrieve and complete the Questionnaire'
+    title 'Retrieve and complete Questionnaire(s)'
     description %(
       Inferno will act as a Payer DTR Server while the tester launches DTR and completes the questionnaire.
     )

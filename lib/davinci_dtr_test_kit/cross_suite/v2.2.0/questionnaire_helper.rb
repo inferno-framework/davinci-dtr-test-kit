@@ -1,5 +1,13 @@
 module DaVinciDTRTestKit
   module QuestionnaireHelper
+    def questionnaire_canonical_url(questionnaire)
+      if questionnaire.version.present?
+        "#{questionnaire.url}|#{questionnaire.version}"
+      else
+        questionnaire.url
+      end
+    end
+
     def contained_questionnaire_from_questionnaire_response(questionnaire_response)
       questionnaire_response&.contained&.find do |contained_resource|
         contained_resource.is_a?(FHIR::Questionnaire)
@@ -13,6 +21,23 @@ module DaVinciDTRTestKit
       return nil unless return_parameter.present?
 
       contained_questionnaire_from_questionnaire_response(return_parameter.resource)
+    end
+
+    # $next-question has a single "return" out parameter typed as a Resource, so per the FHIR
+    # spec (https://www.hl7.org/fhir/R4/operations.html#response) a conformant response is the
+    # raw QuestionnaireResponse rather than a Parameters wrapper (see
+    # dtr_next_question_response_validation_test); a Parameters-wrapped `return` is tolerated too.
+    def questionnaire_response_from_next_question_response(request)
+      response_body = FHIR.from_contents(request.response_body)
+
+      case response_body
+      when FHIR::QuestionnaireResponse
+        response_body
+      when FHIR::Parameters
+        response_body.parameter.find do |parameter|
+          parameter.name == 'return' && parameter.resource.is_a?(FHIR::QuestionnaireResponse)
+        end&.resource
+      end
     end
 
     def questionnaires_from_questionnaire_package_output_parameters(parameters, include_standard: true,

@@ -1,4 +1,5 @@
 require_relative 'interaction/interaction_wait_test'
+require_relative 'interaction/adaptive_questionnaires_completed_test'
 require_relative 'interaction/ui_display_and_interaction_attestation_test'
 require_relative 'request/dtr_questionnaire_package_request_validation_test'
 require_relative 'response/dtr_questionnaire_package_response_validation_test'
@@ -61,6 +62,7 @@ module DaVinciDTRTestKit
     group do
       title 'Interaction'
       test from: :dtr_full_ehr_v220_interaction_wait
+      test from: :dtr_full_ehr_v220_adaptive_questionnaires_completed
       test from: :dtr_full_ehr_v220_ui_display_and_interaction
     end
 
