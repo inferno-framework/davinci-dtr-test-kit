@@ -4,6 +4,8 @@ require_relative 'log_questionnaire_errors_support_test'
 require_relative 'questionnaire_package_support/questionnaire_response_validation_test'
 require_relative 'questionnaire_design/cql_library_validation_test'
 require_relative 'dtr_payer_server_capability_statement_test'
+require_relative 'questionnaire_package_support/questionnaire_response_references_test'
+require_relative 'questionnaire_package_support/contained_questionnaire_response_references_test'
 
 module DaVinciDTRTestKit
   module DTRPayerServerV220
@@ -83,6 +85,21 @@ module DaVinciDTRTestKit
         title 'Questionnaire Operations'
         run_as_group
 
+        input :backend_services_smart_auth_info,
+              title: 'OAuth Credentials',
+              type: :auth_info,
+              optional: true
+        input :client_fhir_endpoint,
+              title: 'DTR Client FHIR Endpoint',
+              description: 'Base URL of the DTR client FHIR endpoint. Required to validate absolute ' \
+                           'QuestionnaireResponse references.',
+              optional: true
+
+        fhir_client do
+          url :url
+          auth_info :backend_services_smart_auth_info
+        end
+
         group do
           title 'Questionnaire Interactions'
 
@@ -115,8 +132,8 @@ module DaVinciDTRTestKit
           # TODO: embedded QR validation
           # spec-25 - [NOT TESTED in 2.0] QR has contained Q
           # spec-122 - [NOT TESTED in 2.0] QR.Q points to canonical of the Q provided
-          # spec-139 - All references in QR are to contained or client resources
-          # spec-141 - contained resources only in item.answer
+          test from: :dtr_v220_payer_questionnaire_response_references
+          test from: :dtr_v220_payer_contained_questionnaire_response_references
         end
 
         group do
