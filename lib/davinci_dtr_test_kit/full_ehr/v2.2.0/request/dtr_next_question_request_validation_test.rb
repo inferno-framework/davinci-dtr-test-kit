@@ -1,12 +1,14 @@
 require_relative '../../../urls'
 require_relative '../../../cross_suite/v2.2.0/multi_request_message_helper'
 require_relative '../../short_circuit_interaction_verification'
+require_relative '../../../cross_suite/v2.2.0/questionnaire_helper'
 
 module DaVinciDTRTestKit
   class DTRFullEHRV220NextQuestionRequestValidationTest < Inferno::Test
     include URLs
     include MultiRequestMessageHelper
     include ShortCircuitInteractionVerification
+    include QuestionnaireHelper
 
     id :dtr_full_ehr_v220_nq_request_validation
     title 'Next Question request is valid'
@@ -15,6 +17,7 @@ module DaVinciDTRTestKit
       [DTR Next Question Input Parameters](https://hl7.org/fhir/us/davinci-dtr/2.2.0/en/StructureDefinition-dtr-next-question-input-parameters.html)
       structure. Because there is only a single in parameter, the request is allowed to be just a
       [DTR Questionnaire Response for adaptive form](https://hl7.org/fhir/us/davinci-dtr/2.2.0/en/StructureDefinition-dtr-questionnaireresponse-adapt.html)
+      per [FHIR's operation request requirements](https://www.hl7.org/fhir/R4/operations.html#request).
 
       The test verifies the presence of mandatory elements and that elements with required bindings contain appropriate
       values. CodeableConcept element bindings will fail if none of their codings have a code/system belonging
@@ -44,8 +47,8 @@ module DaVinciDTRTestKit
           )
         end
 
-        input_params = parse_fhir_request_entity(qp_request.request_body, 'Request', request_index)
-        unless input_params.present?
+        input_resource = parse_fhir_request_entity(qp_request.request_body, 'Request', request_index)
+        unless input_resource.present?
           add_request_message(
             'error',
             'Request does not contain a recognized FHIR resource',
@@ -54,19 +57,20 @@ module DaVinciDTRTestKit
           next
         end
 
-        if input_params.is_a?(FHIR::QuestionnaireResponse)
-          resource_is_valid?(resource: input_params,
+        if input_resource.is_a?(FHIR::QuestionnaireResponse)
+          resource_is_valid?(resource: input_resource,
                              profile_url: 'http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/dtr-questionnaireresponse-adapt|2.2.0',
                              message_prefix: request_prefix(request_index))
 
-        elsif input_params.is_a?(FHIR::Parameters)
-          resource_is_valid?(resource: input_params,
+        elsif input_resource.is_a?(FHIR::Parameters)
+          resource_is_valid?(resource: input_resource,
                              profile_url: 'http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/dtr-next-question-input-parameters|2.2.0',
                              message_prefix: request_prefix(request_index))
         else
           add_request_message(
             'error',
-            'Request is not FHIR Parameters resource',
+            'Request body contains an unexpected resource type: ' \
+            "expected Parameters or QuestionnaireResponse, got '#{input_resource.class}'",
             request_index
           )
         end

@@ -1,5 +1,9 @@
 module DaVinciDTRTestKit
   module QuestionnaireHelper
+    ###########################################################################
+    # Canonical URLs
+    ###########################################################################
+
     def questionnaire_canonical_url(questionnaire)
       if questionnaire.version.present?
         "#{questionnaire.url}|#{questionnaire.version}"
@@ -8,52 +12,9 @@ module DaVinciDTRTestKit
       end
     end
 
-    def contained_questionnaire_from_questionnaire_response(questionnaire_response)
-      questionnaire_response&.contained&.find do |contained_resource|
-        contained_resource.is_a?(FHIR::Questionnaire)
-      end
-    end
-
-    def questionnaire_from_next_question_output_parameters(parameters)
-      return_parameter = parameters.parameter.find do |parameter|
-        parameter.name == 'return' && parameter.resource.is_a?(FHIR::QuestionnaireResponse)
-      end
-      return nil unless return_parameter.present?
-
-      contained_questionnaire_from_questionnaire_response(return_parameter.resource)
-    end
-
-    # $next-question has a single "return" out parameter typed as a Resource, so per the FHIR
-    # spec (https://www.hl7.org/fhir/R4/operations.html#response) a conformant response is the
-    # raw QuestionnaireResponse rather than a Parameters wrapper (see
-    # dtr_next_question_response_validation_test); a Parameters-wrapped `return` is tolerated too.
-    def questionnaire_response_from_next_question_response(request)
-      response_body = FHIR.from_contents(request.response_body)
-
-      case response_body
-      when FHIR::QuestionnaireResponse
-        response_body
-      when FHIR::Parameters
-        response_body.parameter.find do |parameter|
-          parameter.name == 'return' && parameter.resource.is_a?(FHIR::QuestionnaireResponse)
-        end&.resource
-      end
-    end
-
-    def questionnaires_from_questionnaire_package_output_parameters(parameters, include_standard: true,
-                                                                    include_adaptive: true)
-      parameters.parameter.select { |parameter| parameter.name == 'packagebundle' && parameter.resource.is_a?(FHIR::Bundle) }
-        .map do |parameter|
-          questionnaire_from_package_bundle(parameter.resource, include_standard:, include_adaptive:)
-        end.compact
-    end
-
-    def questionnaire_from_package_bundle(bundle, include_standard: true, include_adaptive: true)
-      bundle.entry.find do |entry|
-        entry.resource.is_a?(FHIR::Questionnaire) &&
-          (adaptive_questionnaire?(entry.resource) ? include_adaptive : include_standard)
-      end&.resource
-    end
+    ###########################################################################
+    # Categorizing Questionnaires
+    ###########################################################################
 
     def adaptive_questionnaire?(questionnaire)
       questionnaire.extension.find do |extension|
@@ -61,6 +22,10 @@ module DaVinciDTRTestKit
           extension.url == 'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-questionnaireAdaptive'
       end
     end
+
+    ###########################################################################
+    # Generic Questionnaire Extraction ($questionnaire-package or $next-question)
+    ###########################################################################
 
     def questionnaires_from_operation_responses(requests, include_standard: true, include_adaptive: true)
       questionnaires = []
@@ -88,6 +53,71 @@ module DaVinciDTRTestKit
       elsif request.url.include?('$next-question')
         Array.wrap(include_adaptive ? questionnaire_from_next_question_output_parameters(parameters) : nil)
       end
+    end
+
+    ###########################################################################
+    # $next-question extraction of QuestionnaireResponse and Questionnaire
+    ###########################################################################
+
+    def contained_questionnaire_from_questionnaire_response(questionnaire_response)
+      questionnaire_response&.contained&.find do |contained_resource|
+        contained_resource.is_a?(FHIR::Questionnaire)
+      end
+    end
+
+    def questionnaire_from_next_question_output_parameters(parameters)
+      return_parameter = parameters.parameter.find do |parameter|
+        parameter.name == 'return' && parameter.resource.is_a?(FHIR::QuestionnaireResponse)
+      end
+      return nil unless return_parameter.present?
+
+      contained_questionnaire_from_questionnaire_response(return_parameter.resource)
+    end
+
+    # $next-question has a single "return" out parameter typed as a Resource, so per the FHIR
+    # spec (https://www.hl7.org/fhir/R4/operations.html#response) a conformant response is the
+    # raw QuestionnaireResponse rather than a Parameters wrapper (see
+    # dtr_next_question_response_validation_test); a Parameters-wrapped `return` is tolerated too.
+    # Expects an already-parsed response body (a FHIR resource), not a raw request/JSON string.
+    def questionnaire_response_from_next_question_response(response_body)
+      case response_body
+      when FHIR::QuestionnaireResponse
+        response_body
+      when FHIR::Parameters
+        response_body.parameter.find do |parameter|
+          parameter.name == 'return' && parameter.resource.is_a?(FHIR::QuestionnaireResponse)
+        end&.resource
+      end
+    end
+
+    def questionnaire_response_from_next_question_request(request_body)
+      case request_body
+      when FHIR::QuestionnaireResponse
+        request_body
+      when FHIR::Parameters
+        request_body.parameter.find do |parameter|
+          parameter.name == 'questionnaire-response' && parameter.resource.is_a?(FHIR::QuestionnaireResponse)
+        end&.resource
+      end
+    end
+
+    ###########################################################################
+    # $questionnaire-package Questionnaire Extraction
+    ###########################################################################
+
+    def questionnaires_from_questionnaire_package_output_parameters(parameters, include_standard: true,
+                                                                    include_adaptive: true)
+      parameters.parameter.select { |parameter| parameter.name == 'packagebundle' && parameter.resource.is_a?(FHIR::Bundle) }
+        .map do |parameter|
+          questionnaire_from_package_bundle(parameter.resource, include_standard:, include_adaptive:)
+        end.compact
+    end
+
+    def questionnaire_from_package_bundle(bundle, include_standard: true, include_adaptive: true)
+      bundle.entry.find do |entry|
+        entry.resource.is_a?(FHIR::Questionnaire) &&
+          (adaptive_questionnaire?(entry.resource) ? include_adaptive : include_standard)
+      end&.resource
     end
   end
 end

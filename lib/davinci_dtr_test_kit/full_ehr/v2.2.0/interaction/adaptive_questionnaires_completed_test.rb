@@ -63,7 +63,8 @@ module DaVinciDTRTestKit
     # but only when Inferno marked that QuestionnaireResponse `completed` -- an in-progress adaptive
     # workflow hasn't finished yet.
     def completed_contained_questionnaire(request)
-      response_questionnaire_response = questionnaire_response_from_next_question_response(request)
+      response_body = FHIR.from_contents(request.response_body)
+      response_questionnaire_response = questionnaire_response_from_next_question_response(response_body)
       return nil unless response_questionnaire_response.present?
       return nil unless response_questionnaire_response.status == 'completed'
 

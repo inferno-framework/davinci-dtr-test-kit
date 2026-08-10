@@ -5,6 +5,7 @@ require_relative '../../cross_suite/response_selection_utils'
 require_relative '../fixture_loader'
 require_relative '../../tags'
 require_relative 'next_question_template_questionnaires'
+require_relative '../../cross_suite/v2.2.0/questionnaire_helper'
 
 module DaVinciDTRTestKit
   module MockPayer
@@ -13,6 +14,7 @@ module DaVinciDTRTestKit
       include DaVinciDTRTestKit::FhirpathUtils
       include DaVinciDTRTestKit::ResponseSelectionUtils
       include DaVinciDTRTestKit::NextQuestionTemplateQuestionnaires
+      include DaVinciDTRTestKit::QuestionnaireHelper
 
       def test_run_identifier
         return request.params[:session_path] if request.params[:session_path].present?
@@ -123,9 +125,7 @@ module DaVinciDTRTestKit
       end
 
       def extract_contained_questionnaire
-        contained_questionnaire = request_questionnaire_response.contained&.find do |contained_resource|
-          contained_resource.is_a?(FHIR::Questionnaire)
-        end
+        contained_questionnaire = contained_questionnaire_from_questionnaire_response(request_questionnaire_response)
 
         unless contained_questionnaire.present?
           return operation_outcome('error', 'invalid',
@@ -195,21 +195,6 @@ module DaVinciDTRTestKit
           return entry.resource
         end
         nil
-      end
-
-      def questionnaire_canonical_url(questionnaire)
-        if questionnaire.version.present?
-          "#{questionnaire.url}|#{questionnaire.version}"
-        else
-          questionnaire.url
-        end
-      end
-
-      def adaptive_questionnaire?(questionnaire)
-        questionnaire.extension.any? do |ext|
-          ext.url == 'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-questionnaireAdaptive' &&
-            ((ext.valueBoolean == true) || ext.valueUri.present?)
-        end
       end
 
       # ***********************************************************************
