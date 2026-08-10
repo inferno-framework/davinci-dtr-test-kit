@@ -45,3 +45,4 @@ services:
     volumes:
       - ./data/redis:/data
     command: redis-server --appendonly yes
+    
