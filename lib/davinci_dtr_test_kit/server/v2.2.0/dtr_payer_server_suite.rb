@@ -65,9 +65,7 @@ module DaVinciDTRTestKit
       group do
         title 'Discovery'
 
-        # TODO
         # conf-1 - CS matches CS in the IG
-        # fhir_client do
         fhir_client do
           url :url
         end
