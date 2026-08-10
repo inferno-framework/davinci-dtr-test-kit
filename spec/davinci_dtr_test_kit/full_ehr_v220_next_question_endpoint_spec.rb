@@ -1022,6 +1022,96 @@ RSpec.describe DaVinciDTRTestKit::MockPayer::FullEHRV220NextQuestionEndpoint, :r
     end
 
     # -------------------------------------------------------------------
+    # Completion gated by enableWhen
+    # -------------------------------------------------------------------
+
+    context 'when a required question is gated by an enableWhen condition' do
+      # Q1 is required; Q2 is required only when Q1 is answered with 'no'.
+      let(:enable_when_items) do
+        [
+          FHIR::Questionnaire::Item.new(linkId: 'Q1', type: 'string', required: true),
+          FHIR::Questionnaire::Item.new(
+            linkId: 'Q2', type: 'string', required: true,
+            enableWhen: [
+              FHIR::Questionnaire::Item::EnableWhen.new(question: 'Q1', operator: '=', answerString: 'no')
+            ]
+          )
+        ]
+      end
+
+      let(:enable_when_template_json) do
+        FHIR::Questionnaire.new(status: 'draft', item: enable_when_items).to_json
+      end
+
+      # Builds a request whose contained Questionnaire already has Q1 and Q2, so no new
+      # questions are added and the completion check runs against the provided Q1 answers.
+      def nq_enable_when_body(q1_answers:)
+        contained_q = FHIR::Questionnaire.new(
+          id: 'DinnerOrderAdaptive',
+          url: 'urn:inferno:dtr-test-kit:dinner-order-adaptive',
+          status: 'draft',
+          extension: [
+            FHIR::Extension.new(
+              url: 'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-questionnaireAdaptive',
+              valueBoolean: true
+            )
+          ],
+          item: enable_when_items
+        )
+        qr = FHIR::QuestionnaireResponse.new(
+          status: 'in-progress',
+          contained: [contained_q],
+          item: q1_answers.map do |answer_value|
+            FHIR::QuestionnaireResponse::Item.new(
+              linkId: 'Q1',
+              answer: [FHIR::QuestionnaireResponse::Item::Answer.new(valueString: answer_value)]
+            )
+          end
+        )
+        FHIR::Parameters.new(
+          parameter: [FHIR::Parameters::Parameter.new(name: 'questionnaire-response', resource: qr)]
+        ).to_json
+      end
+
+      def post_nq_body(body)
+        header('Authorization', "Bearer #{UDAPSecurityTestKit::MockUDAPServer.client_id_to_token(client_id, 5)}")
+        post(nq_server_endpoint, body,
+             'CONTENT_TYPE' => 'application/json',
+             'REQUEST_PATH' => nq_server_endpoint)
+      end
+
+      before do
+        run(nq_input_test, client_id:,
+                           qp_response_template: adaptive_questionnaire_package_json,
+                           nq_questionnaire_template: enable_when_template_json)
+        post_qp_with_token
+      end
+
+      it 'marks the QuestionnaireResponse as completed when the unanswered required question is disabled' do
+        post_nq_body(nq_enable_when_body(q1_answers: ['yes']))
+
+        expect(last_response.status).to eq(200)
+        expect(JSON.parse(last_response.body)['status']).to eq('completed')
+      end
+
+      it 'keeps the QuestionnaireResponse as in-progress when the unanswered required question is enabled' do
+        post_nq_body(nq_enable_when_body(q1_answers: ['no']))
+
+        expect(last_response.status).to eq(200)
+        expect(JSON.parse(last_response.body)['status']).to eq('in-progress')
+      end
+
+      it 'returns a 400 when the condition references a question with multiple occurrences' do
+        post_nq_body(nq_enable_when_body(q1_answers: ['yes', 'yes']))
+
+        expect(last_response.status).to eq(400)
+        outcome = FHIR.from_contents(last_response.body)
+        expect(outcome).to be_a(FHIR::OperationOutcome)
+        expect(outcome.issue.first.details.text).to match(/multiple questions with linkId `Q1`/)
+      end
+    end
+
+    # -------------------------------------------------------------------
     # Nested required sub-items and completion
     # -------------------------------------------------------------------
 

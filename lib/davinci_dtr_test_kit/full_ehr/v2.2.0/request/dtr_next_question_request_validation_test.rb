@@ -25,8 +25,12 @@ module DaVinciDTRTestKit
       request have been answered, because the client is not allowed to indicate that the user is ready for
       the next question until the answers to the current QuestionnaireResponse pass validation rules. The
       required questions are the items marked `required` in the Questionnaire contained within the
-      QuestionnaireResponse. Note that `enableWhen` conditions are not considered, so a required question
-      is expected to be answered even if its enabling condition is not met.
+      QuestionnaireResponse, excluding questions that are disabled based on their `enableWhen` conditions
+      and questions nested within disabled questions. When a question has multiple `enableWhen` conditions,
+      at least one must be met unless `enableBehavior` is `all`, and when the question referenced by a
+      condition has multiple answers, the condition is met if any answer satisfies it. Evaluation of a
+      condition that references a question appearing more than once in the QuestionnaireResponse is not
+      supported and is reported as an error.
     )
     verifies_requirements 'hl7.fhir.us.davinci-dtr_2.2.0@spec-146'
 
@@ -61,6 +65,12 @@ module DaVinciDTRTestKit
         'error',
         'All required questions must be answered before requesting the next question. No answer found ' \
         "for required item(s): #{unanswered_link_ids.map { |link_id| "`#{link_id}`" }.to_sentence}.",
+        request_index
+      )
+    rescue QuestionnaireResponseCompleteness::DuplicateLinkIdError => e
+      add_request_message(
+        'error',
+        "Unable to verify that all required questions have been answered: #{e.message}",
         request_index
       )
     end
