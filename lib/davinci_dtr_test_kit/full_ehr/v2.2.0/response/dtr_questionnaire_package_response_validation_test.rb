@@ -63,7 +63,8 @@ module DaVinciDTRTestKit
           next
         end
 
-        resource_is_valid?(resource: output_params,
+        resource_is_valid?(validator: :no_unknown_extensions,
+                           resource: output_params,
                            profile_url: 'http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/dtr-qpackage-output-parameters|2.2.0',
                            message_prefix: request_prefix(request_index))
       end

@@ -70,6 +70,19 @@ module DaVinciDTRTestKit
       end
     end
 
+    # Hl7 Validator Wrapper:
+    fhir_resource_validator :no_unknown_extensions do
+      igs('hl7.fhir.us.davinci-dtr#2.2.0')
+
+      cli_context do
+        extensions []
+      end
+
+      exclude_message do |message|
+        message.message.match?(/\A\S+: \S+: URL value '.*' does not resolve/)
+      end
+    end
+
     allow_cors QUESTIONNAIRE_PACKAGE_PATH, NEXT_PATH
 
     route(:get, UDAPSecurityTestKit::UDAP_DISCOVERY_PATH, lambda { |_env|

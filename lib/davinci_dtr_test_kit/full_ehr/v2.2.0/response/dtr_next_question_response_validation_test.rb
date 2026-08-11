@@ -64,7 +64,8 @@ module DaVinciDTRTestKit
 
         questionnaire_response = questionnaire_response_from_next_question_response(response_body)
         if questionnaire_response.present?
-          resource_is_valid?(resource: questionnaire_response,
+          resource_is_valid?(validator: :no_unknown_extensions,
+                             resource: questionnaire_response,
                              profile_url: 'http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/dtr-questionnaireresponse-adapt|2.2.0',
                              message_prefix: request_prefix(request_index))
         else
