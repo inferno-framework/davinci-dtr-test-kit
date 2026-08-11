@@ -1,13 +1,6 @@
 require 'udap_security_test_kit'
 require 'smart_app_launch_test_kit'
-require_relative '../v2.0.1/dtr_full_ehr_custom_static_workflow_group'
-require_relative '../v2.0.1/dtr_full_ehr_static_dinner_workflow_group'
-require_relative '../v2.0.1/dtr_full_ehr_adaptive_dinner_workflow_group'
-require_relative '../v2.0.1/dtr_full_ehr_custom_adaptive_workflow_group'
 require_relative '../v2.0.1/dtr_payer_registration_group'
-require_relative '../v2.0.1/dtr_full_ehr_questionnaire_must_support_group'
-require_relative '../v2.0.1/dtr_client_payer_auth_smart_group'
-require_relative '../v2.0.1/dtr_client_payer_auth_udap_group'
 require_relative '../../cross_suite/cors'
 require_relative '../endpoints/mock_udap_smart_server/token_endpoint'
 require_relative 'full_ehr_questionnaire_package_endpoint'
@@ -17,9 +10,8 @@ require_relative 'must_support/dtr_additional_questionnaires_interaction_group'
 require_relative 'must_support/dtr_questionnaire_base_must_support_test'
 require_relative 'must_support/dtr_questionnaire_adaptive_must_support_test'
 require_relative 'must_support/dtr_questionnaire_standard_must_support_test'
-
-require_relative 'dtr_full_ehr_workflow_static_group'
 require_relative 'workflows/dtr_full_ehr_workflow_adaptive_group'
+require_relative 'workflows/dtr_full_ehr_workflow_standard_group'
 
 module DaVinciDTRTestKit
   class DTRFullEHRSuiteV220 < Inferno::TestSuite
@@ -107,7 +99,7 @@ module DaVinciDTRTestKit
       id :dtr_full_ehr_v220_questionnaire_workflows
       title 'Questionnaire Workflows'
 
-      group from: :dtr_full_ehr_v220_workflow_static
+      group from: :dtr_full_ehr_v220_workflow_standard
       group from: :dtr_full_ehr_v220_workflow_adaptive
     end
 

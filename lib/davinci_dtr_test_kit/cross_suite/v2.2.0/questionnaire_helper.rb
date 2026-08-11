@@ -24,8 +24,27 @@ module DaVinciDTRTestKit
     end
 
     ###########################################################################
+    # Display for Questionnaires
+    ###########################################################################
+
+    def questionnaire_display(questionnaire)
+      canonical_url = questionnaire_canonical_url(questionnaire)
+      title = questionnaire.title.present? ? questionnaire.title : questionnaire.name
+
+      if title.present?
+        "#{title} (#{canonical_url})"
+      else
+        canonical_url
+      end
+    end
+
+    ###########################################################################
     # Generic Questionnaire Extraction ($questionnaire-package or $next-question)
     ###########################################################################
+
+    def no_questionnaires_returned?(requests)
+      questionnaires_from_operation_responses(requests).blank?
+    end
 
     def questionnaires_from_operation_responses(requests, include_standard: true, include_adaptive: true)
       questionnaires = []

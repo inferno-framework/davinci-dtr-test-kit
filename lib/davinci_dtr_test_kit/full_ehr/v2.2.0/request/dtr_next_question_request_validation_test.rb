@@ -34,6 +34,7 @@ module DaVinciDTRTestKit
 
     run do
       check_for_short_circuit(ok_message: config.options[:short_circuit_pass_message])
+      check_for_adaptive_short_circuit
 
       requests = load_tagged_requests(*target_tags)
       skip_if requests.blank?, 'A $next-question request must be made prior to running this test'

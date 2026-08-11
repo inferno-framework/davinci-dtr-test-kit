@@ -51,5 +51,23 @@ module DaVinciDTRTestKit
       message = DEFAULT_SHORT_CIRCUIT_BAD_MESSAGE unless message.present?
       assert false, message
     end
+
+    ###########################################################################
+    # Short circuit specifically for adaptive forms
+    ###########################################################################
+    def clear_adaptive_short_circuit_flag
+      scratch.delete(:short_circuit_adaptive)
+    end
+
+    def short_circuit_adaptive_validation_tests
+      scratch[:short_circuit_adaptive] = :pass
+    end
+
+    SHORT_CIRCUIT_ADAPTIVE_MESSAGE =
+      'No adaptive Questionnaires returned for completion during this interaction.'.freeze
+
+    def check_for_adaptive_short_circuit
+      pass SHORT_CIRCUIT_ADAPTIVE_MESSAGE if scratch[:short_circuit_adaptive].present?
+    end
   end
 end

@@ -90,20 +90,22 @@ RSpec.describe DaVinciDTRTestKit::DTRFullEHRV220AdaptiveQuestionnairesCompletedT
     }.to_json
   end
 
-  it 'passes with a specific message when no adaptive Questionnaires were returned' do
+  it 'skips when no Questionnaire Package request returned a Questionnaire' do
     result = run(described_class)
 
-    expect(result.result).to eq('pass')
-    expect(result.result_message).to eq('No adaptive Questionnaires returned.')
+    expect(result.result).to eq('skip')
+    expect(result.result_message).to eq('No Questionnaire Package requests returned a Questionnaire.')
   end
 
-  it 'ignores standard (non-adaptive) Questionnaires returned by $questionnaire-package' do
+  it 'skips by default when only standard (non-adaptive) Questionnaires were returned' do
     create_qp_request(qp_response_json(standard_questionnaire_hash(url: 'http://example.org/Questionnaire/std')))
 
     result = run(described_class)
 
-    expect(result.result).to eq('pass')
-    expect(result.result_message).to eq('No adaptive Questionnaires returned.')
+    expect(result.result).to eq('skip')
+    expect(result.result_message).to eq(
+      'Adaptive Questionnaires required to be demonstrated during this scenario but none were returned.'
+    )
   end
 
   it 'passes when a returned adaptive Questionnaire is completed via a matching $next-question response' do
@@ -194,22 +196,22 @@ RSpec.describe DaVinciDTRTestKit::DTRFullEHRV220AdaptiveQuestionnairesCompletedT
     )
   end
 
-  it 'ignores $questionnaire-package responses that are not valid JSON' do
+  it 'treats $questionnaire-package responses that are not valid JSON as returning no Questionnaire' do
     create_qp_request('not json')
 
     result = run(described_class)
 
-    expect(result.result).to eq('pass')
-    expect(result.result_message).to eq('No adaptive Questionnaires returned.')
+    expect(result.result).to eq('skip')
+    expect(result.result_message).to eq('No Questionnaire Package requests returned a Questionnaire.')
   end
 
-  it 'ignores $questionnaire-package responses that are not a Parameters resource' do
+  it 'treats $questionnaire-package responses that are not a Parameters resource as returning no Questionnaire' do
     create_qp_request({ resourceType: 'OperationOutcome', issue: [] }.to_json)
 
     result = run(described_class)
 
-    expect(result.result).to eq('pass')
-    expect(result.result_message).to eq('No adaptive Questionnaires returned.')
+    expect(result.result).to eq('skip')
+    expect(result.result_message).to eq('No Questionnaire Package requests returned a Questionnaire.')
   end
 
   it 'ignores $next-question responses that are not valid JSON, still failing on the outstanding Questionnaire' do
@@ -267,8 +269,8 @@ RSpec.describe DaVinciDTRTestKit::DTRFullEHRV220AdaptiveQuestionnairesCompletedT
 
       result = run(scoped_test_class)
 
-      expect(result.result).to eq('pass')
-      expect(result.result_message).to eq('No adaptive Questionnaires returned.')
+      expect(result.result).to eq('skip')
+      expect(result.result_message).to eq('No Questionnaire Package requests returned a Questionnaire.')
     end
 
     it 'only considers requests tagged for the configured workflow' do
@@ -281,6 +283,73 @@ RSpec.describe DaVinciDTRTestKit::DTRFullEHRV220AdaptiveQuestionnairesCompletedT
       result = run(scoped_test_class)
 
       expect(result.result).to eq('fail')
+    end
+  end
+
+  describe 'config.options[:adaptive_questionnaires_optional]' do
+    let(:optional_test_class) do
+      Class.new(described_class) do
+        id :adaptive_questionnaires_optional_spec_test
+        config options: { adaptive_questionnaires_optional: true }
+      end
+    end
+
+    before do
+      tests_repo = Inferno::Repositories::Tests.new
+      tests_repo.insert(optional_test_class) unless tests_repo.exists?(optional_test_class.id.to_s)
+    end
+
+    it 'passes vacuously when only standard Questionnaires were returned' do
+      create_qp_request(qp_response_json(standard_questionnaire_hash(url: 'http://example.org/Questionnaire/std')))
+
+      result = run(optional_test_class)
+
+      expect(result.result).to eq('pass')
+      expect(result.result_message).to eq(
+        'No adaptive Questionnaires returned for completion during this interaction.'
+      )
+    end
+
+    it 'sets scratch[:short_circuit_adaptive] so downstream $next-question tests can short-circuit too' do
+      create_qp_request(qp_response_json(standard_questionnaire_hash(url: 'http://example.org/Questionnaire/std')))
+      scratch = {}
+
+      run(optional_test_class, {}, scratch)
+
+      expect(scratch[:short_circuit_adaptive]).to eq(:pass)
+    end
+
+    it 'still skips when no Questionnaire Package request returned a Questionnaire at all' do
+      result = run(optional_test_class)
+
+      expect(result.result).to eq('skip')
+      expect(result.result_message).to eq('No Questionnaire Package requests returned a Questionnaire.')
+    end
+
+    it 'still validates completion normally, without setting the short-circuit flag, when adaptive ' \
+       'Questionnaires are actually returned' do
+      adaptive = adaptive_questionnaire_hash(url: 'http://example.org/Questionnaire/adaptive1')
+      create_qp_request(qp_response_json(adaptive))
+      scratch = {}
+
+      result = run(optional_test_class, {}, scratch)
+
+      expect(result.result).to eq('fail')
+      expect(scratch).to_not have_key(:short_circuit_adaptive)
+    end
+  end
+
+  describe 'clearing a stale scratch[:short_circuit_adaptive] flag' do
+    it 'does not let a flag left over from a previous run affect a run with adaptive Questionnaires present' do
+      adaptive = adaptive_questionnaire_hash(url: 'http://example.org/Questionnaire/adaptive1')
+      create_qp_request(qp_response_json(adaptive))
+      create_nq_request(nq_response_json(adaptive))
+      scratch = { short_circuit_adaptive: :pass }
+
+      result = run(described_class, {}, scratch)
+
+      expect(result.result).to eq('pass'), result.result_message
+      expect(scratch).to_not have_key(:short_circuit_adaptive)
     end
   end
 

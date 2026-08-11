@@ -32,9 +32,17 @@ module DaVinciDTRTestKit
       tags
     end
 
+    def qp_requests_to_analyze
+      @qp_requests_to_analyze ||= load_tagged_requests(*target_qp_tags)
+    end
+
+    def nq_requests_to_analyze
+      @nq_requests_to_analyze ||= load_tagged_requests(*target_nq_tags)
+    end
+
     def adaptive_questionnaire_canonicals
       @adaptive_questionnaire_canonicals ||=
-        load_tagged_requests(*target_qp_tags).each_with_object([]) do |request, adaptive_questionnaires|
+        qp_requests_to_analyze.each_with_object([]) do |request, adaptive_questionnaires|
           request_parameters = FHIR.from_contents(request.response_body)
           next unless request_parameters.is_a?(FHIR::Parameters)
 
@@ -49,7 +57,7 @@ module DaVinciDTRTestKit
 
     def completed_questionnaire_canonicals
       @completed_questionnaire_canonicals ||=
-        load_tagged_requests(*target_nq_tags).each_with_object([]) do |request, completed_questionnaires|
+        nq_requests_to_analyze.each_with_object([]) do |request, completed_questionnaires|
           contained_questionnaire = completed_contained_questionnaire(request)
           next unless contained_questionnaire.present?
 
@@ -73,8 +81,18 @@ module DaVinciDTRTestKit
 
     run do
       check_for_short_circuit(ok_message: config.options[:short_circuit_pass_message])
+      skip_if no_questionnaires_returned?(qp_requests_to_analyze),
+              'No Questionnaire Package requests returned a Questionnaire.'
 
-      pass_if adaptive_questionnaire_canonicals.blank?, 'No adaptive Questionnaires returned.'
+      clear_adaptive_short_circuit_flag
+      if adaptive_questionnaire_canonicals.blank?
+        if config.options[:adaptive_questionnaires_optional]
+          short_circuit_adaptive_validation_tests
+          pass SHORT_CIRCUIT_ADAPTIVE_MESSAGE
+        else
+          skip 'Adaptive Questionnaires required to be demonstrated during this scenario but none were returned.'
+        end
+      end
 
       adaptive_questionnaire_canonicals.each do |target_canonical|
         next if completed_questionnaire_canonicals.include?(target_canonical)

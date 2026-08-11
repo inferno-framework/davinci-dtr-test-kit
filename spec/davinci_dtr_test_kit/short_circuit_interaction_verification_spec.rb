@@ -144,4 +144,98 @@ RSpec.describe DaVinciDTRTestKit::ShortCircuitInteractionVerification do
       expect(scratch[:short_circuit]).to eq(:skip)
     end
   end
+
+  describe '#check_for_adaptive_short_circuit' do
+    let(:adaptive_test_class) do
+      Class.new(Inferno::Test) do
+        include DaVinciDTRTestKit::ShortCircuitInteractionVerification
+
+        id :short_circuit_adaptive_verification_spec_test
+
+        run do
+          check_for_adaptive_short_circuit
+          pass 'ran to completion'
+        end
+      end
+    end
+
+    before do
+      tests_repo = Inferno::Repositories::Tests.new
+      tests_repo.insert(adaptive_test_class) unless tests_repo.exists?(adaptive_test_class.id.to_s)
+    end
+
+    it 'does not affect the test when no flag is set in scratch' do
+      result = run(adaptive_test_class, {}, {})
+      expect(result.result).to eq('pass')
+      expect(result.result_message).to eq('ran to completion')
+    end
+
+    it 'passes with the module message when scratch[:short_circuit_adaptive] is set' do
+      result = run(adaptive_test_class, {}, { short_circuit_adaptive: :pass })
+      expect(result.result).to eq('pass')
+      expect(result.result_message)
+        .to eq(DaVinciDTRTestKit::ShortCircuitInteractionVerification::SHORT_CIRCUIT_ADAPTIVE_MESSAGE)
+    end
+
+    it 'is unaffected by scratch[:short_circuit], which is a separate flag' do
+      result = run(adaptive_test_class, {}, { short_circuit: :skip })
+      expect(result.result).to eq('pass')
+      expect(result.result_message).to eq('ran to completion')
+    end
+  end
+
+  describe '#clear_adaptive_short_circuit_flag' do
+    let(:clearing_adaptive_test_class) do
+      Class.new(Inferno::Test) do
+        include DaVinciDTRTestKit::ShortCircuitInteractionVerification
+
+        id :short_circuit_adaptive_verification_clear_spec_test
+
+        run do
+          clear_adaptive_short_circuit_flag
+          pass 'cleared'
+        end
+      end
+    end
+
+    before do
+      tests_repo = Inferno::Repositories::Tests.new
+      tests_repo.insert(clearing_adaptive_test_class) unless tests_repo.exists?(clearing_adaptive_test_class.id.to_s)
+    end
+
+    it 'removes a previously set flag so it does not affect this test run' do
+      scratch = { short_circuit_adaptive: :pass }
+      result = run(clearing_adaptive_test_class, {}, scratch)
+
+      expect(result.result).to eq('pass')
+      expect(result.result_message).to eq('cleared')
+      expect(scratch).to_not have_key(:short_circuit_adaptive)
+    end
+  end
+
+  describe '#short_circuit_adaptive_validation_tests' do
+    let(:setting_adaptive_test_class) do
+      Class.new(Inferno::Test) do
+        include DaVinciDTRTestKit::ShortCircuitInteractionVerification
+
+        id :short_circuit_adaptive_verification_setting_spec_test
+
+        run do
+          short_circuit_adaptive_validation_tests
+          pass 'flag set'
+        end
+      end
+    end
+
+    before do
+      tests_repo = Inferno::Repositories::Tests.new
+      tests_repo.insert(setting_adaptive_test_class) unless tests_repo.exists?(setting_adaptive_test_class.id.to_s)
+    end
+
+    it 'stores :pass in scratch[:short_circuit_adaptive] for downstream tests to see' do
+      scratch = {}
+      run(setting_adaptive_test_class, {}, scratch)
+      expect(scratch[:short_circuit_adaptive]).to eq(:pass)
+    end
+  end
 end

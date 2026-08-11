@@ -18,7 +18,8 @@ module DaVinciDTRTestKit
         qp_response_template_input: 'additional_ms_qp_responses',
         nq_questionnaire_template_input: 'additional_ms_nq_responses',
         short_circuit_pass_input: 'complete_additional_questionnaires',
-        short_circuit_pass_message: 'Tester chose not to complete additional Questionnaires.'
+        short_circuit_pass_message: 'Tester chose not to complete additional Questionnaires.',
+        adaptive_questionnaires_optional: true
       }
     )
 

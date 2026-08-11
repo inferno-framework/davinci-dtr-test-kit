@@ -3,7 +3,6 @@ require 'davinci_dtr_test_kit/full_ehr/v2.2.0/request/dtr_questionnaire_package_
 require 'davinci_dtr_test_kit/full_ehr/v2.2.0/response/dtr_next_question_response_validation_test'
 require 'davinci_dtr_test_kit/full_ehr/v2.2.0/response/dtr_questionnaire_package_response_validation_test'
 require 'davinci_dtr_test_kit/full_ehr/v2.2.0/interaction/ui_display_and_interaction_attestation_test'
-require 'davinci_dtr_test_kit/full_ehr/v2.2.0/questionnaire_response/questionnaire_response_completion_attestation_test'
 
 # The interaction_wait_test sets scratch[:short_circuit] (via ShortCircuitInteractionVerification)
 # to let Inferno know whether the tester declined the interaction or template setup failed, and
@@ -70,11 +69,6 @@ RSpec.describe 'DTR Full EHR v2.2.0 short-circuit wiring' do # rubocop:disable R
 
   describe DaVinciDTRTestKit::DTRFullEHRV220UIDisplayAndInteractionAttestationTest do
     it_behaves_like 'a short-circuit aware DTR full EHR v2.2.0 test',
-                    'No successful Questionnaire Package requests received.'
-  end
-
-  describe DaVinciDTRTestKit::DTRFullEHRV220QuestionnaireResponseCompletionAttestationTest do
-    it_behaves_like 'a short-circuit aware DTR full EHR v2.2.0 test',
-                    'No successful Questionnaire Package requests received.'
+                    'No Questionnaire Package requests returned a Questionnaire.'
   end
 end
