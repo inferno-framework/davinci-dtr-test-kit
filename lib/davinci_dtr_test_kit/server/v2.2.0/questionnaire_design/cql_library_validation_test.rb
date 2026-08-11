@@ -31,8 +31,6 @@ module DaVinciDTRTestKit
         library_count = 0
 
         successful_requests.each_with_index do |request, index|
-          next unless [200, 201].include? request.response[:status]
-
           JSON.parse(request.response_body)
 
           resource = FHIR.from_contents(request.response_body)
