@@ -7,7 +7,7 @@ require(
 RSpec.describe DaVinciDTRTestKit::DTRPayerServerV220::ContainedQuestionnaireResponseReferencesTest, :runnable do # rubocop:disable RSpec/SpecFilePathFormat
   let(:suite_id) { 'dtr_payer_server_v220' }
 
-  def store_response(response_body, tags: [DaVinciDTRTestKit::NEXT_TAG])
+  def store_response(response_body, tags: [DaVinciDTRTestKit::QUESTIONNAIRE_TAG])
     result = repo_create(:result, test_session_id: test_session.id)
     repo_create(:request, result_id: result.id, test_session_id: test_session.id, response_body:, tags:)
   end
@@ -51,5 +51,29 @@ RSpec.describe DaVinciDTRTestKit::DTRPayerServerV220::ContainedQuestionnaireResp
 
     expect(result.result).to eq('skip')
     expect(result.result_message).to match(/No QuestionnaireResponse resources were returned/)
+  end
+
+  it 'checks only next-question responses in the next-question test' do
+    questionnaire_package_response = FHIR::QuestionnaireResponse.new(
+      status: 'in-progress',
+      contained: [FHIR::Patient.new(id: 'patient')],
+      subject: FHIR::Reference.new(reference: '#patient')
+    )
+    next_question_response = FHIR::QuestionnaireResponse.new(
+      status: 'in-progress',
+      contained: [FHIR::Observation.new(id: 'answer')],
+      item: [FHIR::QuestionnaireResponse::Item.new(
+        linkId: '1',
+        answer: [FHIR::QuestionnaireResponse::Item::Answer.new(
+          valueReference: FHIR::Reference.new(reference: '#answer')
+        )]
+      )]
+    )
+    store_response(questionnaire_package_response.to_json)
+    store_response(next_question_response.to_json, tags: [DaVinciDTRTestKit::NEXT_TAG])
+
+    result = run(DaVinciDTRTestKit::DTRPayerServerV220::NextQuestionContainedResponseReferencesTest)
+
+    expect(result.result).to eq('pass'), result.result_message
   end
 end

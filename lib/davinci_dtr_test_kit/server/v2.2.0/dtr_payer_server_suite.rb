@@ -139,6 +139,9 @@ module DaVinciDTRTestKit
         group do
           title 'Questionnaire/$next-question support'
           optional
+          test from: :dtr_v220_payer_next_question_response_references
+          test from: :dtr_v220_payer_next_question_contained_response_references
+
           # TODO
           # spec-23 - adaptive form validation [DONE]
           # spec-24 - [NOT TESTED in 2.0] url shall be a sub-url, accessed using same credentials

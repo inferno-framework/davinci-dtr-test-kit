@@ -68,4 +68,24 @@ RSpec.describe DaVinciDTRTestKit::DTRPayerServerV220::QuestionnaireResponseRefer
     expect(result.result).to eq('skip')
     expect(result.result_message).to match(/No QuestionnaireResponse resources were returned/)
   end
+
+  it 'checks only next-question responses in the next-question test' do
+    questionnaire_package_response = FHIR::QuestionnaireResponse.new(
+      status: 'in-progress',
+      subject: FHIR::Reference.new(reference: 'https://payer.example/fhir/Patient/example')
+    )
+    next_question_response = FHIR::QuestionnaireResponse.new(
+      status: 'in-progress',
+      subject: FHIR::Reference.new(reference: 'Patient/example')
+    )
+    store_response(questionnaire_package_response(questionnaire_package_response))
+    store_response(next_question_response.to_json, tags: [DaVinciDTRTestKit::NEXT_TAG])
+
+    result = run(
+      DaVinciDTRTestKit::DTRPayerServerV220::NextQuestionResponseReferencesTest,
+      client_fhir_endpoint: 'https://client.example/fhir'
+    )
+
+    expect(result.result).to eq('pass'), result.result_message
+  end
 end

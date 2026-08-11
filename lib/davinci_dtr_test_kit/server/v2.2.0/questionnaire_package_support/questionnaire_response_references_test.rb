@@ -12,8 +12,8 @@ module DaVinciDTRTestKit
       title 'QuestionnaireResponse references target contained or client FHIR resources'
       description %(
         This test verifies that every reference in each QuestionnaireResponse returned by
-        `$questionnaire-package` or `$next-question` points to either a resource contained
-        in that QuestionnaireResponse or a resource on the DTR client's FHIR endpoint.
+        `$questionnaire-package` points to either a resource contained in that
+        QuestionnaireResponse or a resource on the DTR client's FHIR endpoint.
         Relative references are interpreted relative to the DTR client's FHIR endpoint.
         To validate absolute references, provide the DTR Client FHIR Endpoint input.
       )
@@ -44,9 +44,25 @@ module DaVinciDTRTestKit
       private
 
       def returned_questionnaire_responses
-        questionnaire_responses_from_requests(
-          Array(load_tagged_requests(QUESTIONNAIRE_TAG)) + Array(load_tagged_requests(NEXT_TAG))
-        )
+        questionnaire_responses_from_requests(load_tagged_requests(QUESTIONNAIRE_TAG))
+      end
+    end
+
+    class NextQuestionResponseReferencesTest < QuestionnaireResponseReferencesTest
+      id :dtr_v220_payer_next_question_response_references
+      title 'Next-question QuestionnaireResponse references target contained or client FHIR resources'
+      description %(
+        This test verifies that every reference in each QuestionnaireResponse returned by
+        `$next-question` points to either a resource contained in that QuestionnaireResponse
+        or a resource on the DTR client's FHIR endpoint. Relative references are interpreted
+        relative to the DTR client's FHIR endpoint. To validate absolute references, provide
+        the DTR Client FHIR Endpoint input.
+      )
+
+      private
+
+      def returned_questionnaire_responses
+        questionnaire_responses_from_requests(load_tagged_requests(NEXT_TAG))
       end
     end
   end

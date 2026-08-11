@@ -12,7 +12,7 @@ module DaVinciDTRTestKit
       title 'Contained QuestionnaireResponse references occur only in answer values'
       description %(
         This test verifies that a QuestionnaireResponse returned by `$questionnaire-package`
-        or `$next-question` uses contained resource references only as
+        uses contained resource references only as
         `QuestionnaireResponse.item.answer.valueReference` values.
       )
       verifies_requirements 'hl7.fhir.us.davinci-dtr_2.2.0@spec-141'
@@ -35,9 +35,23 @@ module DaVinciDTRTestKit
       private
 
       def returned_questionnaire_responses
-        questionnaire_responses_from_requests(
-          Array(load_tagged_requests(QUESTIONNAIRE_TAG)) + Array(load_tagged_requests(NEXT_TAG))
-        )
+        questionnaire_responses_from_requests(load_tagged_requests(QUESTIONNAIRE_TAG))
+      end
+    end
+
+    class NextQuestionContainedResponseReferencesTest < ContainedQuestionnaireResponseReferencesTest
+      id :dtr_v220_payer_next_question_contained_response_references
+      title 'Contained next-question QuestionnaireResponse references occur only in answer values'
+      description %(
+        This test verifies that a QuestionnaireResponse returned by `$next-question` uses
+        contained resource references only as
+        `QuestionnaireResponse.item.answer.valueReference` values.
+      )
+
+      private
+
+      def returned_questionnaire_responses
+        questionnaire_responses_from_requests(load_tagged_requests(NEXT_TAG))
       end
     end
   end
