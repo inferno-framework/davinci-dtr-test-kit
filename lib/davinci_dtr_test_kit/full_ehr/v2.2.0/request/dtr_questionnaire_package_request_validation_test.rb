@@ -64,10 +64,25 @@ module DaVinciDTRTestKit
         resource_is_valid?(resource: input_params,
                            profile_url: 'http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/dtr-qpackage-input-parameters|2.2.0',
                            message_prefix: request_prefix(request_index))
+
+        check_for_required_invocation_details(input_params, request_index)
       end
 
       assert_no_error_messages(
         "#{requests_with_errors_prefix}Non-conformant $questionnaire-package request(s). See Messages for details."
+      )
+    end
+
+    # - Zero or more canonicals specifying the URL and, (optionally) the version of the Questionnaire(s) to retrieve;
+    # - A CRD/PAS context ID, and/or
+    # - One or more Request or Encounter resources
+    def check_for_required_invocation_details(params, request_index)
+      return if params.parameter.any? { |param| ['questionnaire', 'order', 'context'].include?(param.name) }
+
+      add_request_message(
+        'error',
+        'Request does not contain a Questionnaire canonical, a request resource, or context from CRD or PAS.',
+        request_index
       )
     end
   end
