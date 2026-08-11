@@ -19,11 +19,16 @@ module DaVinciDTRTestKit
       )
       verifies_requirements 'hl7.fhir.us.davinci-dtr_2.2.0@spec-139'
 
-      input :client_fhir_endpoint
+      input :client_fhir_endpoint, optional: true
 
       run do
         questionnaire_responses = returned_questionnaire_responses
         skip_if questionnaire_responses.empty?, 'No QuestionnaireResponse resources were returned.'
+        absolute_references_returned = questionnaire_responses.any? do |response|
+          questionnaire_response_has_absolute_reference?(response)
+        end
+        skip_if client_fhir_endpoint.blank? && absolute_references_returned,
+                'Absolute QuestionnaireResponse references were returned, but no DTR Client FHIR Endpoint was provided.'
 
         invalid_references = questionnaire_responses.flat_map.with_index do |questionnaire_response, index|
           invalid_questionnaire_response_references(questionnaire_response, client_fhir_endpoint).map do |reference|

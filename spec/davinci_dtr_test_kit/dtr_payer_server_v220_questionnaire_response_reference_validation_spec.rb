@@ -88,6 +88,13 @@ RSpec.describe DaVinciDTRTestKit::DTRPayerServerV220::QuestionnaireResponseRefer
       .to eq(['subject.reference references `https://payer.example/fhir/Patient/example`'])
   end
 
+  it 'does not assess absolute references without a client FHIR endpoint' do
+    response = questionnaire_response(subject: FHIR::Reference.new(reference: 'https://client.example/fhir/Patient/example'))
+
+    expect(validator.invalid_questionnaire_response_references(response, nil)).to be_empty
+    expect(validator.questionnaire_response_has_absolute_reference?(response)).to be(true)
+  end
+
   it 'allows contained references only as answer value references' do
     response = questionnaire_response(
       contained: [FHIR::Observation.new(id: 'answer')],

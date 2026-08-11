@@ -42,8 +42,7 @@ module DaVinciDTRTestKit
           if reference_value.start_with?('#')
             invalid_references << "#{location} references `#{reference_value}`" \
               unless contained_ids.include?(reference_value.delete_prefix('#'))
-          elsif absolute_reference?(reference_value) &&
-                !reference_on_client_endpoint?(reference_value, client_fhir_endpoint)
+          elsif invalid_absolute_reference?(reference_value, client_fhir_endpoint)
             invalid_references << "#{location} references `#{reference_value}`"
           end
         end
@@ -131,6 +130,18 @@ module DaVinciDTRTestKit
         URI.parse(reference).absolute?
       rescue URI::InvalidURIError
         false
+      end
+
+      def questionnaire_response_has_absolute_reference?(questionnaire_response)
+        response_json = JSON.parse(questionnaire_response.to_json)
+        questionnaire_response_references(response_json).any? do |reference|
+          absolute_reference?(reference[:value])
+        end
+      end
+
+      def invalid_absolute_reference?(reference, client_fhir_endpoint)
+        client_fhir_endpoint.present? && absolute_reference?(reference) &&
+          !reference_on_client_endpoint?(reference, client_fhir_endpoint)
       end
 
       def reference_on_client_endpoint?(reference, client_fhir_endpoint)
