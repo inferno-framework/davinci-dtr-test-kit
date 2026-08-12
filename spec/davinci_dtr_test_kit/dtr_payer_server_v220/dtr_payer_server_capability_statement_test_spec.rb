@@ -11,12 +11,12 @@ RSpec.describe DaVinciDTRTestKit::DTRPayerServerV220::DTRPayerServerCapabilitySt
   end
 
   def capability_statement(
-    questionnaire_operations: %w[
-      questionnaire-package
-      next-question
-      log-questionnaire-errors
+    questionnaire_operations: [
+      'questionnaire-package',
+      'next-question',
+      'log-questionnaire-errors'
     ],
-    value_set_operations: %w[expand],
+    value_set_operations: ['expand'],
     questionnaire_resource: true,
     value_set_resource: true,
     server_rest: true
@@ -117,12 +117,12 @@ RSpec.describe DaVinciDTRTestKit::DTRPayerServerV220::DTRPayerServerCapabilitySt
   described_class::REQUIRED_RESOURCE_OPERATIONS.each do |resource_type, required_operations|
     required_operations.each do |operation|
       it "fails when the CapabilityStatement is missing #{resource_type}/$#{operation}" do
-        questionnaire_operations = %w[
-          questionnaire-package
-          next-question
-          log-questionnaire-errors
+        questionnaire_operations = [
+          'questionnaire-package',
+          'next-question',
+          'log-questionnaire-errors'
         ]
-        value_set_operations = %w[expand]
+        value_set_operations = ['expand']
 
         if resource_type == 'Questionnaire'
           questionnaire_operations -= [operation]

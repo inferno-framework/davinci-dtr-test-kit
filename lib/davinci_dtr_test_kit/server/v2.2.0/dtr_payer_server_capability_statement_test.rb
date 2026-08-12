@@ -6,21 +6,20 @@ module DaVinciDTRTestKit
       title 'Server CapabilityStatement declares required DTR Payer Service operations'
 
       description %(
-        The DTR IG requires conformant systems to conform to an appropriate
-        CapabilityStatement. This test verifies that the payer server's
-        CapabilityStatement declares support for the operations required by the
-        DTR Payer Service CapabilityStatement.
+        The DTR IG [requires](https://hl7.org/fhir/us/davinci-dtr/2.2.0/en/confexpectations.html#conformance-to-this-implementation-guide)
+        conformant systems to conform to an appropriate CapabilityStatement. This test verifies that the payer server's
+        CapabilityStatement declares support for the operations required by the DTR Payer Service CapabilityStatement.
       )
 
       verifies_requirements 'hl7.fhir.us.davinci-dtr_2.2.0@conf-1'
 
       REQUIRED_RESOURCE_OPERATIONS = {
-        'Questionnaire' => %w[
-          questionnaire-package
-          next-question
-          log-questionnaire-errors
+        'Questionnaire' => [
+          'questionnaire-package',
+          'next-question',
+          'log-questionnaire-errors'
         ],
-        'ValueSet' => %w[expand]
+        'ValueSet' => ['expand']
       }.freeze
 
       run do
