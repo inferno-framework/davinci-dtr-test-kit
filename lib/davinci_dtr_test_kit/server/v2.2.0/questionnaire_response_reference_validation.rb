@@ -32,7 +32,7 @@ module DaVinciDTRTestKit
       end
 
       def invalid_questionnaire_response_references(questionnaire_response, client_fhir_endpoint)
-        response_json = JSON.parse(questionnaire_response.to_json)
+        response_json = questionnaire_response.to_hash
         contained_ids = response_json.fetch('contained', []).filter_map { |resource| resource['id'] }
         invalid_references = []
 
@@ -51,7 +51,7 @@ module DaVinciDTRTestKit
       end
 
       def invalid_contained_reference_locations(questionnaire_response)
-        response_json = JSON.parse(questionnaire_response.to_json)
+        response_json = questionnaire_response.to_hash
         permitted_locations = answer_value_reference_locations(response_json.fetch('item', []))
         invalid_references = []
 
@@ -133,7 +133,7 @@ module DaVinciDTRTestKit
       end
 
       def questionnaire_response_has_absolute_reference?(questionnaire_response)
-        response_json = JSON.parse(questionnaire_response.to_json)
+        response_json = questionnaire_response.to_hash
         questionnaire_response_references(response_json).any? do |reference|
           absolute_reference?(reference[:value])
         end

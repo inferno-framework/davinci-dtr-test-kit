@@ -5,24 +5,24 @@ require_relative '../../../tags'
 
 module DaVinciDTRTestKit
   module DTRPayerServerV220
-    class QuestionnaireResponseReferencesTest < Inferno::Test
+    class NextQuestionResponseReferencesTest < Inferno::Test
       include QuestionnaireResponseReferenceValidation
 
-      id :dtr_v220_payer_questionnaire_response_references
-      title 'QuestionnaireResponse references target contained or client FHIR resources'
+      id :dtr_v220_payer_next_question_response_references
+      title 'Next-question QuestionnaireResponse references target contained or client FHIR resources'
       description %(
         This test verifies that every reference in each QuestionnaireResponse returned by
-        `$questionnaire-package` points to either a resource contained in that
-        QuestionnaireResponse or a resource on the DTR client's FHIR endpoint.
-        Relative references are interpreted relative to the DTR client's FHIR endpoint.
-        To validate absolute references, provide the DTR Client FHIR Endpoint input.
+        `$next-question` points to either a resource contained in that QuestionnaireResponse
+        or a resource on the DTR client's FHIR endpoint. Relative references are interpreted
+        relative to the DTR client's FHIR endpoint. To validate absolute references, provide
+        the DTR Client FHIR Endpoint input.
       )
       verifies_requirements 'hl7.fhir.us.davinci-dtr_2.2.0@spec-139'
 
       input :client_fhir_endpoint, optional: true
 
       run do
-        requests = load_tagged_requests(QUESTIONNAIRE_TAG)
+        requests = load_tagged_requests(NEXT_TAG)
         questionnaire_responses = questionnaire_responses_from_requests(requests)
         skip_if questionnaire_responses.empty?, 'No QuestionnaireResponse resources were returned.'
         absolute_references_returned = questionnaire_responses.any? do |response|

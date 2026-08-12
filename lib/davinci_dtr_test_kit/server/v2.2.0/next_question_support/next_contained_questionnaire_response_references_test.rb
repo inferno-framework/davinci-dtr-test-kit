@@ -5,20 +5,20 @@ require_relative '../../../tags'
 
 module DaVinciDTRTestKit
   module DTRPayerServerV220
-    class ContainedQuestionnaireResponseReferencesTest < Inferno::Test
+    class NextQuestionContainedResponseReferencesTest < Inferno::Test
       include QuestionnaireResponseReferenceValidation
 
-      id :dtr_v220_payer_contained_questionnaire_response_references
-      title 'Contained QuestionnaireResponse references occur only in answer values'
+      id :dtr_v220_payer_next_question_contained_response_references
+      title 'Contained next-question QuestionnaireResponse references occur only in answer values'
       description %(
-        This test verifies that a QuestionnaireResponse returned by `$questionnaire-package`
-        uses contained resource references only as
+        This test verifies that a QuestionnaireResponse returned by `$next-question` uses
+        contained resource references only as
         `QuestionnaireResponse.item.answer.valueReference` values.
       )
       verifies_requirements 'hl7.fhir.us.davinci-dtr_2.2.0@spec-141'
 
       run do
-        requests = load_tagged_requests(QUESTIONNAIRE_TAG)
+        requests = load_tagged_requests(NEXT_TAG)
         questionnaire_responses = questionnaire_responses_from_requests(requests)
         skip_if questionnaire_responses.empty?, 'No QuestionnaireResponse resources were returned.'
 
