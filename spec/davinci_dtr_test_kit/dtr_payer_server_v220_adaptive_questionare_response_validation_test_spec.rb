@@ -85,6 +85,15 @@ RSpec.describe DaVinciDTRTestKit::DTRPayerServerV220::AdaptiveQuestionnaireRespo
     expect(result.result_message).to include('No adaptive Questionnaires were found')
   end
 
+  it 'skips when there are no successful $questionnaire-package were made' do
+    record_qp_response('{}', status: 400)
+
+    result = run(test_class)
+
+    expect(result.result).to eq('skip')
+    expect(result.result_message).to include('No successful $questionnaire-package')
+  end
+
   it 'validates an adaptive Questionnaire against the search profile' do
     record_qp_response(adaptive_qp_response)
 

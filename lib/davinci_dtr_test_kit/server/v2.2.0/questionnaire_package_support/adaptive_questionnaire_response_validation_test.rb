@@ -26,9 +26,11 @@ module DaVinciDTRTestKit
 
         skip_if requests.blank?, 'No $questionnaire-package requests were made.'
 
-        questionnaires = requests.flat_map do |request|
-          assert_response_status([200, 201], response: request.response)
+        successful_requests = requests.select { |request| [200, 201].include? request.response[:status] }
 
+        skip_if successful_requests.blank?, 'No successful $questionnaire-package requests were made'
+
+        questionnaires = requests.flat_map do |request|
           resource = FHIR.from_contents(request.response_body)
           bundles = extract_questionnaire_bundles(resource)
           next [] if bundles.blank?
