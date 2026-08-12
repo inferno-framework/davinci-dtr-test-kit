@@ -12,41 +12,39 @@ RSpec.describe DaVinciDTRTestKit::DTRPayerServerV220::QuestionnaireResponseRefer
     FHIR::QuestionnaireResponse.new({ status: 'in-progress' }.merge(attributes))
   end
 
-  it 'collects references and their locations from nested objects and arrays' do
-    response_json = {
-      'subject' => { 'reference' => 'Patient/example' },
-      'item' => [
-        {
-          'answer' => [
-            { 'valueReference' => { 'reference' => '#observation' } }
-          ]
-        }
-      ]
-    }
+  it 'collects references and their locations from nested FHIR resources and arrays' do
+    response = questionnaire_response(
+      subject: FHIR::Reference.new(reference: 'Patient/example'),
+      item: [FHIR::QuestionnaireResponse::Item.new(
+        answer: [FHIR::QuestionnaireResponse::Item::Answer.new(
+          valueReference: FHIR::Reference.new(reference: '#observation')
+        )]
+      )]
+    )
 
     expected_references = [
       { value: 'Patient/example', location: 'subject.reference' },
       { value: '#observation', location: 'item[0].answer[0].valueReference.reference' }
     ]
 
-    expect(validator.questionnaire_response_references(response_json)).to eq(expected_references)
+    expect(validator.questionnaire_response_references(response)).to eq(expected_references)
   end
 
   it 'finds answer value references in nested items and nested answer items' do
-    items = [
-      {
-        'item' => [
-          { 'answer' => [{ 'valueReference' => { 'reference' => '#nested-item-answer' } }] }
-        ],
-        'answer' => [
-          {
-            'item' => [
-              { 'answer' => [{ 'valueReference' => { 'reference' => '#nested-answer-item-answer' } }] }
-            ]
-          }
-        ]
-      }
-    ]
+    items = [FHIR::QuestionnaireResponse::Item.new(
+      item: [FHIR::QuestionnaireResponse::Item.new(
+        answer: [FHIR::QuestionnaireResponse::Item::Answer.new(
+          valueReference: FHIR::Reference.new(reference: '#nested-item-answer')
+        )]
+      )],
+      answer: [FHIR::QuestionnaireResponse::Item::Answer.new(
+        item: [FHIR::QuestionnaireResponse::Item.new(
+          answer: [FHIR::QuestionnaireResponse::Item::Answer.new(
+            valueReference: FHIR::Reference.new(reference: '#nested-answer-item-answer')
+          )]
+        )]
+      )]
+    )]
 
     expected_locations = [
       'item[0].item[0].answer[0].valueReference.reference',

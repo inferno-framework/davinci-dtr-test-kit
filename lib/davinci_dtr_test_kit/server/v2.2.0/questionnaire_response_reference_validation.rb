@@ -32,11 +32,10 @@ module DaVinciDTRTestKit
       end
 
       def invalid_questionnaire_response_references(questionnaire_response, client_fhir_endpoint)
-        response_json = questionnaire_response.to_hash
-        contained_ids = response_json.fetch('contained', []).filter_map { |resource| resource['id'] }
+        contained_ids = Array(questionnaire_response.contained).filter_map(&:id)
         invalid_references = []
 
-        questionnaire_response_references(response_json).each do |reference|
+        questionnaire_response_references(questionnaire_response).each do |reference|
           reference_value = reference[:value]
           location = reference[:location]
           if reference_value.start_with?('#')
@@ -51,11 +50,10 @@ module DaVinciDTRTestKit
       end
 
       def invalid_contained_reference_locations(questionnaire_response)
-        response_json = questionnaire_response.to_hash
-        permitted_locations = answer_value_reference_locations(response_json.fetch('item', []))
+        permitted_locations = answer_value_reference_locations(questionnaire_response.item)
         invalid_references = []
 
-        questionnaire_response_references(response_json).each do |reference|
+        questionnaire_response_references(questionnaire_response).each do |reference|
           reference_value = reference[:value]
           location = reference[:location]
           next unless reference_value.start_with?('#') && !permitted_locations.include?(location)
@@ -66,19 +64,22 @@ module DaVinciDTRTestKit
         invalid_references
       end
 
-      # Returns all populated FHIR Reference values below a JSON Hash or Array.
+      # Returns all populated FHIR Reference values below a FHIR resource.
       #
-      # Given:
-      # { 'subject' => { 'reference' => 'Patient/123' },
-      #   'item' => [{ 'answer' => [{ 'valueReference' => { 'reference' => '#observation' } }] }] }
+      # Given a QuestionnaireResponse with the following JSON representation:
+      # { "subject": { "reference": "Patient/123" },
+      #   "item": [{ "answer": [{ "valueReference": { "reference": "#observation" } }] }] }
       #
       # it returns:
       # [{ value: 'Patient/123', location: 'subject.reference' },
       #  { value: '#observation', location: 'item[0].answer[0].valueReference.reference' }]
       def questionnaire_response_references(value, location = nil)
         case value
-        when Hash
-          references_in_object(value, location)
+        when FHIR::Reference
+          reference_location = location.present? ? "#{location}.reference" : 'reference'
+          value.reference.present? ? [{ value: value.reference, location: reference_location }] : []
+        when FHIR::Model
+          references_in_model(value, location)
         when Array
           references_in_array(value, location)
         else
@@ -86,13 +87,12 @@ module DaVinciDTRTestKit
         end
       end
 
-      def references_in_object(object, location)
-        object.flat_map do |key, nested_value|
-          nested_location = location.present? ? "#{location}.#{key}" : key
-          references = questionnaire_response_references(nested_value, nested_location)
-          next references unless key == 'reference' && nested_value.present?
-
-          [{ value: nested_value, location: nested_location }] + references
+      def references_in_model(model, location)
+        model.class::METADATA.flat_map do |element_name, metadata|
+          accessor_name = metadata['local_name'] || element_name
+          nested_value = model.public_send(accessor_name)
+          nested_location = location.present? ? "#{location}.#{element_name}" : element_name
+          questionnaire_response_references(nested_value, nested_location)
         end
       end
 
@@ -105,21 +105,20 @@ module DaVinciDTRTestKit
 
       # Returns the locations of QuestionnaireResponse answer value references.
       #
-      # Given items such as:
-      # [{ 'answer' => [{ 'valueReference' => { 'reference' => '#observation' } }] }]
+      # Given QuestionnaireResponse items with the following JSON representation:
+      # [{ "answer": [{ "valueReference": { "reference": "#observation" } }] }]
       #
       # it returns:
       # ['item[0].answer[0].valueReference.reference']
       def answer_value_reference_locations(items, item_location = 'item', locations = [])
-        items.each_with_index do |item, item_index|
+        Array(items).each_with_index do |item, item_index|
           location = "#{item_location}[#{item_index}]"
-          answer_value_reference_locations(item.fetch('item', []), "#{location}.item", locations)
+          answer_value_reference_locations(item.item, "#{location}.item", locations)
 
-          item.fetch('answer', []).each_with_index do |answer, answer_index|
+          Array(item.answer).each_with_index do |answer, answer_index|
             answer_location = "#{location}.answer[#{answer_index}]"
-            reference = answer.dig('valueReference', 'reference')
-            locations << "#{answer_location}.valueReference.reference" if reference.present?
-            answer_value_reference_locations(answer.fetch('item', []), "#{answer_location}.item", locations)
+            locations << "#{answer_location}.valueReference.reference" if answer.valueReference&.reference.present?
+            answer_value_reference_locations(answer.item, "#{answer_location}.item", locations)
           end
         end
 
@@ -133,8 +132,7 @@ module DaVinciDTRTestKit
       end
 
       def questionnaire_response_has_absolute_reference?(questionnaire_response)
-        response_json = questionnaire_response.to_hash
-        questionnaire_response_references(response_json).any? do |reference|
+        questionnaire_response_references(questionnaire_response).any? do |reference|
           absolute_reference?(reference[:value])
         end
       end
