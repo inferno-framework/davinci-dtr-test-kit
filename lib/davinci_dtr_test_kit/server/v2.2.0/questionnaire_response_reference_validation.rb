@@ -5,13 +5,11 @@ require 'uri'
 module DaVinciDTRTestKit
   module DTRPayerServerV220
     module QuestionnaireResponseReferenceValidation
-      def questionnaire_responses_from_requests(requests)
-        requests.filter_map do |request|
-          resource = FHIR.from_contents(request.response_body)
-          questionnaire_responses_from_resource(resource)
-        rescue JSON::ParserError, FHIR::ClientException
-          nil
-        end.flatten
+      def questionnaire_responses_from_request(request)
+        resource = FHIR.from_contents(request.response_body)
+        questionnaire_responses_from_resource(resource)
+      rescue JSON::ParserError, FHIR::ClientException
+        []
       end
 
       def questionnaire_responses_from_resource(resource)
@@ -32,7 +30,7 @@ module DaVinciDTRTestKit
       end
 
       def invalid_questionnaire_response_references(questionnaire_response, client_fhir_endpoint)
-        contained_ids = Array(questionnaire_response.contained).filter_map(&:id)
+        contained_ids = questionnaire_response.contained.filter_map(&:id)
         invalid_references = []
 
         questionnaire_response_references(questionnaire_response).each do |reference|
@@ -73,34 +71,16 @@ module DaVinciDTRTestKit
       # it returns:
       # [{ value: 'Patient/123', location: 'subject.reference' },
       #  { value: '#observation', location: 'item[0].answer[0].valueReference.reference' }]
-      def questionnaire_response_references(value, location = nil)
-        case value
-        when FHIR::Reference
-          reference_location = location.present? ? "#{location}.reference" : 'reference'
-          value.reference.present? ? [{ value: value.reference, location: reference_location }] : []
-        when FHIR::Model
-          references_in_model(value, location)
-        when Array
-          references_in_array(value, location)
-        else
-          []
-        end
-      end
+      def questionnaire_response_references(questionnaire_response)
+        references = []
 
-      def references_in_model(model, location)
-        model.class::METADATA.flat_map do |element_name, metadata|
-          accessor_name = metadata['local_name'] || element_name
-          nested_value = model.public_send(accessor_name)
-          nested_location = location.present? ? "#{location}.#{element_name}" : element_name
-          questionnaire_response_references(nested_value, nested_location)
-        end
-      end
+        questionnaire_response.each_element do |element, _metadata, path|
+          next unless element.is_a?(FHIR::Reference) && element.reference.present?
 
-      def references_in_array(array, location)
-        array.flat_map.with_index do |nested_value, index|
-          nested_location = location.present? ? "#{location}[#{index}]" : "[#{index}]"
-          questionnaire_response_references(nested_value, nested_location)
+          references << { value: element.reference, location: "#{path}.reference" }
         end
+
+        references
       end
 
       # Returns the locations of QuestionnaireResponse answer value references.
@@ -111,11 +91,11 @@ module DaVinciDTRTestKit
       # it returns:
       # ['item[0].answer[0].valueReference.reference']
       def answer_value_reference_locations(items, item_location = 'item', locations = [])
-        Array(items).each_with_index do |item, item_index|
+        items.each_with_index do |item, item_index|
           location = "#{item_location}[#{item_index}]"
           answer_value_reference_locations(item.item, "#{location}.item", locations)
 
-          Array(item.answer).each_with_index do |answer, answer_index|
+          item.answer.each_with_index do |answer, answer_index|
             answer_location = "#{location}.answer[#{answer_index}]"
             locations << "#{answer_location}.valueReference.reference" if answer.valueReference&.reference.present?
             answer_value_reference_locations(answer.item, "#{answer_location}.item", locations)

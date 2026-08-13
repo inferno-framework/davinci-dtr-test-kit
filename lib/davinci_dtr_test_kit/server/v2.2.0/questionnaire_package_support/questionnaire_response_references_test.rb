@@ -1,12 +1,14 @@
 # frozen_string_literal: true
 
 require_relative '../questionnaire_response_reference_validation'
+require_relative '../../../cross_suite/v2.2.0/multi_request_message_helper'
 require_relative '../../../tags'
 
 module DaVinciDTRTestKit
   module DTRPayerServerV220
     class QuestionnaireResponseReferencesTest < Inferno::Test
       include QuestionnaireResponseReferenceValidation
+      include MultiRequestMessageHelper
 
       id :dtr_v220_payer_questionnaire_response_references
       title 'QuestionnaireResponse references target contained or client FHIR resources'
@@ -22,24 +24,26 @@ module DaVinciDTRTestKit
       input :client_fhir_endpoint, optional: true
 
       run do
-        requests = load_tagged_requests(QUESTIONNAIRE_TAG)
-        questionnaire_responses = questionnaire_responses_from_requests(requests)
-        skip_if questionnaire_responses.empty?, 'No QuestionnaireResponse resources were returned.'
-        absolute_references_returned = questionnaire_responses.any? do |response|
+        load_tagged_requests(QUESTIONNAIRE_TAG)
+        responses_by_request = requests.map { |request| questionnaire_responses_from_request(request) }
+        skip_if responses_by_request.all?(&:empty?), 'No QuestionnaireResponse resources were returned.'
+        absolute_references_returned = responses_by_request.flatten.any? do |response|
           questionnaire_response_has_absolute_reference?(response)
         end
         skip_if client_fhir_endpoint.blank? && absolute_references_returned,
                 'Absolute QuestionnaireResponse references were returned, but no DTR Client FHIR Endpoint was provided.'
 
-        invalid_references = questionnaire_responses.flat_map.with_index do |questionnaire_response, index|
-          invalid_questionnaire_response_references(questionnaire_response, client_fhir_endpoint).map do |reference|
-            "QuestionnaireResponse #{index + 1}: #{reference}"
+        responses_by_request.each_with_index do |questionnaire_responses, request_index|
+          questionnaire_responses.each do |questionnaire_response|
+            invalid_questionnaire_response_references(questionnaire_response, client_fhir_endpoint).each do |reference|
+              add_request_message('error', reference, request_index)
+            end
           end
         end
 
-        assert invalid_references.empty?,
-               "References must target contained resources or the DTR client's FHIR endpoint:\n" \
-               "#{invalid_references.join("\n")}"
+        message = "#{requests_with_errors_prefix}" \
+                  "References must target contained resources or the DTR client's FHIR endpoint. "
+        assert_no_error_messages("#{message}See Messages for details.")
       end
     end
   end

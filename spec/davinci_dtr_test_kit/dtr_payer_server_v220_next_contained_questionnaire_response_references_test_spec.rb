@@ -41,7 +41,7 @@ RSpec.describe DaVinciDTRTestKit::DTRPayerServerV220::NextQuestionContainedRespo
     result = run(described_class)
 
     expect(result.result).to eq('fail')
-    expect(result.result_message).to match(/only in item.answer valueReference/)
+    expect(result.result_message).to match(/\ARequest 1: .*only in item\.answer valueReference/)
   end
 
   it 'skips when no QuestionnaireResponse was returned' do

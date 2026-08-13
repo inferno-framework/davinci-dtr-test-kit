@@ -1,12 +1,14 @@
 # frozen_string_literal: true
 
 require_relative '../questionnaire_response_reference_validation'
+require_relative '../../../cross_suite/v2.2.0/multi_request_message_helper'
 require_relative '../../../tags'
 
 module DaVinciDTRTestKit
   module DTRPayerServerV220
     class NextQuestionContainedResponseReferencesTest < Inferno::Test
       include QuestionnaireResponseReferenceValidation
+      include MultiRequestMessageHelper
 
       id :dtr_v220_payer_next_question_contained_response_references
       title 'Contained next-question QuestionnaireResponse references occur only in answer values'
@@ -18,19 +20,21 @@ module DaVinciDTRTestKit
       verifies_requirements 'hl7.fhir.us.davinci-dtr_2.2.0@spec-141'
 
       run do
-        requests = load_tagged_requests(NEXT_TAG)
-        questionnaire_responses = questionnaire_responses_from_requests(requests)
-        skip_if questionnaire_responses.empty?, 'No QuestionnaireResponse resources were returned.'
+        load_tagged_requests(NEXT_TAG)
+        responses_by_request = requests.map { |request| questionnaire_responses_from_request(request) }
+        skip_if responses_by_request.all?(&:empty?), 'No QuestionnaireResponse resources were returned.'
 
-        invalid_references = questionnaire_responses.flat_map.with_index do |questionnaire_response, index|
-          invalid_contained_reference_locations(questionnaire_response).map do |reference|
-            "QuestionnaireResponse #{index + 1}: #{reference}"
+        responses_by_request.each_with_index do |questionnaire_responses, request_index|
+          questionnaire_responses.each do |questionnaire_response|
+            invalid_contained_reference_locations(questionnaire_response).each do |reference|
+              add_request_message('error', reference, request_index)
+            end
           end
         end
 
-        assert invalid_references.empty?,
-               "Contained resource references are permitted only in item.answer valueReference elements:\n" \
-               "#{invalid_references.join("\n")}"
+        message = "#{requests_with_errors_prefix}" \
+                  'Contained resource references are permitted only in item.answer valueReference '
+        assert_no_error_messages("#{message}elements. See Messages for details.")
       end
     end
   end
