@@ -61,13 +61,25 @@ RSpec.describe DaVinciDTRTestKit::DTRPayerServerV220::ValueSetExpansionTest, :ru
       .to match(/\(Request 1\) expansion contains inactive code/)
   end
 
-  it 'skips when a returned ValueSet does not contain an expansion' do
+  it 'fails when any returned ValueSet does not contain an expansion' do
+    store_response(expanded_value_set.to_json)
     store_response(FHIR::ValueSet.new(status: 'active').to_json)
 
     result = run(described_class)
 
-    expect(result.result).to eq('skip')
-    expect(result.result_message).to match(/No expanded ValueSet resources were returned/)
+    expect(result.result).to eq('fail')
+    expect(result_messages.map(&:message).join)
+      .to match(/\(Request \d+\) ValueSet response does not contain an expansion\./)
+  end
+
+  it 'fails when a ValueSet/$expand request does not return a ValueSet' do
+    store_response(FHIR::OperationOutcome.new.to_json)
+
+    result = run(described_class)
+
+    expect(result.result).to eq('fail')
+    expect(result_messages.map(&:message).join)
+      .to include('(Request 1) ValueSet/$expand response is not a ValueSet resource.')
   end
 
   it 'skips when no ValueSet/$expand requests were made' do

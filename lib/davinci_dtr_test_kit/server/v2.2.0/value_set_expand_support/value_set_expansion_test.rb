@@ -23,29 +23,28 @@ module DaVinciDTRTestKit
         requests = load_tagged_requests(VALUE_SET_EXPAND_TAG)
         skip_if requests.empty?, 'No ValueSet/$expand requests were made.'
 
-        value_sets = expanded_value_sets(requests)
-        skip_if value_sets.empty?, 'No expanded ValueSet resources were returned.'
+        requests.each_with_index do |request, request_index|
+          value_set = FHIR.from_contents(request.response_body)
+          unless value_set.is_a?(FHIR::ValueSet)
+            add_request_message('error', 'ValueSet/$expand response is not a ValueSet resource.', request_index)
+            next
+          end
 
-        value_sets.each do |value_set, request_index|
+          unless value_set.expansion.present?
+            add_request_message('error', 'ValueSet response does not contain an expansion.', request_index)
+            next
+          end
+
           value_set_expansion_errors(value_set).each do |error|
             add_request_message('error', error, request_index)
           end
+        rescue JSON::ParserError, FHIR::ClientException
+          add_request_message('error', 'ValueSet/$expand response is not a valid FHIR resource.', request_index)
         end
 
         error_message = "#{requests_with_errors_prefix}ValueSet expansions must use the current date " \
                         'and contain only active codes. See Messages for details.'
         assert_no_error_messages(error_message)
-      end
-
-      private
-
-      def expanded_value_sets(requests)
-        requests.filter_map.with_index do |request, request_index|
-          resource = FHIR.from_contents(request.response_body)
-          [resource, request_index] if resource.is_a?(FHIR::ValueSet) && resource.expansion.present?
-        rescue JSON::ParserError, FHIR::ClientException
-          nil
-        end
       end
     end
   end
