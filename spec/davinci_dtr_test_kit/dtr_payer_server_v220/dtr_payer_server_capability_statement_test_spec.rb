@@ -1,6 +1,7 @@
 RSpec.describe DaVinciDTRTestKit::DTRPayerServerV220::DTRPayerServerCapabilityStatementTest, :runnable do
   let(:suite_id) { 'dtr_payer_server_v220' }
   let(:server_endpoint) { 'http://example.com/fhir' }
+  let(:results_repo) { Inferno::Repositories::Results.new }
 
   let(:test) do
     Class.new(described_class) do
@@ -8,6 +9,16 @@ RSpec.describe DaVinciDTRTestKit::DTRPayerServerV220::DTRPayerServerCapabilitySt
 
       input :server_endpoint
     end
+  end
+
+  before do
+    allow_any_instance_of(test).to receive(:assert_valid_resource).and_return(true)
+  end
+
+  def result_messages
+    results_repo
+      .current_results_for_test_session_and_runnables(test_session.id, [test])
+      .first&.messages || []
   end
 
   def capability_statement(
@@ -50,6 +61,10 @@ RSpec.describe DaVinciDTRTestKit::DTRPayerServerV220::DTRPayerServerCapabilitySt
       resourceType: 'CapabilityStatement',
       status: 'active',
       kind: 'instance',
+      date: '2026-01-01',
+      implementation: {
+        description: 'Example payer server'
+      },
       fhirVersion: '4.0.1',
       format: ['json'],
       rest:
@@ -81,7 +96,7 @@ RSpec.describe DaVinciDTRTestKit::DTRPayerServerV220::DTRPayerServerCapabilitySt
     result = run(test, server_endpoint:)
 
     expect(result.result).to eq('fail')
-    expect(result.result_message).to eq(
+    expect(result_messages.map(&:message)).to include(
       'CapabilityStatement is missing a `rest` entry with `mode` set to `server`.'
     )
   end
@@ -94,7 +109,7 @@ RSpec.describe DaVinciDTRTestKit::DTRPayerServerV220::DTRPayerServerCapabilitySt
     result = run(test, server_endpoint:)
 
     expect(result.result).to eq('fail')
-    expect(result.result_message).to eq(
+    expect(result_messages.map(&:message)).to include(
       'CapabilityStatement is missing a `Questionnaire` resource entry ' \
       'in its server-mode `rest` section.'
     )
@@ -108,7 +123,7 @@ RSpec.describe DaVinciDTRTestKit::DTRPayerServerV220::DTRPayerServerCapabilitySt
     result = run(test, server_endpoint:)
 
     expect(result.result).to eq('fail')
-    expect(result.result_message).to eq(
+    expect(result_messages.map(&:message)).to include(
       'CapabilityStatement is missing a `ValueSet` resource entry ' \
       'in its server-mode `rest` section.'
     )
@@ -140,7 +155,7 @@ RSpec.describe DaVinciDTRTestKit::DTRPayerServerV220::DTRPayerServerCapabilitySt
         result = run(test, server_endpoint:)
 
         expect(result.result).to eq('fail')
-        expect(result.result_message).to eq(
+        expect(result_messages.map(&:message)).to include(
           "CapabilityStatement is missing required `#{resource_type}` operations: $#{operation}."
         )
       end

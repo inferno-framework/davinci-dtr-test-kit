@@ -27,28 +27,46 @@ module DaVinciDTRTestKit
 
         assert_response_status(200)
         assert_resource_type(:capability_statement)
+        assert_valid_resource
 
-        server_rest = Array(resource.rest).find { |rest| rest.mode == 'server' }
+        server_rest = resource.rest.find { |rest| rest.mode == 'server' }
 
-        assert server_rest.present?,
-               'CapabilityStatement is missing a `rest` entry with `mode` set to `server`.'
-
-        REQUIRED_RESOURCE_OPERATIONS.each do |resource_type, required_operations|
-          resource_entry = Array(server_rest.resource).find do |entry|
-            entry.type == resource_type
-          end
-
-          assert resource_entry.present?,
-                 "CapabilityStatement is missing a `#{resource_type}` resource entry " \
-                 'in its server-mode `rest` section.'
-
-          declared_operations = Array(resource_entry.operation).map(&:name)
-          missing_operations = required_operations - declared_operations
-
-          assert missing_operations.empty?,
-                 "CapabilityStatement is missing required `#{resource_type}` operations: " \
-                 "#{missing_operations.map { |operation| "$#{operation}" }.join(', ')}."
+        unless server_rest.present?
+          add_message(
+            'error',
+            'CapabilityStatement is missing a `rest` entry with `mode` set to `server`.'
+          )
         end
+
+        if server_rest.present?
+          REQUIRED_RESOURCE_OPERATIONS.each do |resource_type, required_operations|
+            resource_entry = server_rest.resource.find do |entry|
+              entry.type == resource_type
+            end
+
+            unless resource_entry.present?
+              add_message(
+                'error',
+                "CapabilityStatement is missing a `#{resource_type}` resource entry " \
+                'in its server-mode `rest` section.'
+              )
+              next
+            end
+
+            declared_operations = resource_entry.operation.map(&:name)
+            missing_operations = required_operations - declared_operations
+
+            next if missing_operations.empty?
+
+            add_message(
+              'error',
+              "CapabilityStatement is missing required `#{resource_type}` operations: " \
+              "#{missing_operations.map { |operation| "$#{operation}" }.join(', ')}."
+            )
+          end
+        end
+
+        assert_no_error_messages
       end
     end
   end
