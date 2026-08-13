@@ -1,5 +1,6 @@
 require 'smart_app_launch_test_kit'
 require_relative 'interaction_test'
+require_relative 'log_questionnaire_errors_support_test'
 require_relative 'questionnaire_package_support/questionnaire_response_validation_test'
 require_relative 'questionnaire_design/cql_library_validation_test'
 
@@ -165,8 +166,7 @@ module DaVinciDTRTestKit
         # TODO
         # (optionally ?) perform $q-p operation and validate input
 
-        # TODO
-        # oper-1 - shall support it
+        test from: :dtr_v220_payer_log_questionnaire_errors_support
       end
 
       group do
