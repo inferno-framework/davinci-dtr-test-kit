@@ -1,16 +1,15 @@
 # frozen_string_literal: true
 
-require_relative 'questionnaire_design_validation'
+require_relative 'questionnaire_design_support'
 
 module DaVinciDTRTestKit
   module DTRPayerServerV220
     class QuestionnairePrepopulationTest < Inferno::Test
-      include QuestionnaireDesignValidation
+      include QuestionnaireDesignSupport
 
       POPULATION_EXPRESSION_URLS = [
         'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-initialExpression',
         'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-candidateExpression',
-        'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-calculatedExpression',
         'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-contextExpression'
       ].freeze
 

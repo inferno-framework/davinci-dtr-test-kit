@@ -4,7 +4,7 @@ require_relative '../../../tags'
 
 module DaVinciDTRTestKit
   module DTRPayerServerV220
-    module QuestionnaireDesignValidation
+    module QuestionnaireDesignSupport
       private
 
       def returned_questionnaires

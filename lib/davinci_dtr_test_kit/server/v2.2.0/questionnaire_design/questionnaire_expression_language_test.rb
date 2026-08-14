@@ -1,11 +1,11 @@
 # frozen_string_literal: true
 
-require_relative 'questionnaire_design_validation'
+require_relative 'questionnaire_design_support'
 
 module DaVinciDTRTestKit
   module DTRPayerServerV220
     class QuestionnaireExpressionLanguageTest < Inferno::Test
-      include QuestionnaireDesignValidation
+      include QuestionnaireDesignSupport
 
       CQL_MEDIA_TYPES = [
         'text/cql',

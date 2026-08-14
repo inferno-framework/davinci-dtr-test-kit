@@ -1,11 +1,11 @@
 # frozen_string_literal: true
 
-require_relative 'questionnaire_design_validation'
+require_relative 'questionnaire_design_support'
 
 module DaVinciDTRTestKit
   module DTRPayerServerV220
     class QuestionnaireRelevanceLogicTest < Inferno::Test
-      include QuestionnaireDesignValidation
+      include QuestionnaireDesignSupport
 
       ENABLE_WHEN_EXPRESSION_URL =
         'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-enableWhenExpression'
