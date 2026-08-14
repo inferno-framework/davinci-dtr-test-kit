@@ -6,7 +6,7 @@ module DaVinciDTRTestKit
   module DTRPayerServerV220
     class DTRPayerServerSuiteV220 < Inferno::TestSuite
       id :dtr_payer_server_v220
-      title 'Da Vinci Payer Server Test Suite v2.2.0'
+      title 'Da Vinci DTR Payer Server Test Suite v2.2.0'
       description File.read(File.join(__dir__, 'dtr_payer_server_suite_description_v220.md'))
 
       links [
@@ -98,12 +98,9 @@ module DaVinciDTRTestKit
           # One with CRD/PAS context ID
           # Request/Encounter resource
 
-          # TODO: base response validation
-          # oper-10 - verify response conforms to profile [DONE]
           # oper-12 - [NOT TESTED in 2.0] include Questionnaire as 1st entry, [TESTED] and CQL libraries
           # oper-14 - [NOT TESTED in 2.0] Bundle includes all VS instances
           # oper-16 - [NOT TESTED in 2.0] references are version specific
-          # sec-4 - no hidden read-only questions
           test from: :dtr_v220_payer_questionnaire_response_validation
 
           # TODO: embedded QR validation
@@ -119,9 +116,6 @@ module DaVinciDTRTestKit
           # TODO
           # spec-23 - adaptive form validation [DONE]
           # spec-24 - [NOT TESTED in 2.0] url shall be a sub-url, accessed using same credentials
-
-          # TODO
-          # sec-4 - no hidden read-only questions
 
           # TODO
           # spec-39 - [QUESTIONABLE] display item indicating Q completion included at end
@@ -151,6 +145,9 @@ module DaVinciDTRTestKit
           # TODO
           # spec-160 - contained binary resources shall be pdfs or xhtml
           # spec-165 [QUESTIONABLE]- contained binary page reference validation
+
+          # TODO
+          # sec-4 - no hidden read-only questions
         end
 
         group do
