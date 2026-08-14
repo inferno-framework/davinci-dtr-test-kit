@@ -14,13 +14,16 @@ module DaVinciDTRTestKit
       verifies_requirements 'hl7.fhir.us.davinci-dtr_2.2.0@oper-1'
 
       input :url
+      input :questionnaire_canonical,
+            title: 'Questionnaire Canonical URL',
+            description: 'Canonical URL of a Questionnaire supported by the payer.'
 
       def log_questionnaire_errors_parameters
         FHIR::Parameters.new(
           parameter: [
             FHIR::Parameters::Parameter.new(
               name: 'questionnaire',
-              valueCanonical: 'http://example.org/fhir/Questionnaire/example'
+              valueCanonical: questionnaire_canonical
             ),
             FHIR::Parameters::Parameter.new(
               name: 'operationOutcome',
@@ -44,8 +47,6 @@ module DaVinciDTRTestKit
           body: log_questionnaire_errors_parameters,
           headers: { 'Content-Type': 'application/fhir+json' }
         )
-        assert request, 'No request record was returned for the $log-questionnaire-errors operation.'
-        assert request.response, 'No HTTP response was received from the $log-questionnaire-errors operation.'
 
         status = request.response[:status].to_s
         assert status.start_with?('2'),
