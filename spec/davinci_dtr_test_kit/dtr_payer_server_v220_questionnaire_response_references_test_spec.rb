@@ -62,6 +62,20 @@ RSpec.describe DaVinciDTRTestKit::DTRPayerServerV220::QuestionnaireResponseRefer
     expect(result.result_message).to match(/no DTR Client FHIR Endpoint was provided/)
   end
 
+  it 'fails before skipping when an absolute reference and an invalid contained reference are returned' do
+    questionnaire_response = FHIR::QuestionnaireResponse.new(
+      status: 'in-progress',
+      subject: FHIR::Reference.new(reference: '#missing'),
+      author: FHIR::Reference.new(reference: 'https://client.example/fhir/Practitioner/example')
+    )
+    store_response(questionnaire_package_response(questionnaire_response))
+
+    result = run(described_class)
+
+    expect(result.result).to eq('fail')
+    expect(result.result_message).to match(/References must target contained resources/)
+  end
+
   it 'skips when no QuestionnaireResponse was returned' do
     result = run(described_class, client_fhir_endpoint: 'https://client.example/fhir')
 

@@ -30,8 +30,6 @@ module DaVinciDTRTestKit
         absolute_references_returned = responses_by_request.flatten.any? do |response|
           questionnaire_response_has_absolute_reference?(response)
         end
-        skip_if client_fhir_endpoint.blank? && absolute_references_returned,
-                'Absolute QuestionnaireResponse references were returned, but no DTR Client FHIR Endpoint was provided.'
 
         responses_by_request.each_with_index do |questionnaire_responses, request_index|
           questionnaire_responses.each do |questionnaire_response|
@@ -44,6 +42,9 @@ module DaVinciDTRTestKit
         message = "#{requests_with_errors_prefix}" \
                   "References must target contained resources or the DTR client's FHIR endpoint. "
         assert_no_error_messages("#{message}See Messages for details.")
+
+        skip_if client_fhir_endpoint.blank? && absolute_references_returned,
+                'Absolute QuestionnaireResponse references were returned, but no DTR Client FHIR Endpoint was provided.'
       end
     end
   end
