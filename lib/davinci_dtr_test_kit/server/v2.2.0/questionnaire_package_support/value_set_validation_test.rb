@@ -28,19 +28,25 @@ module DaVinciDTRTestKit
 
         skip_if successful_requests.blank?, 'No successful $questionnaire-package requests were made'
 
+        external_value_set_referenced = false
+
         successful_requests.each do |request|
           resource = FHIR.from_contents(request.response_body)
 
           extract_questionnaire_bundles(resource).each do |bundle|
             bundle_value_set_urls = bundle.entry.filter_map do |entry|
-              entry.resource.url if entry&.resource.is_a?(FHIR::ValueSet)
+              next unless entry&.resource.is_a?(FHIR::ValueSet)
+
+              "#{entry.resource.url}|#{entry.resource.version}"
             end
 
             external_value_set_urls = extract_questionnaires_from_bundles([bundle]).flat_map do |questionnaire|
               value_set_urls_from_items(questionnaire.item)
             end
 
-            skip_if external_value_set_urls.empty?, 'No external ValueSet referenced'
+            next if external_value_set_urls.empty?
+
+            external_value_set_referenced = true
 
             missing_value_set_urls = external_value_set_urls.uniq - bundle_value_set_urls.uniq
 
@@ -48,6 +54,8 @@ module DaVinciDTRTestKit
                    "Bundle is missing ValueSet instances: #{missing_value_set_urls.join(', ')}"
           end
         end
+
+        omit_if !external_value_set_referenced, 'No external ValueSet referenced'
       end
 
       def value_set_urls_from_items(items)

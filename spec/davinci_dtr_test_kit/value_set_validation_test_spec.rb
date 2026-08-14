@@ -10,7 +10,7 @@ RSpec.describe DaVinciDTRTestKit::DTRPayerServerV220::ValueSetValidationTest do
         {
           item: [
             {
-              answerValueSet: 'www.example.org/external-answerValueSet'
+              answerValueSet: 'http://www.example.org/external-answerValueSet|2.2.0'
             }
           ]
         }
@@ -30,7 +30,10 @@ RSpec.describe DaVinciDTRTestKit::DTRPayerServerV220::ValueSetValidationTest do
   end
 
   let(:external_value_set) do
-    FHIR::ValueSet.new(url: 'www.example.org/external-answerValueSet')
+    FHIR::ValueSet.new(
+      url: 'http://www.example.org/external-answerValueSet',
+      version: '2.2.0'
+    )
   end
 
   def build_bundle(questionnaire, value_sets = [])
@@ -107,12 +110,12 @@ RSpec.describe DaVinciDTRTestKit::DTRPayerServerV220::ValueSetValidationTest do
     expect(test_result.result).to eq('pass'), test_result.result_message
   end
 
-  it 'skips when the Questionnaire contains no external ValueSet references' do
+  it 'omits when no Questionnaire contains an external ValueSet reference' do
     create_questionnaire_package_request(response_params(build_bundle(q_without_external)))
 
     test_result = run(described_class)
 
-    expect(test_result.result).to eq('skip')
+    expect(test_result.result).to eq('omit')
     expect(test_result.result_message).to include('No external ValueSet referenced')
   end
 end
