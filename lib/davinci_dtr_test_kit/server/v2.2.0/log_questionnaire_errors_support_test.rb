@@ -42,7 +42,7 @@ module DaVinciDTRTestKit
       end
 
       run do
-        request = fhir_operation(
+        fhir_operation(
           "#{url.chomp('/')}/Questionnaire/$log-questionnaire-errors",
           body: log_questionnaire_errors_parameters,
           headers: { 'Content-Type': 'application/fhir+json' }
