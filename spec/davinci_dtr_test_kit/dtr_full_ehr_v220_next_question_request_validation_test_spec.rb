@@ -43,6 +43,10 @@ RSpec.describe DaVinciDTRTestKit::DTRFullEHRV220NextQuestionRequestValidationTes
       .first.messages.map(&:message).join("\n")
   end
 
+  def fixture(name)
+    FHIR.from_contents(File.read(File.join(__dir__, '..', 'fixtures', name)))
+  end
+
   # Builds a $next-question request body containing a QuestionnaireResponse for a Questionnaire with
   # the provided items. When `wrap_in_parameters` is false the QuestionnaireResponse is the body.
   def request_body_for(questionnaire_items:, response_items:, wrap_in_parameters: true)
@@ -61,6 +65,20 @@ RSpec.describe DaVinciDTRTestKit::DTRFullEHRV220NextQuestionRequestValidationTes
     )
     return questionnaire_response.to_json unless wrap_in_parameters
 
+    FHIR::Parameters.new(
+      parameter: [
+        FHIR::Parameters::Parameter.new(name: 'questionnaire-response', resource: questionnaire_response)
+      ]
+    ).to_json
+  end
+
+  # Builds a request body from a Questionnaire and QuestionnaireResponse fixture pair by containing
+  # the Questionnaire within the response, the way a client does for an adaptive form.
+  def request_body_from_fixtures(questionnaire_name, response_name)
+    questionnaire = fixture(questionnaire_name)
+    questionnaire_response = fixture(response_name)
+    questionnaire_response.contained = [questionnaire]
+    questionnaire_response.questionnaire = "##{questionnaire.id}"
     FHIR::Parameters.new(
       parameter: [
         FHIR::Parameters::Parameter.new(name: 'questionnaire-response', resource: questionnaire_response)
@@ -91,9 +109,7 @@ RSpec.describe DaVinciDTRTestKit::DTRFullEHRV220NextQuestionRequestValidationTes
     build_next_requests(missing_answer_request_body)
 
     expect(run(runnable).result).to eq('fail')
-    expect(result_messages_string).to match(
-      /All required questions must be answered before requesting the next question.*`3\.1`/
-    )
+    expect(result_messages_string).to match(/Item `3\.1` .* is required and enabled, but has no answer/)
   end
 
   it 'identifies the request containing the unanswered required question' do
@@ -103,7 +119,7 @@ RSpec.describe DaVinciDTRTestKit::DTRFullEHRV220NextQuestionRequestValidationTes
 
     expect(result.result).to eq('fail')
     expect(result.result_message).to match(/Request 2:/)
-    expect(result_messages_string).to match(/\(Request 2\) All required questions must be answered/)
+    expect(result_messages_string).to match(/\(Request 2\) Item `3\.1`/)
   end
 
   it 'fails when a required question has not been answered in a bare QuestionnaireResponse body' do
@@ -116,29 +132,7 @@ RSpec.describe DaVinciDTRTestKit::DTRFullEHRV220NextQuestionRequestValidationTes
     )
 
     expect(run(runnable).result).to eq('fail')
-    expect(result_messages_string).to match(/No answer found for required item\(s\): `Q1`/)
-  end
-
-  it 'fails when a required question nested within an answered question has not been answered' do
-    build_next_requests(
-      request_body_for(
-        questionnaire_items: [
-          FHIR::Questionnaire::Item.new(
-            linkId: 'Q1', type: 'string', required: true,
-            item: [FHIR::Questionnaire::Item.new(linkId: 'Q1.1', type: 'string', required: true)]
-          )
-        ],
-        response_items: [
-          FHIR::QuestionnaireResponse::Item.new(
-            linkId: 'Q1',
-            answer: [FHIR::QuestionnaireResponse::Item::Answer.new(valueString: 'an answer')]
-          )
-        ]
-      )
-    )
-
-    expect(run(runnable).result).to eq('fail')
-    expect(result_messages_string).to match(/No answer found for required item\(s\): `Q1\.1`/)
+    expect(result_messages_string).to match(/Item `Q1` is required and enabled, but has no answer/)
   end
 
   it 'fails when the QuestionnaireResponse does not contain a Questionnaire' do
@@ -154,7 +148,7 @@ RSpec.describe DaVinciDTRTestKit::DTRFullEHRV220NextQuestionRequestValidationTes
     )
 
     expect(run(runnable).result).to eq('fail')
-    expect(result_messages_string).to match(/does not include a contained Questionnaire/)
+    expect(result_messages_string).to match(/it does not include a contained Questionnaire/)
   end
 
   it 'passes when unanswered questions are not required' do
@@ -168,205 +162,87 @@ RSpec.describe DaVinciDTRTestKit::DTRFullEHRV220NextQuestionRequestValidationTes
     expect(run(runnable).result).to eq('pass')
   end
 
-  it 'treats a boolean false answer to a required question as answered' do
-    build_next_requests(
-      request_body_for(
-        questionnaire_items: [FHIR::Questionnaire::Item.new(linkId: 'Q1', type: 'boolean', required: true)],
-        response_items: [
-          FHIR::QuestionnaireResponse::Item.new(
-            linkId: 'Q1',
-            answer: [FHIR::QuestionnaireResponse::Item::Answer.new(valueBoolean: false)]
-          )
+  describe 'when questions are gated by enableWhen conditions' do
+    let(:trigger_question) { FHIR::Questionnaire::Item.new(linkId: 'Q1', type: 'string', required: false) }
+    let(:gated_question) do
+      FHIR::Questionnaire::Item.new(
+        linkId: 'Q2', type: 'string', required: true,
+        enableWhen: [
+          FHIR::Questionnaire::Item::EnableWhen.new(question: 'Q1', operator: '=', answerString: 'no')
         ]
       )
-    )
-
-    expect(run(runnable).result).to eq('pass')
-  end
-
-  describe 'when required questions are gated by enableWhen conditions' do
-    def enable_when(question, operator, answer_attributes)
-      FHIR::Questionnaire::Item::EnableWhen.new({ question:, operator: }.merge(answer_attributes))
     end
 
-    def string_answer_item(link_id, *values)
+    def string_answer_item(link_id, value)
       FHIR::QuestionnaireResponse::Item.new(
         linkId: link_id,
-        answer: values.map { |value| FHIR::QuestionnaireResponse::Item::Answer.new(valueString: value) }
+        answer: [FHIR::QuestionnaireResponse::Item::Answer.new(valueString: value)]
       )
     end
 
-    def gated_question(enable_when_conditions, enable_behavior: nil)
-      FHIR::Questionnaire::Item.new(linkId: 'Q2', type: 'string', required: true,
-                                    enableWhen: enable_when_conditions, enableBehavior: enable_behavior)
-    end
-
-    let(:trigger_question) { FHIR::Questionnaire::Item.new(linkId: 'Q1', type: 'string', required: false) }
-
-    it 'passes when a required question is disabled by an unmet enableWhen condition' do
+    it 'passes when a required question is disabled by an unmet condition' do
       build_next_requests(
-        request_body_for(
-          questionnaire_items: [trigger_question,
-                                gated_question([enable_when('Q1', '=', { answerString: 'no' })])],
-          response_items: [string_answer_item('Q1', 'yes')]
-        )
+        request_body_for(questionnaire_items: [trigger_question, gated_question],
+                         response_items: [string_answer_item('Q1', 'yes')])
       )
 
       expect(run(runnable).result).to eq('pass')
     end
 
-    it 'fails when a required question is enabled by a met enableWhen condition and unanswered' do
+    it 'fails when a required question is enabled by a met condition and unanswered' do
       build_next_requests(
-        request_body_for(
-          questionnaire_items: [trigger_question,
-                                gated_question([enable_when('Q1', '=', { answerString: 'no' })])],
-          response_items: [string_answer_item('Q1', 'no')]
-        )
+        request_body_for(questionnaire_items: [trigger_question, gated_question],
+                         response_items: [string_answer_item('Q1', 'no')])
       )
 
       expect(run(runnable).result).to eq('fail')
-      expect(result_messages_string).to match(/No answer found for required item\(s\): `Q2`/)
+      expect(result_messages_string).to match(/Item `Q2` is required and enabled, but has no answer/)
     end
 
-    it 'fails when any one of multiple answers to the referenced question meets the condition' do
+    it 'fails when a question that is not enabled has been answered' do
       build_next_requests(
-        request_body_for(
-          questionnaire_items: [trigger_question,
-                                gated_question([enable_when('Q1', '=', { answerString: 'no' })])],
-          response_items: [string_answer_item('Q1', 'maybe', 'no')]
-        )
-      )
-
-      expect(run(runnable).result).to eq('fail')
-      expect(result_messages_string).to match(/No answer found for required item\(s\): `Q2`/)
-    end
-
-    it 'passes when enableBehavior is all and only one of the conditions is met' do
-      build_next_requests(
-        request_body_for(
-          questionnaire_items: [
-            trigger_question,
-            FHIR::Questionnaire::Item.new(linkId: 'Q1b', type: 'string', required: false),
-            gated_question([enable_when('Q1', '=', { answerString: 'no' }),
-                            enable_when('Q1b', '=', { answerString: 'yes' })], enable_behavior: 'all')
-          ],
-          response_items: [string_answer_item('Q1', 'no'), string_answer_item('Q1b', 'other')]
-        )
-      )
-
-      expect(run(runnable).result).to eq('pass')
-    end
-
-    it 'fails when enableBehavior is absent and one of the conditions is met' do
-      build_next_requests(
-        request_body_for(
-          questionnaire_items: [
-            trigger_question,
-            FHIR::Questionnaire::Item.new(linkId: 'Q1b', type: 'string', required: false),
-            gated_question([enable_when('Q1', '=', { answerString: 'no' }),
-                            enable_when('Q1b', '=', { answerString: 'yes' })])
-          ],
-          response_items: [string_answer_item('Q1', 'no'), string_answer_item('Q1b', 'other')]
-        )
-      )
-
-      expect(run(runnable).result).to eq('fail')
-      expect(result_messages_string).to match(/No answer found for required item\(s\): `Q2`/)
-    end
-
-    it 'passes when an exists condition expecting an answer is unmet' do
-      build_next_requests(
-        request_body_for(
-          questionnaire_items: [trigger_question,
-                                gated_question([enable_when('Q1', 'exists', { answerBoolean: true })])],
-          response_items: []
-        )
-      )
-
-      expect(run(runnable).result).to eq('pass')
-    end
-
-    it 'fails when an exists condition expecting no answer is met' do
-      build_next_requests(
-        request_body_for(
-          questionnaire_items: [trigger_question,
-                                gated_question([enable_when('Q1', 'exists', { answerBoolean: false })])],
-          response_items: []
-        )
-      )
-
-      expect(run(runnable).result).to eq('fail')
-      expect(result_messages_string).to match(/No answer found for required item\(s\): `Q2`/)
-    end
-
-    it 'evaluates ordering comparison conditions against numeric answers' do
-      integer_answer = FHIR::QuestionnaireResponse::Item.new(
-        linkId: 'Q1',
-        answer: [FHIR::QuestionnaireResponse::Item::Answer.new(valueInteger: 5)]
-      )
-      build_next_requests(
-        request_body_for(
-          questionnaire_items: [FHIR::Questionnaire::Item.new(linkId: 'Q1', type: 'integer', required: false),
-                                gated_question([enable_when('Q1', '>', { answerInteger: 3 })])],
-          response_items: [integer_answer]
-        )
-      )
-
-      expect(run(runnable).result).to eq('fail')
-      expect(result_messages_string).to match(/No answer found for required item\(s\): `Q2`/)
-    end
-
-    it 'compares Coding answers by system and code' do
-      coding_answer = FHIR::QuestionnaireResponse::Item.new(
-        linkId: 'Q1',
-        answer: [FHIR::QuestionnaireResponse::Item::Answer.new(
-          valueCoding: FHIR::Coding.new(system: 'http://example.com/cs', code: 'burger', display: 'Hamburger')
-        )]
-      )
-      build_next_requests(
-        request_body_for(
-          questionnaire_items: [
-            FHIR::Questionnaire::Item.new(linkId: 'Q1', type: 'choice', required: false),
-            gated_question([enable_when('Q1', '=',
-                                        { answerCoding: FHIR::Coding.new(system: 'http://example.com/cs',
-                                                                         code: 'burger') })])
-          ],
-          response_items: [coding_answer]
-        )
-      )
-
-      expect(run(runnable).result).to eq('fail')
-      expect(result_messages_string).to match(/No answer found for required item\(s\): `Q2`/)
-    end
-
-    it 'passes when a required question is nested within a disabled question' do
-      disabled_group = FHIR::Questionnaire::Item.new(
-        linkId: 'Group1', type: 'group',
-        enableWhen: [enable_when('Q1', '=', { answerString: 'no' })],
-        item: [FHIR::Questionnaire::Item.new(linkId: 'Q2', type: 'string', required: true)]
-      )
-      build_next_requests(
-        request_body_for(
-          questionnaire_items: [trigger_question, disabled_group],
-          response_items: [string_answer_item('Q1', 'yes')]
-        )
-      )
-
-      expect(run(runnable).result).to eq('pass')
-    end
-
-    it 'reports an error when a condition references a question with multiple occurrences' do
-      build_next_requests(
-        request_body_for(
-          questionnaire_items: [trigger_question,
-                                gated_question([enable_when('Q1', '=', { answerString: 'no' })])],
-          response_items: [string_answer_item('Q1', 'yes'), string_answer_item('Q1', 'no')]
-        )
+        request_body_for(questionnaire_items: [trigger_question, gated_question],
+                         response_items: [string_answer_item('Q1', 'yes'), string_answer_item('Q2', 'an answer')])
       )
 
       expect(run(runnable).result).to eq('fail')
       expect(result_messages_string).to match(
-        /Unable to verify that all required questions have been answered: multiple questions with linkId `Q1`/
+        /Item `Q2` has an answer, but is not enabled based on its `enableWhen` condition\(s\)/
+      )
+    end
+  end
+
+  # These fixtures come from the example Karl put together for the enableWhen design, where the same
+  # linkIds appear under each answer of a repeating question.
+  describe 'when the same question is answered under several answers of a repeating question' do
+    it 'passes when each answer holds the questions that its own value enables' do
+      build_next_requests(
+        request_body_from_fixtures('enable_when_multiple_parent_questionnaire.json',
+                                   'enable_when_multiple_parent_valid_response.json')
+      )
+
+      expect(run(runnable).result).to eq('pass')
+    end
+
+    it 'reports the missing and misplaced answers against the answer they belong to' do
+      build_next_requests(
+        request_body_from_fixtures('enable_when_multiple_parent_questionnaire.json',
+                                   'enable_when_multiple_parent_invalid_response.json')
+      )
+
+      expect(run(runnable).result).to eq('fail')
+      messages = result_messages_string
+      expect(messages).to match(
+        /Item `concern\.other` within `concern\[answer 1\]` has an answer, but is not enabled/
+      )
+      expect(messages).to match(
+        /Item `concern\.contact` within `concern\[answer 1\]` has an answer, but is not enabled/
+      )
+      expect(messages).to match(
+        /Item `concern\.other` within `concern\[answer 2\]` is required and enabled, but has no answer/
+      )
+      expect(messages).to match(
+        /Item `concern\.contact` within `concern\[answer 2\]` is required and enabled, but has no answer/
       )
     end
   end

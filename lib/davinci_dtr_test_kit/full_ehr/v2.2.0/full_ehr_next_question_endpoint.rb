@@ -299,9 +299,6 @@ module DaVinciDTRTestKit
         raise if template_from_fixture?
 
         operation_outcome('error', 'invalid', e.message)
-      rescue QuestionnaireResponseCompleteness::DuplicateLinkIdError => e
-        operation_outcome('error', 'invalid',
-                          "Unable to determine whether the QuestionnaireResponse is complete: #{e.message}")
       end
 
       # ***********************************************************************

@@ -1101,13 +1101,12 @@ RSpec.describe DaVinciDTRTestKit::MockPayer::FullEHRV220NextQuestionEndpoint, :r
         expect(JSON.parse(last_response.body)['status']).to eq('in-progress')
       end
 
-      it 'returns a 400 when the condition references a question with multiple occurrences' do
-        post_nq_body(nq_enable_when_body(q1_answers: ['yes', 'yes']))
+      it 'keeps the QuestionnaireResponse as in-progress when any answer to the referenced question ' \
+         'enables the unanswered required question' do
+        post_nq_body(nq_enable_when_body(q1_answers: ['yes', 'no']))
 
-        expect(last_response.status).to eq(400)
-        outcome = FHIR.from_contents(last_response.body)
-        expect(outcome).to be_a(FHIR::OperationOutcome)
-        expect(outcome.issue.first.details.text).to match(/multiple questions with linkId `Q1`/)
+        expect(last_response.status).to eq(200)
+        expect(JSON.parse(last_response.body)['status']).to eq('in-progress')
       end
     end
 

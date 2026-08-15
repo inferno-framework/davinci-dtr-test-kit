@@ -21,16 +21,23 @@ module DaVinciDTRTestKit
       to the bound ValueSet. Quantity, Coding, and code element bindings will fail if their code/system are not found in
       the valueset.
 
-      This test also verifies that all of the required questions in the QuestionnaireResponse provided in the
-      request have been answered, because the client is not allowed to indicate that the user is ready for
-      the next question until the answers to the current QuestionnaireResponse pass validation rules. The
-      required questions are the items marked `required` in the Questionnaire contained within the
-      QuestionnaireResponse, excluding questions that are disabled based on their `enableWhen` conditions
-      and questions nested within disabled questions. When a question has multiple `enableWhen` conditions,
-      at least one must be met unless `enableBehavior` is `all`, and when the question referenced by a
-      condition has multiple answers, the condition is met if any answer satisfies it. Evaluation of a
-      condition that references a question appearing more than once in the QuestionnaireResponse is not
-      supported and is reported as an error.
+      This test also verifies that the QuestionnaireResponse provided in the request is ready for the next
+      question, because the client is not allowed to indicate that the user is ready for the next question
+      until the answers to the current QuestionnaireResponse pass validation rules. The QuestionnaireResponse
+      is compared against the Questionnaire contained within it, and the following are reported:
+
+      - a question marked `required` that is enabled but has no answer
+      - a question that has an answer even though it is not enabled
+      - a group that has answers of its own, which belong to its nested questions instead
+      - a question whose nested items appear directly under the item rather than within its answers
+
+      Whether a question is enabled is determined by its `enableWhen` conditions, evaluated from the position
+      in the QuestionnaireResponse where the question is, or would be, answered. The question that a condition
+      references is resolved by searching the ancestors of that position first, then the items preceding it,
+      then the items following it, and using the first item found with the referenced `linkId`. Questions
+      nested within a question that is not enabled are not evaluated. When a question has multiple `enableWhen`
+      conditions, at least one must be met unless `enableBehavior` is `all`, and when the referenced question
+      has multiple answers, a condition is met if any of them satisfies it.
     )
     verifies_requirements 'hl7.fhir.us.davinci-dtr_2.2.0@spec-146'
 
@@ -46,33 +53,21 @@ module DaVinciDTRTestKit
       resource if resource.is_a?(FHIR::QuestionnaireResponse)
     end
 
-    def check_required_questions_answered(questionnaire_response, request_index)
+    def check_questionnaire_response_readiness(questionnaire_response, request_index)
       questionnaire = contained_questionnaire(questionnaire_response)
       if questionnaire.blank?
         add_request_message(
           'error',
-          'Unable to verify that all required questions have been answered: the QuestionnaireResponse ' \
-          'does not include a contained Questionnaire.',
+          'Unable to verify that the QuestionnaireResponse is ready for the next question: it does not ' \
+          'include a contained Questionnaire.',
           request_index
         )
         return
       end
 
-      unanswered_link_ids = unanswered_required_link_ids(questionnaire, questionnaire_response)
-      return if unanswered_link_ids.empty?
-
-      add_request_message(
-        'error',
-        'All required questions must be answered before requesting the next question. No answer found ' \
-        "for required item(s): #{unanswered_link_ids.map { |link_id| "`#{link_id}`" }.to_sentence}.",
-        request_index
-      )
-    rescue QuestionnaireResponseCompleteness::DuplicateLinkIdError => e
-      add_request_message(
-        'error',
-        "Unable to verify that all required questions have been answered: #{e.message}",
-        request_index
-      )
+      questionnaire_response_findings(questionnaire, questionnaire_response).each do |finding|
+        add_request_message('error', finding.message, request_index)
+      end
     end
 
     run do
@@ -102,14 +97,16 @@ module DaVinciDTRTestKit
           resource_is_valid?(resource: input_params,
                              profile_url: 'http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/dtr-questionnaireresponse-adapt|2.2.0',
                              message_prefix: request_prefix(request_index))
-          check_required_questions_answered(input_params, request_index)
+          check_questionnaire_response_readiness(input_params, request_index)
 
         elsif input_params.is_a?(FHIR::Parameters)
           resource_is_valid?(resource: input_params,
                              profile_url: 'http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/dtr-next-question-input-parameters|2.2.0',
                              message_prefix: request_prefix(request_index))
           questionnaire_response = questionnaire_response_from_parameters(input_params)
-          check_required_questions_answered(questionnaire_response, request_index) if questionnaire_response.present?
+          if questionnaire_response.present?
+            check_questionnaire_response_readiness(questionnaire_response, request_index)
+          end
         else
           add_request_message(
             'error',

@@ -1,0 +1,90 @@
+{
+  "resourceType": "QuestionnaireResponse",
+  "meta": {
+    "profile": [
+      "http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/dtr-questionnaireresponse"
+    ]
+  },
+  "id": "invalid-concerns-search",
+  "status": "completed",
+  "item": [
+    {
+      "linkId": "forward-search",
+      "answer": [
+        {
+          "valueString": "yes"
+        }
+      ]
+    },
+    {
+      "linkId": "concern",
+      "answer": [
+        {
+          "valueString": "other",
+          "item": [
+            {
+              "linkId": "concern.other",
+              "answer": [
+                {
+                  "valueString": "very specific concern"
+                }
+              ]
+            },
+            {
+              "linkId": "concern.talk",
+              "answer": [
+                {
+                  "valueString": "yes"
+                }
+              ]
+            },
+            {
+              "linkId": "concern.contact",
+              "answer": [
+                {
+                  "valueString": "call me"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "valueString": "other",
+          "item": [
+            {
+              "linkId": "concern.other",
+              "answer": [
+                {
+                  "valueString": "a different concern"
+                }
+              ]
+            },
+            {
+              "linkId": "concern.talk",
+              "answer": [
+                {
+                  "valueString": "no"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "linkId": "backward-search",
+      "extension": [
+        {
+          "url": "urn:inferno:comment",
+          "valueString": "expected error: shouldn't be enabled because the backwards search will find the wrong concern.other value"
+        }
+      ],
+      "answer": [
+        {
+          "valueString": "yes"
+        }
+      ]
+    }
+  ],
+  "questionnaire": "urn:inferno:dtr-test-kit:enable-when-search-example"
+}
