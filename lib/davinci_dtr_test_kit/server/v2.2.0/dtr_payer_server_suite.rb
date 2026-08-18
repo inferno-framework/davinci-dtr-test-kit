@@ -15,6 +15,7 @@ require_relative 'questionnaire_design/questionnaire_expression_language_test'
 require_relative 'questionnaire_design/questionnaire_prepopulation_test'
 require_relative 'questionnaire_design/questionnaire_relevance_logic_test'
 require_relative 'questionnaire_package_support/source_data_error_test'
+require_relative 'questionnaire_design/contained_binary_test'
 
 module DaVinciDTRTestKit
   module DTRPayerServerV220
@@ -176,8 +177,7 @@ module DaVinciDTRTestKit
           # TODO
           test from: :dtr_v220_payer_cql_library_validation
 
-          # TODO
-          # spec-160 - contained binary resources shall be pdfs or xhtml
+          test from: :dtr_v220_payer_contained_binary
           # spec-165 [QUESTIONABLE]- contained binary page reference validation
 
           # TODO
