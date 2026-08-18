@@ -121,5 +121,6 @@ RSpec.describe DaVinciDTRTestKit::DTRPayerServerV220::AdaptiveQuestionnaireRespo
     result = run(test_class)
 
     expect(result.result).to eq('fail')
+    expect(result.result_message).to include('Resource does not conform to the profile')
   end
 end
