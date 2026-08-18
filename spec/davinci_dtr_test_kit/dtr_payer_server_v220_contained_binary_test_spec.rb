@@ -6,6 +6,7 @@ RSpec.describe DaVinciDTRTestKit::DTRPayerServerV220::ContainedBinaryTest do # r
   let(:invalid_binary_message) do
     'Contained Binary resources must be PDFs or safe XHTML pages without active content or scripts.'
   end
+  let(:invalid_json_message) { 'Invalid JSON. Response is not valid JSON' }
   let(:pdf_binary) do
     FHIR::Binary.new(contentType: 'application/pdf', data: Base64.strict_encode64('%PDF-1.7'))
   end
@@ -66,17 +67,22 @@ RSpec.describe DaVinciDTRTestKit::DTRPayerServerV220::ContainedBinaryTest do # r
   end
 
   def questionnaire_package_response_with(*binaries)
-    questionnaire_response = questionnaire_response_with(*binaries)
-    bundle = FHIR::Bundle.new(type: 'collection', entry: [FHIR::Bundle::Entry.new(resource: questionnaire_response)])
+    questionnaire_package_response_with_questionnaire_responses(questionnaire_response_with(*binaries))
+  end
+
+  def questionnaire_package_response_with_questionnaire_responses(*questionnaire_responses)
     FHIR::Parameters.new(
-      parameter: [FHIR::Parameters::Parameter.new(name: 'packagebundle', resource: bundle)]
+      parameter: questionnaire_responses.map do |questionnaire_response|
+        bundle = FHIR::Bundle.new(
+          type: 'collection', entry: [FHIR::Bundle::Entry.new(resource: questionnaire_response)]
+        )
+        FHIR::Parameters::Parameter.new(name: 'packagebundle', resource: bundle)
+      end
     ).to_json
   end
 
-  def next_question_response_with(*binaries, parameters: false)
+  def next_question_response_with(*binaries)
     questionnaire_response = questionnaire_response_with(*binaries)
-    return questionnaire_response.to_json unless parameters
-
     FHIR::Parameters.new(
       parameter: [FHIR::Parameters::Parameter.new(name: 'return', resource: questionnaire_response)]
     ).to_json
@@ -96,8 +102,8 @@ RSpec.describe DaVinciDTRTestKit::DTRPayerServerV220::ContainedBinaryTest do # r
     mock_response(DaVinciDTRTestKit::QUESTIONNAIRE_TAG, questionnaire_package_response_with(*binaries))
   end
 
-  def mock_next_question_response(*binaries, parameters: false)
-    mock_response(DaVinciDTRTestKit::NEXT_TAG, next_question_response_with(*binaries, parameters:))
+  def mock_next_question_response(*binaries)
+    mock_response(DaVinciDTRTestKit::NEXT_TAG, next_question_response_with(*binaries))
   end
 
   shared_examples 'contained Binary validation' do
@@ -186,18 +192,10 @@ RSpec.describe DaVinciDTRTestKit::DTRPayerServerV220::ContainedBinaryTest do # r
     it_behaves_like 'contained Binary validation'
   end
 
-  context 'with a direct $next-question response' do
+  context 'with a $next-question response' do
     let(:mock_operation_response) { ->(*binaries) { mock_next_question_response(*binaries) } }
 
     it_behaves_like 'contained Binary validation'
-  end
-
-  it 'passes when a Parameters $next-question response contains a contained XHTML Binary resource' do
-    mock_next_question_response(xhtml_binary, parameters: true)
-
-    result = run(test_class)
-
-    expect(result.result).to eq('pass'), result.result_message
   end
 
   it 'passes when $questionnaire-package and $next-question both return safe Binary resources' do
@@ -227,6 +225,36 @@ RSpec.describe DaVinciDTRTestKit::DTRPayerServerV220::ContainedBinaryTest do # r
 
     expect(result.result).to eq('fail')
     expect(result.result_message).to eq(invalid_binary_message)
+  end
+
+  it 'fails when a later $questionnaire-package packagebundle output contains an invalid Binary resource' do
+    response_body = questionnaire_package_response_with_questionnaire_responses(
+      questionnaire_response_with(pdf_binary), questionnaire_response_with(unsupported_binary)
+    )
+    mock_response(DaVinciDTRTestKit::QUESTIONNAIRE_TAG, response_body)
+
+    result = run(test_class)
+
+    expect(result.result).to eq('fail')
+    expect(result.result_message).to eq(invalid_binary_message)
+  end
+
+  it 'fails with the expected message when a $questionnaire-package response is not valid JSON' do
+    mock_response(DaVinciDTRTestKit::QUESTIONNAIRE_TAG, '')
+
+    result = run(test_class)
+
+    expect(result.result).to eq('fail')
+    expect(result.result_message).to eq(invalid_json_message)
+  end
+
+  it 'fails with the expected message when a $next-question response is not valid JSON' do
+    mock_response(DaVinciDTRTestKit::NEXT_TAG, '')
+
+    result = run(test_class)
+
+    expect(result.result).to eq('fail')
+    expect(result.result_message).to eq(invalid_json_message)
   end
 
   it 'skips when no $questionnaire-package or $next-question requests were made' do
