@@ -14,8 +14,11 @@ RSpec.describe DaVinciDTRTestKit::DTRPayerServerV220::ContainedBinaryValidation 
     FHIR::Binary.new(contentType: content_type, data: Base64.strict_encode64(content))
   end
 
-  def questionnaire_with(*binaries)
-    FHIR::Questionnaire.new(status: 'draft', contained: binaries)
+  def questionnaire_response_with(*binaries)
+    FHIR::QuestionnaireResponse.new(
+      status: 'in-progress',
+      contained: [FHIR::Questionnaire.new(id: 'questionnaire', status: 'draft'), *binaries]
+    )
   end
 
   it 'accepts contained PDF Binary resources' do
@@ -53,10 +56,10 @@ RSpec.describe DaVinciDTRTestKit::DTRPayerServerV220::ContainedBinaryValidation 
     expect(validator.contained_binary_is_safe?(url)).to be(false)
   end
 
-  it 'only returns Binary resources contained in Questionnaires' do
+  it 'only returns Binary resources contained in QuestionnaireResponses' do
     binary_resource = binary('application/pdf', '%PDF-1.7')
-    questionnaire = questionnaire_with(binary_resource)
+    questionnaire_response = questionnaire_response_with(binary_resource)
 
-    expect(validator.contained_binaries([questionnaire])).to eq([binary_resource])
+    expect(validator.contained_binaries([questionnaire_response])).to eq([binary_resource])
   end
 end

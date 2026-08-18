@@ -53,8 +53,11 @@ RSpec.describe DaVinciDTRTestKit::DTRPayerServerV220::ContainedBinaryTest do # r
   end
 
   def response_with(*binaries)
-    questionnaire = FHIR::Questionnaire.new(status: 'draft', contained: binaries)
-    bundle = FHIR::Bundle.new(type: 'collection', entry: [FHIR::Bundle::Entry.new(resource: questionnaire)])
+    questionnaire = FHIR::Questionnaire.new(id: 'questionnaire', status: 'draft')
+    questionnaire_response = FHIR::QuestionnaireResponse.new(
+      status: 'in-progress', questionnaire: '#questionnaire', contained: [questionnaire, *binaries]
+    )
+    bundle = FHIR::Bundle.new(type: 'collection', entry: [FHIR::Bundle::Entry.new(resource: questionnaire_response)])
     FHIR::Parameters.new(
       parameter: [FHIR::Parameters::Parameter.new(name: 'packagebundle', resource: bundle)]
     ).to_json
@@ -142,7 +145,7 @@ RSpec.describe DaVinciDTRTestKit::DTRPayerServerV220::ContainedBinaryTest do # r
     result = run(test_class)
 
     expect(result.result).to eq('skip')
-    expect(result.result_message).to eq('No contained Binary resources were returned')
+    expect(result.result_message).to eq('No Binary resources were contained in QuestionnaireResponses')
   end
 
   it 'skips when no $questionnaire-package requests were made' do

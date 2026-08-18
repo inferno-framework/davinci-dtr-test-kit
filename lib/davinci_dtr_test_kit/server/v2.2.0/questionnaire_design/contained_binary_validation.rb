@@ -15,8 +15,10 @@ module DaVinciDTRTestKit
       ACTIVE_CONTENT_ELEMENTS = %w[applet base embed form frame frameset iframe input object script style].freeze
       EXECUTABLE_URL_SCHEMES = %w[javascript vbscript].freeze
 
-      def contained_binaries(questionnaires)
-        questionnaires.flat_map { |questionnaire| questionnaire.contained&.grep(FHIR::Binary) || [] }
+      def contained_binaries(questionnaire_responses)
+        questionnaire_responses.flat_map do |questionnaire_response|
+          questionnaire_response.contained&.grep(FHIR::Binary) || []
+        end
       end
 
       def contained_binary_is_safe?(binary)
