@@ -3,6 +3,9 @@ require 'davinci_dtr_test_kit/server/v2.2.0/questionnaire_design/contained_binar
 
 RSpec.describe DaVinciDTRTestKit::DTRPayerServerV220::ContainedBinaryTest do # rubocop:disable RSpec/SpecFilePathFormat
   let(:suite_id) { 'dtr_payer_server_v220' }
+  let(:invalid_binary_message) do
+    'Contained Binary resources must be PDFs or safe XHTML pages without active content or scripts.'
+  end
   let(:pdf_binary) do
     FHIR::Binary.new(contentType: 'application/pdf', data: Base64.strict_encode64('%PDF-1.7'))
   end
@@ -36,13 +39,15 @@ RSpec.describe DaVinciDTRTestKit::DTRPayerServerV220::ContainedBinaryTest do # r
   let(:test_class) do
     Class.new(described_class) do
       class << self
-        attr_accessor :mock_requests
+        attr_accessor :mock_requests_by_tag
       end
 
       id :dtr_v220_payer_contained_binary_spec
 
-      def load_tagged_requests(*)
-        requests.concat(self.class.mock_requests)
+      def load_tagged_requests(*tags)
+        tagged_requests = tags.flat_map { |tag| self.class.mock_requests_by_tag.fetch(tag, []) }
+        requests.concat(tagged_requests)
+        tagged_requests
       end
     end
   end
@@ -50,110 +55,184 @@ RSpec.describe DaVinciDTRTestKit::DTRPayerServerV220::ContainedBinaryTest do # r
   before do
     tests_repo = Inferno::Repositories::Tests.new
     tests_repo.insert(test_class) unless tests_repo.exists?(test_class.id.to_s)
+    test_class.mock_requests_by_tag = {}
   end
 
-  def response_with(*binaries)
+  def questionnaire_response_with(*binaries)
     questionnaire = FHIR::Questionnaire.new(id: 'questionnaire', status: 'draft')
-    questionnaire_response = FHIR::QuestionnaireResponse.new(
+    FHIR::QuestionnaireResponse.new(
       status: 'in-progress', questionnaire: '#questionnaire', contained: [questionnaire, *binaries]
     )
+  end
+
+  def questionnaire_package_response_with(*binaries)
+    questionnaire_response = questionnaire_response_with(*binaries)
     bundle = FHIR::Bundle.new(type: 'collection', entry: [FHIR::Bundle::Entry.new(resource: questionnaire_response)])
     FHIR::Parameters.new(
       parameter: [FHIR::Parameters::Parameter.new(name: 'packagebundle', resource: bundle)]
     ).to_json
   end
 
-  def mock_questionnaire_package_response(*binaries)
-    test_class.mock_requests = [
+  def next_question_response_with(*binaries, parameters: false)
+    questionnaire_response = questionnaire_response_with(*binaries)
+    return questionnaire_response.to_json unless parameters
+
+    FHIR::Parameters.new(
+      parameter: [FHIR::Parameters::Parameter.new(name: 'return', resource: questionnaire_response)]
+    ).to_json
+  end
+
+  def mock_response(tag, body)
+    operation = tag == DaVinciDTRTestKit::QUESTIONNAIRE_TAG ? '$questionnaire-package' : '$next-question'
+    test_class.mock_requests_by_tag[tag] = [
       Inferno::Entities::Request.new(
-        verb: 'post', url: 'https://payer.example.com/Questionnaire/$questionnaire-package',
-        direction: 'outgoing', status: 200, response_body: response_with(*binaries),
-        test_session_id: test_session.id
+        verb: 'post', url: "https://payer.example.com/Questionnaire/#{operation}",
+        direction: 'outgoing', status: 200, response_body: body, test_session_id: test_session.id
       )
     ]
   end
 
-  it 'passes when there is just a contained PDF Binary resource' do
+  def mock_questionnaire_package_response(*binaries)
+    mock_response(DaVinciDTRTestKit::QUESTIONNAIRE_TAG, questionnaire_package_response_with(*binaries))
+  end
+
+  def mock_next_question_response(*binaries, parameters: false)
+    mock_response(DaVinciDTRTestKit::NEXT_TAG, next_question_response_with(*binaries, parameters:))
+  end
+
+  shared_examples 'contained Binary validation' do
+    it 'passes with a contained PDF Binary resource' do
+      mock_operation_response.call(pdf_binary)
+
+      result = run(test_class)
+
+      expect(result.result).to eq('pass'), result.result_message
+    end
+
+    it 'passes with a contained XHTML Binary resource' do
+      mock_operation_response.call(xhtml_binary)
+
+      result = run(test_class)
+
+      expect(result.result).to eq('pass'), result.result_message
+    end
+
+    it 'passes with both contained PDF and XHTML Binary resources' do
+      mock_operation_response.call(pdf_binary, xhtml_binary)
+
+      result = run(test_class)
+
+      expect(result.result).to eq('pass'), result.result_message
+    end
+
+    it 'fails with a contained Binary resource that has an unsupported content type' do
+      mock_operation_response.call(unsupported_binary)
+
+      result = run(test_class)
+
+      expect(result.result).to eq('fail')
+      expect(result.result_message).to eq(invalid_binary_message)
+    end
+
+    it 'fails with both supported and unsupported contained Binary resources' do
+      mock_operation_response.call(pdf_binary, xhtml_binary, unsupported_binary)
+
+      result = run(test_class)
+
+      expect(result.result).to eq('fail')
+      expect(result.result_message).to eq(invalid_binary_message)
+    end
+
+    it 'fails when a contained XHTML Binary contains a script' do
+      mock_operation_response.call(script_binary)
+
+      result = run(test_class)
+
+      expect(result.result).to eq('fail')
+      expect(result.result_message).to eq(invalid_binary_message)
+    end
+
+    it 'fails when a contained XHTML Binary contains an event handler' do
+      mock_operation_response.call(event_handler_binary)
+
+      result = run(test_class)
+
+      expect(result.result).to eq('fail')
+      expect(result.result_message).to eq(invalid_binary_message)
+    end
+
+    it 'fails when a contained XHTML Binary contains a javascript URL' do
+      mock_operation_response.call(javascript_url_binary)
+
+      result = run(test_class)
+
+      expect(result.result).to eq('fail')
+      expect(result.result_message).to eq(invalid_binary_message)
+    end
+
+    it 'skips when there are no contained Binary resources' do
+      mock_operation_response.call
+
+      result = run(test_class)
+
+      expect(result.result).to eq('skip')
+      expect(result.result_message).to eq('No Binary resources were contained in QuestionnaireResponses')
+    end
+  end
+
+  context 'with a $questionnaire-package response' do
+    let(:mock_operation_response) { ->(*binaries) { mock_questionnaire_package_response(*binaries) } }
+
+    it_behaves_like 'contained Binary validation'
+  end
+
+  context 'with a direct $next-question response' do
+    let(:mock_operation_response) { ->(*binaries) { mock_next_question_response(*binaries) } }
+
+    it_behaves_like 'contained Binary validation'
+  end
+
+  it 'passes when a Parameters $next-question response contains a contained XHTML Binary resource' do
+    mock_next_question_response(xhtml_binary, parameters: true)
+
+    result = run(test_class)
+
+    expect(result.result).to eq('pass'), result.result_message
+  end
+
+  it 'passes when $questionnaire-package and $next-question both return safe Binary resources' do
     mock_questionnaire_package_response(pdf_binary)
+    mock_next_question_response(xhtml_binary)
 
     result = run(test_class)
 
     expect(result.result).to eq('pass'), result.result_message
   end
 
-  it 'passes when there is just a contained XHTML Binary resource' do
-    mock_questionnaire_package_response(xhtml_binary)
+  it 'fails when $questionnaire-package is valid and $next-question contains an invalid Binary resource' do
+    mock_questionnaire_package_response(pdf_binary)
+    mock_next_question_response(unsupported_binary)
 
     result = run(test_class)
 
-    expect(result.result).to eq('pass'), result.result_message
+    expect(result.result).to eq('fail')
+    expect(result.result_message).to eq(invalid_binary_message)
   end
 
-  it 'passes when there are both contained PDF and XHTML Binary resources' do
-    mock_questionnaire_package_response(pdf_binary, xhtml_binary)
-
-    result = run(test_class)
-
-    expect(result.result).to eq('pass'), result.result_message
-  end
-
-  it 'fails when there is a contained Binary resource with an unsupported content type' do
+  it 'fails when $questionnaire-package contains an invalid Binary resource and $next-question is valid' do
     mock_questionnaire_package_response(unsupported_binary)
+    mock_next_question_response(xhtml_binary)
 
     result = run(test_class)
 
     expect(result.result).to eq('fail')
-    expect(result.result_message).to include('Contained Binary resources must be PDFs or safe XHTML pages')
+    expect(result.result_message).to eq(invalid_binary_message)
   end
 
-  it 'fails when there are both supported and unsupported contained Binary resources' do
-    mock_questionnaire_package_response(pdf_binary, xhtml_binary, unsupported_binary)
-
-    result = run(test_class)
-
-    expect(result.result).to eq('fail')
-    expect(result.result_message).to include('Contained Binary resources must be PDFs or safe XHTML pages')
-  end
-
-  it 'fails when a contained XHTML Binary contains a script' do
-    mock_questionnaire_package_response(script_binary)
-
-    result = run(test_class)
-
-    expect(result.result).to eq('fail')
-  end
-
-  it 'fails when a contained XHTML Binary contains an event handler' do
-    mock_questionnaire_package_response(event_handler_binary)
-
-    result = run(test_class)
-
-    expect(result.result).to eq('fail')
-  end
-
-  it 'fails when a contained XHTML Binary contains a javascript URL' do
-    mock_questionnaire_package_response(javascript_url_binary)
-
-    result = run(test_class)
-
-    expect(result.result).to eq('fail')
-  end
-
-  it 'skips when the response contains no Binary resources' do
-    mock_questionnaire_package_response
-
+  it 'skips when no $questionnaire-package or $next-question requests were made' do
     result = run(test_class)
 
     expect(result.result).to eq('skip')
-    expect(result.result_message).to eq('No Binary resources were contained in QuestionnaireResponses')
-  end
-
-  it 'skips when no $questionnaire-package requests were made' do
-    test_class.mock_requests = []
-
-    result = run(test_class)
-
-    expect(result.result).to eq('skip')
-    expect(result.result_message).to eq('No $questionnaire-package requests were made')
+    expect(result.result_message).to eq('No $questionnaire-package or $next-question requests were made')
   end
 end
