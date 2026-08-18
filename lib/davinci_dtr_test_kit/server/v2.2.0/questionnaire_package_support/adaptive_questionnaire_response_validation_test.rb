@@ -26,7 +26,7 @@ module DaVinciDTRTestKit
 
         skip_if requests.blank?, 'No $questionnaire-package requests were made.'
 
-        successful_requests = requests.select { |request| [200, 201].include? request.response[:status] }
+        successful_requests = requests.select { |request| [200, 201].include? request.response.status }
 
         skip_if successful_requests.blank?, 'No successful $questionnaire-package requests were made'
 
