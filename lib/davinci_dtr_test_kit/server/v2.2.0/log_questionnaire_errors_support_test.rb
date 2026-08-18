@@ -48,7 +48,7 @@ module DaVinciDTRTestKit
           headers: { 'Content-Type': 'application/fhir+json' }
         )
 
-        status = request.response[:status].to_s
+        status = request.status.to_s
         assert status.start_with?('2'),
                "Expected a successful 2xx response to $log-questionnaire-errors, but received HTTP #{status}."
       end

@@ -50,6 +50,17 @@ module DaVinciDTRTestKit
             title: 'Payer FHIR Server Base Url',
             description: 'Base FHIR URL implementing the DTR server operations.'
 
+      input :backend_services_smart_auth_info,
+            title: 'OAuth Credentials',
+            type: :auth_info,
+            optional: true
+
+      # All FHIR requests in this suite use this FHIR client.
+      fhir_client do
+        url :url
+        auth_info :backend_services_smart_auth_info
+      end
+
       group do
         title 'Discovery'
 
@@ -66,16 +77,6 @@ module DaVinciDTRTestKit
         id :dtr_payer_server_v220_questionnaires
         title 'Questionnaire Operations'
         run_as_group
-
-        input :backend_services_smart_auth_info,
-              title: 'OAuth Credentials',
-              type: :auth_info,
-              optional: true
-
-        fhir_client do
-          url :url
-          auth_info :backend_services_smart_auth_info
-        end
 
         group do
           title 'Questionnaire Interactions'
