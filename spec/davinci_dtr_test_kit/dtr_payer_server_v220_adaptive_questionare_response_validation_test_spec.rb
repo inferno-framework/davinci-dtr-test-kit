@@ -1,4 +1,4 @@
-RSpec.describe DaVinciDTRTestKit::DTRPayerServerV220::AdaptiveQuestionnaireResponseValidationTest, :request do
+RSpec.describe DaVinciDTRTestKit::DTRPayerServerV220::AdaptiveQuestionnaireResponseValidationTest, :request do # rubocop:disable RSpec/SpecFilePathFormat
   let(:suite_id) { 'dtr_payer_server_v220' }
   let(:result) { repo_create(:result, test_session_id: test_session.id) }
   let(:canonical) { 'urn:example:adaptive-q' }

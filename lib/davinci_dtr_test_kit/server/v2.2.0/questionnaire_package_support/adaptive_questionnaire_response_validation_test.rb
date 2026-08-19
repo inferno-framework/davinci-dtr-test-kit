@@ -15,8 +15,10 @@ module DaVinciDTRTestKit
       id :dtr_v220_payer_adaptive_questionnaire_response_validation
       title 'Validate adaptive Questionnaires against the DTR AdaptiveQuestionnaire-Search profile'
       description %(
-        This test validates Questionnaires responses are compliant with the DTR AdaptiveQuestionnaire-Search profile. 
-        It will check that the Questionnaires returned from the $questionnaire-package operation are valid against the profile.
+        This test validates Questionnaires responses are compliant with the DTR
+        AdaptiveQuestionnaire-Search profile. It will check that the
+        Questionnaires returned from the $questionnaire-package operation are
+        valid against the profile.
       )
 
       verifies_requirements 'hl7.fhir.us.davinci-dtr_2.2.0@spec-23'
