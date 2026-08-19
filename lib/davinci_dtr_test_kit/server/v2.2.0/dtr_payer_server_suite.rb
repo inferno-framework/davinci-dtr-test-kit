@@ -12,7 +12,6 @@ require_relative 'questionnaire_design/cql_library_validation_test'
 require_relative 'dtr_payer_server_capability_statement_test'
 require_relative 'questionnaire_package_support/questionnaire_response_references_test'
 require_relative 'questionnaire_package_support/contained_questionnaire_response_references_test'
-<<<<<<< HEAD
 require_relative 'questionnaire_package_support/questionnaire_response_questionnaire_canonical_test'
 require_relative 'next_question_support/next_question_response_references_test'
 require_relative 'next_question_support/next_contained_questionnaire_response_references_test'
@@ -25,10 +24,6 @@ require_relative 'questionnaire_design/questionnaire_relevance_logic_test'
 require_relative 'questionnaire_package_support/source_data_error_test'
 require_relative 'questionnaire_design/contained_binary_test'
 require_relative 'questionnaire_package_support/value_set_validation_test'
-=======
-require_relative 'next_question_support/next_question_response_references_test'
-require_relative 'next_question_support/next_contained_questionnaire_response_references_test'
->>>>>>> 1133a86 (FQM-433: Add tests for $questionnaire-package and $next-question response verification (spec-139 and spec-141) (#96))
 
 module DaVinciDTRTestKit
   module DTRPayerServerV220
