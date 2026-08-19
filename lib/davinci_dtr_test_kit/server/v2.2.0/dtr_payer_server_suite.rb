@@ -1,5 +1,6 @@
 require 'smart_app_launch_test_kit'
 require_relative 'interaction_test'
+require_relative 'log_questionnaire_errors_support_test'
 require_relative 'questionnaire_package_support/questionnaire_response_validation_test'
 require_relative 'questionnaire_design/cql_library_validation_test'
 
@@ -49,6 +50,17 @@ module DaVinciDTRTestKit
             title: 'Payer FHIR Server Base Url',
             description: 'Base FHIR URL implementing the DTR server operations.'
 
+      input :backend_services_smart_auth_info,
+            title: 'OAuth Credentials',
+            type: :auth_info,
+            optional: true
+
+      # All FHIR requests in this suite use this FHIR client.
+      fhir_client do
+        url :url
+        auth_info :backend_services_smart_auth_info
+      end
+
       group do
         title 'Discovery'
 
@@ -65,16 +77,6 @@ module DaVinciDTRTestKit
         id :dtr_payer_server_v220_questionnaires
         title 'Questionnaire Operations'
         run_as_group
-
-        input :backend_services_smart_auth_info,
-              title: 'OAuth Credentials',
-              type: :auth_info,
-              optional: true
-
-        fhir_client do
-          url :url
-          auth_info :backend_services_smart_auth_info
-        end
 
         group do
           title 'Questionnaire Interactions'
@@ -165,8 +167,7 @@ module DaVinciDTRTestKit
         # TODO
         # (optionally ?) perform $q-p operation and validate input
 
-        # TODO
-        # oper-1 - shall support it
+        test from: :dtr_v220_payer_log_questionnaire_errors_support
       end
 
       group do
