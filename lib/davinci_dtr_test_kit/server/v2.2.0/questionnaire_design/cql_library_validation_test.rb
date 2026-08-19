@@ -1,5 +1,5 @@
 require_relative '../../../tags'
-require_relative '../../../cross_suite/v2.2.0/questionnaire_operation_validation'
+require_relative '../questionnaire_operation_validation'
 
 module DaVinciDTRTestKit
   module DTRPayerServerV220
