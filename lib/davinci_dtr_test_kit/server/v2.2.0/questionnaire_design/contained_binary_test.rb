@@ -34,33 +34,37 @@ module DaVinciDTRTestKit
       end
 
       def questionnaire_responses_from_questionnaire_package_requests(requests)
-        requests.flat_map do |request|
-          parameters = response_parameters(request)
-          parameters.parameter.filter_map { |parameter| questionnaire_response_from_package_bundle(parameter) }
+        requests.filter_map do |request|
+          parameters = response_resource(request)
+          assert parameters.is_a?(FHIR::Parameters), 'Response is not a Parameters resource'
+
+          questionnaire_response_from_package_bundle(parameters.parameter)
         end
       end
 
       def questionnaire_responses_from_next_question_requests(requests)
         requests.filter_map do |request|
-          parameters = response_parameters(request)
-          parameters.parameter.find do |parameter|
+          resource = response_resource(request)
+          next resource if resource.is_a?(FHIR::QuestionnaireResponse)
+
+          assert resource.is_a?(FHIR::Parameters), 'Response is not a Parameters resource'
+
+          resource.parameter.find do |parameter|
             parameter.name == 'return' && parameter.resource.is_a?(FHIR::QuestionnaireResponse)
           end&.resource
         end
       end
 
-      def response_parameters(request)
+      def response_resource(request)
         assert_valid_json(request.response_body, 'Response is not valid JSON')
-        parameters = FHIR.from_contents(request.response_body)
-        assert parameters.is_a?(FHIR::Parameters), 'Response is not a Parameters resource'
-
-        parameters
+        FHIR.from_contents(request.response_body)
       end
 
-      def questionnaire_response_from_package_bundle(parameter)
-        return unless parameter.name == 'packagebundle'
+      def questionnaire_response_from_package_bundle(parameters)
+        package_bundle = parameters.find { |parameter| parameter.name == 'packagebundle' }&.resource
+        return unless package_bundle.is_a?(FHIR::Bundle)
 
-        parameter.resource&.entry&.find { |entry| entry.resource.is_a?(FHIR::QuestionnaireResponse) }&.resource
+        package_bundle.entry&.find { |entry| entry.resource.is_a?(FHIR::QuestionnaireResponse) }&.resource
       end
     end
   end

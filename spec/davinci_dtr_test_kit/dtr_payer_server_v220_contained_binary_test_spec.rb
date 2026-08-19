@@ -88,6 +88,10 @@ RSpec.describe DaVinciDTRTestKit::DTRPayerServerV220::ContainedBinaryTest do # r
     ).to_json
   end
 
+  def direct_next_question_response_with(*binaries)
+    questionnaire_response_with(*binaries).to_json
+  end
+
   def mock_response(tag, body)
     operation = tag == DaVinciDTRTestKit::QUESTIONNAIRE_TAG ? '$questionnaire-package' : '$next-question'
     test_class.mock_requests_by_tag[tag] = [
@@ -104,6 +108,10 @@ RSpec.describe DaVinciDTRTestKit::DTRPayerServerV220::ContainedBinaryTest do # r
 
   def mock_next_question_response(*binaries)
     mock_response(DaVinciDTRTestKit::NEXT_TAG, next_question_response_with(*binaries))
+  end
+
+  def mock_direct_next_question_response(*binaries)
+    mock_response(DaVinciDTRTestKit::NEXT_TAG, direct_next_question_response_with(*binaries))
   end
 
   shared_examples 'contained Binary validation' do
@@ -198,6 +206,12 @@ RSpec.describe DaVinciDTRTestKit::DTRPayerServerV220::ContainedBinaryTest do # r
     it_behaves_like 'contained Binary validation'
   end
 
+  context 'with a direct QuestionnaireResponse from $next-question' do
+    let(:mock_operation_response) { ->(*binaries) { mock_direct_next_question_response(*binaries) } }
+
+    it_behaves_like 'contained Binary validation'
+  end
+
   it 'passes when $questionnaire-package and $next-question both return safe Binary resources' do
     mock_questionnaire_package_response(pdf_binary)
     mock_next_question_response(xhtml_binary)
@@ -227,16 +241,18 @@ RSpec.describe DaVinciDTRTestKit::DTRPayerServerV220::ContainedBinaryTest do # r
     expect(result.result_message).to eq(invalid_binary_message)
   end
 
-  it 'fails when a later $questionnaire-package packagebundle output contains an invalid Binary resource' do
-    response_body = questionnaire_package_response_with_questionnaire_responses(
-      questionnaire_response_with(pdf_binary), questionnaire_response_with(unsupported_binary)
-    )
+  it 'skips a $questionnaire-package packagebundle output that is not a Bundle' do
+    response_body = FHIR::Parameters.new(
+      parameter: [
+        FHIR::Parameters::Parameter.new(name: 'packagebundle', resource: questionnaire_response_with(pdf_binary))
+      ]
+    ).to_json
     mock_response(DaVinciDTRTestKit::QUESTIONNAIRE_TAG, response_body)
 
     result = run(test_class)
 
-    expect(result.result).to eq('fail')
-    expect(result.result_message).to eq(invalid_binary_message)
+    expect(result.result).to eq('skip')
+    expect(result.result_message).to eq('No Binary resources were contained in QuestionnaireResponses')
   end
 
   it 'fails with the expected message when a $questionnaire-package response is not valid JSON' do
