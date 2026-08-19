@@ -64,12 +64,11 @@ module DaVinciDTRTestKit
       def document_has_no_unsafe_content?(document)
         # Inspect every nested XHTML element, including elements in the default
         # XHTML namespace which a non-namespaced XPath would not reliably select.
-        unsafe_element_found = false
         document.root.traverse do |node|
-          unsafe_element_found ||= node.element? && unsafe_xhtml_element?(node)
+          return false if node.element? && unsafe_xhtml_element?(node)
         end
 
-        !unsafe_element_found
+        true
       end
 
       def narrative_fragment?(document)

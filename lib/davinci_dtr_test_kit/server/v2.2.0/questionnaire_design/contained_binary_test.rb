@@ -21,27 +21,35 @@ module DaVinciDTRTestKit
       verifies_requirements 'hl7.fhir.us.davinci-dtr_2.2.0@spec-160'
 
       run do
-        load_tagged_requests(QUESTIONNAIRE_TAG)
-        load_tagged_requests(NEXT_TAG)
+        load_tagged_requests(QUESTIONNAIRE_TAG, NEXT_TAG)
         omit_if requests.blank?,
                 'No $questionnaire-package or $next-question requests were made'
 
-        requests.each { |request| assert_valid_json(request.response_body, 'Response is not valid JSON') }
-        questionnaire_responses = requests.flat_map { |request| questionnaire_responses_from_request(request) }
-        binaries = contained_binaries(questionnaire_responses)
-
-        omit_if binaries.blank?, 'No Binary resources were contained in QuestionnaireResponses'
-
-        invalid_binaries = binaries.each_with_index.filter_map do |binary, index|
-          [binary, index + 1] unless contained_binary_is_safe?(binary)
+        invalid_binaries = []
+        binary_found = false
+        requests.each_with_index do |request, request_index|
+          questionnaire_responses_from_request(request).each do |questionnaire_response|
+            contained_binaries([questionnaire_response]).each do |binary|
+              binary_found = true
+              invalid_binaries << [binary, request_index + 1] unless contained_binary_is_safe?(binary)
+            end
+          end
         end
+
+        omit_if !binary_found, 'No Binary resources were contained in QuestionnaireResponses'
+        invalid_binary_descriptions = invalid_binaries.map do |binary, request_index|
+          binary_description(binary, request_index)
+        end
+        invalid_binary_message =
+          'The following Binary resources are not PDFs or safe XHTML fragments: ' \
+          "#{invalid_binary_descriptions.join(', ')}"
         assert invalid_binaries.empty?,
-               'The following Binary resources are not PDFs or safe XHTML fragments: ' \
-               "#{invalid_binaries.map { |binary, index| binary_description(binary, index) }.join(', ')}"
+               invalid_binary_message
       end
 
-      def binary_description(binary, index)
-        binary.id.present? ? "Binary `#{binary.id}`" : "contained Binary at position #{index}"
+      def binary_description(binary, request_index)
+        identifier = binary.id.present? ? "Binary `#{binary.id}`" : 'contained Binary without an id'
+        "#{identifier} in request #{request_index}"
       end
     end
   end
