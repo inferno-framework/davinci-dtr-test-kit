@@ -13,7 +13,7 @@ RSpec.describe DaVinciDTRTestKit::DTRPayerServerV220::ContainedBinaryTest do # r
   let(:xhtml_binary) do
     FHIR::Binary.new(
       contentType: 'application/xhtml+xml',
-      data: Base64.strict_encode64('<html><body><p>Instructions</p></body></html>')
+      data: Base64.strict_encode64(narrative_xhtml('<p>Instructions</p>'))
     )
   end
   let(:unsupported_binary) do
@@ -22,19 +22,19 @@ RSpec.describe DaVinciDTRTestKit::DTRPayerServerV220::ContainedBinaryTest do # r
   let(:script_binary) do
     FHIR::Binary.new(
       contentType: 'application/xhtml+xml',
-      data: Base64.strict_encode64('<html><body><script>alert(1)</script></body></html>')
+      data: Base64.strict_encode64(narrative_xhtml('<script>alert(1)</script>'))
     )
   end
   let(:event_handler_binary) do
     FHIR::Binary.new(
       contentType: 'application/xhtml+xml',
-      data: Base64.strict_encode64('<html><body><p onclick="alert(1)">Text</p></body></html>')
+      data: Base64.strict_encode64(narrative_xhtml('<p onclick="alert(1)">Text</p>'))
     )
   end
   let(:javascript_url_binary) do
     FHIR::Binary.new(
       contentType: 'application/xhtml+xml',
-      data: Base64.strict_encode64('<html><body><a href="javascript:alert(1)">Text</a></body></html>')
+      data: Base64.strict_encode64(narrative_xhtml('<a href="javascript:alert(1)">Text</a>'))
     )
   end
   let(:test_class) do
@@ -64,6 +64,10 @@ RSpec.describe DaVinciDTRTestKit::DTRPayerServerV220::ContainedBinaryTest do # r
     FHIR::QuestionnaireResponse.new(
       status: 'in-progress', questionnaire: '#questionnaire', contained: [questionnaire, *binaries]
     )
+  end
+
+  def narrative_xhtml(content)
+    "<div xmlns=\"http://www.w3.org/1999/xhtml\">#{content}</div>"
   end
 
   def questionnaire_package_response_with(*binaries)

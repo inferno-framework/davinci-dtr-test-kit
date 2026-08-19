@@ -11,7 +11,10 @@ module DaVinciDTRTestKit
       description %(
         This test verifies that Binary resources contained in QuestionnaireResponses
         returned from the `$questionnaire-package` or `$next-question` operations are
-        either PDFs or XHTML pages without active content or scripts.
+        either PDFs or XHTML fragments that follow the FHIR R4 Narrative safety rules.
+        XHTML must be a non-empty `<div>` fragment in the XHTML namespace and must not
+        contain active content, scripts, external stylesheets, deprecated elements, or
+        event-related attributes.
       )
       verifies_requirements 'hl7.fhir.us.davinci-dtr_2.2.0@spec-160'
 

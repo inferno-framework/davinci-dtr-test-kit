@@ -14,6 +14,10 @@ RSpec.describe DaVinciDTRTestKit::DTRPayerServerV220::ContainedBinaryValidation 
     FHIR::Binary.new(contentType: content_type, data: Base64.strict_encode64(content))
   end
 
+  def xhtml(content)
+    "<div xmlns=\"http://www.w3.org/1999/xhtml\">#{content}</div>"
+  end
+
   def questionnaire_response_with(*binaries)
     FHIR::QuestionnaireResponse.new(
       status: 'in-progress',
@@ -27,10 +31,13 @@ RSpec.describe DaVinciDTRTestKit::DTRPayerServerV220::ContainedBinaryValidation 
     expect(validator.contained_binary_is_safe?(pdf)).to be(true)
   end
 
-  it 'accepts well-formed XHTML without active content' do
-    xhtml = binary('application/xhtml+xml', '<html><body><p>Instructions</p></body></html>')
+  it 'accepts a non-empty XHTML Narrative fragment with permitted formatting' do
+    xhtml_binary = binary(
+      'application/xhtml+xml',
+      xhtml('<p style="font-weight: bold">Instructions <a href="https://example.com">more</a></p><img src="#image"/>')
+    )
 
-    expect(validator.contained_binary_is_safe?(xhtml)).to be(true)
+    expect(validator.contained_binary_is_safe?(xhtml_binary)).to be(true)
   end
 
   it 'rejects a Binary with an unsupported content type' do
@@ -40,19 +47,58 @@ RSpec.describe DaVinciDTRTestKit::DTRPayerServerV220::ContainedBinaryValidation 
   end
 
   it 'rejects malformed XHTML and malformed base64 content' do
-    malformed_xhtml = binary('application/xhtml+xml', '<html><body><p></body></html>')
+    malformed_xhtml = binary('application/xhtml+xml', '<div xmlns="http://www.w3.org/1999/xhtml"><p></div>')
     malformed_data = FHIR::Binary.new(contentType: 'application/xhtml+xml', data: 'not base64')
 
     expect(validator.contained_binary_is_safe?(malformed_xhtml)).to be(false)
     expect(validator.contained_binary_is_safe?(malformed_data)).to be(false)
   end
 
-  it 'rejects XHTML with scripts, event handlers, or javascript URLs' do
-    script = binary('application/xhtml+xml', '<html><body><script>alert(1)</script></body></html>')
-    event = binary('application/xhtml+xml', '<html><body><p onclick="alert(1)">Text</p></body></html>')
-    url = binary('application/xhtml+xml', '<html><body><a href="javascript:alert(1)">Text</a></body></html>')
-    expect(validator.contained_binary_is_safe?(script)).to be(false)
+  it 'rejects documents instead of XHTML Narrative fragments' do
+    html_document = binary('application/xhtml+xml', '<html><body><p>Instructions</p></body></html>')
+
+    expect(validator.contained_binary_is_safe?(html_document)).to be(false)
+  end
+
+  it 'rejects an empty XHTML Narrative fragment' do
+    empty_fragment = binary('application/xhtml+xml', xhtml('  '))
+
+    expect(validator.contained_binary_is_safe?(empty_fragment)).to be(false)
+  end
+
+  it 'rejects the elements explicitly prohibited by FHIR Narrative rules' do
+    prohibited_elements = %w[base body form frame frameset head iframe input link object script style]
+
+    prohibited_elements.each do |element|
+      xhtml_binary = binary('application/xhtml+xml', xhtml("<#{element}>Instructions</#{element}>"))
+
+      expect(validator.contained_binary_is_safe?(xhtml_binary)).to be(false), element
+    end
+  end
+
+  it 'rejects deprecated XHTML elements' do
+    deprecated_elements = %w[basefont center dir font isindex menu s strike u]
+
+    deprecated_elements.each do |element|
+      xhtml_binary = binary('application/xhtml+xml', xhtml("<#{element}>Instructions</#{element}>"))
+
+      expect(validator.contained_binary_is_safe?(xhtml_binary)).to be(false), element
+    end
+  end
+
+  it 'rejects event attributes, xlink content, and executable URLs' do
+    event = binary('application/xhtml+xml', xhtml('<p onclick="alert(1)">Text</p>'))
+    xlink = binary(
+      'application/xhtml+xml', xhtml('<a xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#id">Text</a>')
+    )
+    xlink_element = binary(
+      'application/xhtml+xml', xhtml('<xlink:custom xmlns:xlink="http://www.w3.org/1999/xlink">Text</xlink:custom>')
+    )
+    url = binary('application/xhtml+xml', xhtml('<a href="javascript:alert(1)">Text</a>'))
+
     expect(validator.contained_binary_is_safe?(event)).to be(false)
+    expect(validator.contained_binary_is_safe?(xlink)).to be(false)
+    expect(validator.contained_binary_is_safe?(xlink_element)).to be(false)
     expect(validator.contained_binary_is_safe?(url)).to be(false)
   end
 
