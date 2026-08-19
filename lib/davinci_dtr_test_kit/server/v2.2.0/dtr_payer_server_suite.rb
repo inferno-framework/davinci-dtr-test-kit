@@ -8,6 +8,7 @@ require_relative 'questionnaire_package_support/questionnaire_package_input_type
 require_relative 'questionnaire_package_support/dtr_server_no_custom_extension_test'
 require_relative 'questionnaire_package_support/questionnaire_response_validation_test'
 require_relative 'next_question_support/next_question_response_validation_test'
+require_relative 'questionnaire_package_support/dtr_server_questionnaire_not_found_test'
 require_relative 'questionnaire_design/cql_library_validation_test'
 require_relative 'dtr_payer_server_capability_statement_test'
 require_relative 'questionnaire_package_support/questionnaire_response_references_test'
@@ -223,6 +224,7 @@ module DaVinciDTRTestKit
 
         # TODO
         # oper-9 - make a request with a known bad questionnaire url
+        test from: :dtr_server_v220_payer_questionnaire_not_found
 
         test from: :dtr_v220_payer_source_data_error
 
