@@ -1,12 +1,14 @@
 require_relative '../../../tags'
 require_relative '../../validation_test'
 require_relative '../questionnaire_operation_validation'
+require_relative '../../../cross_suite/v2.2.0/multi_request_message_helper'
 
 module DaVinciDTRTestKit
   module DTRPayerServerV220
     class ValueSetValidationTest < Inferno::Test
       include DaVinciDTRTestKit::ValidationTest
       include QuestionnaireOperationValidation
+      include MultiRequestMessageHelper
 
       id :dtr_v220_payer_value_set_validation
       title 'Validate questionnaire-package response Bundle includes all external ValueSet instances'
@@ -24,13 +26,15 @@ module DaVinciDTRTestKit
 
         skip_if requests.blank?, 'No $questionnaire-package requests were made'
 
-        successful_requests = requests.select { |request| [200, 201].include? request.response.status }
+        successful_requests = requests.each_with_index.select do |request, _request_index|
+          [200, 201].include? request.status
+        end
 
         skip_if successful_requests.blank?, 'No successful $questionnaire-package requests were made'
 
         external_value_set_referenced = false
 
-        successful_requests.each do |request|
+        successful_requests.each do |request, request_index|
           resource = FHIR.from_contents(request.response_body)
 
           extract_questionnaire_bundles(resource).each do |bundle|
@@ -50,12 +54,21 @@ module DaVinciDTRTestKit
 
             missing_value_set_urls = external_value_set_urls.uniq - bundle_value_set_urls.uniq
 
-            assert missing_value_set_urls.empty?,
-                   "Bundle is missing ValueSet instances: #{missing_value_set_urls.join(', ')}"
+            next if missing_value_set_urls.empty?
+
+            add_request_message(
+              'error',
+              "Bundle is missing ValueSet instances: #{missing_value_set_urls.join(', ')}",
+              request_index
+            )
           end
         end
 
         omit_if !external_value_set_referenced, 'No external ValueSet referenced'
+
+        assert_no_error_messages(
+          "#{requests_with_errors_prefix}Questionnaire-package response Bundles are missing ValueSet instances."
+        )
       end
 
       def value_set_urls_from_items(items)

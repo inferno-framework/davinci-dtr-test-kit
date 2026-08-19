@@ -97,7 +97,7 @@ RSpec.describe DaVinciDTRTestKit::DTRPayerServerV220::ValueSetValidationTest do
     test_result = run(described_class)
 
     expect(test_result.result).to eq('fail')
-    expect(test_result.result_message).to include('Bundle is missing ValueSet instances')
+    expect(test_result.result_message).to include('Questionnaire-package response Bundles are missing ValueSet instances')
   end
 
   it 'passes when a Bundle includes every externally referenced ValueSet' do
