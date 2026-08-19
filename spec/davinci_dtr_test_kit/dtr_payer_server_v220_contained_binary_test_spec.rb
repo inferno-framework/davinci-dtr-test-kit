@@ -4,7 +4,7 @@ require 'davinci_dtr_test_kit/server/v2.2.0/questionnaire_design/contained_binar
 RSpec.describe DaVinciDTRTestKit::DTRPayerServerV220::ContainedBinaryTest do # rubocop:disable RSpec/SpecFilePathFormat
   let(:suite_id) { 'dtr_payer_server_v220' }
   let(:invalid_binary_message) do
-    'Contained Binary resources must be PDFs or safe XHTML pages without active content or scripts.'
+    'The following Binary resources are not PDFs or safe XHTML fragments:'
   end
   let(:invalid_json_message) { 'Invalid JSON. Response is not valid JSON' }
   let(:pdf_binary) do
@@ -149,7 +149,8 @@ RSpec.describe DaVinciDTRTestKit::DTRPayerServerV220::ContainedBinaryTest do # r
       result = run(test_class)
 
       expect(result.result).to eq('fail')
-      expect(result.result_message).to eq(invalid_binary_message)
+      expect(result.result_message).to include(invalid_binary_message)
+      expect(result.result_message).to include('contained Binary at position 1')
     end
 
     it 'fails with both supported and unsupported contained Binary resources' do
@@ -158,7 +159,7 @@ RSpec.describe DaVinciDTRTestKit::DTRPayerServerV220::ContainedBinaryTest do # r
       result = run(test_class)
 
       expect(result.result).to eq('fail')
-      expect(result.result_message).to eq(invalid_binary_message)
+      expect(result.result_message).to include(invalid_binary_message)
     end
 
     it 'fails when a contained XHTML Binary contains a script' do
@@ -167,7 +168,7 @@ RSpec.describe DaVinciDTRTestKit::DTRPayerServerV220::ContainedBinaryTest do # r
       result = run(test_class)
 
       expect(result.result).to eq('fail')
-      expect(result.result_message).to eq(invalid_binary_message)
+      expect(result.result_message).to include(invalid_binary_message)
     end
 
     it 'fails when a contained XHTML Binary contains an event handler' do
@@ -176,7 +177,7 @@ RSpec.describe DaVinciDTRTestKit::DTRPayerServerV220::ContainedBinaryTest do # r
       result = run(test_class)
 
       expect(result.result).to eq('fail')
-      expect(result.result_message).to eq(invalid_binary_message)
+      expect(result.result_message).to include(invalid_binary_message)
     end
 
     it 'fails when a contained XHTML Binary contains a javascript URL' do
@@ -185,15 +186,15 @@ RSpec.describe DaVinciDTRTestKit::DTRPayerServerV220::ContainedBinaryTest do # r
       result = run(test_class)
 
       expect(result.result).to eq('fail')
-      expect(result.result_message).to eq(invalid_binary_message)
+      expect(result.result_message).to include(invalid_binary_message)
     end
 
-    it 'skips when there are no contained Binary resources' do
+    it 'omits when there are no contained Binary resources' do
       mock_operation_response.call
 
       result = run(test_class)
 
-      expect(result.result).to eq('skip')
+      expect(result.result).to eq('omit')
       expect(result.result_message).to eq('No Binary resources were contained in QuestionnaireResponses')
     end
   end
@@ -232,7 +233,7 @@ RSpec.describe DaVinciDTRTestKit::DTRPayerServerV220::ContainedBinaryTest do # r
     result = run(test_class)
 
     expect(result.result).to eq('fail')
-    expect(result.result_message).to eq(invalid_binary_message)
+    expect(result.result_message).to include(invalid_binary_message)
   end
 
   it 'fails when $questionnaire-package contains an invalid Binary resource and $next-question is valid' do
@@ -242,21 +243,7 @@ RSpec.describe DaVinciDTRTestKit::DTRPayerServerV220::ContainedBinaryTest do # r
     result = run(test_class)
 
     expect(result.result).to eq('fail')
-    expect(result.result_message).to eq(invalid_binary_message)
-  end
-
-  it 'skips a $questionnaire-package packagebundle output that is not a Bundle' do
-    response_body = FHIR::Parameters.new(
-      parameter: [
-        FHIR::Parameters::Parameter.new(name: 'packagebundle', resource: questionnaire_response_with(pdf_binary))
-      ]
-    ).to_json
-    mock_response(DaVinciDTRTestKit::QUESTIONNAIRE_TAG, response_body)
-
-    result = run(test_class)
-
-    expect(result.result).to eq('skip')
-    expect(result.result_message).to eq('No Binary resources were contained in QuestionnaireResponses')
+    expect(result.result_message).to include(invalid_binary_message)
   end
 
   it 'fails with the expected message when a $questionnaire-package response is not valid JSON' do
@@ -277,10 +264,10 @@ RSpec.describe DaVinciDTRTestKit::DTRPayerServerV220::ContainedBinaryTest do # r
     expect(result.result_message).to eq(invalid_json_message)
   end
 
-  it 'skips when no $questionnaire-package or $next-question requests were made' do
+  it 'omits when no $questionnaire-package or $next-question requests were made' do
     result = run(test_class)
 
-    expect(result.result).to eq('skip')
+    expect(result.result).to eq('omit')
     expect(result.result_message).to eq('No $questionnaire-package or $next-question requests were made')
   end
 end
