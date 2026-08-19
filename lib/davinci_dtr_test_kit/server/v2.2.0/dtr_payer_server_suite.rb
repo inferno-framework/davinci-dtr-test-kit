@@ -9,6 +9,7 @@ require_relative 'questionnaire_package_support/contained_questionnaire_response
 require_relative 'next_question_support/next_question_response_references_test'
 require_relative 'next_question_support/next_contained_questionnaire_response_references_test'
 require_relative 'questionnaire_package_support/adaptive_questionnaire_response_validation_test'
+require_relative 'value_set_expand_support/value_set_expansion_test'
 
 module DaVinciDTRTestKit
   module DTRPayerServerV220
@@ -180,10 +181,7 @@ module DaVinciDTRTestKit
 
         group do
           title 'ValueSet/$expand Support'
-          # [NOT TESTED]
-
-          # TODO
-          # oper-5 - VS shall use current date and only include active codes
+          test from: :dtr_v220_payer_value_set_expansion
 
           # TODO
           # oper-15 - [NOT TESTED in 2.0] VS with <40 entries SHALL be expanded
