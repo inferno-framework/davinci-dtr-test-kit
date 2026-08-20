@@ -3,7 +3,7 @@ require_relative 'interaction_test'
 require_relative 'log_questionnaire_errors_support_test'
 require_relative 'next_question_support/invalid_questionnaire_response_test'
 require_relative 'questionnaire_package_request_validation_test'
-require_relative 'questionnaire_response_template_validation_test'
+require_relative 'next_question_request_validation_test'
 require_relative 'questionnaire_package_support/questionnaire_response_validation_test'
 require_relative 'questionnaire_design/cql_library_validation_test'
 require_relative 'dtr_payer_server_capability_statement_test'
@@ -124,7 +124,7 @@ module DaVinciDTRTestKit
             title 'Request Validation'
             simulation_verification
             test from: :dtr_v220_payer_questionnaire_package_request_validation
-            test from: :dtr_v220_payer_questionnaire_response_template_validation
+            test from: :dtr_v220_payer_next_question_request_validation
           end
         end
 

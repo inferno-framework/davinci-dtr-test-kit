@@ -1,4 +1,4 @@
-RSpec.describe DaVinciDTRTestKit::DTRPayerServerV220::QuestionnaireResponseTemplateValidationTest do # rubocop:disable RSpec/SpecFilePathFormat
+RSpec.describe DaVinciDTRTestKit::DTRPayerServerV220::NextQuestionRequestValidationTest do # rubocop:disable RSpec/SpecFilePathFormat
   let(:suite_id) { 'dtr_payer_server_v220' }
   let(:result) { repo_create(:result, test_session_id: test_session.id) }
   let(:results_repo) { Inferno::Repositories::Results.new }

@@ -3,10 +3,10 @@ require_relative '../../tags'
 
 module DaVinciDTRTestKit
   module DTRPayerServerV220
-    class QuestionnaireResponseTemplateValidationTest < Inferno::Test
+    class NextQuestionRequestValidationTest < Inferno::Test
       include DaVinciDTRTestKit::ValidationTest
 
-      id :dtr_v220_payer_questionnaire_response_template_validation
+      id :dtr_v220_payer_next_question_request_validation
       title '$next-question QuestionnaireResponse request is valid'
       description %(
         This test validates that each outgoing QuestionnaireResponse request to the
