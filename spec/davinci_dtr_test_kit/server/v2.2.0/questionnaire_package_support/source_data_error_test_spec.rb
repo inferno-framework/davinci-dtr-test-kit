@@ -63,6 +63,7 @@ RSpec.describe DaVinciDTRTestKit::DTRPayerServerV220::SourceDataErrorTest, :runn
     result = run(test_class, url:, source_data_error_request:)
 
     expect(result.result).to eq('fail')
+    expect(result.result_message).to include('Expected a 4xx response', 'received HTTP 500')
   end
 
   it 'fails when the response is not an OperationOutcome' do
@@ -71,12 +72,14 @@ RSpec.describe DaVinciDTRTestKit::DTRPayerServerV220::SourceDataErrorTest, :runn
     result = run(test_class, url:, source_data_error_request:)
 
     expect(result.result).to eq('fail')
+    expect(result.result_message).to include('expected OperationOutcome')
   end
 
   it 'fails before making a request when the input is not a Parameters resource' do
     result = run(test_class, url:, source_data_error_request: FHIR::Questionnaire.new(status: 'draft').to_json)
 
     expect(result.result).to eq('fail')
+    expect(result.result_message).to include('expected Parameters')
     expect(WebMock).to_not have_requested(:post, operation_url)
   end
 end

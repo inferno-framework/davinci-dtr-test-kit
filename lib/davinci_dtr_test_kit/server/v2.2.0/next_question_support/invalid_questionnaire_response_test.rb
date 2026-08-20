@@ -23,12 +23,13 @@ module DaVinciDTRTestKit
             type: 'textarea'
 
       run do
-        request = FHIR.from_contents(invalid_questionnaire_response)
-        assert_resource_type(:questionnaire_response, resource: request)
+        assert_valid_json invalid_questionnaire_response, 'The provided QuestionnaireResponse is not valid JSON.'
+        questionnaire_response = FHIR.from_contents(invalid_questionnaire_response)
+        assert_resource_type(:questionnaire_response, resource: questionnaire_response)
 
         fhir_operation(
           '/Questionnaire/$next-question',
-          body: request,
+          body: questionnaire_response,
           headers: { 'Content-Type': 'application/fhir+json' }
         )
 

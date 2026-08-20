@@ -73,6 +73,7 @@ RSpec.describe DaVinciDTRTestKit::DTRPayerServerV220::InvalidQuestionnaireRespon
     result = run(test_class, url:, invalid_questionnaire_response:)
 
     expect(result.result).to eq('fail')
+    expect(result.result_message).to include('expected 400, but received 422')
   end
 
   it 'fails when the response is not an OperationOutcome' do
@@ -81,6 +82,7 @@ RSpec.describe DaVinciDTRTestKit::DTRPayerServerV220::InvalidQuestionnaireRespon
     result = run(test_class, url:, invalid_questionnaire_response:)
 
     expect(result.result).to eq('fail')
+    expect(result.result_message).to include('expected OperationOutcome')
   end
 
   it 'fails when the OperationOutcome does not contain an issue' do
@@ -96,6 +98,7 @@ RSpec.describe DaVinciDTRTestKit::DTRPayerServerV220::InvalidQuestionnaireRespon
     result = run(test_class, url:, invalid_questionnaire_response: FHIR::Questionnaire.new(status: 'draft').to_json)
 
     expect(result.result).to eq('fail')
+    expect(result.result_message).to include('expected QuestionnaireResponse')
     expect(WebMock).to_not have_requested(:post, operation_url)
   end
 end

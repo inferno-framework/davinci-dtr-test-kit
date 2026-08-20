@@ -23,16 +23,19 @@ module DaVinciDTRTestKit
             type: 'textarea'
 
       run do
-        request = FHIR.from_contents(source_data_error_request)
-        assert_resource_type(:parameters, resource: request)
+        assert_valid_json source_data_error_request, 'The provided $questionnaire-package request is not valid JSON.'
+        parameters = FHIR.from_contents(source_data_error_request)
+        assert_resource_type(:parameters, resource: parameters)
 
         fhir_operation(
           '/Questionnaire/$questionnaire-package',
-          body: request,
+          body: parameters,
           headers: { 'Content-Type': 'application/fhir+json' }
         )
 
-        assert_response_status((400..499).to_a)
+        status = request.status.to_i
+        assert status.between?(400, 499),
+               "Expected a 4xx response for invalid source data, but received HTTP #{status}."
         assert_resource_type(:operation_outcome)
       end
     end
