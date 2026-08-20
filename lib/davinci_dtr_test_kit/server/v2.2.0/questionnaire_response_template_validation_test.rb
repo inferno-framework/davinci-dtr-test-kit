@@ -1,4 +1,5 @@
 require_relative '../validation_test'
+require_relative '../../tags'
 
 module DaVinciDTRTestKit
   module DTRPayerServerV220
@@ -6,25 +7,23 @@ module DaVinciDTRTestKit
       include DaVinciDTRTestKit::ValidationTest
 
       id :dtr_v220_payer_questionnaire_response_template_validation
-      title 'QuestionnaireResponse template input is valid'
+      title '$next-question QuestionnaireResponse request is valid'
       description %(
-        This test validates that each tester-provided QuestionnaireResponse template
+        This test validates that each outgoing QuestionnaireResponse request to the
+        `$next-question` operation
         conforms to the [DTR Questionnaire Response for adaptive form profile](https://hl7.org/fhir/us/davinci-dtr/2.2.0/en/StructureDefinition-dtr-questionnaireresponse-adapt.html).
+        Inferno generates these request bodies from the provided test input.
       )
       simulation_verification
 
-      input :questionnaire_response_templates, optional: true
-
       run do
-        omit_if questionnaire_response_templates.nil?, 'No QuestionnaireResponse templates were provided.'
+        requests = load_tagged_requests(NEXT_TAG)
 
-        questionnaire_responses = Array.wrap(parsed_json_if_valid(questionnaire_response_templates, continue: false))
+        omit_if requests.empty?, 'No $next-question requests were made.'
 
-        omit_if questionnaire_responses.blank?, 'No QuestionnaireResponse templates were provided.'
-
-        questionnaire_responses.each_with_index do |response_template, index|
+        requests.each_with_index do |request, index|
           fhir_obj = begin
-            FHIR.from_contents(response_template.to_json)
+            FHIR.from_contents(request.request_body)
           rescue StandardError
             nil
           end
@@ -37,7 +36,9 @@ module DaVinciDTRTestKit
           )
         end
 
-        assert_no_error_messages('Non-conformant QuestionnaireResponse template input. See Messages for details.')
+        assert_no_error_messages(
+          'Non-conformant $next-question QuestionnaireResponse request. See Messages for details.'
+        )
       end
     end
   end
