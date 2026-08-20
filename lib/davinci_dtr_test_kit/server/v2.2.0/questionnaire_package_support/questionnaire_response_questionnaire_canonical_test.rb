@@ -58,11 +58,7 @@ module DaVinciDTRTestKit
         resource = FHIR.from_contents(request.response_body)
         return [] unless resource.is_a?(FHIR::Parameters)
 
-        extract_questionnaire_bundles(resource).select do |bundle|
-          resource.parameter.any? do |parameter|
-            parameter.name == 'packagebundle' && parameter.resource == bundle
-          end
-        end
+        extract_questionnaire_bundles(resource)
       rescue JSON::ParserError, FHIR::ClientException
         []
       end

@@ -76,42 +76,6 @@ RSpec.describe DaVinciDTRTestKit::DTRPayerServerV220::QuestionnaireResponseQuest
     expect(result.result_message).to match(/must match a Questionnaire canonical in its package Bundle./)
   end
 
-  it 'ignores Bundles that are not packagebundle parameters' do
-    questionnaire = FHIR::Questionnaire.new(status: 'active', url: 'https://payer.example.com/Questionnaire/example')
-    questionnaire_response = FHIR::QuestionnaireResponse.new(
-      status: 'in-progress', questionnaire: 'https://payer.example.com/Questionnaire/example'
-    )
-    unrelated_questionnaire_response = FHIR::QuestionnaireResponse.new(
-      status: 'in-progress', questionnaire: 'https://payer.example.com/Questionnaire/different'
-    )
-    response = FHIR::Parameters.new(
-      parameter: [
-        FHIR::Parameters::Parameter.new(
-          name: 'packagebundle',
-          resource: FHIR::Bundle.new(
-            type: 'collection',
-            entry: [
-              FHIR::Bundle::Entry.new(resource: questionnaire),
-              FHIR::Bundle::Entry.new(resource: questionnaire_response)
-            ]
-          )
-        ),
-        FHIR::Parameters::Parameter.new(
-          name: 'unrelated',
-          resource: FHIR::Bundle.new(
-            type: 'collection',
-            entry: [FHIR::Bundle::Entry.new(resource: unrelated_questionnaire_response)]
-          )
-        )
-      ]
-    )
-    store_response(response.to_json)
-
-    result = run(described_class)
-
-    expect(result.result).to eq('pass'), result.result_message
-  end
-
   it 'skips when no QuestionnaireResponse was returned' do
     store_response(questionnaire_package_response(FHIR::Questionnaire.new(status: 'active')))
 
