@@ -1,6 +1,7 @@
 require 'smart_app_launch_test_kit'
 require_relative 'interaction_test'
 require_relative 'log_questionnaire_errors_support_test'
+require_relative 'next_question_support/invalid_questionnaire_response_test'
 require_relative 'questionnaire_package_support/questionnaire_response_validation_test'
 require_relative 'questionnaire_design/cql_library_validation_test'
 require_relative 'dtr_payer_server_capability_statement_test'
@@ -13,6 +14,7 @@ require_relative 'value_set_expand_support/value_set_expansion_test'
 require_relative 'questionnaire_design/questionnaire_expression_language_test'
 require_relative 'questionnaire_design/questionnaire_prepopulation_test'
 require_relative 'questionnaire_design/questionnaire_relevance_logic_test'
+require_relative 'questionnaire_package_support/source_data_error_test'
 
 module DaVinciDTRTestKit
   module DTRPayerServerV220
@@ -202,14 +204,22 @@ module DaVinciDTRTestKit
       group do
         title 'Error Handling'
 
+        input :backend_services_smart_auth_info,
+              title: 'OAuth Credentials',
+              type: :auth_info,
+              optional: true
+
+        fhir_client do
+          url :url
+          auth_info :backend_services_smart_auth_info
+        end
+
         # TODO
         # oper-9 - make a request with a known bad questionnaire url
 
-        # TODO
-        # spec-130 - 4xx w/OO for issues with source data
+        test from: :dtr_v220_payer_source_data_error
 
-        # TODO
-        # spec-147 - 400 w/OO for invalid QR
+        test from: :dtr_v220_payer_invalid_questionnaire_response
       end
     end
   end
