@@ -22,6 +22,7 @@ module DaVinciDTRTestKit
 
       fhir_client do
         url :url
+        auth_info :backend_services_smart_auth_info
       end
 
       run do
@@ -30,20 +31,21 @@ module DaVinciDTRTestKit
         skip_if requests.blank?,
                 'No $questionnaire-package requests were made in the Request Questionnaires test.'
 
-        request = FHIR.from_contents(requests.first.request_body)
+        questionnaire_package_parameters = FHIR.from_contents(requests.first.request_body)
 
-        assert_resource_type(:parameters, resource: request)
+        assert_resource_type(:parameters, resource: questionnaire_package_parameters)
 
-        request.parameter << FHIR::Parameters::Parameter.new(
+        questionnaire_package_parameters.parameter << FHIR::Parameters::Parameter.new(
           name: 'questionnaire',
           valueCanonical: QUESTIONNAIRE_NOT_FOUND_URL
         )
 
         fhir_operation(
           '/Questionnaire/$questionnaire-package',
-          body: request
+          body: questionnaire_package_parameters
         )
 
+        assert_valid_json(request.response_body)
         assert_resource_type(:parameters)
         assert_valid_resource
 
