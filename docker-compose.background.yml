@@ -13,22 +13,18 @@ services:
   #     EXTERNAL_VALIDATOR_URL: http://localhost/validatorapi
   #     VALIDATOR_BASE_PATH: /validator
   hl7_validator_service:
-    # image: infernocommunity/inferno-resource-validator
-    image: artifacts.mitre.org:8200/infernocommunity/inferno-resource-validator:1.0.79
+    image: infernocommunity/inferno-resource-validator
     environment:
       # Defines how long validator sessions last if unused, in minutes:
       # Negative values mean sessions never expire, 0 means sessions immediately expire
       SESSION_CACHE_DURATION: -1
-      USE_SYSTEM_CA_CERTS: "1"
     volumes:
       - ./data/igs:/app/igs
-      - ./tmp/validator-certs:/certificates:ro
       # To let the service share your local FHIR package cache,
       # uncomment the below line
       # - ~/.fhir:/home/ktor/.fhir
   fhirpath:
-    # image: infernocommunity/fhirpath-service
-    image: artifacts.mitre.org:8200/infernocommunity/fhirpath-service
+    image: infernocommunity/fhirpath-service
     ports:
       - "6789:6789"
   nginx:
