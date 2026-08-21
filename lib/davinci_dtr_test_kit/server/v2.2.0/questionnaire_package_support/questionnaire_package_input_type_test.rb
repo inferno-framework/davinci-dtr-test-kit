@@ -18,6 +18,8 @@ module DaVinciDTRTestKit
         others in order to verify the server's support for each input type.
       DESCRIPTION
 
+      simulation_verification
+
       run do
         load_tagged_requests(QUESTIONNAIRE_TAG)
 
