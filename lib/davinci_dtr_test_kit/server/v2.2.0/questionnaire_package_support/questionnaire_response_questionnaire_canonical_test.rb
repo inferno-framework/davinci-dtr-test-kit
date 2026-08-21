@@ -25,23 +25,20 @@ module DaVinciDTRTestKit
 
         requests.each_with_index do |request, request_index|
           package_bundles_from_request(request).each do |package_bundle|
-            questionnaire_responses = package_resources(package_bundle, FHIR::QuestionnaireResponse)
-            questionnaire_responses_found ||= questionnaire_responses.present?
+            questionnaire_response = package_resources(package_bundle, FHIR::QuestionnaireResponse).first
+            next unless questionnaire_response
 
-            questionnaire_canonicals =
-              package_resources(package_bundle, FHIR::Questionnaire)
-                .filter_map { |questionnaire| canonical(questionnaire) }
+            questionnaire_responses_found = true
+            questionnaire = package_resources(package_bundle, FHIR::Questionnaire).first
+            questionnaire_canonical = canonical(questionnaire)
+            next if questionnaire_response.questionnaire == questionnaire_canonical
 
-            questionnaire_responses.each do |questionnaire_response|
-              next if questionnaire_canonicals.include?(questionnaire_response.questionnaire)
-
-              add_request_message(
-                'error',
-                "QuestionnaireResponse.questionnaire `#{questionnaire_response.questionnaire}` does not " \
-                "match a Questionnaire canonical in its package Bundle (#{questionnaire_canonicals.to_sentence}).",
-                request_index
-              )
-            end
+            add_request_message(
+              'error',
+              "QuestionnaireResponse.questionnaire `#{questionnaire_response.questionnaire}` does not " \
+              "match a Questionnaire canonical in its package Bundle (#{questionnaire_canonical}).",
+              request_index
+            )
           end
         end
 
@@ -70,7 +67,7 @@ module DaVinciDTRTestKit
       end
 
       def canonical(questionnaire)
-        return if questionnaire.url.blank?
+        return if questionnaire.blank? || questionnaire.url.blank?
 
         "#{questionnaire.url}#{"|#{questionnaire.version}" if questionnaire.version.present?}"
       end
