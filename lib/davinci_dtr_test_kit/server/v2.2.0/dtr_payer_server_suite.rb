@@ -4,6 +4,7 @@ require_relative 'log_questionnaire_errors_support_test'
 require_relative 'next_question_support/invalid_questionnaire_response_test'
 require_relative 'questionnaire_package_request_validation_test'
 require_relative 'next_question_request_validation_test'
+require_relative 'questionnaire_package_support/questionnaire_package_input_type_test'
 require_relative 'questionnaire_package_support/questionnaire_response_validation_test'
 require_relative 'questionnaire_design/cql_library_validation_test'
 require_relative 'dtr_payer_server_capability_statement_test'
@@ -123,19 +124,16 @@ module DaVinciDTRTestKit
           group do
             title 'Request Validation'
             simulation_verification
+
             test from: :dtr_v220_payer_questionnaire_package_request_validation
             test from: :dtr_v220_payer_next_question_request_validation
+            test from: :dtr_v220_payer_questionnaire_package_input_type
           end
         end
 
         group do
           title 'Questionnaire/$questionnaire-package Support'
-
-          # TODO: verify that each of these parameter types is used
-          # One with questionnaire url
-          # One with CRD/PAS context ID
-          # Request/Encounter resource
-
+          # TODO: base response validation
           # oper-12 - [NOT TESTED in 2.0] include Questionnaire as 1st entry, [TESTED] and CQL libraries
           # oper-14 - [NOT TESTED in 2.0] Bundle includes all VS instances
           # oper-16 - [NOT TESTED in 2.0] references are version specific
