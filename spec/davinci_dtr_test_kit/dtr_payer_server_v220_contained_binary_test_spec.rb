@@ -3,9 +3,10 @@ require 'davinci_dtr_test_kit/server/v2.2.0/questionnaire_design/contained_binar
 
 RSpec.describe DaVinciDTRTestKit::DTRPayerServerV220::ContainedBinaryTest do # rubocop:disable RSpec/SpecFilePathFormat
   let(:suite_id) { 'dtr_payer_server_v220' }
+  let(:results_repo) { Inferno::Repositories::Results.new }
   let(:test_requests) { [] }
   let(:invalid_binary_message) do
-    'The following Binary resources are not PDFs or safe XHTML fragments:'
+    'Contained Binary resources must be PDFs or safe XHTML fragments. See Messages for details.'
   end
   let(:pdf_binary) do
     FHIR::Binary.new(id: 'pdf-binary', contentType: 'application/pdf', data: Base64.strict_encode64('%PDF-1.7'))
@@ -40,6 +41,12 @@ RSpec.describe DaVinciDTRTestKit::DTRPayerServerV220::ContainedBinaryTest do # r
 
   before do
     allow_any_instance_of(described_class).to receive(:requests).and_return(test_requests)
+  end
+
+  def result_messages
+    results_repo
+      .current_results_for_test_session_and_runnables(test_session.id, [described_class])
+      .first&.messages || []
   end
 
   def questionnaire_response_with(*binaries)
@@ -89,7 +96,9 @@ RSpec.describe DaVinciDTRTestKit::DTRPayerServerV220::ContainedBinaryTest do # r
 
     expect(result.result).to eq('fail')
     expect(result.result_message).to include(invalid_binary_message)
-    expect(result.result_message).to include('Binary `unsupported-binary` in request 2')
+    expect(result.result_message).to include('Request 2:')
+    expect(result_messages.map(&:message).join)
+      .to include('(Request 2) Binary `unsupported-binary` is not a PDF or safe XHTML fragment.')
   end
 
   it 'fails when a contained XHTML Binary contains a script' do
@@ -99,6 +108,8 @@ RSpec.describe DaVinciDTRTestKit::DTRPayerServerV220::ContainedBinaryTest do # r
 
     expect(result.result).to eq('fail')
     expect(result.result_message).to include(invalid_binary_message)
+    expect(result_messages.map(&:message).join)
+      .to include('(Request 1) Binary `script-binary` is not a PDF or safe XHTML fragment.')
   end
 
   it 'fails when a contained XHTML Binary contains an event handler' do
@@ -108,6 +119,8 @@ RSpec.describe DaVinciDTRTestKit::DTRPayerServerV220::ContainedBinaryTest do # r
 
     expect(result.result).to eq('fail')
     expect(result.result_message).to include(invalid_binary_message)
+    expect(result_messages.map(&:message).join)
+      .to include('(Request 1) Binary `event-handler-binary` is not a PDF or safe XHTML fragment.')
   end
 
   it 'fails when a contained XHTML Binary contains a javascript URL' do
@@ -117,6 +130,8 @@ RSpec.describe DaVinciDTRTestKit::DTRPayerServerV220::ContainedBinaryTest do # r
 
     expect(result.result).to eq('fail')
     expect(result.result_message).to include(invalid_binary_message)
+    expect(result_messages.map(&:message).join)
+      .to include('(Request 1) Binary `javascript-url-binary` is not a PDF or safe XHTML fragment.')
   end
 
   it 'omits when no responses contain Binary resources' do
