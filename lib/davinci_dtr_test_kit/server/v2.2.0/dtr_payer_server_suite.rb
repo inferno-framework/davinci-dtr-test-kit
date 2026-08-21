@@ -133,7 +133,6 @@ module DaVinciDTRTestKit
 
         group do
           title 'Questionnaire/$questionnaire-package Support'
-          # TODO: base response validation
           # oper-12 - [NOT TESTED in 2.0] include Questionnaire as 1st entry, [TESTED] and CQL libraries
           # oper-14 - [NOT TESTED in 2.0] Bundle includes all VS instances
           # oper-16 - [NOT TESTED in 2.0] references are version specific
