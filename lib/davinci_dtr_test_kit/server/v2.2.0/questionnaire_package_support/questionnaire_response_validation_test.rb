@@ -31,7 +31,7 @@ module DaVinciDTRTestKit
           unless [200, 201].include? request.response[:status]
             add_message(
               'error',
-              "Request #{index} was unsuccessful."
+              "Request #{index + 1} was unsuccessful."
             )
           end
 
@@ -42,7 +42,7 @@ module DaVinciDTRTestKit
           if resource.nil?
             add_message(
               'error',
-              "Response #{index} did not contain FHIR resources."
+              "Response #{index + 1} did not contain FHIR resources."
             )
 
             next
@@ -52,7 +52,7 @@ module DaVinciDTRTestKit
         rescue JSON::ParserError
           add_message(
             'error',
-            "Response #{index} contained invalid JSON."
+            "Response #{index + 1} contained invalid JSON."
           )
         end
 

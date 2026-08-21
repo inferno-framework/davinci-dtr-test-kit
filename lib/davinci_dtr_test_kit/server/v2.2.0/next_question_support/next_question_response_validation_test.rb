@@ -26,19 +26,19 @@ module DaVinciDTRTestKit
         skip_if requests.blank?, 'No $next-question requests were made.'
 
         requests.each_with_index do |request, index|
-          add_message('error', "Request #{index} was unsuccessful.") unless [200, 201].include? request.status
+          add_message('error', "Request #{index + 1} was unsuccessful.") unless [200, 201].include? request.status
 
           JSON.parse(request.response_body)
           resource = FHIR.from_contents(request.response_body)
 
           if resource.nil?
-            add_message('error', "Response #{index} did not contain FHIR resources.")
+            add_message('error', "Response #{index + 1} did not contain FHIR resources.")
             next
           end
 
           perform_next_question_response_validation(resource, index)
         rescue JSON::ParserError
-          add_message('error', "Response #{index} contained invalid JSON.")
+          add_message('error', "Response #{index + 1} contained invalid JSON.")
         end
 
         assert_no_error_messages('Not all responses were valid. See messages for details.')
@@ -50,16 +50,16 @@ module DaVinciDTRTestKit
           resource_is_valid?(
             resource:,
             profile_url: NEXT_QUESTION_OUTPUT_PARAMETERS_PROFILE,
-            message_prefix: "Response #{index}: "
+            message_prefix: "Response #{index + 1}: "
           )
         when FHIR::QuestionnaireResponse
           resource_is_valid?(
             resource:,
             profile_url: ADAPTIVE_QUESTIONNAIRE_RESPONSE_PROFILE,
-            message_prefix: "Response #{index}: "
+            message_prefix: "Response #{index + 1}: "
           )
         else
-          add_message('error', "Response #{index} was not a Parameters or QuestionnaireResponse resource.")
+          add_message('error', "Response #{index + 1} was not a Parameters or QuestionnaireResponse resource.")
         end
       end
     end
