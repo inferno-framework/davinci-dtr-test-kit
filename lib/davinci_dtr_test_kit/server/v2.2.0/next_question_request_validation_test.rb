@@ -17,7 +17,7 @@ module DaVinciDTRTestKit
       simulation_verification
 
       run do
-        requests = load_tagged_requests(NEXT_TAG)
+        load_tagged_requests(NEXT_TAG)
 
         omit_if requests.empty?, 'No $next-question requests were made.'
 

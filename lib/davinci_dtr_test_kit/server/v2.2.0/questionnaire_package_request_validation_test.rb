@@ -16,7 +16,7 @@ module DaVinciDTRTestKit
       simulation_verification
 
       run do
-        requests = load_tagged_requests(QUESTIONNAIRE_TAG)
+        load_tagged_requests(QUESTIONNAIRE_TAG)
 
         omit_if requests.empty?, 'No $questionnaire-package requests were made.'
 
