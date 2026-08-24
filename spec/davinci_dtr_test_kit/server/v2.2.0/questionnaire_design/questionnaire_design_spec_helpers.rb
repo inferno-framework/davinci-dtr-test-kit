@@ -18,7 +18,17 @@ module QuestionnaireDesignSpecHelpers
   def expression_extension(url, language: 'text/cql')
     FHIR::Extension.new(
       url:,
-      valueExpression: FHIR::Expression.new(language:, expression: 'ExampleExpression')
+      valueExpression: FHIR::Expression.new(
+        language:,
+        expression: 'ExampleExpression',
+        extension: [
+          FHIR::Extension.new(
+            url: 'http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/alternativeExpression',
+            language: 'application/elm+json',
+            valueExpression: FHIR::Expression.new(expression: 'corresponding elm data')
+          )
+        ]
+      )
     )
   end
 
