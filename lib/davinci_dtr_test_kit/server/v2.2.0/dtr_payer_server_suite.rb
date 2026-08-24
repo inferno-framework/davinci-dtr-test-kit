@@ -137,13 +137,17 @@ module DaVinciDTRTestKit
 
         group do
           title 'Questionnaire/$questionnaire-package Support'
-          # oper-12 - [NOT TESTED in 2.0] include Questionnaire as 1st entry, [TESTED] and CQL libraries
-          test from: :dtr_server_v220_payer_questionnaire_package_contents
+
+          # TODO: verify that each of these parameter types is used
+
+          # One with CRD/PAS context ID
+          # Request/Encounter resource
 
           # oper-14 - [NOT TESTED in 2.0] Bundle includes all VS instances
           # oper-16 - [NOT TESTED in 2.0] references are version specific
           #           NOTE: ONLY Library references are currently tested
           test from: :dtr_v220_payer_questionnaire_response_validation
+          test from: :dtr_server_v220_payer_questionnaire_package_contents
 
           # TODO: embedded QR validation
           # spec-25 - [NOT TESTED in 2.0] QR has contained Q
