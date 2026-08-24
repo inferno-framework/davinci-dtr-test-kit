@@ -23,7 +23,8 @@ module DaVinciDTRTestKit
       verifies_requirements 'hl7.fhir.us.davinci-dtr_2.2.0@spec-160'
 
       run do
-        load_tagged_requests(QUESTIONNAIRE_TAG, NEXT_TAG)
+        load_tagged_requests(QUESTIONNAIRE_TAG)
+        load_tagged_requests(NEXT_TAG)
         omit_if requests.blank?,
                 'No $questionnaire-package or $next-question requests were made'
 
