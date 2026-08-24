@@ -13,10 +13,10 @@ RSpec.describe DaVinciDTRTestKit::DTRPayerServerV220::NextQuestionResponseValida
       .first&.messages || []
   end
 
-  it 'skips if no requests have been made' do
+  it 'omits if no requests have been made' do
     result = run(described_class)
 
-    expect(result.result).to eq('skip')
+    expect(result.result).to eq('omit')
     expect(result.result_message).to include('No $next-question')
   end
 
