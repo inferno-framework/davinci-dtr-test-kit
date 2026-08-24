@@ -23,7 +23,7 @@ module DaVinciDTRTestKit
       run do
         load_tagged_requests(NEXT_TAG)
 
-        skip_if requests.blank?, 'No $next-question requests were made.'
+        omit_if requests.blank?, 'No $next-question requests were made.'
 
         requests.each_with_index do |request, index|
           add_message('error', "Request #{index + 1} was unsuccessful.") unless [200, 201].include? request.status
