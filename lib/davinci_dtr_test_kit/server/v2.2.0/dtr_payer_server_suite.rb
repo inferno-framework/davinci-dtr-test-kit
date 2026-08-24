@@ -222,7 +222,6 @@ module DaVinciDTRTestKit
           auth_info :backend_services_smart_auth_info
         end
 
-        # TODO
         # oper-9 - make a request with a known bad questionnaire url
         test from: :dtr_server_v220_payer_questionnaire_not_found
 
