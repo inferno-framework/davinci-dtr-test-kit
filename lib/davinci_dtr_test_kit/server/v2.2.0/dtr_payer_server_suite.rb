@@ -13,6 +13,7 @@ require_relative 'dtr_payer_server_capability_statement_test'
 require_relative 'questionnaire_package_support/questionnaire_response_references_test'
 require_relative 'questionnaire_package_support/contained_questionnaire_response_references_test'
 require_relative 'questionnaire_package_support/questionnaire_response_questionnaire_canonical_test'
+require_relative 'questionnaire_package_support/questionnaire_references_version_specific_test'
 require_relative 'next_question_support/next_question_response_references_test'
 require_relative 'next_question_support/next_contained_questionnaire_response_references_test'
 require_relative 'questionnaire_package_support/adaptive_questionnaire_response_validation_test'
@@ -140,11 +141,11 @@ module DaVinciDTRTestKit
         group do
           title 'Questionnaire/$questionnaire-package Support'
           # oper-12 - [NOT TESTED in 2.0] include Questionnaire as 1st entry, [TESTED] and CQL libraries
-          # oper-16 - [NOT TESTED in 2.0] references are version specific
           #           NOTE: ONLY Library references are currently tested
           test from: :dtr_v220_payer_questionnaire_response_validation
           test from: :dtr_server_v220_no_custom_extension_test
           test from: :dtr_v220_payer_value_set_validation
+          test from: :dtr_v220_payer_questionnaire_references_version_specific
 
           # TODO: embedded QR validation
           # spec-25 - [NOT TESTED in 2.0] QR has contained Q
