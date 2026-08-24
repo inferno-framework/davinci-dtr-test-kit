@@ -10,6 +10,7 @@ require_relative 'questionnaire_design/cql_library_validation_test'
 require_relative 'dtr_payer_server_capability_statement_test'
 require_relative 'questionnaire_package_support/questionnaire_response_references_test'
 require_relative 'questionnaire_package_support/contained_questionnaire_response_references_test'
+require_relative 'questionnaire_package_support/questionnaire_response_questionnaire_canonical_test'
 require_relative 'next_question_support/next_question_response_references_test'
 require_relative 'next_question_support/next_contained_questionnaire_response_references_test'
 require_relative 'questionnaire_package_support/adaptive_questionnaire_response_validation_test'
@@ -141,7 +142,7 @@ module DaVinciDTRTestKit
 
           # TODO: embedded QR validation
           # spec-25 - [NOT TESTED in 2.0] QR has contained Q
-          # spec-122 - [NOT TESTED in 2.0] QR.Q points to canonical of the Q provided
+          test from: :dtr_v220_payer_questionnaire_response_questionnaire_canonical
           test from: :dtr_v220_payer_questionnaire_response_references
           test from: :dtr_v220_payer_contained_questionnaire_response_references
         end
