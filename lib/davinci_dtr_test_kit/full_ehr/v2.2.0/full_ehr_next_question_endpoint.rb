@@ -2,6 +2,7 @@ require 'udap_security_test_kit'
 require_relative '../endpoints/mock_payer'
 require_relative '../../cross_suite/fhirpath_utils'
 require_relative '../../cross_suite/response_selection_utils'
+require_relative '../../cross_suite/v2.2.0/questionnaire_response_completeness'
 require_relative '../fixture_loader'
 require_relative '../../tags'
 
@@ -11,6 +12,7 @@ module DaVinciDTRTestKit
       include MockPayer
       include DaVinciDTRTestKit::FhirpathUtils
       include DaVinciDTRTestKit::ResponseSelectionUtils
+      include DaVinciDTRTestKit::QuestionnaireResponseCompleteness
 
       def test_run_identifier
         return request.params[:session_path] if request.params[:session_path].present?
@@ -115,22 +117,20 @@ module DaVinciDTRTestKit
       end
 
       def extract_contained_questionnaire
-        contained_questionnaire = request_questionnaire_response.contained&.find do |contained_resource|
-          contained_resource.is_a?(FHIR::Questionnaire)
-        end
+        questionnaire = contained_questionnaire(request_questionnaire_response)
 
-        unless contained_questionnaire.present?
+        unless questionnaire.present?
           return operation_outcome('error', 'invalid',
                                    'Invalid QuestionnaireResponse for $next-question request: ' \
                                    'no contained Questionnaire resource.')
         end
-        unless contained_questionnaire.url.present?
+        unless questionnaire.url.present?
           return operation_outcome('error', 'invalid',
                                    'Invalid QuestionnaireResponse for $next-question request: ' \
                                    'contained Questionnaire must have a url.')
         end
 
-        contained_questionnaire
+        questionnaire
       end
 
       # ***********************************************************************
@@ -290,7 +290,10 @@ module DaVinciDTRTestKit
       def update_response
         @new_questions_added = false
         add_questions_from_questionnaire_template
-        complete_questionnaire_response if !@new_questions_added && questionnaire_response_completed?
+        if !@new_questions_added &&
+           questionnaire_response_complete?(request_questionnaire, request_questionnaire_response)
+          complete_questionnaire_response
+        end
         request_questionnaire_response
       rescue FhirpathServiceError => e
         raise if template_from_fixture?
@@ -336,25 +339,6 @@ module DaVinciDTRTestKit
       # ***********************************************************************
       # Complete QuestionnaireResponse
       # ***********************************************************************
-
-      def questionnaire_response_completed?
-        request_questionnaire.item.all? do |item|
-          item_not_required_or_completed?(item, request_questionnaire_response.item)
-        end
-      end
-
-      def item_not_required_or_completed?(item, response_item_list)
-        required = (item.required == true)
-        response_item = response_item_list.find { |response_item| response_item.linkId == item.linkId }
-        not_required_or_completed = !required || answer_completed_and_valid?(item, response_item)
-        return false unless not_required_or_completed
-
-        item.item.all? { |sub_item| item_not_required_or_completed?(sub_item, response_item&.item || []) }
-      end
-
-      def answer_completed_and_valid?(_item, response_item)
-        response_item&.answer&.any? { |answer| !answer&.value.nil? }
-      end
 
       def complete_questionnaire_response
         request_questionnaire_response.status = 'completed'
