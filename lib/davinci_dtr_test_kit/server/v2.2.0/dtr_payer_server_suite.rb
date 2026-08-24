@@ -6,6 +6,7 @@ require_relative 'questionnaire_package_request_validation_test'
 require_relative 'next_question_request_validation_test'
 require_relative 'questionnaire_package_support/questionnaire_package_input_type_test'
 require_relative 'questionnaire_package_support/questionnaire_response_validation_test'
+require_relative 'next_question_support/next_question_response_validation_test'
 require_relative 'questionnaire_design/cql_library_validation_test'
 require_relative 'dtr_payer_server_capability_statement_test'
 require_relative 'questionnaire_package_support/questionnaire_response_references_test'
@@ -151,6 +152,7 @@ module DaVinciDTRTestKit
           title 'Questionnaire/$next-question support'
           optional
 
+          test from: :dtr_v220_payer_next_question_response_validation
           test from: :dtr_v220_payer_adaptive_questionnaire_response_validation
           test from: :dtr_v220_payer_next_question_response_references
           test from: :dtr_v220_payer_next_question_contained_response_references
