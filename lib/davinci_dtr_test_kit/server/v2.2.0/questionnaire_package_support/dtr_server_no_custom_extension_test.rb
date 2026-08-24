@@ -22,6 +22,22 @@ module DaVinciDTRTestKit
         'http://hl7.org/fhir/us/davinci-hrex/StructureDefinition/extension-CoverageDavinciWellknownLocation'
       ].freeze
 
+      CRD_EXTENSION_URLS = [
+        'http://hl7.org/fhir/us/davinci-crd/StructureDefinition/ext-coverage-information',
+        'http://hl7.org/fhir/us/davinci-crd/StructureDefinition/ext-billing-options',
+        'http://hl7.org/fhir/us/davinci-crd/StructureDefinition/ext-request-category',
+        'http://hl7.org/fhir/StructureDefinition/codeOptions',
+        'http://hl7.org/fhir/StructureDefinition/alternate-reference',
+        'http://hl7.org/fhir/5.0/StructureDefinition/extension-CommunicationRequest.payload.content',
+        'http://hl7.org/fhir/5.0/StructureDefinition/extension-Task.requestedPeriod',
+        'http://hl7.org/fhir/5.0/StructureDefinition/extension-Task.requestedPerformer',
+        'http://hl7.org/fhir/5.0/StructureDefinition/extension-Task.performer',
+        'http://hl7.org/fhir/StructureDefinition/request-doNotPerform',
+        'http://hl7.org/fhir/5.0/StructureDefinition/extension-Task.input.value',
+        'http://hl7.org/fhir/5.0/StructureDefinition/extension-Task.output.value',
+        'http://hl7.org/fhir/5.0/StructureDefinition/extension-Task.statusReason'
+      ].freeze
+
       DTR_EXTENSION_URLS = [
         'http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/activeRole',
         'http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/alternativeExpression',
