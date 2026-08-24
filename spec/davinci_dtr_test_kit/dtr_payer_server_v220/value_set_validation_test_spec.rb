@@ -87,7 +87,7 @@ RSpec.describe DaVinciDTRTestKit::DTRPayerServerV220::ValueSetValidationTest do
 
     test_result = run(described_class)
 
-    expect(test_result.result).to eq('pass')
+    expect(test_result.result).to eq('skip')
     expect(test_result.result_message).to include('No successful $questionnaire-package requests were made')
   end
 
