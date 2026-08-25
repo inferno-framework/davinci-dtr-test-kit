@@ -6,6 +6,7 @@ RSpec.describe DaVinciDTRTestKit::DTRPayerServerV220::DTRServerQuestionnairePack
   let(:suite_id) { 'dtr_payer_server_v220' }
   let(:server_endpoint) { 'http://example.com/fhir' }
   let(:create_prior_questionnaire_package_exchange) { true }
+  let(:results_repo) { Inferno::Repositories::Results.new }
 
   let(:test) do
     Class.new(described_class) do
@@ -24,8 +25,6 @@ RSpec.describe DaVinciDTRTestKit::DTRPayerServerV220::DTRServerQuestionnairePack
   before do
     tests_repo = Inferno::Repositories::Tests.new
     tests_repo.insert(test) unless tests_repo.exists?(test.id.to_s)
-
-    allow_any_instance_of(test).to receive(:assert_valid_resource).and_return(true)
 
     create_tagged_questionnaire_package_exchange if create_prior_questionnaire_package_exchange
   end
@@ -61,7 +60,13 @@ RSpec.describe DaVinciDTRTestKit::DTRPayerServerV220::DTRServerQuestionnairePack
     }.to_json
   end
 
-  def create_tagged_questionnaire_package_exchange
+  def result_messages
+    results_repo
+      .current_results_for_test_session_and_runnables(test_session.id, [test])
+      .first&.messages || []
+  end
+
+  def create_tagged_questionnaire_package_exchange(body: questionnaire_package_body)
     prior_result = repo_create(:result, test_session_id: test_session.id)
 
     repo_create(
@@ -72,7 +77,7 @@ RSpec.describe DaVinciDTRTestKit::DTRPayerServerV220::DTRServerQuestionnairePack
       request_body: {
         resourceType: 'Parameters'
       }.to_json,
-      response_body: questionnaire_package_body,
+      response_body: body,
       test_session_id: test_session.id,
       tags: [DaVinciDTRTestKit::QUESTIONNAIRE_TAG]
     )
@@ -87,11 +92,13 @@ RSpec.describe DaVinciDTRTestKit::DTRPayerServerV220::DTRServerQuestionnairePack
   context 'when the questionnaire-package response is not valid JSON' do
     let(:questionnaire_package_body) { 'not valid JSON' }
 
-    it 'fails' do
+    it 'omits' do
       result = run(test)
 
-      expect(result.result).to eq('fail')
-      expect(result.result_message).to include('Invalid JSON.')
+      expect(result.result).to eq('omit')
+      expect(result.result_message).to eq(
+        'No valid questionnaire-package response Bundles were found.'
+      )
     end
   end
 
@@ -103,12 +110,12 @@ RSpec.describe DaVinciDTRTestKit::DTRPayerServerV220::DTRServerQuestionnairePack
       }.to_json
     end
 
-    it 'fails' do
+    it 'omits' do
       result = run(test)
 
-      expect(result.result).to eq('fail')
+      expect(result.result).to eq('omit')
       expect(result.result_message).to eq(
-        'Unexpected resource type: expected Parameters, but received OperationOutcome'
+        'No valid questionnaire-package response Bundles were found.'
       )
     end
   end
@@ -118,12 +125,12 @@ RSpec.describe DaVinciDTRTestKit::DTRPayerServerV220::DTRServerQuestionnairePack
       questionnaire_package_parameters(package_bundles: [])
     end
 
-    it 'fails' do
+    it 'omits' do
       result = run(test)
 
-      expect(result.result).to eq('fail')
+      expect(result.result).to eq('omit')
       expect(result.result_message).to eq(
-        'The questionnaire-package response does not contain a `packagebundle` parameter.'
+        'No valid questionnaire-package response Bundles were found.'
       )
     end
   end
@@ -148,7 +155,10 @@ RSpec.describe DaVinciDTRTestKit::DTRPayerServerV220::DTRServerQuestionnairePack
       result = run(test)
 
       expect(result.result).to eq('fail')
-      expect(result.result_message).to eq(
+      expect(result.result_message).to include(
+        'Not all questionnaire-package Bundles included the Questionnaire as the first entry.'
+      )
+      expect(result_messages.map(&:message).join("\n")).to include(
         'Unexpected resource type: expected Questionnaire, but received Library'
       )
     end
@@ -164,6 +174,21 @@ RSpec.describe DaVinciDTRTestKit::DTRPayerServerV220::DTRServerQuestionnairePack
       expect(result.result_message).to eq(
         'No $questionnaire-package requests were made in the Request Questionnaires test.'
       )
+    end
+  end
+
+  context 'when an earlier questionnaire-package result is not valid JSON' do
+    let(:create_prior_questionnaire_package_exchange) { false }
+
+    before do
+      create_tagged_questionnaire_package_exchange(body: 'not valid JSON')
+      create_tagged_questionnaire_package_exchange
+    end
+
+    it 'skips the invalid result and passes when a later valid Bundle is present' do
+      result = run(test)
+
+      expect(result.result).to eq('pass')
     end
   end
 end

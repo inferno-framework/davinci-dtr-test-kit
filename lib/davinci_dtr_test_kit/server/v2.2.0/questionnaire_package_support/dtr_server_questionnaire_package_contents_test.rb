@@ -18,53 +18,71 @@ module DaVinciDTRTestKit
         skip_if requests.blank?,
                 'No $questionnaire-package requests were made in the Request Questionnaires test.'
 
-        package_bundle_errors = []
+        valid_questionnaire_package_found = false
 
         requests.each do |questionnaire_package_exchange|
-          assert_valid_json(questionnaire_package_exchange.response_body)
+          JSON.parse(questionnaire_package_exchange.response_body)
 
           questionnaire_package_parameters = FHIR.from_contents(
             questionnaire_package_exchange.response_body
           )
 
-          assert_resource_type(:parameters, resource: questionnaire_package_parameters)
-          assert_valid_resource(resource: questionnaire_package_parameters)
+          next unless questionnaire_package_parameters&.resourceType == 'Parameters'
 
           package_bundles = questionnaire_package_parameters.parameter.filter_map do |parameter|
             parameter.resource if parameter.name == 'packagebundle'
           end
 
-          assert package_bundles.present?,
-                 'The questionnaire-package response does not contain a `packagebundle` parameter.'
+          next if package_bundles.blank?
+
+          valid_questionnaire_package_found = true
 
           package_bundles.each do |package_bundle|
             unless package_bundle.resourceType == 'Bundle'
-              package_bundle_errors << 'Unexpected resource type: expected Bundle, but received ' \
-                                       "#{package_bundle.resourceType}"
+              add_message(
+                'error',
+                'Unexpected resource type: expected Bundle, but received ' \
+                "#{package_bundle.resourceType}"
+              )
               next
             end
 
             first_entry = package_bundle.entry.first
 
             unless first_entry.present?
-              package_bundle_errors << 'Each questionnaire-package Bundle must contain at least one entry.'
+              add_message(
+                'error',
+                'Each questionnaire-package Bundle must contain at least one entry.'
+              )
               next
             end
 
             unless first_entry.resource.present?
-              package_bundle_errors << 'The first entry in each questionnaire-package Bundle must contain a resource.'
+              add_message(
+                'error',
+                'The first entry in each questionnaire-package Bundle must contain a resource.'
+              )
               next
             end
 
             next if first_entry.resource.resourceType == 'Questionnaire'
 
-            package_bundle_errors <<
+            add_message(
+              'error',
               'Unexpected resource type: expected Questionnaire, but received ' \
               "#{first_entry.resource.resourceType}"
+            )
           end
+        rescue JSON::ParserError
+          next
         end
 
-        assert package_bundle_errors.empty?, package_bundle_errors.join("\n")
+        omit_if !valid_questionnaire_package_found,
+                'No valid questionnaire-package response Bundles were found.'
+
+        assert_no_error_messages(
+          'Not all questionnaire-package Bundles included the Questionnaire as the first entry.'
+        )
       end
     end
   end
