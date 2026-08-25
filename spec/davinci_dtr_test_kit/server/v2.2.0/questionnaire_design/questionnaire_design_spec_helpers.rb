@@ -24,8 +24,10 @@ module QuestionnaireDesignSpecHelpers
         extension: [
           FHIR::Extension.new(
             url: 'http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/alternativeExpression',
-            language: 'application/elm+json',
-            valueExpression: FHIR::Expression.new(expression: 'corresponding elm data')
+            valueExpression: FHIR::Expression.new(
+              language: 'application/elm+json',
+              expression: 'corresponding elm data'
+            )
           )
         ]
       )

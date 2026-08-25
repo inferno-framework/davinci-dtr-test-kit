@@ -7,8 +7,7 @@ module DaVinciDTRTestKit
     class QuestionnaireExpressionElmTest < Inferno::Test
       include QuestionnaireDesignSupport
 
-      ALTERNATIVE_EXPRESSION_URL =
-        'http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/alternativeExpression'
+      ALTERNATIVE_EXPRESSION_URL = 'http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/alternativeExpression'
 
       id :dtr_v220_payer_questionnaire_expression_elm
       title 'Questionnaire expressions include compiled JSON ELM'
@@ -69,7 +68,9 @@ module DaVinciDTRTestKit
 
       def alternative_expression_present?(expression)
         expression.extension.any? do |extension|
-          extension.url == ALTERNATIVE_EXPRESSION_URL && extension.valueExpression&.expression.present?
+          extension.url == ALTERNATIVE_EXPRESSION_URL &&
+            extension.valueExpression&.language == 'application/elm+json' &&
+            (extension.valueExpression&.expression.present? || extension.valueExpression&.reference.present?)
         end
       end
     end
