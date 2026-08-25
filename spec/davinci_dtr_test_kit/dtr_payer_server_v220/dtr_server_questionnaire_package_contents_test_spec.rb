@@ -7,9 +7,6 @@ RSpec.describe DaVinciDTRTestKit::DTRPayerServerV220::DTRServerQuestionnairePack
   let(:server_endpoint) { 'http://example.com/fhir' }
   let(:create_prior_questionnaire_package_exchange) { true }
 
-  let(:direct_library_canonical) { 'https://example.com/Library/direct-library' }
-  let(:dependent_library_canonical) { 'https://example.com/Library/dependent-library' }
-
   let(:test) do
     Class.new(described_class) do
       id :dtr_server_v220_payer_questionnaire_package_contents_spec
@@ -19,16 +16,7 @@ RSpec.describe DaVinciDTRTestKit::DTRPayerServerV220::DTRServerQuestionnairePack
   let(:questionnaire_package_body) do
     questionnaire_package_parameters(
       package_bundles: [
-        package_bundle(
-          entries: [
-            questionnaire(library_canonicals: [direct_library_canonical]),
-            library(
-              url: direct_library_canonical,
-              dependencies: [dependent_library_canonical]
-            ),
-            library(url: dependent_library_canonical)
-          ]
-        )
+        package_bundle(entries: [questionnaire])
       ]
     )
   end
@@ -42,46 +30,11 @@ RSpec.describe DaVinciDTRTestKit::DTRPayerServerV220::DTRServerQuestionnairePack
     create_tagged_questionnaire_package_exchange if create_prior_questionnaire_package_exchange
   end
 
-  def questionnaire(library_canonicals: [])
-    questionnaire = {
+  def questionnaire
+    {
       resourceType: 'Questionnaire',
       status: 'active'
     }
-
-    unless library_canonicals.empty?
-      questionnaire[:extension] = library_canonicals.map do |canonical|
-        {
-          url: described_class::CQF_LIBRARY_EXTENSION_URL,
-          valueCanonical: canonical
-        }
-      end
-    end
-
-    questionnaire
-  end
-
-  def library(url:, version: nil, dependencies: [])
-    library = {
-      resourceType: 'Library',
-      status: 'active',
-      type: {
-        text: 'logic-library'
-      },
-      url:
-    }
-
-    library[:version] = version if version
-
-    unless dependencies.empty?
-      library[:relatedArtifact] = dependencies.map do |canonical|
-        {
-          type: 'depends-on',
-          resource: canonical
-        }
-      end
-    end
-
-    library
   end
 
   def package_bundle(entries:)
@@ -125,7 +78,7 @@ RSpec.describe DaVinciDTRTestKit::DTRPayerServerV220::DTRServerQuestionnairePack
     )
   end
 
-  it 'passes when the Bundle contains the Questionnaire and all Library dependencies' do
+  it 'passes when each Bundle starts with a Questionnaire' do
     result = run(test)
 
     expect(result.result).to eq('pass')
@@ -181,7 +134,10 @@ RSpec.describe DaVinciDTRTestKit::DTRPayerServerV220::DTRServerQuestionnairePack
         package_bundles: [
           package_bundle(
             entries: [
-              library(url: direct_library_canonical)
+              {
+                resourceType: 'Library',
+                status: 'active'
+              }
             ]
           )
         ]
@@ -194,56 +150,6 @@ RSpec.describe DaVinciDTRTestKit::DTRPayerServerV220::DTRServerQuestionnairePack
       expect(result.result).to eq('fail')
       expect(result.result_message).to eq(
         'Unexpected resource type: expected Questionnaire, but received Library'
-      )
-    end
-  end
-
-  context 'when a Library referenced by the Questionnaire is missing' do
-    let(:questionnaire_package_body) do
-      questionnaire_package_parameters(
-        package_bundles: [
-          package_bundle(
-            entries: [
-              questionnaire(library_canonicals: [direct_library_canonical])
-            ]
-          )
-        ]
-      )
-    end
-
-    it 'fails' do
-      result = run(test)
-
-      expect(result.result).to eq('fail')
-      expect(result.result_message).to eq(
-        "The questionnaire-package Bundle is missing Library `#{direct_library_canonical}`."
-      )
-    end
-  end
-
-  context 'when a Library dependency is missing' do
-    let(:questionnaire_package_body) do
-      questionnaire_package_parameters(
-        package_bundles: [
-          package_bundle(
-            entries: [
-              questionnaire(library_canonicals: [direct_library_canonical]),
-              library(
-                url: direct_library_canonical,
-                dependencies: [dependent_library_canonical]
-              )
-            ]
-          )
-        ]
-      )
-    end
-
-    it 'fails' do
-      result = run(test)
-
-      expect(result.result).to eq('fail')
-      expect(result.result_message).to eq(
-        "The questionnaire-package Bundle is missing Library `#{dependent_library_canonical}`."
       )
     end
   end

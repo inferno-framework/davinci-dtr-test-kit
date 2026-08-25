@@ -217,6 +217,8 @@ module DaVinciDTRTestKit
         libraries.each do |library|
           library_canonicals.add(library_canonical(library)) unless library.url.nil?
 
+          referenced_libraries.merge(depends_on_library_canonicals(library))
+
           evaluate_library(library, request_index)
 
           next if library_names.add?(library.name)
@@ -272,6 +274,12 @@ module DaVinciDTRTestKit
         .map(&:valueCanonical)
     end
 
+    def depends_on_library_canonicals(library)
+      library.relatedArtifact.filter_map do |related_artifact|
+        related_artifact.resource if related_artifact.type == 'depends-on'
+      end
+    end
+
     def check_referenced_libraries(referenced_libraries, found_libraries, request_index)
       unversioned_library_references = referenced_libraries.select { |library| library.exclude? '|' }
 
@@ -283,7 +291,7 @@ module DaVinciDTRTestKit
 
         add_message(
           'error',
-          "The Questionnaire included the following unversioned library references: #{unversioned_library_string}"
+          "The Bundle included the following unversioned library references: #{unversioned_library_string}"
         )
       end
 
