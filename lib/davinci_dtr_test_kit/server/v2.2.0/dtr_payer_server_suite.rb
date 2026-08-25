@@ -15,6 +15,7 @@ require_relative 'questionnaire_package_support/contained_questionnaire_response
 require_relative 'questionnaire_package_support/questionnaire_response_questionnaire_canonical_test'
 require_relative 'next_question_support/next_question_response_references_test'
 require_relative 'next_question_support/next_contained_questionnaire_response_references_test'
+require_relative 'next_question_support/adaptive_questionnaire_endpoint_test'
 require_relative 'questionnaire_package_support/adaptive_questionnaire_response_validation_test'
 require_relative 'value_set_expand_support/value_set_expansion_test'
 require_relative 'questionnaire_design/questionnaire_expression_elm_test'
@@ -161,8 +162,7 @@ module DaVinciDTRTestKit
           test from: :dtr_v220_payer_adaptive_questionnaire_response_validation
           test from: :dtr_v220_payer_next_question_response_references
           test from: :dtr_v220_payer_next_question_contained_response_references
-
-          # spec-24 - [NOT TESTED in 2.0] url shall be a sub-url, accessed using same credentials
+          test from: :dtr_v220_payer_adaptive_questionnaire_endpoint
 
           # TODO
           # spec-39 - [QUESTIONABLE] display item indicating Q completion included at end
