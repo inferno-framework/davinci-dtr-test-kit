@@ -83,12 +83,6 @@ module DaVinciDTRTestKit
             title: 'Payer FHIR Server Base Url',
             description: 'Base FHIR URL implementing the DTR server operations.'
 
-      input :backend_services_smart_auth_info,
-            title: 'OAuth Credentials',
-            type: :auth_info,
-            optional: true
-
-      # All FHIR requests in this suite use this FHIR client.
       fhir_client do
         url :url
         auth_info :backend_services_smart_auth_info
@@ -119,19 +113,13 @@ module DaVinciDTRTestKit
         run_as_group
 
         input :backend_services_smart_auth_info,
-              title: 'OAuth Credentials',
-              type: :auth_info,
-              optional: true
+              title: 'Backend Services Credentials',
+              type: :auth_info
         input :client_fhir_endpoint,
               title: 'DTR Client FHIR Endpoint',
               description: 'Base URL of the DTR client FHIR endpoint. Required to validate absolute ' \
                            'QuestionnaireResponse references.',
               optional: true
-
-        fhir_client do
-          url :url
-          auth_info :backend_services_smart_auth_info
-        end
 
         group do
           title 'Questionnaire Interactions'
@@ -249,6 +237,11 @@ module DaVinciDTRTestKit
       group do
         title 'Log Questionnaire Error Support'
         id :dtr_payer_v220_log_questionnaire_error_support
+
+        input :backend_services_smart_auth_info,
+              title: 'Backend Services Credentials',
+              type: :auth_info
+
         # TODO
         # (optionally ?) perform $q-p operation and validate input
 
