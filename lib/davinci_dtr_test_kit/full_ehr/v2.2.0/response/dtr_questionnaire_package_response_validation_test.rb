@@ -1,11 +1,13 @@
 require_relative '../../../urls'
 require_relative '../../../tags'
 require_relative '../../../cross_suite/v2.2.0/multi_request_message_helper'
+require_relative '../../short_circuit_interaction_verification'
 
 module DaVinciDTRTestKit
   class DTRFullEHRV220QuestionnairePackageResponseValidationTest < Inferno::Test
     include URLs
     include MultiRequestMessageHelper
+    include ShortCircuitInteractionVerification
 
     id :dtr_full_ehr_v220_qp_response_validation
     title 'Questionnaire Package response is valid'
@@ -29,6 +31,8 @@ module DaVinciDTRTestKit
     end
 
     run do
+      check_for_short_circuit(ok_message: config.options[:short_circuit_pass_message])
+
       requests = load_tagged_requests(*target_tags)
       skip_if requests.blank?, 'A Questionnaire Package request must be made prior to running this test'
 
@@ -59,7 +63,8 @@ module DaVinciDTRTestKit
           next
         end
 
-        resource_is_valid?(resource: output_params,
+        resource_is_valid?(validator: :no_unknown_extensions,
+                           resource: output_params,
                            profile_url: 'http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/dtr-qpackage-output-parameters|2.2.0',
                            message_prefix: request_prefix(request_index))
       end

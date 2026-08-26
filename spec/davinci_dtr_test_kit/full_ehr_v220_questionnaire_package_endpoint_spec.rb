@@ -792,51 +792,54 @@ RSpec.describe DaVinciDTRTestKit::MockPayer::FullEHRV220QuestionnairePackageEndp
         expect(last_response.headers['Content-Type']).to include('application/fhir+json')
         expect(JSON.parse(last_response.body)['resourceType']).to eq('Parameters')
       end
+    end
 
-      it 'returns 400 with OperationOutcome when no input value is provided' do
-        run(input_template_test, client_id:)
+    # -------------------------------------------------------------------
+    # Pre-wait validation of the qp_response_template input
+    #
+    # The wait test (DTRFullEHRV220InteractionWaitTest) validates an input-based
+    # qp_response_template *before* calling wait(), so a bad template fails the wait test
+    # itself rather than surfacing later as an HTTP error the first time the client hits the
+    # mock endpoint.
+    # -------------------------------------------------------------------
 
-        header('Authorization', "Bearer #{UDAPSecurityTestKit::MockUDAPServer.client_id_to_token(client_id, 5)}")
-        post(server_endpoint, valid_request_body, 'CONTENT_TYPE' => 'application/json')
+    context 'when validating the qp_response_template input before the wait' do
+      it 'fails before waiting when no input value is provided' do
+        result = run(input_template_test, client_id:)
 
-        expect(last_response.status).to eq(400)
-        parsed = JSON.parse(last_response.body)
-        expect(parsed['resourceType']).to eq('OperationOutcome')
-        expect(parsed['issue'].first['details']['text']).to match(/No response template provided/)
+        expect(result.result).to eq('fail')
+        expect(result.result_message).to match(/No response template provided/)
       end
 
-      it 'returns 400 with OperationOutcome when the input is valid JSON but not a FHIR resource' do
-        run(input_template_test, client_id:, qp_response_template: '{"foo": "bar"}')
+      it 'fails before waiting when the input is valid JSON but not a FHIR resource' do
+        result = run(input_template_test, client_id:, qp_response_template: '{"foo": "bar"}')
 
-        header('Authorization', "Bearer #{UDAPSecurityTestKit::MockUDAPServer.client_id_to_token(client_id, 5)}")
-        post(server_endpoint, valid_request_body, 'CONTENT_TYPE' => 'application/json')
-
-        expect(last_response.status).to eq(400)
-        expect(JSON.parse(last_response.body)['resourceType']).to eq('OperationOutcome')
+        expect(result.result).to eq('fail')
+        expect(result.result_message).to include('must contain a Parameters resource')
       end
 
-      it 'returns 400 with OperationOutcome when the input is a non-Parameters FHIR resource' do
+      it 'fails before waiting when the input is a non-Parameters FHIR resource' do
         bundle_json = FHIR::Bundle.new(type: 'collection').to_json
-        run(input_template_test, client_id:, qp_response_template: bundle_json)
+        result = run(input_template_test, client_id:, qp_response_template: bundle_json)
 
-        header('Authorization', "Bearer #{UDAPSecurityTestKit::MockUDAPServer.client_id_to_token(client_id, 5)}")
-        post(server_endpoint, valid_request_body, 'CONTENT_TYPE' => 'application/json')
-
-        expect(last_response.status).to eq(400)
-        expect(JSON.parse(last_response.body)['resourceType']).to eq('OperationOutcome')
+        expect(result.result).to eq('fail')
+        expect(result.result_message).to include('must contain a Parameters resource')
       end
 
-      it 'returns 400 with OperationOutcome when the input template is itself a FHIR OperationOutcome' do
+      it 'fails before waiting when the input template is itself a FHIR OperationOutcome' do
         oo_json = FHIR::OperationOutcome.new(
           issue: [FHIR::OperationOutcome::Issue.new(severity: 'error', code: 'invalid')]
         ).to_json
-        run(input_template_test, client_id:, qp_response_template: oo_json)
+        result = run(input_template_test, client_id:, qp_response_template: oo_json)
 
-        header('Authorization', "Bearer #{UDAPSecurityTestKit::MockUDAPServer.client_id_to_token(client_id, 5)}")
-        post(server_endpoint, valid_request_body, 'CONTENT_TYPE' => 'application/json')
+        expect(result.result).to eq('fail')
+        expect(result.result_message).to include('must contain a Parameters resource')
+      end
 
-        expect(last_response.status).to eq(400)
-        expect(JSON.parse(last_response.body)['resourceType']).to eq('OperationOutcome')
+      it 'proceeds to wait when the input is a valid Parameters resource' do
+        result = run(input_template_test, client_id:, qp_response_template: valid_parameters_template_json)
+
+        expect(result.result).to eq('wait')
       end
     end
 
@@ -877,24 +880,6 @@ RSpec.describe DaVinciDTRTestKit::MockPayer::FullEHRV220QuestionnairePackageEndp
         post_with_token
 
         expect(last_response.status).to eq(200)
-      end
-
-      it 'continues to return the template OperationOutcome on every request when the template is an OO' do
-        # Template errors take priority over the single-use gate: the single-use check only
-        # sits between the template-OO path and instantiate_template. When the template itself
-        # is an OO (a test-configuration error), every request returns that OO unchanged.
-        oo_json = FHIR::OperationOutcome.new(
-          issue: [FHIR::OperationOutcome::Issue.new(severity: 'error', code: 'invalid')]
-        ).to_json
-        run(single_use_test, client_id:, qp_response_template: oo_json)
-
-        post_with_token
-        expect(last_response.status).to eq(400)
-        expect(JSON.parse(last_response.body)['issue'].first['code']).to eq('invalid')
-
-        post_with_token
-        expect(last_response.status).to eq(400)
-        expect(JSON.parse(last_response.body)['issue'].first['code']).to eq('invalid')
       end
 
       it 'does not count a 401 (expired token) response toward the single-use limit' do

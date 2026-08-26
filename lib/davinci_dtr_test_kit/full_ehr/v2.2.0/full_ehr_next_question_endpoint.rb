@@ -4,6 +4,8 @@ require_relative '../../cross_suite/fhirpath_utils'
 require_relative '../../cross_suite/response_selection_utils'
 require_relative '../fixture_loader'
 require_relative '../../tags'
+require_relative 'next_question_template_questionnaires'
+require_relative '../../cross_suite/v2.2.0/questionnaire_helper'
 
 module DaVinciDTRTestKit
   module MockPayer
@@ -11,6 +13,8 @@ module DaVinciDTRTestKit
       include MockPayer
       include DaVinciDTRTestKit::FhirpathUtils
       include DaVinciDTRTestKit::ResponseSelectionUtils
+      include DaVinciDTRTestKit::NextQuestionTemplateQuestionnaires
+      include DaVinciDTRTestKit::QuestionnaireHelper
 
       def test_run_identifier
         return request.params[:session_path] if request.params[:session_path].present?
@@ -21,7 +25,13 @@ module DaVinciDTRTestKit
       end
 
       def tags
-        [CLIENT_NEXT_TAG, test.config.options[:dtr_workflow_tag].presence].compact
+        tags = [CLIENT_NEXT_TAG]
+        tags << test.config.options[:dtr_workflow_tag] if test.config.options[:dtr_workflow_tag].present?
+        unless test.config.options[:dtr_exclude_from_questionnaire_must_support]
+          tags << CLIENT_QUESTIONNAIRE_MUST_SUPPORT
+        end
+
+        tags
       end
 
       def make_response
@@ -115,9 +125,7 @@ module DaVinciDTRTestKit
       end
 
       def extract_contained_questionnaire
-        contained_questionnaire = request_questionnaire_response.contained&.find do |contained_resource|
-          contained_resource.is_a?(FHIR::Questionnaire)
-        end
+        contained_questionnaire = contained_questionnaire_from_questionnaire_response(request_questionnaire_response)
 
         unless contained_questionnaire.present?
           return operation_outcome('error', 'invalid',
@@ -189,21 +197,6 @@ module DaVinciDTRTestKit
         nil
       end
 
-      def questionnaire_canonical_url(questionnaire)
-        if questionnaire.version.present?
-          "#{questionnaire.url}|#{questionnaire.version}"
-        else
-          questionnaire.url
-        end
-      end
-
-      def adaptive_questionnaire?(questionnaire)
-        questionnaire.extension.any? do |ext|
-          ext.url == 'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-questionnaireAdaptive' &&
-            ((ext.valueBoolean == true) || ext.valueUri.present?)
-        end
-      end
-
       # ***********************************************************************
       # Response Template
       # ***********************************************************************
@@ -248,16 +241,28 @@ module DaVinciDTRTestKit
           .find { |input| input['name'] == input_name }
           &.dig('value')
 
+        title = input_title(input_name)
         unless value.present?
           return operation_outcome('error', 'invalid',
-                                   "No response template provided by the user in input '#{input_name}'.")
+                                   "No response template provided by the user in input '#{title}'.")
         end
 
-        parse_questionnaire_response_input_template(value, input_name)
+        parse_questionnaire_response_input_template(value, title)
       end
 
-      def parse_questionnaire_response_input_template(value, input_name)
-        parsed = parse_fhir_object(value, entity: "Input #{input_name}")
+      def parse_questionnaire_response_input_template(value, title)
+        parsed_json = JSON.parse(value)
+        if parsed_json.is_a?(Array)
+          matching_questionnaire_template(questionnaires_from_template_value(value), title)
+        else
+          parse_single_questionnaire_template(value, title)
+        end
+      rescue JSON::ParserError
+        operation_outcome('error', 'invalid', "Input #{title} does not contain valid JSON.")
+      end
+
+      def parse_single_questionnaire_template(value, title)
+        parsed = parse_fhir_object(value, entity: "Input #{title}")
         unless parsed.is_a?(FHIR::Questionnaire)
           return operation_outcome('error', 'invalid',
                                    'Invalid input response template for $next-question: ' \
@@ -266,6 +271,28 @@ module DaVinciDTRTestKit
         parsed
       rescue MockPayer::ParseError => e
         operation_outcome('error', 'invalid', e.message)
+      end
+
+      def matching_questionnaire_template(questionnaires, title)
+        matching = questionnaires.find { |questionnaire| questionnaire_template_matches_request?(questionnaire) }
+        return matching if matching.present?
+
+        operation_outcome('error', 'invalid',
+                          'Invalid input response template for $next-question: ' \
+                          "No Questionnaire in input '#{title}' matches " \
+                          "#{questionnaire_canonical_url(request_questionnaire)}.")
+      end
+
+      # test.config.options input references are stored as input names; testers only see the
+      # input's title in the Inferno UI, so client-facing messages should use that instead.
+      def input_title(input_name)
+        test.config.input(input_name.to_sym)&.title || input_name
+      end
+
+      def questionnaire_template_matches_request?(questionnaire)
+        return false unless questionnaire.url == request_questionnaire.url
+
+        request_questionnaire.version.blank? || questionnaire.version == request_questionnaire.version
       end
 
       # ***********************************************************************

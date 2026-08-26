@@ -13,3 +13,11 @@ namespace :db do
     Inferno::Utils::Migration.new.run
   end
 end
+
+namespace :dtr do
+  desc 'Generate profile metadata files'
+  task :generate do
+    require_relative 'lib/davinci_dtr_test_kit/generator'
+    DaVinciDTRTestKit::Generator.generate
+  end
+end
