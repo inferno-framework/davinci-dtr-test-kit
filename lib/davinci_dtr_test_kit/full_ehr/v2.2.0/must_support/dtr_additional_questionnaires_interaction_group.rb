@@ -5,8 +5,8 @@ module DaVinciDTRTestKit
     title 'Additional Questionnaires for Must Support Coverage'
     id :dtr_full_ehr_v220_additional_qustionnaires_for_ms
     description <<~DESCRIPTION
-      During this group, the DTR client will have the opportunity to demonstrate
-      the completion of additional Questionnaires to demonstrate must support
+      During this group, the DTR client will have the opportunity to
+      complete additional Questionnaires to demonstrate must support
       element coverage.
     DESCRIPTION
     run_as_group
