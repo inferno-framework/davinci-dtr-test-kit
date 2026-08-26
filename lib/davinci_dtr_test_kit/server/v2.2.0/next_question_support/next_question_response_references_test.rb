@@ -25,8 +25,13 @@ module DaVinciDTRTestKit
 
       run do
         load_tagged_requests(NEXT_TAG)
+
+        omit_if requests.blank?, 'No $next-question requests were made.'
+
         responses_by_request = requests.map { |request| questionnaire_responses_from_request(request) }
+
         skip_if responses_by_request.all?(&:empty?), 'No QuestionnaireResponse resources were returned.'
+
         absolute_references_returned = responses_by_request.flatten.any? do |response|
           questionnaire_response_has_absolute_reference?(response)
         end

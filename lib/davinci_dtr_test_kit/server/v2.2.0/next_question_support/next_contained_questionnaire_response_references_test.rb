@@ -21,7 +21,11 @@ module DaVinciDTRTestKit
 
       run do
         load_tagged_requests(NEXT_TAG)
+
+        omit_if requests.blank?, 'No $next-question requests were made.'
+
         responses_by_request = requests.map { |request| questionnaire_responses_from_request(request) }
+
         skip_if responses_by_request.all?(&:empty?), 'No QuestionnaireResponse resources were returned.'
 
         responses_by_request.each_with_index do |questionnaire_responses, request_index|

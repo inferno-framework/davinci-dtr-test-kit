@@ -48,7 +48,7 @@ module DaVinciDTRTestKit
           end
         end
 
-        skip_if adaptive_questionnaires.blank?, 'No adaptive Questionnaires were found.'
+        omit_if adaptive_questionnaires.blank?, 'No adaptive Questionnaires were found.'
 
         perform_response_validation_test(
           adaptive_questionnaires,
