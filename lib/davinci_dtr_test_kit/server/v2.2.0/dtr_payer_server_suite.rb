@@ -96,8 +96,8 @@ module DaVinciDTRTestKit
 
       group do
         title 'Discovery'
+        id :dtr_payer_v220_discovery
 
-        # conf-1 - CS matches CS in the IG
         fhir_client do
           url :url
         end
@@ -106,13 +106,16 @@ module DaVinciDTRTestKit
       end
 
       group from: :'smart_stu2-smart_backend_services' do
+        id :dtr_payer_v220_backend_services
+
         # TODO
         # spec-120 [QUESTIONABLE]- payers require clients to use backend services
       end
 
       group do
-        id :dtr_payer_server_v220_questionnaires
+        id :dtr_payer_server_v220_questionnaire_operations
         title 'Questionnaire Operations'
+
         run_as_group
 
         input :backend_services_smart_auth_info,
@@ -132,15 +135,19 @@ module DaVinciDTRTestKit
 
         group do
           title 'Questionnaire Interactions'
+          id :dtr_payer_v220_questionnaire_interactions
 
           group do
             title 'Interactions'
-            # TODO: make #questionnaire_interaction identify static/adaptive questionnaires
+            id :dtr_payer_v220_interactions
+
             test from: :dtr_v220_payer_interaction
           end
 
           group do
             title 'Request Validation'
+            id :dtr_payer_v220_request_validation
+
             simulation_verification
 
             test from: :dtr_v220_payer_questionnaire_package_request_validation
@@ -151,6 +158,7 @@ module DaVinciDTRTestKit
 
         group do
           title 'Questionnaire/$questionnaire-package Support'
+          id :dtr_payer_v220_questionnaire_package_support
 
           test from: :dtr_v220_payer_questionnaire_response_validation
           test from: :dtr_server_v220_payer_questionnaire_package_contents
@@ -167,7 +175,7 @@ module DaVinciDTRTestKit
 
         group do
           title 'Questionnaire/$next-question support'
-          optional
+          id :dtr_payer_v220_next_question_support
 
           test from: :dtr_v220_payer_next_question_response_validation
           test from: :dtr_v220_payer_adaptive_questionnaire_response_validation
@@ -181,6 +189,7 @@ module DaVinciDTRTestKit
 
         group do
           title 'Questionnaire design'
+          id :dtr_payer_v220_questionnaire_design
 
           test from: :dtr_v220_payer_questionnaire_relevance_logic
           test from: :dtr_v220_payer_questionnaire_expression_language
@@ -204,6 +213,8 @@ module DaVinciDTRTestKit
 
         group do
           title 'ValueSet/$expand Support'
+          id :dtr_payer_v220_valueset_expand_support
+
           test from: :dtr_v220_payer_value_set_expansion
 
           # TODO
@@ -212,6 +223,7 @@ module DaVinciDTRTestKit
 
         group do
           title 'Error Handling'
+          id :dtr_payer_v220_error_handling
 
           test from: :dtr_server_v220_payer_questionnaire_not_found
 
@@ -236,6 +248,7 @@ module DaVinciDTRTestKit
 
       group do
         title 'Log Questionnaire Error Support'
+        id :dtr_payer_v220_log_questionnaire_error_support
         # TODO
         # (optionally ?) perform $q-p operation and validate input
 
