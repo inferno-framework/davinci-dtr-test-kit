@@ -68,10 +68,13 @@ module DaVinciDTRTestKit
 
       def alternative_expression_present?(expression)
         expression.extension.any? do |extension|
-          extension.url == ALTERNATIVE_EXPRESSION_URL &&
-            extension.valueExpression&.language == 'application/elm+json' &&
-            (extension.valueExpression&.expression.present? || extension.valueExpression&.reference.present?)
+          extension.url == ALTERNATIVE_EXPRESSION_URL && expression_contains_elm?(extension.valueExpression)
         end
+      end
+
+      def expression_contains_elm?(expression)
+        expression&.language == 'application/elm+json' &&
+          (expression&.expression.present? || extension.valueExpression&.reference.present?)
       end
     end
   end

@@ -171,9 +171,9 @@ module DaVinciDTRTestKit
         group do
           title 'Questionnaire design'
 
-          test from: :dtr_v220_payer_questionnaire_expression_elm
           test from: :dtr_v220_payer_questionnaire_relevance_logic
           test from: :dtr_v220_payer_questionnaire_expression_language
+          test from: :dtr_v220_payer_questionnaire_expression_elm
           test from: :dtr_v220_payer_questionnaire_prepopulation
 
           # TODO
