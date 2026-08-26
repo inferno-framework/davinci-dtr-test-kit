@@ -164,7 +164,7 @@ module DaVinciDTRTestKit
         end
 
         group do
-          title 'Questionnaire/$next-question support'
+          title 'Questionnaire/$next-question Support'
           id :dtr_payer_v220_next_question_support
 
           test from: :dtr_v220_payer_next_question_response_validation
@@ -178,7 +178,7 @@ module DaVinciDTRTestKit
         end
 
         group do
-          title 'Questionnaire design'
+          title 'Questionnaire Design'
           id :dtr_payer_v220_questionnaire_design
 
           test from: :dtr_v220_payer_questionnaire_relevance_logic

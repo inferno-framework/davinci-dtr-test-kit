@@ -8,7 +8,7 @@ module DaVinciDTRTestKit
 
       id :dtr_v220_payer_cql_library_validation
 
-      title 'CQL Library inclusion'
+      title 'All referenced CQL Libraries are included'
       description %(
         Inferno will verify that the payer server's response to the
         questionnaire-package operation includes all CQL Libraries referenced in

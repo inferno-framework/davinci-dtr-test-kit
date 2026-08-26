@@ -11,7 +11,7 @@ module DaVinciDTRTestKit
       include MultiRequestMessageHelper
 
       id :dtr_v220_payer_next_question_contained_response_references
-      title 'Contained next-question QuestionnaireResponse references occur only in answer values'
+      title 'Contained $next-question QuestionnaireResponse references occur only in answer values'
       description %(
         This test verifies that a QuestionnaireResponse returned by `$next-question` uses
         contained resource references only as

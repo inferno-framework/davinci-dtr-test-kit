@@ -11,7 +11,7 @@ module DaVinciDTRTestKit
       include MultiRequestMessageHelper
 
       id :dtr_v220_payer_next_question_response_references
-      title 'Next-question QuestionnaireResponse references target contained or client FHIR resources'
+      title '$next-question QuestionnaireResponse references only target contained or client FHIR resources'
       description %(
         This test verifies that every reference in each QuestionnaireResponse returned by
         `$next-question` points to either a resource contained in that QuestionnaireResponse
