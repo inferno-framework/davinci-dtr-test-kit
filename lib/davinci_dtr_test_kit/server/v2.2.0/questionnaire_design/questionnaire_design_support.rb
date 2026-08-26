@@ -5,22 +5,33 @@ require_relative '../../../tags'
 module DaVinciDTRTestKit
   module DTRPayerServerV220
     module QuestionnaireDesignSupport
+      CQL_MEDIA_TYPES = [
+        'text/cql',
+        'text/cql-expression',
+        'text/cql-identifier'
+      ].freeze
+
       private
 
+      # Returns a Hash for each Questionnaire returned in a tagged response:
+      # { questionnaire:, operation:, request_index: }
+      # request_index is scoped independently to each operation.
       def returned_questionnaires
-        requests = load_tagged_requests(QUESTIONNAIRE_TAG) + load_tagged_requests(NEXT_TAG)
-        questionnaires_from_requests(requests)
+        questionnaires_from_requests(load_tagged_requests(QUESTIONNAIRE_TAG), '$questionnaire-package') +
+          questionnaires_from_requests(load_tagged_requests(NEXT_TAG), '$next-question')
       end
 
-      def questionnaires_from_requests(requests)
-        requests.filter_map do |request|
-          next if request.response_body.blank?
+      def questionnaires_from_requests(requests, operation)
+        requests.each_with_index.flat_map do |request, request_index|
+          next [] if request.response_body.blank?
 
           resource = FHIR.from_contents(request.response_body)
-          questionnaires_from_resource(resource)
+          questionnaires_from_resource(resource).map do |questionnaire|
+            { questionnaire:, operation:, request_index: }
+          end
         rescue JSON::ParserError, FHIR::ClientException
-          nil
-        end.flatten
+          []
+        end
       end
 
       def questionnaires_from_resource(resource)
@@ -44,6 +55,10 @@ module DaVinciDTRTestKit
 
       def questionnaire_items(questionnaire)
         questionnaire.item.flat_map { |item| [item] + questionnaire_items(item) }
+      end
+
+      def cql_expression?(expression)
+        CQL_MEDIA_TYPES.include?(expression.language.to_s.split(';').first.strip)
       end
     end
   end

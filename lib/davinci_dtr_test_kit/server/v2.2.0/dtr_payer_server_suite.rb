@@ -18,6 +18,7 @@ require_relative 'next_question_support/next_question_response_references_test'
 require_relative 'next_question_support/next_contained_questionnaire_response_references_test'
 require_relative 'questionnaire_package_support/adaptive_questionnaire_response_validation_test'
 require_relative 'value_set_expand_support/value_set_expansion_test'
+require_relative 'questionnaire_design/questionnaire_expression_elm_test'
 require_relative 'questionnaire_design/questionnaire_expression_language_test'
 require_relative 'questionnaire_design/questionnaire_prepopulation_test'
 require_relative 'questionnaire_design/questionnaire_relevance_logic_test'
@@ -172,10 +173,9 @@ module DaVinciDTRTestKit
         group do
           title 'Questionnaire design'
 
-          # TODO
-          # spec-96 - [NOT TESTED in 2.0] CQL and ELM are provided in expressions
           test from: :dtr_v220_payer_questionnaire_relevance_logic
           test from: :dtr_v220_payer_questionnaire_expression_language
+          test from: :dtr_v220_payer_questionnaire_expression_elm
           test from: :dtr_v220_payer_questionnaire_prepopulation
 
           # TODO
