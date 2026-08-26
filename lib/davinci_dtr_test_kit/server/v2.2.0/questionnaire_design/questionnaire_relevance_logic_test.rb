@@ -21,7 +21,7 @@ module DaVinciDTRTestKit
       verifies_requirements 'hl7.fhir.us.davinci-dtr_2.2.0@spec-17'
 
       run do
-        questionnaires = returned_questionnaires
+        questionnaires = returned_questionnaires.map { |details| details[:questionnaire] }
         skip_if questionnaires.blank?, 'No Questionnaire resources were returned'
 
         assert questionnaires.any? { |questionnaire| questionnaire_has_relevance_logic?(questionnaire) },

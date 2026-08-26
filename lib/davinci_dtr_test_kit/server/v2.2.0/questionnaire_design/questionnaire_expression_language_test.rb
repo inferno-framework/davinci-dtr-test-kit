@@ -7,12 +7,6 @@ module DaVinciDTRTestKit
     class QuestionnaireExpressionLanguageTest < Inferno::Test
       include QuestionnaireDesignSupport
 
-      CQL_MEDIA_TYPES = [
-        'text/cql',
-        'text/cql-expression',
-        'text/cql-identifier'
-      ].freeze
-
       id :dtr_v220_payer_questionnaire_expression_language
       title 'Questionnaire flow and rendering expressions use CQL'
       description %(
@@ -23,18 +17,18 @@ module DaVinciDTRTestKit
       verifies_requirements 'hl7.fhir.us.davinci-dtr_2.2.0@spec-18'
 
       run do
-        questionnaires = returned_questionnaires
-        skip_if questionnaires.blank?, 'No Questionnaire resources were returned'
+        questionnaire_details = returned_questionnaires
+        skip_if questionnaire_details.blank?, 'No Questionnaire resources were returned'
 
-        expressions = questionnaires.flat_map { |questionnaire| questionnaire_item_expressions(questionnaire) }
+        expressions = questionnaire_details.flat_map { |details| questionnaire_item_expressions(details) }
         omit_if expressions.blank?, 'No flow or rendering expressions were found'
 
         non_cql_expressions = expressions.reject do |details|
-          expression_uses_cql?(details[:expression])
+          cql_expression?(details[:expression])
         end
         non_cql_details = non_cql_expressions.map do |details|
           language = details[:expression].language.presence || 'missing'
-          "linkId `#{details[:link_id]}` (language `#{language}`)"
+          "#{request_location(details[:request_details])} linkId `#{details[:link_id]}` (language `#{language}`)"
         end
 
         assert non_cql_expressions.blank?,
@@ -43,11 +37,12 @@ module DaVinciDTRTestKit
 
       private
 
-      def questionnaire_item_expressions(questionnaire)
+      def questionnaire_item_expressions(details)
+        questionnaire = details[:questionnaire]
         questionnaire_items(questionnaire).flat_map do |item|
           item.extension.flat_map do |extension|
             expressions_from_extension(extension).map do |expression|
-              { expression:, link_id: item.linkId }
+              { expression:, link_id: item.linkId, request_details: details }
             end
           end
         end
@@ -60,8 +55,8 @@ module DaVinciDTRTestKit
         ].compact
       end
 
-      def expression_uses_cql?(expression)
-        CQL_MEDIA_TYPES.include?(expression.language.to_s.split(';').first.strip)
+      def request_location(details)
+        "#{details[:operation]} request #{details[:request_index] + 1}"
       end
     end
   end
