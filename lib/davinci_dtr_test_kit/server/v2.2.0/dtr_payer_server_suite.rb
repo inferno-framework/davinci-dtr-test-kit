@@ -92,6 +92,8 @@ module DaVinciDTRTestKit
         title 'Discovery'
         id :dtr_payer_v220_discovery
 
+        run_as_group
+
         fhir_client do
           url :url
         end
@@ -237,6 +239,8 @@ module DaVinciDTRTestKit
       group do
         title 'Log Questionnaire Error Support'
         id :dtr_payer_v220_log_questionnaire_error_support
+
+        run_as_group
 
         input :backend_services_smart_auth_info,
               title: 'Backend Services Credentials',
