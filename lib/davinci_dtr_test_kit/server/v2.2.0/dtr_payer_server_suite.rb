@@ -1,7 +1,28 @@
 require 'smart_app_launch_test_kit'
 require_relative 'interaction_test'
+require_relative 'log_questionnaire_errors_support_test'
+require_relative 'next_question_support/invalid_questionnaire_response_test'
+require_relative 'questionnaire_package_request_validation_test'
+require_relative 'next_question_request_validation_test'
+require_relative 'questionnaire_package_support/questionnaire_package_input_type_test'
+require_relative 'questionnaire_package_support/dtr_server_no_custom_extension_test'
 require_relative 'questionnaire_package_support/questionnaire_response_validation_test'
+require_relative 'next_question_support/next_question_response_validation_test'
 require_relative 'questionnaire_design/cql_library_validation_test'
+require_relative 'dtr_payer_server_capability_statement_test'
+require_relative 'questionnaire_package_support/questionnaire_response_references_test'
+require_relative 'questionnaire_package_support/contained_questionnaire_response_references_test'
+require_relative 'questionnaire_package_support/questionnaire_response_questionnaire_canonical_test'
+require_relative 'next_question_support/next_question_response_references_test'
+require_relative 'next_question_support/next_contained_questionnaire_response_references_test'
+require_relative 'questionnaire_package_support/adaptive_questionnaire_response_validation_test'
+require_relative 'value_set_expand_support/value_set_expansion_test'
+require_relative 'questionnaire_design/questionnaire_expression_language_test'
+require_relative 'questionnaire_design/questionnaire_prepopulation_test'
+require_relative 'questionnaire_design/questionnaire_relevance_logic_test'
+require_relative 'questionnaire_package_support/source_data_error_test'
+require_relative 'questionnaire_design/contained_binary_test'
+require_relative 'questionnaire_package_support/value_set_validation_test'
 
 module DaVinciDTRTestKit
   module DTRPayerServerV220
@@ -49,11 +70,26 @@ module DaVinciDTRTestKit
             title: 'Payer FHIR Server Base Url',
             description: 'Base FHIR URL implementing the DTR server operations.'
 
+      input :backend_services_smart_auth_info,
+            title: 'OAuth Credentials',
+            type: :auth_info,
+            optional: true
+
+      # All FHIR requests in this suite use this FHIR client.
+      fhir_client do
+        url :url
+        auth_info :backend_services_smart_auth_info
+      end
+
       group do
         title 'Discovery'
 
-        # TODO
         # conf-1 - CS matches CS in the IG
+        fhir_client do
+          url :url
+        end
+
+        test from: :dtr_payer_server_v220_capability_statement_test
       end
 
       group from: :'smart_stu2-smart_backend_services' do
@@ -69,6 +105,11 @@ module DaVinciDTRTestKit
         input :backend_services_smart_auth_info,
               title: 'OAuth Credentials',
               type: :auth_info,
+              optional: true
+        input :client_fhir_endpoint,
+              title: 'DTR Client FHIR Endpoint',
+              description: 'Base URL of the DTR client FHIR endpoint. Required to validate absolute ' \
+                           'QuestionnaireResponse references.',
               optional: true
 
         fhir_client do
@@ -88,35 +129,38 @@ module DaVinciDTRTestKit
           group do
             title 'Request Validation'
             simulation_verification
+
+            test from: :dtr_v220_payer_questionnaire_package_request_validation
+            test from: :dtr_v220_payer_next_question_request_validation
+            test from: :dtr_v220_payer_questionnaire_package_input_type
           end
         end
 
         group do
           title 'Questionnaire/$questionnaire-package Support'
-
-          # TODO: verify that each of these parameter types is used
-          # One with questionnaire url
-          # One with CRD/PAS context ID
-          # Request/Encounter resource
-
           # oper-12 - [NOT TESTED in 2.0] include Questionnaire as 1st entry, [TESTED] and CQL libraries
-          # oper-14 - [NOT TESTED in 2.0] Bundle includes all VS instances
           # oper-16 - [NOT TESTED in 2.0] references are version specific
           #           NOTE: ONLY Library references are currently tested
           test from: :dtr_v220_payer_questionnaire_response_validation
+          test from: :dtr_server_v220_no_custom_extension_test
+          test from: :dtr_v220_payer_value_set_validation
 
           # TODO: embedded QR validation
           # spec-25 - [NOT TESTED in 2.0] QR has contained Q
-          # spec-122 - [NOT TESTED in 2.0] QR.Q points to canonical of the Q provided
-          # spec-139 - All references in QR are to contained or client resources
-          # spec-141 - contained resources only in item.answer
+          test from: :dtr_v220_payer_questionnaire_response_questionnaire_canonical
+          test from: :dtr_v220_payer_questionnaire_response_references
+          test from: :dtr_v220_payer_contained_questionnaire_response_references
         end
 
         group do
           title 'Questionnaire/$next-question support'
           optional
-          # TODO
-          # spec-23 - adaptive form validation [DONE]
+
+          test from: :dtr_v220_payer_next_question_response_validation
+          test from: :dtr_v220_payer_adaptive_questionnaire_response_validation
+          test from: :dtr_v220_payer_next_question_response_references
+          test from: :dtr_v220_payer_next_question_contained_response_references
+
           # spec-24 - [NOT TESTED in 2.0] url shall be a sub-url, accessed using same credentials
 
           # TODO
@@ -127,10 +171,10 @@ module DaVinciDTRTestKit
           title 'Questionnaire design'
 
           # TODO
-          # spec-17 - verify that Questionnaires use enableWhen/enableWhenExpression
-          # spec-18 - verify CQL is used for expressions [DONE]
-          # spec-54 - Qs include population logic [DONE]
           # spec-96 - [NOT TESTED in 2.0] CQL and ELM are provided in expressions
+          test from: :dtr_v220_payer_questionnaire_relevance_logic
+          test from: :dtr_v220_payer_questionnaire_expression_language
+          test from: :dtr_v220_payer_questionnaire_prepopulation
 
           # TODO
           # spec-93 - [NOT TESTED in 2.0] CQL has context of "Patient"
@@ -140,8 +184,7 @@ module DaVinciDTRTestKit
           # TODO
           test from: :dtr_v220_payer_cql_library_validation
 
-          # TODO
-          # spec-160 - contained binary resources shall be pdfs or xhtml
+          test from: :dtr_v220_payer_contained_binary
           # spec-165 [QUESTIONABLE]- contained binary page reference validation
 
           # TODO
@@ -150,10 +193,7 @@ module DaVinciDTRTestKit
 
         group do
           title 'ValueSet/$expand Support'
-          # [NOT TESTED]
-
-          # TODO
-          # oper-5 - VS shall use current date and only include active codes
+          test from: :dtr_v220_payer_value_set_expansion
 
           # TODO
           # oper-15 - [NOT TESTED in 2.0] VS with <40 entries SHALL be expanded
@@ -165,21 +205,28 @@ module DaVinciDTRTestKit
         # TODO
         # (optionally ?) perform $q-p operation and validate input
 
-        # TODO
-        # oper-1 - shall support it
+        test from: :dtr_v220_payer_log_questionnaire_errors_support
       end
 
       group do
         title 'Error Handling'
 
+        input :backend_services_smart_auth_info,
+              title: 'OAuth Credentials',
+              type: :auth_info,
+              optional: true
+
+        fhir_client do
+          url :url
+          auth_info :backend_services_smart_auth_info
+        end
+
         # TODO
         # oper-9 - make a request with a known bad questionnaire url
 
-        # TODO
-        # spec-130 - 4xx w/OO for issues with source data
+        test from: :dtr_v220_payer_source_data_error
 
-        # TODO
-        # spec-147 - 400 w/OO for invalid QR
+        test from: :dtr_v220_payer_invalid_questionnaire_response
       end
     end
   end
