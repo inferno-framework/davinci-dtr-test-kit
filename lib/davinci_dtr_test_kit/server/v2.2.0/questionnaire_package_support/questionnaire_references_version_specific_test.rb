@@ -19,6 +19,8 @@ module DaVinciDTRTestKit
 
       verifies_requirements 'hl7.fhir.us.davinci-dtr_2.2.0@oper-16'
 
+      TARGET_REFERENCE = ['Questionnaire', 'Library', 'ValueSet'].freeze
+
       run do
         load_tagged_requests(QUESTIONNAIRE_TAG)
 
@@ -35,26 +37,21 @@ module DaVinciDTRTestKit
           next if resource.nil?
 
           extract_questionnaire_bundles(resource).each_with_index do |bundle, bundle_index|
-            extract_questionnaires_from_bundles([bundle]).each do |questionnaire|
-              add_message('error', 'Unversioned Questionnaire reference') unless questionnaire.version.present?
+            bundle.each_element do |element, _meta, _path|
+              next unless element.is_a?(FHIR::Reference)
 
-              referenced_value_set(questionnaire.item).each do |canonical|
-                next if check_version_reference?(canonical)
+              reference = element.reference
+              next if reference.blank?
 
-                add_message(
-                  'error',
-                  "Request #{request_index}, Bundle #{bundle_index}: Unversioned ValueSet reference: `#{canonical}`"
-                )
-              end
+              resource_type = element.type
+              next unless TARGET_REFERENCE.include?(resource_type)
 
-              referenced_library_canonicals(questionnaire).each do |canonical|
-                next if check_version_reference?(canonical)
+              next if check_version_reference?(reference)
 
-                add_message(
-                  'error',
-                  "Request #{request_index}, Bundle #{bundle_index}: Unversioned Library reference: `#{canonical}`"
-                )
-              end
+              add_message(
+                'error',
+                "Request #{request_index}, Bundle #{bundle_index}: Unversioned #{resource_type}"
+              )
             end
           end
         end
@@ -63,16 +60,6 @@ module DaVinciDTRTestKit
                   'within questionnaire package Bundles must be version-specific. '
 
         assert_no_error_messages("#{message}See Messages for details.")
-      end
-
-      def referenced_value_set(items)
-        items.flat_map do |item|
-          references = []
-
-          references << item.answerValueSet if item.answerValueSet.present?
-
-          references + referenced_value_set(item.item)
-        end
       end
 
       def check_version_reference?(reference)

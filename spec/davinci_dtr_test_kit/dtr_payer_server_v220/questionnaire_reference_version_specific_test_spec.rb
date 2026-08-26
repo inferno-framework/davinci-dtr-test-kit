@@ -5,21 +5,10 @@ RSpec.describe DaVinciDTRTestKit::DTRPayerServerV220::QuestionnaireReferencesVer
   let(:value_set_url) { 'https://payer.example/ValueSet/diagnoses' }
   let(:result) { repo_create(:result, test_session_id: test_session.id) }
 
-  def build_bundle(questionnaire, resources = [])
-    bundle_hash = { entry: [{ resource: questionnaire }] }
+  def create_questionnaire_package_request(resource, status: 200)
+    bundle = FHIR::Bundle.new(type: 'collection', entry: [{ resource: }])
+    response = FHIR::Parameters.new(parameter: [{ name: 'packagebundle', resource: bundle }])
 
-    resources.each do |resource|
-      bundle_hash[:entry] << { resource: }
-    end
-
-    FHIR::Bundle.new(bundle_hash)
-  end
-
-  def response_params(bundle)
-    FHIR::Parameters.new(parameter: [{ name: 'packagebundle', resource: bundle }])
-  end
-
-  def create_questionnaire_package_request(response_resource, status: 200)
     repo_create(
       :request,
       result_id: result.id,
@@ -27,44 +16,35 @@ RSpec.describe DaVinciDTRTestKit::DTRPayerServerV220::QuestionnaireReferencesVer
       test_session_id: test_session.id,
       tags: [DaVinciDTRTestKit::QUESTIONNAIRE_TAG],
       status:,
-      response_body: response_resource.to_json
+      response_body: response.to_json
     )
   end
 
-  def questionnaire(questionnaire_version: '1.0', library_canonical: nil, value_set_canonical: nil)
-    extensions = []
-    if library_canonical.present?
-      extensions << {
-        url: 'http://hl7.org/fhir/StructureDefinition/cqf-library',
-        valueCanonical: library_canonical
-      }
-    end
-
-    items = []
-    if value_set_canonical.present?
-      items << FHIR::Questionnaire::Item.new(
-        answerValueSet: value_set_canonical
-      )
-    end
-
+  def questionnaire(questionnaire_reference:, library_reference:, value_set_reference:)
     FHIR::Questionnaire.new(
       url: questionnaire_url,
-      version: questionnaire_version,
       status: 'active',
-      extension: extensions,
-      item: items
+      extension: [
+        reference_extension('Questionnaire', questionnaire_reference),
+        reference_extension('Library', library_reference),
+        reference_extension('ValueSet', value_set_reference)
+      ]
+    )
+  end
+
+  def reference_extension(resource_type, reference)
+    FHIR::Extension.new(
+      url: "http://example.org/StructureDefinition/#{resource_type.downcase}-reference",
+      valueReference: reference
     )
   end
 
   it 'passes when Questionnaire, Library, and ValueSet references all have versions' do
     create_questionnaire_package_request(
-      response_params(
-        build_bundle(
-          questionnaire(
-            library_canonical: "#{library_url}|2.0",
-            value_set_canonical: "#{value_set_url}|3.0"
-          )
-        )
+      questionnaire(
+        questionnaire_reference: FHIR::Reference.new(type: 'Questionnaire', reference: "#{questionnaire_url}|1.0"),
+        library_reference: FHIR::Reference.new(type: 'Library', reference: "#{library_url}|2.0"),
+        value_set_reference: FHIR::Reference.new(type: 'ValueSet', reference: "#{value_set_url}|3.0")
       )
     )
 
@@ -89,43 +69,61 @@ RSpec.describe DaVinciDTRTestKit::DTRPayerServerV220::QuestionnaireReferencesVer
     expect(test_result.result_message).to include('No successful $questionnaire-package requests were made')
   end
 
-  it 'fails when the bundled Questionnaire has no version' do
+  it 'fails when a Questionnaire reference has no version' do
+    questionnaire_reference = FHIR::Reference.new(type: 'Questionnaire', reference: questionnaire_url)
+
     create_questionnaire_package_request(
-      response_params(build_bundle(questionnaire(questionnaire_version: nil)))
+      questionnaire(
+        questionnaire_reference:,
+        library_reference: FHIR::Reference.new(type: 'Library', reference: "#{library_url}|2.0"),
+        value_set_reference: FHIR::Reference.new(type: 'ValueSet', reference: "#{value_set_url}|3.0")
+      )
     )
 
-    result = run(described_class)
+    test_result = run(described_class)
 
-    expect(result.result).to eq('fail')
-    expect(result.result_message).to include(
+    expect(test_result.result).to eq('fail')
+    expect(test_result.result_message).to include(
       'References to Questionnaires, Libraries, and ValueSets within questionnaire package Bundles must be ' \
       'version-specific. See Messages for details.'
     )
   end
 
   it 'fails when a Library reference has no version' do
+    library_reference = FHIR::Reference.new(type: 'Library', reference: library_url)
+
     create_questionnaire_package_request(
-      response_params(build_bundle(questionnaire(library_canonical: library_url)))
+      questionnaire(
+        questionnaire_reference: FHIR::Reference.new(type: 'Questionnaire', reference: "#{questionnaire_url}|1.0"),
+        library_reference:,
+        value_set_reference: FHIR::Reference.new(type: 'ValueSet', reference: "#{value_set_url}|3.0")
+      )
     )
 
-    result = run(described_class)
+    test_result = run(described_class)
 
-    expect(result.result).to eq('fail')
-    expect(result.result_message).to include(
+    expect(test_result.result).to eq('fail')
+    expect(test_result.result_message).to include(
       'References to Questionnaires, Libraries, and ValueSets within questionnaire package Bundles must be ' \
       'version-specific. See Messages for details.'
     )
   end
 
   it 'fails when a ValueSet reference has no version' do
+    value_set_reference = FHIR::Reference.new(type: 'ValueSet', reference: value_set_url)
+
     create_questionnaire_package_request(
-      response_params(build_bundle(questionnaire(value_set_canonical: value_set_url)))
+      questionnaire(
+        questionnaire_reference: FHIR::Reference.new(type: 'Questionnaire', reference: "#{questionnaire_url}|1.0"),
+        library_reference: FHIR::Reference.new(type: 'Library', reference: "#{library_url}|2.0"),
+        value_set_reference:
+      )
     )
 
-    result = run(described_class)
+    test_result = run(described_class)
 
-    expect(result.result).to eq('fail')
-    expect(result.result_message).to include(
+    expect(test_result.result).to eq('fail')
+    expect(test_result.result_message).to include(
       'References to Questionnaires, Libraries, and ValueSets within questionnaire package Bundles must be ' \
       'version-specific. See Messages for details.'
     )
