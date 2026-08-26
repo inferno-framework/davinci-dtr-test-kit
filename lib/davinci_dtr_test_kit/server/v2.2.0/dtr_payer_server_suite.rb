@@ -5,9 +5,10 @@ require_relative 'next_question_support/invalid_questionnaire_response_test'
 require_relative 'questionnaire_package_request_validation_test'
 require_relative 'next_question_request_validation_test'
 require_relative 'questionnaire_package_support/questionnaire_package_input_type_test'
+require_relative 'questionnaire_package_support/dtr_server_no_custom_extension_test'
 require_relative 'questionnaire_package_support/questionnaire_response_validation_test'
-require_relative 'next_question_support/next_question_response_validation_test'
 require_relative 'questionnaire_package_support/dtr_server_questionnaire_package_contents_test'
+require_relative 'next_question_support/next_question_response_validation_test'
 require_relative 'questionnaire_design/cql_library_validation_test'
 require_relative 'dtr_payer_server_capability_statement_test'
 require_relative 'questionnaire_package_support/questionnaire_response_references_test'
@@ -22,6 +23,7 @@ require_relative 'questionnaire_design/questionnaire_prepopulation_test'
 require_relative 'questionnaire_design/questionnaire_relevance_logic_test'
 require_relative 'questionnaire_package_support/source_data_error_test'
 require_relative 'questionnaire_design/contained_binary_test'
+require_relative 'questionnaire_package_support/value_set_validation_test'
 
 module DaVinciDTRTestKit
   module DTRPayerServerV220
@@ -138,8 +140,12 @@ module DaVinciDTRTestKit
         group do
           title 'Questionnaire/$questionnaire-package Support'
 
+          # oper-16 - [NOT TESTED in 2.0] references are version specific
+          #           NOTE: ONLY Library references are currently tested
           test from: :dtr_v220_payer_questionnaire_response_validation
           test from: :dtr_server_v220_payer_questionnaire_package_contents
+          test from: :dtr_server_v220_no_custom_extension_test
+          test from: :dtr_v220_payer_value_set_validation
 
           # TODO: embedded QR validation
           # spec-25 - [NOT TESTED in 2.0] QR has contained Q
