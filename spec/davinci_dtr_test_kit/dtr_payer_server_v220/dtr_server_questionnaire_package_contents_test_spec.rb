@@ -92,10 +92,10 @@ RSpec.describe DaVinciDTRTestKit::DTRPayerServerV220::DTRServerQuestionnairePack
   context 'when the questionnaire-package response is not valid JSON' do
     let(:questionnaire_package_body) { 'not valid JSON' }
 
-    it 'omits' do
+    it 'skips' do
       result = run(test)
 
-      expect(result.result).to eq('omit')
+      expect(result.result).to eq('skip')
       expect(result.result_message).to eq(
         'No valid questionnaire-package response Bundles were found.'
       )
@@ -110,10 +110,10 @@ RSpec.describe DaVinciDTRTestKit::DTRPayerServerV220::DTRServerQuestionnairePack
       }.to_json
     end
 
-    it 'omits' do
+    it 'skips' do
       result = run(test)
 
-      expect(result.result).to eq('omit')
+      expect(result.result).to eq('skip')
       expect(result.result_message).to eq(
         'No valid questionnaire-package response Bundles were found.'
       )
@@ -125,10 +125,10 @@ RSpec.describe DaVinciDTRTestKit::DTRPayerServerV220::DTRServerQuestionnairePack
       questionnaire_package_parameters(package_bundles: [])
     end
 
-    it 'omits' do
+    it 'skips' do
       result = run(test)
 
-      expect(result.result).to eq('omit')
+      expect(result.result).to eq('skip')
       expect(result.result_message).to eq(
         'No valid questionnaire-package response Bundles were found.'
       )
