@@ -77,7 +77,7 @@ module DaVinciDTRTestKit
           next
         end
 
-        omit_if !valid_questionnaire_package_found,
+        skip_if !valid_questionnaire_package_found,
                 'No valid questionnaire-package response Bundles were found.'
 
         assert_no_error_messages(
