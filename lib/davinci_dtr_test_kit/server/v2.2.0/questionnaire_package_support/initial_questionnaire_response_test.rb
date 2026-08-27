@@ -12,14 +12,6 @@ module DaVinciDTRTestKit
 
       CONTEXT_EXTENSION_URL = 'http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/qr-context'
       COVERAGE_EXTENSION_URL = 'http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/qr-coverage'
-      CONTEXT_RESOURCE_TYPES = %w[
-        Appointment
-        DeviceRequest
-        Encounter
-        MedicationRequest
-        NutritionOrder
-        ServiceRequest
-      ].freeze
 
       id :dtr_v220_payer_initial_questionnaire_response
       title 'Questionnaire package contains initial QuestionnaireResponse context'
@@ -31,11 +23,10 @@ module DaVinciDTRTestKit
         The DTR QuestionnaireResponse profile requires at least one coverage
         reference but permits zero or more `qr-context` references. Therefore,
         this test requires a `qr-context` reference only when the corresponding
-        `$questionnaire-package` request supplies an Appointment, DeviceRequest,
-        Encounter, MedicationRequest, NutritionOrder, or ServiceRequest as an
-        `order` parameter. The test verifies that a context reference is present
-        in that scenario; it does not determine which input resource each
-        QuestionnaireResponse is associated with or compare reference values.
+        `$questionnaire-package` request supplies an `order` parameter. The test
+        verifies that a context reference is present in that scenario; it does
+        not determine which input resource each QuestionnaireResponse is
+        associated with or compare reference values.
 
         The Questionnaire Package Output Parameters profile validation separately
         verifies that every package Bundle contains exactly one QuestionnaireResponse.
@@ -125,9 +116,7 @@ module DaVinciDTRTestKit
 
       def request_includes_context_resource?(request)
         parameters = request_parameters(request)
-        parameter_resources(parameters, 'order').any? do |resource|
-          CONTEXT_RESOURCE_TYPES.include?(resource.resourceType)
-        end
+        parameter_resources(parameters, 'order').present?
       end
 
       def request_parameters(request)
