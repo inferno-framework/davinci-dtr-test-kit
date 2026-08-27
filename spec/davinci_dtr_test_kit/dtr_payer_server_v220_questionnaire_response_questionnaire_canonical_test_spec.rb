@@ -33,6 +33,19 @@ RSpec.describe DaVinciDTRTestKit::DTRPayerServerV220::QuestionnaireResponseQuest
     ).to_json
   end
 
+  def adaptive_questionnaire
+    FHIR::Questionnaire.new(
+      status: 'active',
+      url: 'https://payer.example.com/Questionnaire/adaptive',
+      extension: [
+        FHIR::Extension.new(
+          url: described_class::ADAPTIVE_QUESTIONNAIRE_EXTENSION_URL,
+          valueBoolean: true
+        )
+      ]
+    )
+  end
+
   it 'passes when QuestionnaireResponse.questionnaire matches the package Questionnaire canonical' do
     questionnaire = FHIR::Questionnaire.new(
       status: 'active', url: 'https://payer.example.com/Questionnaire/example', version: '1.0.0'
@@ -82,6 +95,20 @@ RSpec.describe DaVinciDTRTestKit::DTRPayerServerV220::QuestionnaireResponseQuest
     result = run(described_class)
 
     expect(result.result).to eq('skip')
-    expect(result.result_message).to match(/No QuestionnaireResponse resources were returned/)
+    expect(result.result_message).to match(
+      /No QuestionnaireResponse resources accompanying standard Questionnaires were returned/
+    )
+  end
+
+  it 'skips when only adaptive Questionnaires were returned' do
+    questionnaire_response = FHIR::QuestionnaireResponse.new(status: 'in-progress', questionnaire: '#contained')
+    store_response(questionnaire_package_response(adaptive_questionnaire, questionnaire_response))
+
+    result = run(described_class)
+
+    expect(result.result).to eq('skip')
+    expect(result.result_message).to match(
+      /No QuestionnaireResponse resources accompanying standard Questionnaires were returned/
+    )
   end
 end
