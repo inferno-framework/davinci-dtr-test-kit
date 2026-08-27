@@ -33,6 +33,12 @@ module DaVinciDTRTestKit
         skip_if successful_requests.blank?, 'No successful $questionnaire-package requests were made'
 
         successful_requests.each do |request, request_index|
+          begin
+            JSON.parse(request.response_body)
+          rescue JSON::ParserError
+            next
+          end
+
           resource = FHIR.from_contents(request.response_body)
           next if resource.nil?
 
@@ -43,14 +49,15 @@ module DaVinciDTRTestKit
               reference = element.reference
               next if reference.blank?
 
-              resource_type = element.type
+              resource_type = element.resource_type
               next unless TARGET_REFERENCE.include?(resource_type)
 
               next if check_version_reference?(reference)
 
-              add_message(
+              add_request_message(
                 'error',
-                "Request #{request_index}, Bundle #{bundle_index}: Unversioned #{resource_type}"
+                "Bundle #{bundle_index}: Unversioned #{resource_type} reference: `#{reference}`",
+                request_index
               )
             end
           end
