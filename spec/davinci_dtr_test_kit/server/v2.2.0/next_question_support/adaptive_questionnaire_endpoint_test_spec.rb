@@ -6,6 +6,13 @@ RSpec.describe DaVinciDTRTestKit::DTRPayerServerV220::AdaptiveQuestionnaireEndpo
   let(:suite_id) { 'dtr_payer_server_v220' }
   let(:payer_base_url) { 'https://payer.example/fhir' }
   let(:adaptive_url) { "#{payer_base_url}/adaptive" }
+  let(:results_repo) { Inferno::Repositories::Results.new }
+
+  def result_messages
+    results_repo
+      .current_results_for_test_session_and_runnables(test_session.id, [described_class])
+      .first&.messages || []
+  end
 
   def adaptive_questionnaire_package(url: adaptive_url)
     FHIR::Parameters.new(
@@ -62,12 +69,14 @@ RSpec.describe DaVinciDTRTestKit::DTRPayerServerV220::AdaptiveQuestionnaireEndpo
     )
 
     expect(result.result).to eq('fail')
+    expect(result_messages.first.message).to include('is not a sub-URL of payer base')
   end
 
   it 'fails when no next-question request is made to the adaptive Questionnaire URL' do
     result = run_with_requests(questionnaire_requests: [adaptive_questionnaire_request])
 
     expect(result.result).to eq('fail')
+    expect(result_messages.first.message).to include('No $next-question request was made')
   end
 
   it 'fails when the next-question request does not succeed' do
@@ -77,6 +86,7 @@ RSpec.describe DaVinciDTRTestKit::DTRPayerServerV220::AdaptiveQuestionnaireEndpo
     )
 
     expect(result.result).to eq('fail')
+    expect(result_messages.first.message).to include('received HTTP 401')
   end
 
   it 'skips when no adaptive Questionnaire URL is returned' do
