@@ -7,6 +7,7 @@ require_relative 'next_question_request_validation_test'
 require_relative 'questionnaire_package_support/questionnaire_package_input_type_test'
 require_relative 'questionnaire_package_support/dtr_server_no_custom_extension_test'
 require_relative 'questionnaire_package_support/questionnaire_response_validation_test'
+require_relative 'questionnaire_package_support/initial_questionnaire_response_test'
 require_relative 'next_question_support/next_question_response_validation_test'
 require_relative 'questionnaire_design/cql_library_validation_test'
 require_relative 'dtr_payer_server_capability_statement_test'
@@ -143,6 +144,7 @@ module DaVinciDTRTestKit
           # oper-16 - [NOT TESTED in 2.0] references are version specific
           #           NOTE: ONLY Library references are currently tested
           test from: :dtr_v220_payer_questionnaire_response_validation
+          test from: :dtr_v220_payer_initial_questionnaire_response
           test from: :dtr_server_v220_no_custom_extension_test
           test from: :dtr_v220_payer_value_set_validation
 
