@@ -35,11 +35,12 @@ module DaVinciDTRTestKit
         adaptive_urls = successful_questionnaire_requests.flat_map do |request|
           adaptive_questionnaire_urls(request)
         end.uniq
-        skip_if adaptive_urls.blank?, 'No adaptive Questionnaire URLs were returned.'
+        omit_if adaptive_urls.blank?, 'No adaptive Questionnaire URLs were returned.'
 
         next_question_requests = load_tagged_requests(NEXT_TAG)
         adaptive_urls.each do |adaptive_url|
-          unless adaptive_url.start_with?("#{url.chomp('/')}/")
+          payer_base_url = url.chomp('/')
+          unless adaptive_url.chomp('/') == payer_base_url || adaptive_url.start_with?("#{payer_base_url}/")
             add_message(
               'error',
               "`questionnaireAdaptive` extension URL `#{adaptive_url}` is not a sub-URL of payer base `#{url}`."

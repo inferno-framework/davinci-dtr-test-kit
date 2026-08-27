@@ -63,6 +63,15 @@ RSpec.describe DaVinciDTRTestKit::DTRPayerServerV220::AdaptiveQuestionnaireEndpo
     expect(result.result).to eq('pass'), result.result_message
   end
 
+  it 'passes when the adaptive Questionnaire URL is the payer base URL' do
+    result = run_with_requests(
+      questionnaire_requests: [adaptive_questionnaire_request(url: payer_base_url)],
+      next_question_requests: [request(url: "#{payer_base_url}/Questionnaire/$next-question")]
+    )
+
+    expect(result.result).to eq('pass'), result.result_message
+  end
+
   it 'fails when the adaptive Questionnaire URL is outside the payer base' do
     result = run_with_requests(
       questionnaire_requests: [adaptive_questionnaire_request(url: 'https://other-payer.example/fhir/adaptive')]
@@ -89,10 +98,10 @@ RSpec.describe DaVinciDTRTestKit::DTRPayerServerV220::AdaptiveQuestionnaireEndpo
     expect(result_messages.first.message).to include('received HTTP 401')
   end
 
-  it 'skips when no adaptive Questionnaire URL is returned' do
+  it 'omits when no adaptive Questionnaire URL is returned' do
     result = run_with_requests(questionnaire_requests: [request(response_body: FHIR::Parameters.new.to_json)])
 
-    expect(result.result).to eq('skip')
+    expect(result.result).to eq('omit')
     expect(result.result_message).to include('No adaptive Questionnaire URLs were returned')
   end
 end
