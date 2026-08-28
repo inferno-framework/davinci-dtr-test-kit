@@ -14,9 +14,6 @@ Running 2.0.1 suites against each other is not currently supported.
 
 NOTE: DTR tests for the v2.2.0 version are currently a work in progress. These
 instructions provide a starting point, but are not currently expected to pass.
-In particular, note that the server suite currently does no validation, but
-only provides a client simulation to use to verify the behavior of the 
-client suite.
 
 ## Setup and Authentication
 
