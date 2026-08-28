@@ -89,24 +89,24 @@ RSpec.describe DaVinciDTRTestKit::DTRPayerServerV220::QuestionnaireResponseQuest
     expect(result.result_message).to match(/must match a Questionnaire canonical in its package Bundle./)
   end
 
-  it 'skips when no QuestionnaireResponse was returned' do
+  it 'omits when no QuestionnaireResponse was returned' do
     store_response(questionnaire_package_response(FHIR::Questionnaire.new(status: 'active')))
 
     result = run(described_class)
 
-    expect(result.result).to eq('skip')
+    expect(result.result).to eq('omit')
     expect(result.result_message).to match(
       /No QuestionnaireResponse resources accompanying standard Questionnaires were returned/
     )
   end
 
-  it 'skips when only adaptive Questionnaires were returned' do
+  it 'omits when only adaptive Questionnaires were returned' do
     questionnaire_response = FHIR::QuestionnaireResponse.new(status: 'in-progress', questionnaire: '#contained')
     store_response(questionnaire_package_response(adaptive_questionnaire, questionnaire_response))
 
     result = run(described_class)
 
-    expect(result.result).to eq('skip')
+    expect(result.result).to eq('omit')
     expect(result.result_message).to match(
       /No QuestionnaireResponse resources accompanying standard Questionnaires were returned/
     )
