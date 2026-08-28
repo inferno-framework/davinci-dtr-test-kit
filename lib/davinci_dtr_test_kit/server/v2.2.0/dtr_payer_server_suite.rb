@@ -20,6 +20,7 @@ require_relative 'next_question_support/next_question_response_references_test'
 require_relative 'next_question_support/next_contained_questionnaire_response_references_test'
 require_relative 'next_question_support/adaptive_questionnaire_endpoint_test'
 require_relative 'questionnaire_package_support/adaptive_questionnaire_response_validation_test'
+require_relative 'questionnaire_package_support/adaptive_questionnaire_response_contained_questionnaire_test'
 require_relative 'value_set_expand_support/value_set_expansion_test'
 require_relative 'questionnaire_design/questionnaire_expression_elm_test'
 require_relative 'questionnaire_design/questionnaire_expression_language_test'
@@ -151,8 +152,7 @@ module DaVinciDTRTestKit
           test from: :dtr_v220_payer_value_set_validation
           test from: :dtr_v220_payer_questionnaire_references_version_specific
 
-          # TODO: embedded QR validation
-          # spec-25 - [NOT TESTED in 2.0] QR has contained Q
+          test from: :dtr_v220_payer_adaptive_questionnaire_response_contained_questionnaire
           test from: :dtr_v220_payer_questionnaire_response_questionnaire_canonical
           test from: :dtr_v220_payer_questionnaire_response_references
           test from: :dtr_v220_payer_contained_questionnaire_response_references
