@@ -1,0 +1,212 @@
+---
+:resource: Questionnaire
+:profile_url: http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/dtr-base-questionnaire
+:profile_name: DTR Base Questionnaire
+:profile_version: 2.2.0
+:must_supports:
+  :extensions:
+  - :id: Questionnaire.extension:terminologyServer
+    :slice_name: terminologyServer
+    :path: extension
+    :url: http://hl7.org/fhir/StructureDefinition/preferredTerminologyServer
+    :modifier_extension: false
+  - :id: Questionnaire.extension:versionAlgorithm
+    :slice_name: versionAlgorithm
+    :path: extension
+    :url: http://hl7.org/fhir/StructureDefinition/artifact-versionAlgorithm
+    :modifier_extension: false
+  - :id: Questionnaire.extension:performerType
+    :slice_name: performerType
+    :path: extension
+    :url: http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-performerType
+    :modifier_extension: false
+  - :id: Questionnaire.extension:assemble-expectation
+    :slice_name: assemble-expectation
+    :path: extension
+    :url: http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-assemble-expectation
+    :modifier_extension: false
+  - :id: Questionnaire.extension:estimatedCompletionTime
+    :slice_name: estimatedCompletionTime
+    :path: extension
+    :url: http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/estimated-completion-time
+    :modifier_extension: false
+  - :id: Questionnaire.extension:audience
+    :slice_name: audience
+    :path: extension
+    :url: http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/questionnaireAudience
+    :modifier_extension: false
+  - :id: Questionnaire.extension:RequestSpecific
+    :slice_name: RequestSpecific
+    :path: extension
+    :url: http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/request-specific
+    :modifier_extension: false
+  - :id: Questionnaire.extension:signatureRequired
+    :slice_name: signatureRequired
+    :path: extension
+    :url: http://hl7.org/fhir/StructureDefinition/questionnaire-signatureRequired
+    :modifier_extension: false
+  - :id: Questionnaire.extension:variable
+    :slice_name: variable
+    :path: extension
+    :url: http://hl7.org/fhir/StructureDefinition/variable
+    :modifier_extension: false
+  - :id: Questionnaire.extension:cqf-library
+    :slice_name: cqf-library
+    :path: extension
+    :url: http://hl7.org/fhir/StructureDefinition/cqf-library
+    :modifier_extension: false
+  - :id: Questionnaire.extension:launchContext
+    :slice_name: launchContext
+    :path: extension
+    :url: http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-launchContext
+    :modifier_extension: false
+  - :id: Questionnaire.extension:itemPopulationContext
+    :slice_name: itemPopulationContext
+    :path: extension
+    :url: http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-itemPopulationContext
+    :modifier_extension: false
+  - :id: Questionnaire.extension:entryMode
+    :slice_name: entryMode
+    :path: extension
+    :url: http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-entryMode
+    :modifier_extension: false
+  - :id: Questionnaire.item.extension:hidden
+    :slice_name: hidden
+    :path: item.extension
+    :url: http://hl7.org/fhir/StructureDefinition/questionnaire-hidden
+    :modifier_extension: false
+  - :id: Questionnaire.item.extension:itemControl
+    :slice_name: itemControl
+    :path: item.extension
+    :url: http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl
+    :modifier_extension: false
+  - :id: Questionnaire.item.extension:supportHyperlink
+    :slice_name: supportHyperlink
+    :path: item.extension
+    :url: http://hl7.org/fhir/StructureDefinition/questionnaire-supportHyperlink
+    :modifier_extension: false
+  - :id: Questionnaire.item.extension:mimeType
+    :slice_name: mimeType
+    :path: item.extension
+    :url: http://hl7.org/fhir/StructureDefinition/mimeType
+    :modifier_extension: false
+  - :id: Questionnaire.item.extension:unitOption
+    :slice_name: unitOption
+    :path: item.extension
+    :url: http://hl7.org/fhir/StructureDefinition/questionnaire-unitOption
+    :modifier_extension: false
+  - :id: Questionnaire.item.extension:referenceResource
+    :slice_name: referenceResource
+    :path: item.extension
+    :url: http://hl7.org/fhir/StructureDefinition/questionnaire-referenceResource
+    :modifier_extension: false
+  - :id: Questionnaire.item.extension:referenceProfile
+    :slice_name: referenceProfile
+    :path: item.extension
+    :url: http://hl7.org/fhir/StructureDefinition/questionnaire-referenceProfile
+    :modifier_extension: false
+  - :id: Questionnaire.item.extension:unitValueSet
+    :slice_name: unitValueSet
+    :path: item.extension
+    :url: http://hl7.org/fhir/StructureDefinition/questionnaire-unitValueSet
+    :modifier_extension: false
+  - :id: Questionnaire.item.extension:lookupQuestionnaire
+    :slice_name: lookupQuestionnaire
+    :path: item.extension
+    :url: http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-lookupQuestionnaire
+    :modifier_extension: false
+  - :id: Questionnaire.item.extension:candidateExpression
+    :slice_name: candidateExpression
+    :path: item.extension
+    :url: http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-candidateExpression
+    :modifier_extension: false
+  - :id: Questionnaire.item.extension:candidateExpression.value[x].extension:alternativeExpression
+    :slice_name: alternativeExpression
+    :path: item.extension.value[x].extension
+    :url: http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/alternativeExpression
+    :modifier_extension: false
+  - :id: Questionnaire.item.extension:initialExpression
+    :slice_name: initialExpression
+    :path: item.extension
+    :url: http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-initialExpression
+    :modifier_extension: false
+  - :id: Questionnaire.item.extension:initialExpression.value[x].extension:alternativeExpression
+    :slice_name: alternativeExpression
+    :path: item.extension.value[x].extension
+    :url: http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/alternativeExpression
+    :modifier_extension: false
+  - :id: Questionnaire.item.extension:calculatedExpression
+    :slice_name: calculatedExpression
+    :path: item.extension
+    :url: http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-calculatedExpression
+    :modifier_extension: false
+  - :id: Questionnaire.item.extension:calculatedExpression.value[x].extension:alternativeExpression
+    :slice_name: alternativeExpression
+    :path: item.extension.value[x].extension
+    :url: http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/alternativeExpression
+    :modifier_extension: false
+  - :id: Questionnaire.item.extension:contextExpression
+    :slice_name: contextExpression
+    :path: item.extension
+    :url: http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-contextExpression
+    :modifier_extension: false
+  - :id: Questionnaire.item.extension:contextExpression.extension:expression.value[x].extension:alternativeExpression
+    :slice_name: alternativeExpression
+    :path: item.extension.extension.value[x].extension
+    :url: http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/alternativeExpression
+    :modifier_extension: false
+  - :id: Questionnaire.item.text.extension:itemTextRenderingXhtml
+    :slice_name: itemTextRenderingXhtml
+    :path: item.text.extension
+    :url: http://hl7.org/fhir/StructureDefinition/rendering-xhtml
+    :modifier_extension: false
+  - :id: Questionnaire.item.answerOption.extension:optionExclusive
+    :slice_name: optionExclusive
+    :path: item.answerOption.extension
+    :url: http://hl7.org/fhir/StructureDefinition/questionnaire-optionExclusive
+    :modifier_extension: false
+  - :id: Questionnaire.item.answerOption.value[x].extension:answerOptionRenderingXhtml
+    :slice_name: answerOptionRenderingXhtml
+    :path: item.answerOption.value[x].extension
+    :url: http://hl7.org/fhir/StructureDefinition/rendering-xhtml
+    :modifier_extension: false
+  :slices:
+  - :slice_id: Questionnaire.item.answerOption.value[x]:valueCoding
+    :slice_name: valueCoding
+    :path: item.answerOption.value[x]
+    :discriminator:
+      :type: type
+      :code: Coding
+  - :slice_id: Questionnaire.item.answerOption.value[x]:valueReference
+    :slice_name: valueReference
+    :path: item.answerOption.value[x]
+    :discriminator:
+      :type: type
+      :code: Reference
+  :elements:
+  - :path: url
+  - :path: version
+  - :path: title
+  - :path: status
+  - :path: subjectType
+  - :path: effectivePeriod
+  - :path: item
+  - :path: item.linkId
+  - :path: item.prefix
+  - :path: item.type
+  - :path: item.enableBehavior
+  - :path: item.required
+  - :path: item.repeats
+  - :path: item.readOnly
+  - :path: item.answerValueSet
+  - :path: item.answerOption
+  - :path: item.answerOption.value[x]
+    :types:
+    - Reference
+  - :path: item.initial
+  - :path: item.initial.value[x]
+    :types:
+    - Reference
+  - :path: item.item
+  :recursive_elements:
+  - item

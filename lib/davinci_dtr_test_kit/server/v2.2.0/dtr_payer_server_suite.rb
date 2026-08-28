@@ -7,7 +7,9 @@ require_relative 'next_question_request_validation_test'
 require_relative 'questionnaire_package_support/questionnaire_package_input_type_test'
 require_relative 'questionnaire_package_support/dtr_server_no_custom_extension_test'
 require_relative 'questionnaire_package_support/questionnaire_response_validation_test'
+require_relative 'questionnaire_package_support/initial_questionnaire_response_test'
 require_relative 'next_question_support/next_question_response_validation_test'
+require_relative 'questionnaire_package_support/dtr_server_questionnaire_not_found_test'
 require_relative 'questionnaire_design/cql_library_validation_test'
 require_relative 'dtr_payer_server_capability_statement_test'
 require_relative 'questionnaire_package_support/questionnaire_response_references_test'
@@ -16,6 +18,7 @@ require_relative 'questionnaire_package_support/questionnaire_response_questionn
 require_relative 'questionnaire_package_support/questionnaire_references_version_specific_test'
 require_relative 'next_question_support/next_question_response_references_test'
 require_relative 'next_question_support/next_contained_questionnaire_response_references_test'
+require_relative 'next_question_support/adaptive_questionnaire_endpoint_test'
 require_relative 'questionnaire_package_support/adaptive_questionnaire_response_validation_test'
 require_relative 'value_set_expand_support/value_set_expansion_test'
 require_relative 'questionnaire_design/questionnaire_expression_elm_test'
@@ -143,6 +146,7 @@ module DaVinciDTRTestKit
           # oper-12 - [NOT TESTED in 2.0] include Questionnaire as 1st entry, [TESTED] and CQL libraries
           #           NOTE: ONLY Library references are currently tested
           test from: :dtr_v220_payer_questionnaire_response_validation
+          test from: :dtr_v220_payer_initial_questionnaire_response
           test from: :dtr_server_v220_no_custom_extension_test
           test from: :dtr_v220_payer_value_set_validation
           test from: :dtr_v220_payer_questionnaire_references_version_specific
@@ -162,8 +166,7 @@ module DaVinciDTRTestKit
           test from: :dtr_v220_payer_adaptive_questionnaire_response_validation
           test from: :dtr_v220_payer_next_question_response_references
           test from: :dtr_v220_payer_next_question_contained_response_references
-
-          # spec-24 - [NOT TESTED in 2.0] url shall be a sub-url, accessed using same credentials
+          test from: :dtr_v220_payer_adaptive_questionnaire_endpoint
 
           # TODO
           # spec-39 - [QUESTIONABLE] display item indicating Q completion included at end
@@ -222,8 +225,7 @@ module DaVinciDTRTestKit
           auth_info :backend_services_smart_auth_info
         end
 
-        # TODO
-        # oper-9 - make a request with a known bad questionnaire url
+        test from: :dtr_server_v220_payer_questionnaire_not_found
 
         test from: :dtr_v220_payer_source_data_error
 
