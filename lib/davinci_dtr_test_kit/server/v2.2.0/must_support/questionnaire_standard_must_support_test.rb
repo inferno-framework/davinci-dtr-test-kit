@@ -25,12 +25,13 @@ module DaVinciDTRTestKit
 
       run do
         load_tagged_requests(QUESTIONNAIRE_TAG)
-        skip_if requests.blank?, 'Requests must be made prior to running this test.'
+        questionnaires = questionnaires_from_operation_responses(requests)
+        skip_if questionnaires.blank?, 'No Questionnaires were found in $questionnaire-package responses.'
 
-        questionnaires = questionnaires_from_operation_responses(requests, include_adaptive: false)
-        skip_if questionnaires.blank?, 'No standard Questionnaires were found to evaluate.'
+        standard_questionnaires = questionnaires.reject { |questionnaire| adaptive_questionnaire?(questionnaire) }
+        omit_if standard_questionnaires.blank?, 'The server did not return any standard Questionnaires.'
 
-        assert_must_support_elements_present(questionnaires, MUST_SUPPORT_METADATA.profile_url,
+        assert_must_support_elements_present(standard_questionnaires, MUST_SUPPORT_METADATA.profile_url,
                                              metadata: MUST_SUPPORT_METADATA)
       end
     end

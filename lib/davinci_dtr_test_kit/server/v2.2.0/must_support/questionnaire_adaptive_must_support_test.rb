@@ -25,10 +25,19 @@ module DaVinciDTRTestKit
 
       run do
         load_tagged_requests(NEXT_TAG)
-        skip_if requests.blank?, 'Requests must be made prior to running this test.'
-
         questionnaires = questionnaires_from_operation_responses(requests)
-        skip_if questionnaires.blank?, 'No adaptive Questionnaires were found to evaluate.'
+
+        if questionnaires.blank?
+          load_tagged_requests(QUESTIONNAIRE_TAG)
+          questionnaire_package_questionnaires = questionnaires_from_operation_responses(requests)
+          adaptive_search_questionnaires = questionnaire_package_questionnaires.select do |questionnaire|
+            adaptive_questionnaire?(questionnaire)
+          end
+          omit_if questionnaire_package_questionnaires.present? && adaptive_search_questionnaires.blank?,
+                  'The server did not return any adaptive-search Questionnaires.'
+
+          skip 'No adaptive Questionnaires were found in $next-question responses.'
+        end
 
         assert_must_support_elements_present(questionnaires, MUST_SUPPORT_METADATA.profile_url,
                                              metadata: MUST_SUPPORT_METADATA)

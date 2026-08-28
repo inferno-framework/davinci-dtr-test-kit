@@ -6,15 +6,31 @@ RSpec.describe DaVinciDTRTestKit::DTRPayerServerV220::QuestionnaireAdaptiveSearc
 
   let(:suite_id) { 'dtr_payer_server_v220' }
 
-  it 'skips when no adaptive-search Questionnaire was returned' do
+  it 'skips when no $questionnaire-package requests were made' do
+    result = run(described_class)
+
+    expect(result.result).to eq('skip')
+    expect(result.result_message).to match(/No Questionnaires were found/)
+  end
+
+  it 'skips when $questionnaire-package responses contain no Questionnaires' do
+    store_must_support_response(FHIR::Parameters.new.to_json)
+
+    result = run(described_class)
+
+    expect(result.result).to eq('skip')
+    expect(result.result_message).to match(/No Questionnaires were found/)
+  end
+
+  it 'omits when only standard Questionnaires were returned' do
     store_must_support_response(
       questionnaire_package_response(questionnaire_package_bundle(standard_questionnaire))
     )
 
     result = run(described_class)
 
-    expect(result.result).to eq('skip')
-    expect(result.result_message).to match(/No adaptive-search Questionnaires/)
+    expect(result.result).to eq('omit')
+    expect(result.result_message).to match(/did not return any adaptive-search Questionnaires/)
   end
 
   it 'fails when the adaptive-search Questionnaire must support elements have not all been demonstrated' do
