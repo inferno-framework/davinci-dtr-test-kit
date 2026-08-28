@@ -208,6 +208,29 @@ module DaVinciDTRTestKit
           # TODO
           # oper-15 - [NOT TESTED in 2.0] VS with <40 entries SHALL be expanded
         end
+
+        group do
+          title 'Error Handling'
+
+          test from: :dtr_server_v220_payer_questionnaire_not_found
+
+          test from: :dtr_v220_payer_source_data_error
+
+          test from: :dtr_v220_payer_invalid_questionnaire_response
+        end
+
+        group do
+          id :dtr_payer_server_v220_must_support
+          title 'Must Support'
+          run_as_group
+
+          test from: :dtr_v220_payer_questionnaire_package_output_parameters_must_support
+          test from: :dtr_v220_payer_questionnaire_package_bundle_must_support
+          test from: :dtr_v220_payer_questionnaire_base_must_support
+          test from: :dtr_v220_payer_questionnaire_standard_must_support
+          test from: :dtr_v220_payer_questionnaire_adaptive_must_support
+          test from: :dtr_v220_payer_questionnaire_adaptive_search_must_support
+        end
       end
 
       group do
@@ -216,39 +239,6 @@ module DaVinciDTRTestKit
         # (optionally ?) perform $q-p operation and validate input
 
         test from: :dtr_v220_payer_log_questionnaire_errors_support
-      end
-
-      group do
-        title 'Error Handling'
-
-        input :backend_services_smart_auth_info,
-              title: 'OAuth Credentials',
-              type: :auth_info,
-              optional: true
-
-        fhir_client do
-          url :url
-          auth_info :backend_services_smart_auth_info
-        end
-
-        test from: :dtr_server_v220_payer_questionnaire_not_found
-
-        test from: :dtr_v220_payer_source_data_error
-
-        test from: :dtr_v220_payer_invalid_questionnaire_response
-      end
-
-      group do
-        id :dtr_payer_server_v220_must_support
-        title 'Must Support'
-        run_as_group
-
-        test from: :dtr_v220_payer_questionnaire_package_output_parameters_must_support
-        test from: :dtr_v220_payer_questionnaire_package_bundle_must_support
-        test from: :dtr_v220_payer_questionnaire_base_must_support
-        test from: :dtr_v220_payer_questionnaire_standard_must_support
-        test from: :dtr_v220_payer_questionnaire_adaptive_must_support
-        test from: :dtr_v220_payer_questionnaire_adaptive_search_must_support
       end
     end
   end
