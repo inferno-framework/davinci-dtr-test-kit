@@ -108,6 +108,12 @@ RSpec.describe DaVinciDTRTestKit::DTRPayerServerV220::DTRServerQuestionnaireNotF
     result = run(test, url: server_endpoint)
 
     expect(result.result).to eq('pass')
+    questionnaire_package_requests = Inferno::Repositories::Requests.new.tagged_requests(
+      test_session.id,
+      [DaVinciDTRTestKit::QUESTIONNAIRE_TAG]
+    )
+    expect(questionnaire_package_requests.length).to eq(2)
+    expect(questionnaire_package_requests.last.response_body).to include('OperationOutcome')
     expect(
       a_request(
         :post,

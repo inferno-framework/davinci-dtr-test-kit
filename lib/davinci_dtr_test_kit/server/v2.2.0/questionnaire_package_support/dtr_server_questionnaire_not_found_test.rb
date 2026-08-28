@@ -42,7 +42,8 @@ module DaVinciDTRTestKit
 
         fhir_operation(
           '/Questionnaire/$questionnaire-package',
-          body: questionnaire_package_parameters
+          body: questionnaire_package_parameters,
+          tags: [QUESTIONNAIRE_TAG]
         )
 
         assert_valid_json(request.response_body)

@@ -29,6 +29,12 @@ require_relative 'questionnaire_design/questionnaire_relevance_logic_test'
 require_relative 'questionnaire_package_support/source_data_error_test'
 require_relative 'questionnaire_design/contained_binary_test'
 require_relative 'questionnaire_package_support/value_set_validation_test'
+require_relative 'must_support/questionnaire_package_output_parameters_must_support_test'
+require_relative 'must_support/questionnaire_package_bundle_must_support_test'
+require_relative 'must_support/questionnaire_base_must_support_test'
+require_relative 'must_support/questionnaire_standard_must_support_test'
+require_relative 'must_support/questionnaire_adaptive_must_support_test'
+require_relative 'must_support/questionnaire_adaptive_search_must_support_test'
 
 module DaVinciDTRTestKit
   module DTRPayerServerV220
@@ -230,6 +236,19 @@ module DaVinciDTRTestKit
         test from: :dtr_v220_payer_source_data_error
 
         test from: :dtr_v220_payer_invalid_questionnaire_response
+      end
+
+      group do
+        id :dtr_payer_server_v220_must_support
+        title 'Must Support'
+        run_as_group
+
+        test from: :dtr_v220_payer_questionnaire_package_output_parameters_must_support
+        test from: :dtr_v220_payer_questionnaire_package_bundle_must_support
+        test from: :dtr_v220_payer_questionnaire_base_must_support
+        test from: :dtr_v220_payer_questionnaire_standard_must_support
+        test from: :dtr_v220_payer_questionnaire_adaptive_must_support
+        test from: :dtr_v220_payer_questionnaire_adaptive_search_must_support
       end
     end
   end
