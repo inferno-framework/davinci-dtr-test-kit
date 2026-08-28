@@ -1,0 +1,79 @@
+require_relative '../questionnaire_response_reference_validation'
+require_relative '../../../cross_suite/v2.2.0/multi_request_message_helper'
+require_relative '../../../tags'
+require_relative '../questionnaire_operation_validation'
+
+module DaVinciDTRTestKit
+  module DTRPayerServerV220
+    class QuestionnaireReferencesVersionTest < Inferno::Test
+      include QuestionnaireResponseReferenceValidation
+      include MultiRequestMessageHelper
+      include QuestionnaireOperationValidation
+
+      id :dtr_v220_payer_questionnaire_references_version_specific
+      title 'Validate version-specific references'
+      description %(
+        This test validates that references to Questionnaires, Libraries, and ValueSets within a Bundle
+        is version specific.
+      )
+
+      verifies_requirements 'hl7.fhir.us.davinci-dtr_2.2.0@oper-16'
+
+      TARGET_REFERENCE = ['Questionnaire', 'Library', 'ValueSet'].freeze
+
+      run do
+        load_tagged_requests(QUESTIONNAIRE_TAG)
+
+        skip_if requests.blank?, 'No $questionnaire-package requests were made'
+
+        successful_requests = requests.each_with_index.filter_map do |request, request_index|
+          [request, request_index] if [200, 201].include?(request.status)
+        end
+
+        skip_if successful_requests.blank?, 'No successful $questionnaire-package requests were made'
+
+        successful_requests.each do |request, request_index|
+          begin
+            JSON.parse(request.response_body)
+          rescue JSON::ParserError
+            next
+          end
+
+          resource = FHIR.from_contents(request.response_body)
+          next if resource.nil?
+
+          extract_questionnaire_bundles(resource).each_with_index do |bundle, bundle_index|
+            bundle.each_element do |element, _meta, _path|
+              next unless element.is_a?(FHIR::Reference)
+
+              reference = element.reference
+              next if reference.blank?
+
+              resource_type = element.resource_type
+              next unless TARGET_REFERENCE.include?(resource_type)
+
+              next if check_version_reference?(reference)
+
+              add_request_message(
+                'error',
+                "Bundle #{bundle_index}: Unversioned #{resource_type} reference: `#{reference}`",
+                request_index
+              )
+            end
+          end
+        end
+
+        message = "#{requests_with_errors_prefix}References to Questionnaires, Libraries, and ValueSets " \
+                  'within questionnaire package Bundles must be version-specific. '
+
+        assert_no_error_messages("#{message}See Messages for details.")
+      end
+
+      def check_version_reference?(reference)
+        _url, separator, version = reference.to_s.partition('|')
+
+        separator.present? && version.present?
+      end
+    end
+  end
+end
