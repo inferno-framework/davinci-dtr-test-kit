@@ -11,25 +11,23 @@ module DaVinciDTRTestKit
       include QuestionnaireOperationValidation
 
       CONTEXT_EXTENSION_URL = 'http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/qr-context'
-      COVERAGE_EXTENSION_URL = 'http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/qr-coverage'
 
       id :dtr_v220_payer_initial_questionnaire_response
       title 'Questionnaire package contains initial QuestionnaireResponse context'
       description %(
         This test verifies that each QuestionnaireResponse returned in a
-        `$questionnaire-package` Bundle is an initial response: it is in-progress,
-        identifies its subject, and includes coverage context.
+        `$questionnaire-package` Bundle is an initial response: it is in-progress.
 
-        The DTR QuestionnaireResponse profile requires at least one coverage
-        reference but permits zero or more `qr-context` references. Therefore,
-        this test requires a `qr-context` reference only when the corresponding
-        `$questionnaire-package` request supplies an `order` parameter. The test
+        This test also verifies `qr-context` when the corresponding
+        `$questionnaire-package` request supplies an `order` parameter. It
         verifies that a context reference is present in that scenario; it does
         not determine which input resource each QuestionnaireResponse is
         associated with or compare reference values.
 
         The Questionnaire Package Output Parameters profile validation separately
-        verifies that every package Bundle contains exactly one QuestionnaireResponse.
+        verifies that every package Bundle contains exactly one DTR
+        QuestionnaireResponse, including its required `subject` and `qr-coverage`
+        elements.
       )
       verifies_requirements 'hl7.fhir.us.davinci-dtr_2.2.0@oper-18'
 
@@ -57,7 +55,7 @@ module DaVinciDTRTestKit
 
         message = "#{requests_with_errors_prefix}" \
                   'QuestionnaireResponses in package Bundles must be initial responses ' \
-                  'with subject, coverage, and context.'
+                  'with context when an order is supplied.'
         assert_no_error_messages("#{message} See Messages for details.")
       end
 
@@ -65,7 +63,6 @@ module DaVinciDTRTestKit
 
       def validate_initial_questionnaire_response(questionnaire_response, request_index, context_required:)
         validate_initial_status(questionnaire_response, request_index)
-        validate_subject(questionnaire_response, request_index)
         validate_context_extensions(questionnaire_response, request_index, context_required:)
       end
 
@@ -75,19 +72,10 @@ module DaVinciDTRTestKit
         add_request_message('error', 'QuestionnaireResponse.status must be `in-progress`.', request_index)
       end
 
-      def validate_subject(questionnaire_response, request_index)
-        reference = questionnaire_response.subject&.reference
-        return if reference.present?
-
-        add_request_message('error', 'QuestionnaireResponse.subject must be populated.', request_index)
-      end
-
       def validate_context_extensions(questionnaire_response, request_index, context_required:)
-        extensions = questionnaire_response.extension || []
-        validate_extension(extensions, COVERAGE_EXTENSION_URL, 'qr-coverage', request_index)
         return unless context_required
 
-        validate_extension(extensions, CONTEXT_EXTENSION_URL, 'qr-context', request_index)
+        validate_extension(questionnaire_response.extension || [], CONTEXT_EXTENSION_URL, 'qr-context', request_index)
       end
 
       def validate_extension(extensions, url, extension_name, request_index)

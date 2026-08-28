@@ -57,10 +57,6 @@ RSpec.describe DaVinciDTRTestKit::DTRPayerServerV220::InitialQuestionnaireRespon
       subject: FHIR::Reference.new(reference: 'Patient/example'),
       extension: [
         FHIR::Extension.new(
-          url: described_class::COVERAGE_EXTENSION_URL,
-          valueReference: FHIR::Reference.new(reference: 'Coverage/example')
-        ),
-        FHIR::Extension.new(
           url: described_class::CONTEXT_EXTENSION_URL,
           valueReference: FHIR::Reference.new(reference: 'ServiceRequest/example')
         )
@@ -68,7 +64,7 @@ RSpec.describe DaVinciDTRTestKit::DTRPayerServerV220::InitialQuestionnaireRespon
     }.merge(attributes))
   end
 
-  it 'passes for an in-progress response with subject, coverage, and context' do
+  it 'passes for an in-progress response with context' do
     store_response(questionnaire_response, request_body: request_parameters)
 
     result = run(described_class)
@@ -83,28 +79,6 @@ RSpec.describe DaVinciDTRTestKit::DTRPayerServerV220::InitialQuestionnaireRespon
 
     expect(result.result).to eq('fail')
     expect(result_messages.map(&:message).join).to include('QuestionnaireResponse.status must be `in-progress`.')
-  end
-
-  it 'fails when the response subject is absent' do
-    store_response(questionnaire_response(subject: nil), request_body: request_parameters)
-
-    result = run(described_class)
-
-    expect(result.result).to eq('fail')
-    expect(result_messages.map(&:message).join).to include('QuestionnaireResponse.subject must be populated.')
-  end
-
-  it 'fails when the coverage extension is absent' do
-    response = questionnaire_response
-    response.extension.reject! { |extension| extension.url == described_class::COVERAGE_EXTENSION_URL }
-    store_response(response, request_body: request_parameters)
-
-    result = run(described_class)
-
-    expect(result.result).to eq('fail')
-    expect(result_messages.map(&:message).join).to include(
-      'QuestionnaireResponse must include a qr-coverage extension.'
-    )
   end
 
   it 'fails when the context extension is absent' do
