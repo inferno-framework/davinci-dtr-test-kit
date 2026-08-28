@@ -46,7 +46,7 @@ module DaVinciDTRTestKit
           end
         end
 
-        skip_if !standard_questionnaire_responses_found,
+        omit_if !standard_questionnaire_responses_found,
                 'No QuestionnaireResponse resources accompanying standard Questionnaires were returned.'
 
         message = "#{requests_with_errors_prefix}" \
