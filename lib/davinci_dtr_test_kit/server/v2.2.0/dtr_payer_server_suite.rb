@@ -199,6 +199,7 @@ module DaVinciDTRTestKit
           test from: :dtr_v220_payer_initial_questionnaire_response
           test from: :dtr_server_v220_no_custom_extension_test
           test from: :dtr_v220_payer_value_set_validation
+          test from: :dtr_v220_payer_small_value_set_expansion
           test from: :dtr_v220_payer_questionnaire_references_version_specific
 
           test from: :dtr_v220_payer_adaptive_questionnaire_response_contained_questionnaire
@@ -266,7 +267,6 @@ module DaVinciDTRTestKit
           DESCRIPTION
 
           test from: :dtr_v220_payer_value_set_expansion
-          test from: :dtr_v220_payer_small_value_set_expansion
         end
 
         group do

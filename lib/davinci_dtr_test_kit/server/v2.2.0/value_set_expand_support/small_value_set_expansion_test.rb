@@ -32,23 +32,26 @@ module DaVinciDTRTestKit
 
           extract_questionnaire_bundles(resource).each do |bundle|
             bundle.entry.filter_map(&:resource).grep(FHIR::ValueSet).each do |value_set|
-              canonical = value_set_canonical(value_set)
+              canonical = value_set.url
               expansion_size = expansion_sizes[canonical]
+
+              if value_set_expanded?(value_set)
+                if value_set.expansion.present? && !value_set_expansion_current?(value_set)
+                  add_request_message('error', expansion_timestamp_error(value_set, Date.current), request_index)
+                end
+                next
+              end
 
               next if expansion_size.nil? || expansion_size >= 40
 
               unless value_set_expanded?(value_set)
                 add_request_message(
                   'error',
-                  "Small ValueSet `#{canonical}` is not expanded in the " \
+                  "ValueSet `#{canonical}` has #{expansion_size} codes and is not expanded in the " \
                   '$questionnaire-package response.',
                   request_index
                 )
                 next
-              end
-
-              if value_set.expansion.present? && !value_set_expansion_current?(value_set)
-                add_request_message('error', expansion_timestamp_error(value_set, Date.current), request_index)
               end
             end
           end
@@ -87,7 +90,15 @@ module DaVinciDTRTestKit
       end
 
       def value_set_compose_contains_codes?(value_set)
-        value_set.compose&.include&.any? { |include| include.concept.present? }
+        compose = value_set.compose
+        return false if compose.blank? || compose.exclude.present?
+
+        compose.include.present? &&
+          compose.include.all? do |include|
+            include.concept.present? &&
+              include.filter.blank? &&
+              include.valueSet.blank?
+          end
       end
 
       def expansion_entry_count(contains)
@@ -101,13 +112,11 @@ module DaVinciDTRTestKit
       def value_set_canonical_from_expand_request(request)
         parameters = FHIR.from_contents(request.request_body)
 
-        parameters.parameter
+        url = parameters.parameter
           .find { |parameter| parameter.name == 'url' }
           &.valueUri
-      end
 
-      def value_set_canonical(value_set)
-        "#{value_set.url}#{"|#{value_set.version}" if value_set.version.present?}"
+        url&.split('|', 2)&.first
       end
     end
   end

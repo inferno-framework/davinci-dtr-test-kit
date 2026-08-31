@@ -47,10 +47,10 @@ RSpec.describe DaVinciDTRTestKit::DTRPayerServerV220::SmallValueSetExpansionTest
     )
   end
 
-  def package_value_set(expansion: nil, compose: nil)
+  def package_value_set(expansion: nil, compose: nil, version: '1.0.0')
     FHIR::ValueSet.new(
       url: 'http://example.org/ValueSet/example',
-      version: '1.0.0',
+      version:,
       status: 'active',
       expansion:,
       compose:
@@ -58,14 +58,14 @@ RSpec.describe DaVinciDTRTestKit::DTRPayerServerV220::SmallValueSetExpansionTest
   end
 
   it 'fails when a small ValueSet is not expanded in the questionnaire-package response' do
-    store_questionnaire_package_response(package_value_set)
+    store_questionnaire_package_response(package_value_set(version: nil))
     store_expand_response(entry_count: 39)
 
     test_result = run(described_class)
 
     expect(test_result.result).to eq('fail')
     expect(result_messages.map(&:message).join)
-      .to include("Small ValueSet `#{canonical}` is not expanded")
+      .to include('ValueSet `http://example.org/ValueSet/example` has 39 codes and is not expanded')
   end
 
   it 'passes when a small ValueSet has a current expansion in the questionnaire-package response' do
@@ -75,6 +75,27 @@ RSpec.describe DaVinciDTRTestKit::DTRPayerServerV220::SmallValueSetExpansionTest
     }
     store_questionnaire_package_response(package_value_set(expansion:))
     store_expand_response(entry_count: 39)
+
+    test_result = run(described_class)
+
+    expect(test_result.result).to eq('pass'), test_result.result_message
+  end
+
+  it 'passes when the questionnaire-package response already expands a ValueSet' do
+    expansion = {
+      timestamp: (Date.current).iso8601,
+      contains: [{ code: 'example' }]
+    }
+    store_questionnaire_package_response(package_value_set(expansion:))
+
+    test_result = run(described_class)
+
+    expect(test_result.result).to eq('pass'), test_result.result_message
+  end
+
+  it 'passes when the matching expansion contains at least 40 entries' do
+    store_questionnaire_package_response(package_value_set)
+    store_expand_response(entry_count: 40)
 
     test_result = run(described_class)
 
@@ -94,15 +115,6 @@ RSpec.describe DaVinciDTRTestKit::DTRPayerServerV220::SmallValueSetExpansionTest
     expect(test_result.result).to eq('fail')
     expect(result_messages.map(&:message).join)
       .to include("expansion.timestamp `#{Date.current - 1}` is not the current date `#{Date.current}`")
-  end
-
-  it 'passes when the matching expansion contains at least 40 entries' do
-    store_questionnaire_package_response(package_value_set)
-    store_expand_response(entry_count: 40)
-
-    test_result = run(described_class)
-
-    expect(test_result.result).to eq('pass'), test_result.result_message
   end
 
   it 'skips when no $questionnaire-package requests were made' do
