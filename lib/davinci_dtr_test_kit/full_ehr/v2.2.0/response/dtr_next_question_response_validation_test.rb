@@ -1,11 +1,15 @@
 require_relative '../../../urls'
 require_relative '../../../tags'
 require_relative '../../../cross_suite/v2.2.0/multi_request_message_helper'
+require_relative '../../short_circuit_interaction_verification'
+require_relative '../../../cross_suite/v2.2.0/questionnaire_helper'
 
 module DaVinciDTRTestKit
   class DTRFullEHRV220NextQuestionResponseValidationTest < Inferno::Test
     include URLs
     include MultiRequestMessageHelper
+    include ShortCircuitInteractionVerification
+    include QuestionnaireHelper
 
     id :dtr_full_ehr_v220_nq_response_validation
     title 'Next Question responses are valid'
@@ -33,6 +37,9 @@ module DaVinciDTRTestKit
     end
 
     run do
+      check_for_short_circuit(ok_message: config.options[:short_circuit_pass_message])
+      check_for_adaptive_short_circuit
+
       requests = load_tagged_requests(*target_tags)
       skip_if requests.blank?, 'A Next Question request must be made prior to running this test'
 
@@ -54,26 +61,20 @@ module DaVinciDTRTestKit
           )
           next
         end
-        questionnaire_response =
-          if response_body.is_a?(FHIR::QuestionnaireResponse)
-            response_body
-          else
-            add_request_message(
-              'error',
-              'Response is not FHIR QuestionnaireResponse resource',
-              request_index
-            )
-            if response_body.is_a?(FHIR::Parameters)
-              response_body.parameter.find do |param|
-                param.name == 'return'
-              end&.resource
-            end
-          end
-        next unless questionnaire_response.present?
 
-        resource_is_valid?(resource: questionnaire_response,
-                           profile_url: 'http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/dtr-questionnaireresponse-adapt|2.2.0',
-                           message_prefix: request_prefix(request_index))
+        questionnaire_response = questionnaire_response_from_next_question_response(response_body)
+        if questionnaire_response.present?
+          resource_is_valid?(validator: :no_unknown_extensions,
+                             resource: questionnaire_response,
+                             profile_url: 'http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/dtr-questionnaireresponse-adapt|2.2.0',
+                             message_prefix: request_prefix(request_index))
+        else
+          add_request_message(
+            'error',
+            'Response does not contain a QuestionnaireResponse',
+            request_index
+          )
+        end
       end
 
       assert_no_error_messages(

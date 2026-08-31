@@ -4,6 +4,7 @@ module DaVinciDTRTestKit
   VALUE_SET_EXPAND_TAG = 'payer_server_value_set_expand'.freeze
   QUESTIONNAIRE_PACKAGE_TAG = 'dtr_questionnaire_package'.freeze
   CLIENT_NEXT_TAG = 'dtr_questionnaire_next_question'.freeze
+  CLIENT_QUESTIONNAIRE_MUST_SUPPORT = 'dtr_questionnaire_must_support'.freeze
   EHR_AUTHORIZE_TAG = 'dtr_smart_app_ehr_authorize'.freeze
   SUPPORTED_PAYER_TAG = 'light_ehr_supported_payer_endpoint'.freeze
 end

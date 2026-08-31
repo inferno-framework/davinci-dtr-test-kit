@@ -8,15 +8,20 @@ require_relative 'questionnaire_package_support/questionnaire_package_input_type
 require_relative 'questionnaire_package_support/dtr_server_no_custom_extension_test'
 require_relative 'questionnaire_package_support/questionnaire_response_validation_test'
 require_relative 'questionnaire_package_support/dtr_server_questionnaire_package_contents_test'
+require_relative 'questionnaire_package_support/initial_questionnaire_response_test'
 require_relative 'next_question_support/next_question_response_validation_test'
+require_relative 'questionnaire_package_support/dtr_server_questionnaire_not_found_test'
 require_relative 'questionnaire_design/cql_library_validation_test'
 require_relative 'dtr_payer_server_capability_statement_test'
 require_relative 'questionnaire_package_support/questionnaire_response_references_test'
 require_relative 'questionnaire_package_support/contained_questionnaire_response_references_test'
 require_relative 'questionnaire_package_support/questionnaire_response_questionnaire_canonical_test'
+require_relative 'questionnaire_package_support/questionnaire_references_version_specific_test'
 require_relative 'next_question_support/next_question_response_references_test'
 require_relative 'next_question_support/next_contained_questionnaire_response_references_test'
+require_relative 'next_question_support/adaptive_questionnaire_endpoint_test'
 require_relative 'questionnaire_package_support/adaptive_questionnaire_response_validation_test'
+require_relative 'questionnaire_package_support/adaptive_questionnaire_response_contained_questionnaire_test'
 require_relative 'value_set_expand_support/value_set_expansion_test'
 require_relative 'questionnaire_design/questionnaire_expression_elm_test'
 require_relative 'questionnaire_design/questionnaire_expression_language_test'
@@ -25,6 +30,12 @@ require_relative 'questionnaire_design/questionnaire_relevance_logic_test'
 require_relative 'questionnaire_package_support/source_data_error_test'
 require_relative 'questionnaire_design/contained_binary_test'
 require_relative 'questionnaire_package_support/value_set_validation_test'
+require_relative 'must_support/questionnaire_package_output_parameters_must_support_test'
+require_relative 'must_support/questionnaire_package_bundle_must_support_test'
+require_relative 'must_support/questionnaire_base_must_support_test'
+require_relative 'must_support/questionnaire_standard_must_support_test'
+require_relative 'must_support/questionnaire_adaptive_must_support_test'
+require_relative 'must_support/questionnaire_adaptive_search_must_support_test'
 
 module DaVinciDTRTestKit
   module DTRPayerServerV220
@@ -145,11 +156,12 @@ module DaVinciDTRTestKit
           #           NOTE: ONLY Library references are currently tested
           test from: :dtr_v220_payer_questionnaire_response_validation
           test from: :dtr_server_v220_payer_questionnaire_package_contents
+          test from: :dtr_v220_payer_initial_questionnaire_response
           test from: :dtr_server_v220_no_custom_extension_test
           test from: :dtr_v220_payer_value_set_validation
+          test from: :dtr_v220_payer_questionnaire_references_version_specific
 
-          # TODO: embedded QR validation
-          # spec-25 - [NOT TESTED in 2.0] QR has contained Q
+          test from: :dtr_v220_payer_adaptive_questionnaire_response_contained_questionnaire
           test from: :dtr_v220_payer_questionnaire_response_questionnaire_canonical
           test from: :dtr_v220_payer_questionnaire_response_references
           test from: :dtr_v220_payer_contained_questionnaire_response_references
@@ -163,8 +175,7 @@ module DaVinciDTRTestKit
           test from: :dtr_v220_payer_adaptive_questionnaire_response_validation
           test from: :dtr_v220_payer_next_question_response_references
           test from: :dtr_v220_payer_next_question_contained_response_references
-
-          # spec-24 - [NOT TESTED in 2.0] url shall be a sub-url, accessed using same credentials
+          test from: :dtr_v220_payer_adaptive_questionnaire_endpoint
 
           # TODO
           # spec-39 - [QUESTIONABLE] display item indicating Q completion included at end
@@ -200,6 +211,29 @@ module DaVinciDTRTestKit
           # TODO
           # oper-15 - [NOT TESTED in 2.0] VS with <40 entries SHALL be expanded
         end
+
+        group do
+          title 'Error Handling'
+
+          test from: :dtr_server_v220_payer_questionnaire_not_found
+
+          test from: :dtr_v220_payer_source_data_error
+
+          test from: :dtr_v220_payer_invalid_questionnaire_response
+        end
+
+        group do
+          id :dtr_payer_server_v220_must_support
+          title 'Must Support'
+          run_as_group
+
+          test from: :dtr_v220_payer_questionnaire_package_output_parameters_must_support
+          test from: :dtr_v220_payer_questionnaire_package_bundle_must_support
+          test from: :dtr_v220_payer_questionnaire_base_must_support
+          test from: :dtr_v220_payer_questionnaire_standard_must_support
+          test from: :dtr_v220_payer_questionnaire_adaptive_must_support
+          test from: :dtr_v220_payer_questionnaire_adaptive_search_must_support
+        end
       end
 
       group do
@@ -208,27 +242,6 @@ module DaVinciDTRTestKit
         # (optionally ?) perform $q-p operation and validate input
 
         test from: :dtr_v220_payer_log_questionnaire_errors_support
-      end
-
-      group do
-        title 'Error Handling'
-
-        input :backend_services_smart_auth_info,
-              title: 'OAuth Credentials',
-              type: :auth_info,
-              optional: true
-
-        fhir_client do
-          url :url
-          auth_info :backend_services_smart_auth_info
-        end
-
-        # TODO
-        # oper-9 - make a request with a known bad questionnaire url
-
-        test from: :dtr_v220_payer_source_data_error
-
-        test from: :dtr_v220_payer_invalid_questionnaire_response
       end
     end
   end

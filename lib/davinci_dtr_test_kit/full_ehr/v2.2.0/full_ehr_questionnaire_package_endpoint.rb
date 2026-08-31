@@ -21,7 +21,13 @@ module DaVinciDTRTestKit
       end
 
       def tags
-        [QUESTIONNAIRE_PACKAGE_TAG, test.config.options[:dtr_workflow_tag].presence].compact
+        tags = [QUESTIONNAIRE_PACKAGE_TAG]
+        tags << test.config.options[:dtr_workflow_tag] if test.config.options[:dtr_workflow_tag].present?
+        unless test.config.options[:dtr_exclude_from_questionnaire_must_support]
+          tags << CLIENT_QUESTIONNAIRE_MUST_SUPPORT
+        end
+
+        tags
       end
 
       def make_response
@@ -169,16 +175,17 @@ module DaVinciDTRTestKit
           .find { |input| input['name'] == input_name }
           &.dig('value')
 
+        title = input_title(input_name)
         unless value.present?
           return operation_outcome('error', 'invalid',
-                                   "No response template provided by the user in input '#{input_name}'.")
+                                   "No response template provided by the user in input '#{title}'.")
         end
 
-        parse_parameters_input_template(value, input_name)
+        parse_parameters_input_template(value, title)
       end
 
-      def parse_parameters_input_template(value, input_name)
-        parsed = parse_fhir_object(value, entity: "Input #{input_name}")
+      def parse_parameters_input_template(value, title)
+        parsed = parse_fhir_object(value, entity: "Input #{title}")
         unless parsed.is_a?(FHIR::Parameters)
           return operation_outcome('error', 'invalid',
                                    'Invalid input response template for $questionnaire-package: ' \
@@ -187,6 +194,12 @@ module DaVinciDTRTestKit
         parsed
       rescue MockPayer::ParseError => e
         operation_outcome('error', 'invalid', e.message)
+      end
+
+      # test.config.options input references are stored as input names; testers only see the
+      # input's title in the Inferno UI, so client-facing messages should use that instead.
+      def input_title(input_name)
+        test.config.input(input_name.to_sym)&.title || input_name
       end
     end
   end

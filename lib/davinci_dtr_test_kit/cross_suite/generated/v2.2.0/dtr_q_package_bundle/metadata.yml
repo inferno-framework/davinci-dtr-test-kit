@@ -1,0 +1,39 @@
+---
+:resource: Bundle
+:profile_url: http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/DTR-QPackageBundle
+:profile_name: DTR Questionnaire Package Bundle
+:profile_version: 2.2.0
+:must_supports:
+  :extensions: []
+  :slices:
+  - :slice_id: Bundle.entry:questionnaire
+    :slice_name: questionnaire
+    :path: entry
+    :discriminator:
+      :type: type
+      :code: Questionnaire
+      :path: resource
+  - :slice_id: Bundle.entry:questionnaireResponse
+    :slice_name: questionnaireResponse
+    :path: entry
+    :discriminator:
+      :type: type
+      :code: QuestionnaireResponse
+      :path: resource
+  - :slice_id: Bundle.entry:valueSet
+    :slice_name: valueSet
+    :path: entry
+    :discriminator:
+      :type: type
+      :code: ValueSet
+      :path: resource
+  - :slice_id: Bundle.entry:library
+    :slice_name: library
+    :path: entry
+    :discriminator:
+      :type: type
+      :code: Library
+      :path: resource
+  :elements: []
+  :recursive_elements:
+  - link

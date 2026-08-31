@@ -10,26 +10,30 @@ module DaVinciDTRTestKit
       include MultiRequestMessageHelper
       include QuestionnaireOperationValidation
 
+      ADAPTIVE_QUESTIONNAIRE_EXTENSION_URL = 'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-questionnaireAdaptive'
+
       id :dtr_v220_payer_questionnaire_response_questionnaire_canonical
-      title 'QuestionnaireResponse references the package Questionnaire canonical'
+      title 'Standard QuestionnaireResponse references the package Questionnaire canonical'
       description %(
-        This test verifies that each QuestionnaireResponse returned in a
-        `$questionnaire-package` package Bundle references the canonical of a
-        Questionnaire returned in that same package Bundle.
+        This test verifies that each QuestionnaireResponse accompanying a standard
+        Questionnaire in a `$questionnaire-package` package Bundle references the
+        canonical of the Questionnaire returned in that same package Bundle.
       )
       verifies_requirements 'hl7.fhir.us.davinci-dtr_2.2.0@spec-122'
 
       run do
         load_tagged_requests(QUESTIONNAIRE_TAG)
-        questionnaire_responses_found = false
+        standard_questionnaire_responses_found = false
 
         requests.each_with_index do |request, request_index|
           package_bundles_from_request(request).each do |package_bundle|
+            questionnaire = package_resources(package_bundle, FHIR::Questionnaire).first
+            next if adaptive_questionnaire?(questionnaire)
+
             questionnaire_response = package_resources(package_bundle, FHIR::QuestionnaireResponse).first
             next unless questionnaire_response
 
-            questionnaire_responses_found = true
-            questionnaire = package_resources(package_bundle, FHIR::Questionnaire).first
+            standard_questionnaire_responses_found = true
             questionnaire_canonical = canonical(questionnaire)
             next if questionnaire_response.questionnaire == questionnaire_canonical
 
@@ -42,7 +46,8 @@ module DaVinciDTRTestKit
           end
         end
 
-        skip_if !questionnaire_responses_found, 'No QuestionnaireResponse resources were returned.'
+        omit_if !standard_questionnaire_responses_found,
+                'No QuestionnaireResponse resources accompanying standard Questionnaires were returned.'
 
         message = "#{requests_with_errors_prefix}" \
                   'QuestionnaireResponse.questionnaire must match a Questionnaire canonical in its package Bundle.'
@@ -64,6 +69,14 @@ module DaVinciDTRTestKit
         package_bundle.entry.filter_map do |entry|
           entry.resource if entry.resource.is_a?(resource_class)
         end
+      end
+
+      def adaptive_questionnaire?(questionnaire)
+        questionnaire.is_a?(FHIR::Questionnaire) &&
+          questionnaire.extension.any? do |extension|
+            extension.url == ADAPTIVE_QUESTIONNAIRE_EXTENSION_URL &&
+              (extension.valueBoolean || extension.valueUrl.present?)
+          end
       end
 
       def canonical(questionnaire)
