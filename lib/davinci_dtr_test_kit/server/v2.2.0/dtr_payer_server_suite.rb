@@ -269,6 +269,19 @@ module DaVinciDTRTestKit
         end
 
         group do
+          id :dtr_payer_server_v220_must_support
+          title 'Must Support'
+          run_as_group
+
+          test from: :dtr_v220_payer_questionnaire_package_output_parameters_must_support
+          test from: :dtr_v220_payer_questionnaire_package_bundle_must_support
+          test from: :dtr_v220_payer_questionnaire_base_must_support
+          test from: :dtr_v220_payer_questionnaire_standard_must_support
+          test from: :dtr_v220_payer_questionnaire_adaptive_must_support
+          test from: :dtr_v220_payer_questionnaire_adaptive_search_must_support
+        end
+
+        group do
           title 'Error Handling'
           id :dtr_payer_v220_error_handling
           description <<~DESCRIPTION
@@ -281,19 +294,6 @@ module DaVinciDTRTestKit
           test from: :dtr_v220_payer_source_data_error
 
           test from: :dtr_v220_payer_invalid_questionnaire_response
-        end
-
-        group do
-          id :dtr_payer_server_v220_must_support
-          title 'Must Support'
-          run_as_group
-
-          test from: :dtr_v220_payer_questionnaire_package_output_parameters_must_support
-          test from: :dtr_v220_payer_questionnaire_package_bundle_must_support
-          test from: :dtr_v220_payer_questionnaire_base_must_support
-          test from: :dtr_v220_payer_questionnaire_standard_must_support
-          test from: :dtr_v220_payer_questionnaire_adaptive_must_support
-          test from: :dtr_v220_payer_questionnaire_adaptive_search_must_support
         end
       end
 
