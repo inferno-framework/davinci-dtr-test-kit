@@ -152,8 +152,6 @@ module DaVinciDTRTestKit
         group do
           title 'Questionnaire/$questionnaire-package Support'
 
-          # oper-16 - [NOT TESTED in 2.0] references are version specific
-          #           NOTE: ONLY Library references are currently tested
           test from: :dtr_v220_payer_questionnaire_response_validation
           test from: :dtr_server_v220_payer_questionnaire_package_contents
           test from: :dtr_v220_payer_initial_questionnaire_response
