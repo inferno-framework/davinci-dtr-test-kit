@@ -4,6 +4,16 @@ RSpec.describe DaVinciDTRTestKit::DTRPayerServerV220::CQLLibraryValidationTest d
   let(:library_url) { 'http://example.com/fhir/library' }
   let(:library_version) { '0.1' }
   let(:library_canonical) { "#{library_url}|#{library_version}" }
+  let(:dependent_library_url) { 'http://example.com/fhir/dependent-library' }
+  let(:dependent_library_version) { '0.2' }
+  let(:dependent_library_canonical) do
+    "#{dependent_library_url}|#{dependent_library_version}"
+  end
+  let(:nested_library_url) { 'http://example.com/fhir/nested-library' }
+  let(:nested_library_version) { '0.3' }
+  let(:nested_library_canonical) do
+    "#{nested_library_url}|#{nested_library_version}"
+  end
   let(:q_with_lib_ref) do
     FHIR::Questionnaire.new(
       extension: [
@@ -39,6 +49,30 @@ RSpec.describe DaVinciDTRTestKit::DTRPayerServerV220::CQLLibraryValidationTest d
           resource: bundle
         }
       ]
+    )
+  end
+
+  def valid_library(url:, version:, name:, dependencies: [])
+    FHIR::Library.new(
+      url:,
+      name:,
+      version:,
+      content: [
+        {
+          contentType: 'text/cql',
+          data: 'abc'
+        },
+        {
+          contentType: 'application/elm+json',
+          data: 'abc'
+        }
+      ],
+      relatedArtifact: dependencies.map do |canonical|
+        {
+          type: 'depends-on',
+          resource: canonical
+        }
+      end
     )
   end
 
@@ -206,6 +240,68 @@ RSpec.describe DaVinciDTRTestKit::DTRPayerServerV220::CQLLibraryValidationTest d
 
     expect(result.result).to eq('fail')
     expect(result_messages.first.message).to include('unversioned library references')
+  end
+
+  it 'fails if a nested Library dependency is not included' do
+    library = valid_library(
+      url: library_url,
+      version: library_version,
+      name: 'library',
+      dependencies: [dependent_library_canonical]
+    )
+    dependent_library = valid_library(
+      url: dependent_library_url,
+      version: dependent_library_version,
+      name: 'dependent-library',
+      dependencies: [nested_library_canonical]
+    )
+
+    bundle = build_bundle(q_with_lib_ref, [library, dependent_library])
+    stored_exchange = repo_create(
+      :request,
+      status: 200,
+      response_body: response_params(bundle).to_json
+    )
+
+    allow_any_instance_of(described_class).to receive(:requests).and_return([stored_exchange])
+
+    result = run(described_class)
+
+    expect(result.result).to eq('fail')
+    expect(result_messages.map(&:message).join("\n")).to include(nested_library_canonical)
+  end
+
+  it 'passes if all nested Library dependencies are included and valid' do
+    library = valid_library(
+      url: library_url,
+      version: library_version,
+      name: 'library',
+      dependencies: [dependent_library_canonical]
+    )
+    dependent_library = valid_library(
+      url: dependent_library_url,
+      version: dependent_library_version,
+      name: 'dependent-library',
+      dependencies: [nested_library_canonical]
+    )
+    nested_library = valid_library(
+      url: nested_library_url,
+      version: nested_library_version,
+      name: 'nested-library'
+    )
+
+    bundle = build_bundle(q_with_lib_ref, [library, dependent_library, nested_library])
+    stored_exchange = repo_create(
+      :request,
+      status: 200,
+      response_body: response_params(bundle).to_json
+    )
+
+    allow_any_instance_of(described_class).to receive(:requests).and_return([stored_exchange])
+
+    result = run(described_class)
+
+    expect(result.result).to eq('pass')
   end
 
   it 'passes if all referenced libraries are included and valid' do
