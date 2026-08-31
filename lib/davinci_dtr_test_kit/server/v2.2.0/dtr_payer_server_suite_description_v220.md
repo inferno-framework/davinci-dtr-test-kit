@@ -11,8 +11,8 @@ requirements and may change the test validation logic.
 
 The best place to get started is the [Server Testing
 Instructions](https://github.com/inferno-framework/davinci-dtr-test-kit/wiki/Server-Instructions-v2.2.0),
-which provides a step-by-step guide for running the tests against a client and
-provides an example client implemented in Postman. Visit the [Server Testing
+which provides a step-by-step guide for running the tests. Visit the [Server
+Testing
 Details](https://github.com/inferno-framework/davinci-dtr-test-kit/wiki/Server-Details)
 documentation for information about technical implementation and known
 limitations of these tests.
