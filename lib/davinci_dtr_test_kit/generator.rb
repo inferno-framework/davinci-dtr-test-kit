@@ -13,11 +13,13 @@ module DaVinciDTRTestKit
   class Generator
     TARGET_IG_VERSIONS = ['2.2.0'].freeze
 
-    # Must support checks currently only for Questionnaires
-    # and scoped to only differential for standard and adaptive
+    # Must support checks are scoped to only differential for standard and adaptive
     TARGET_PROFILES_AND_ELEMENT_SCOPE = {
+      'http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/DTR-QPackageBundle' => 'snapshot',
+      'http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/dtr-qpackage-output-parameters' => 'snapshot',
       'http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/dtr-base-questionnaire' => 'snapshot',
       'http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/dtr-questionnaire-adapt' => 'differential',
+      'http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/dtr-questionnaire-adapt-search' => 'snapshot',
       'http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/dtr-std-questionnaire' => 'differential'
     }.freeze
 
@@ -72,6 +74,7 @@ module DaVinciDTRTestKit
 
         # handle gap when looking at differential
         profile_metadata.must_supports[:recursive_elements] << 'item' if element_scope == 'differential'
+        add_parameters_slice_discriminators(profile_metadata) if questionnaire_package_output_parameters?(profile)
 
         profile_metadata
       end
@@ -89,6 +92,25 @@ module DaVinciDTRTestKit
         metadata_file_dir = File.join(base_output_dir, ig_metadata.snake_case_for_profile(profile_metadata))
         FileUtils.mkdir_p(metadata_file_dir)
         File.write(File.join(metadata_file_dir, 'metadata.yml'), YAML.dump(profile_metadata.to_hash))
+      end
+    end
+
+    def questionnaire_package_output_parameters?(profile)
+      profile.url == 'http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/dtr-qpackage-output-parameters'
+    end
+
+    # This is a workaround for Inferno Core treating slice discriminators defined with `patternString` as unsupported.
+    # The QuestionnairePackage Output Parameters profile slices `Parameters.parameter` by `name` (`packagebundle`
+    # and `outcome`), so replace only unsupported discriminators with equivalent value metadata. If Core gets updated
+    # to support `patternString`, this method becomes a no-op and can be removed.
+    def add_parameters_slice_discriminators(profile_metadata)
+      profile_metadata.must_supports[:slices].each do |slice|
+        next unless slice.dig(:discriminator, :type) == 'unsupported'
+
+        slice[:discriminator] = {
+          type: 'value',
+          values: [{ path: 'name', value: slice[:slice_name] }]
+        }
       end
     end
   end

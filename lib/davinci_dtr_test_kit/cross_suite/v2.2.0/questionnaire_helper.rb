@@ -49,17 +49,14 @@ module DaVinciDTRTestKit
     def questionnaires_from_operation_responses(requests, include_standard: true, include_adaptive: true)
       questionnaires = []
 
-      requests.each do |request|
+      parsed_operation_responses(requests).each do |request, response|
         # pull out Questionnaires from requests ($q-p and $n-q)
-        response = FHIR.from_contents(request.response_body)
         if response.is_a?(FHIR::QuestionnaireResponse)
           questionnaires << contained_questionnaire_from_questionnaire_response(response) if include_adaptive
         elsif response.is_a?(FHIR::Parameters)
           questionnaires.concat(questionnaires_from_operation_response_parameters(response, request, include_standard:,
                                                                                                      include_adaptive:))
         end
-      rescue JSON::ParserError
-        next # errors handled elsewhere
       end
 
       questionnaires.compact
@@ -121,15 +118,26 @@ module DaVinciDTRTestKit
     end
 
     ###########################################################################
-    # $questionnaire-package Questionnaire Extraction
+    # $questionnaire-package extraction of Parameters, Bundle, Questionnaire
     ###########################################################################
+
+    def questionnaire_package_output_parameters_from_operation_responses(requests)
+      parsed_operation_responses(requests).filter_map do |_request, response|
+        response if response.is_a?(FHIR::Parameters)
+      end
+    end
+
+    def questionnaire_package_bundles(parameters)
+      parameters.parameter.filter_map do |parameter|
+        parameter.resource if parameter.name == 'packagebundle' && parameter.resource.is_a?(FHIR::Bundle)
+      end
+    end
 
     def questionnaires_from_questionnaire_package_output_parameters(parameters, include_standard: true,
                                                                     include_adaptive: true)
-      parameters.parameter.select { |parameter| parameter.name == 'packagebundle' && parameter.resource.is_a?(FHIR::Bundle) }
-        .map do |parameter|
-          questionnaire_from_package_bundle(parameter.resource, include_standard:, include_adaptive:)
-        end.compact
+      questionnaire_package_bundles(parameters).filter_map do |bundle|
+        questionnaire_from_package_bundle(bundle, include_standard:, include_adaptive:)
+      end
     end
 
     def questionnaire_from_package_bundle(bundle, include_standard: true, include_adaptive: true)
@@ -137,6 +145,18 @@ module DaVinciDTRTestKit
         entry.resource.is_a?(FHIR::Questionnaire) &&
           (adaptive_questionnaire?(entry.resource) ? include_adaptive : include_standard)
       end&.resource
+    end
+
+    private
+
+    def parsed_operation_responses(requests)
+      requests.filter_map do |request|
+        next if request.response_body.blank?
+
+        [request, FHIR.from_contents(request.response_body)]
+      rescue JSON::ParserError
+        nil # errors handled elsewhere
+      end
     end
   end
 end
