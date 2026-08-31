@@ -1,6 +1,8 @@
 RSpec.describe DaVinciDTRTestKit::DTRPayerServerV220::SmallValueSetExpansionTest do
   let(:suite_id) { 'dtr_payer_server_v220' }
   let(:results_repo) { Inferno::Repositories::Results.new }
+  let(:result) { repo_create(:result, test_session_id: test_session.id) }
+  let(:canonical) { 'http://example.org/ValueSet/example|1.0.0' }
 
   def result_messages
     results_repo
@@ -8,70 +10,105 @@ RSpec.describe DaVinciDTRTestKit::DTRPayerServerV220::SmallValueSetExpansionTest
       .first&.messages || []
   end
 
-  def store_response(response_body)
-    result = repo_create(:result, test_session_id: test_session.id)
+  def store_questionnaire_package_response(value_set)
+    bundle = FHIR::Bundle.new(entry: [{ resource: value_set }])
+    parameters = FHIR::Parameters.new(
+      parameter: [{ name: 'packagebundle', resource: bundle }]
+    )
+
     repo_create(
       :request,
       result_id: result.id,
       test_session_id: test_session.id,
-      response_body:,
+      response_body: parameters.to_json,
+      status: 200,
+      tags: [DaVinciDTRTestKit::QUESTIONNAIRE_TAG]
+    )
+  end
+
+  def store_expand_response(entry_count:)
+    request_parameters = FHIR::Parameters.new(
+      parameter: [{ name: 'url', valueUri: canonical }]
+    )
+    expanded_value_set = FHIR::ValueSet.new(
+      expansion: {
+        contains: Array.new(entry_count) { |index| { code: "code-#{index}" } }
+      }
+    )
+
+    repo_create(
+      :request,
+      result_id: result.id,
+      test_session_id: test_session.id,
+      request_body: request_parameters.to_json,
+      response_body: expanded_value_set.to_json,
+      status: 200,
       tags: [DaVinciDTRTestKit::VALUE_SET_EXPAND_TAG]
     )
   end
 
-  def expanded_value_set(timestamp: Date.current.iso8601, inactive: false)
+  def package_value_set(expansion: nil, compose: nil)
     FHIR::ValueSet.new(
+      url: 'http://example.org/ValueSet/example',
+      version: '1.0.0',
       status: 'active',
-      expansion: FHIR::ValueSet::Expansion.new(
-        timestamp:,
-        contains: [FHIR::ValueSet::Expansion::Contains.new(code: 'example', inactive:)]
-      )
+      expansion:,
+      compose:
     )
   end
 
-  it 'passes when a small ValueSet expansion uses the current date' do
-    store_response(expanded_value_set.to_json)
+  it 'fails when a small ValueSet is not expanded in the questionnaire-package response' do
+    store_questionnaire_package_response(package_value_set)
+    store_expand_response(entry_count: 39)
 
-    result = run(described_class)
+    test_result = run(described_class)
 
-    expect(result.result).to eq('pass'), result.result_message
-  end
-
-  it 'fails for an expansion with an outdated timestamp' do
-    store_response(expanded_value_set(timestamp: (Date.current - 1).iso8601).to_json)
-
-    result = run(described_class)
-
-    expect(result.result).to eq('fail')
-    expected_error = 'Small ValueSet expansion is not using current date'
-    expect(result_messages.map(&:message).join).to include("(Request 1) #{expected_error}")
-  end
-
-  it 'fails when any returned ValueSet does not contain an expansion' do
-    store_response(expanded_value_set.to_json)
-    store_response(FHIR::ValueSet.new(status: 'active').to_json)
-
-    result = run(described_class)
-
-    expect(result.result).to eq('fail')
+    expect(test_result.result).to eq('fail')
     expect(result_messages.map(&:message).join)
-      .to match(/\(Request \d+\) ValueSet response does not contain an expansion\./)
+      .to include("Small ValueSet `#{canonical}` is not expanded")
   end
 
-  it 'fails when a ValueSet/$expand request does not return a ValueSet' do
-    store_response(FHIR::OperationOutcome.new.to_json)
+  it 'passes when a small ValueSet has a current expansion in the questionnaire-package response' do
+    expansion = {
+      timestamp: Date.current.iso8601,
+      contains: [{ code: 'example' }]
+    }
+    store_questionnaire_package_response(package_value_set(expansion:))
+    store_expand_response(entry_count: 39)
 
-    result = run(described_class)
+    test_result = run(described_class)
 
-    expect(result.result).to eq('fail')
+    expect(test_result.result).to eq('pass'), test_result.result_message
+  end
+
+  it 'fails when a small ValueSet has an outdated expansion timestamp' do
+    expansion = {
+      timestamp: (Date.current - 1).iso8601,
+      contains: [{ code: 'example' }]
+    }
+    store_questionnaire_package_response(package_value_set(expansion:))
+    store_expand_response(entry_count: 39)
+
+    test_result = run(described_class)
+
+    expect(test_result.result).to eq('fail')
     expect(result_messages.map(&:message).join)
-      .to include('(Request 1) ValueSet/$expand response is not a ValueSet resource.')
+      .to include("expansion.timestamp `#{Date.current - 1}` is not the current date `#{Date.current}`")
   end
 
-  it 'skips when no ValueSet/$expand requests were made' do
-    result = run(described_class)
+  it 'passes when the matching expansion contains at least 40 entries' do
+    store_questionnaire_package_response(package_value_set)
+    store_expand_response(entry_count: 40)
 
-    expect(result.result).to eq('skip')
-    expect(result.result_message).to match(%r{No ValueSet/\$expand requests were made})
+    test_result = run(described_class)
+
+    expect(test_result.result).to eq('pass'), test_result.result_message
+  end
+
+  it 'skips when no $questionnaire-package requests were made' do
+    test_result = run(described_class)
+
+    expect(test_result.result).to eq('skip')
+    expect(test_result.result_message).to include('No $questionnaire-package requests were made')
   end
 end
