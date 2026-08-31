@@ -125,6 +125,8 @@ module DaVinciDTRTestKit
           The Questionnaire Operations group submits user-provided requests to
           the server. Both the user-provided requests and the server's responses
           are validated to ensure they conform to the appropriate profiles.
+          Responses across all requests are checked to verify that the server is
+          capable of populating all Must Support fields.
         DESCRIPTION
 
         run_as_group
@@ -286,7 +288,10 @@ module DaVinciDTRTestKit
         group do
           id :dtr_payer_server_v220_must_support
           title 'Must Support'
-          run_as_group
+          description <<~DESCRIPTION
+            This group verifies that the server is capable of populating all
+            Must Support fields.
+          DESCRIPTION
 
           test from: :dtr_v220_payer_questionnaire_package_output_parameters_must_support
           test from: :dtr_v220_payer_questionnaire_package_bundle_must_support
