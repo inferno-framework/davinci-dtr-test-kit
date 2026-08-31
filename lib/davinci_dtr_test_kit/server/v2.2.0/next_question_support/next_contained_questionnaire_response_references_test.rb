@@ -11,7 +11,7 @@ module DaVinciDTRTestKit
       include MultiRequestMessageHelper
 
       id :dtr_v220_payer_next_question_contained_response_references
-      title 'Contained next-question QuestionnaireResponse references occur only in answer values'
+      title 'Contained $next-question QuestionnaireResponse references occur only in answer values'
       description %(
         This test verifies that a QuestionnaireResponse returned by `$next-question` uses
         contained resource references only as
@@ -21,7 +21,11 @@ module DaVinciDTRTestKit
 
       run do
         load_tagged_requests(NEXT_TAG)
+
+        omit_if requests.blank?, 'No $next-question requests were made.'
+
         responses_by_request = requests.map { |request| questionnaire_responses_from_request(request) }
+
         skip_if responses_by_request.all?(&:empty?), 'No QuestionnaireResponse resources were returned.'
 
         responses_by_request.each_with_index do |questionnaire_responses, request_index|

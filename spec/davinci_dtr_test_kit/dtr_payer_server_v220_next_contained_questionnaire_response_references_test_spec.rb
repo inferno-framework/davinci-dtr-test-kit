@@ -30,6 +30,13 @@ RSpec.describe DaVinciDTRTestKit::DTRPayerServerV220::NextQuestionContainedRespo
     expect(result.result).to eq('pass'), result.result_message
   end
 
+  it 'omits when no next-question requests were made' do
+    result = run(described_class)
+
+    expect(result.result).to eq('omit'), result.result_message
+    expect(result.result_message).to include('No $next-question')
+  end
+
   it 'fails when a contained reference is outside an answer value' do
     questionnaire_response = FHIR::QuestionnaireResponse.new(
       status: 'in-progress',
@@ -45,6 +52,8 @@ RSpec.describe DaVinciDTRTestKit::DTRPayerServerV220::NextQuestionContainedRespo
   end
 
   it 'skips when no QuestionnaireResponse was returned' do
+    store_response('{}')
+
     result = run(described_class)
 
     expect(result.result).to eq('skip')

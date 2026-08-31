@@ -11,7 +11,7 @@ module DaVinciDTRTestKit
       include MultiRequestMessageHelper
 
       id :dtr_v220_payer_next_question_response_references
-      title 'Next-question QuestionnaireResponse references target contained or client FHIR resources'
+      title '$next-question QuestionnaireResponse references only target contained or client FHIR resources'
       description %(
         This test verifies that every reference in each QuestionnaireResponse returned by
         `$next-question` points to either a resource contained in that QuestionnaireResponse
@@ -25,8 +25,13 @@ module DaVinciDTRTestKit
 
       run do
         load_tagged_requests(NEXT_TAG)
+
+        omit_if requests.blank?, 'No $next-question requests were made.'
+
         responses_by_request = requests.map { |request| questionnaire_responses_from_request(request) }
+
         skip_if responses_by_request.all?(&:empty?), 'No QuestionnaireResponse resources were returned.'
+
         absolute_references_returned = responses_by_request.flatten.any? do |response|
           questionnaire_response_has_absolute_reference?(response)
         end

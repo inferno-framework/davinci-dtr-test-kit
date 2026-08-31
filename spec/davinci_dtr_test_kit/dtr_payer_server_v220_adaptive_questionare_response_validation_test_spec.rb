@@ -76,12 +76,12 @@ RSpec.describe DaVinciDTRTestKit::DTRPayerServerV220::AdaptiveQuestionnaireRespo
     expect(result.result_message).to eq('No $questionnaire-package requests were made.')
   end
 
-  it 'skips when no adaptive Questionnaires are returned' do
+  it 'omits when no adaptive Questionnaires are returned' do
     record_qp_response(static_qp_response)
 
     result = run(test_class)
 
-    expect(result.result).to eq('skip')
+    expect(result.result).to eq('omit')
     expect(result.result_message).to include('No adaptive Questionnaires were found')
   end
 

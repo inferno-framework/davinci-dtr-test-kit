@@ -11,7 +11,7 @@ module DaVinciDTRTestKit
         'http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/dtr-questionnaireresponse-adapt|2.2.0'
 
       id :dtr_v220_payer_next_question_response_validation
-      title 'Verify that the next-question response conforms to the DTR output profile'
+      title 'Verify that the $next-question response conforms to the DTR Next Question Output Parameters profile'
       description %(
         Inferno verifies that each payer server response to the `$next-question`
         operation conforms to the [DTR Next Question Output Parameters profile](https://hl7.org/fhir/us/davinci-dtr/2.2.0/en/StructureDefinition-dtr-next-question-output-parameters.html)

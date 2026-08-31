@@ -2,14 +2,14 @@ module DaVinciDTRTestKit
   module DTRPayerServerV220
     class LogQuestionnaireErrorsSupportTest < Inferno::Test
       id :dtr_v220_payer_log_questionnaire_errors_support
-      title 'Support the Log Questionnaire Errors Operation'
+      title 'Verify $log-questionnaire-errors operation support'
       description %(
         This test verifies that the payer supports the
         [`Questionnaire/$log-questionnaire-errors` operation](https://hl7.org/fhir/us/davinci-dtr/2.2.0/en/OperationDefinition-log-questionnaire-errors.html).
 
         Inferno submits a representative, non-PHI error report containing a
-        Questionnaire canonical and an OperationOutcome. The payer must accept
-        the operation request with a successful HTTP response.
+        Questionnaire canonical and an OperationOutcome. The payer must respond
+        with a successful HTTP response.
       )
       verifies_requirements 'hl7.fhir.us.davinci-dtr_2.2.0@oper-1'
 
