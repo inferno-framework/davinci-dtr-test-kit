@@ -1,4 +1,4 @@
-RSpec.describe DaVinciDTRTestKit::DTRPayerServerV220::QuestionnaireReferencesVersionTest do
+RSpec.describe DaVinciDTRTestKit::DTRPayerServerV220::QuestionnaireReferencesVersionTest do # rubocop:disable RSpec/SpecFilePathFormat
   let(:suite_id) { 'dtr_payer_server_v220' }
   let(:questionnaire_url) { 'https://payer.example/Questionnaire/prior-auth' }
   let(:library_url) { 'https://payer.example/Library/auth-rules' }
