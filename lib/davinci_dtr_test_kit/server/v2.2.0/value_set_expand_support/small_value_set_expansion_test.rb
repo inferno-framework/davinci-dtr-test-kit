@@ -23,7 +23,7 @@ module DaVinciDTRTestKit
         requests = load_tagged_requests(QUESTIONNAIRE_TAG)
         skip_if requests.empty?, 'No $questionnaire-package requests were made.'
 
-        expansion_sizes = expansion_sizes_by_canonical
+        expansion_sizes = expansion_sizes_by_url
 
         requests.each_with_index do |request, request_index|
           next unless [200, 201].include? request.status
@@ -32,8 +32,8 @@ module DaVinciDTRTestKit
 
           extract_questionnaire_bundles(resource).each do |bundle|
             bundle.entry.filter_map(&:resource).grep(FHIR::ValueSet).each do |value_set|
-              canonical = value_set.url
-              expansion_size = expansion_sizes[canonical]
+              url = value_set.url
+              expansion_size = expansion_sizes[url]
 
               if value_set_expanded?(value_set)
                 if value_set.expansion.present? && !value_set_expansion_current?(value_set)
@@ -47,7 +47,7 @@ module DaVinciDTRTestKit
               unless value_set_expanded?(value_set)
                 add_request_message(
                   'error',
-                  "ValueSet `#{canonical}` has #{expansion_size} codes and is not expanded in the " \
+                  "ValueSet `#{url}` has #{expansion_size} codes and is not expanded in the " \
                   '$questionnaire-package response.',
                   request_index
                 )
@@ -64,17 +64,17 @@ module DaVinciDTRTestKit
         )
       end
 
-      def expansion_sizes_by_canonical
+      def expansion_sizes_by_url
         load_tagged_requests(VALUE_SET_EXPAND_TAG).filter_map do |request|
-          canonical = value_set_canonical_from_expand_request(request)
-          next if canonical.blank?
+          url = value_set_url_from_expand_request(request)
+          next if url.blank?
 
           expanded_value_set = FHIR.from_contents(request.response_body)
 
           next unless expanded_value_set.is_a?(FHIR::ValueSet) &&
                       expanded_value_set.expansion.present?
 
-          [canonical, expansion_entry_count(expanded_value_set.expansion.contains)]
+          [url, expansion_entry_count(expanded_value_set.expansion.contains)]
         rescue JSON::ParserError, FHIR::ClientException
           nil
         end.to_h
@@ -109,7 +109,7 @@ module DaVinciDTRTestKit
         end
       end
 
-      def value_set_canonical_from_expand_request(request)
+      def value_set_url_from_expand_request(request)
         parameters = FHIR.from_contents(request.request_body)
 
         url = parameters.parameter
