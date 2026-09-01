@@ -83,7 +83,7 @@ RSpec.describe DaVinciDTRTestKit::DTRPayerServerV220::SmallValueSetExpansionTest
 
   it 'passes when the questionnaire-package response already expands a ValueSet' do
     expansion = {
-      timestamp: (Date.current).iso8601,
+      timestamp: Date.current.iso8601,
       contains: [{ code: 'example' }]
     }
     store_questionnaire_package_response(package_value_set(expansion:))
@@ -122,5 +122,78 @@ RSpec.describe DaVinciDTRTestKit::DTRPayerServerV220::SmallValueSetExpansionTest
 
     expect(test_result.result).to eq('skip')
     expect(test_result.result_message).to include('No $questionnaire-package requests were made')
+  end
+
+  it 'passes when a small ValueSet compose only contains explicit codes' do
+    store_questionnaire_package_response(
+      package_value_set(
+        compose: {
+          include: [{
+            system: 'http://example.org/example',
+            concept: [{ code: 'a' }, { code: 'b' }]
+          }]
+        }
+      )
+    )
+    store_expand_response(entry_count: 39)
+
+    test_result = run(described_class)
+
+    expect(test_result.result).to eq('pass'), test_result.result_message
+  end
+
+  it 'fails when a small ValueSet compose uses a filter' do
+    store_questionnaire_package_response(
+      package_value_set(
+        compose: {
+          include: [{
+            system: 'http://example.org/CodeSystem/example',
+            filter: [{ property: 'concept', value: 'a' }]
+          }]
+        }
+      )
+    )
+    store_expand_response(entry_count: 39)
+
+    test_result = run(described_class)
+
+    expect(test_result.result).to eq('fail')
+  end
+
+  it 'fails when a small ValueSet compose references another ValueSet' do
+    store_questionnaire_package_response(
+      package_value_set(
+        compose: {
+          include: [{ valueSet: ['http://example.org/ValueSet/other'] }]
+        }
+      )
+    )
+    store_expand_response(entry_count: 39)
+
+    test_result = run(described_class)
+
+    expect(test_result.result).to eq('fail')
+  end
+
+  it 'fails when a small ValueSet compose has exclusions' do
+    store_questionnaire_package_response(
+      package_value_set(
+        compose: {
+          include: [{
+            system: 'http://example.org/CodeSystem/example',
+            concept: [{ code: 'a' }]
+          }],
+          exclude: [{
+            system: 'http://example.org/CodeSystem/example',
+            concept: [{ code: 'b' }]
+          }]
+        }
+      )
+    )
+    store_expand_response(entry_count: 39)
+
+    test_result = run(described_class)
+
+    expect(test_result.result).to eq('fail')
   end
 end

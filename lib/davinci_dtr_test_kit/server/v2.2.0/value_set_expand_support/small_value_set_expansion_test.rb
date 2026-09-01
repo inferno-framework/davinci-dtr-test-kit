@@ -44,15 +44,15 @@ module DaVinciDTRTestKit
 
               next if expansion_size.nil? || expansion_size >= 40
 
-              unless value_set_expanded?(value_set)
-                add_request_message(
-                  'error',
-                  "ValueSet `#{url}` has #{expansion_size} codes and is not expanded in the " \
-                  '$questionnaire-package response.',
-                  request_index
-                )
-                next
-              end
+              next if value_set_expanded?(value_set)
+
+              add_request_message(
+                'error',
+                "ValueSet `#{url}` has #{expansion_size} codes and is not expanded in the " \
+                '$questionnaire-package response.',
+                request_index
+              )
+              next
             end
           end
         rescue JSON::ParserError, FHIR::ClientException
@@ -82,14 +82,14 @@ module DaVinciDTRTestKit
 
       def value_set_expanded?(value_set)
         value_set_expansion_contains_codes?(value_set) ||
-          value_set_compose_contains_codes?(value_set)
+          value_set_compose_contains_only_codes?(value_set)
       end
 
       def value_set_expansion_contains_codes?(value_set)
         value_set.expansion&.contains.present?
       end
 
-      def value_set_compose_contains_codes?(value_set)
+      def value_set_compose_contains_only_codes?(value_set)
         compose = value_set.compose
         return false if compose.blank? || compose.exclude.present?
 
