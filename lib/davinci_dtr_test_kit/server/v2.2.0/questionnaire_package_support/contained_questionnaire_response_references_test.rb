@@ -17,7 +17,8 @@ module DaVinciDTRTestKit
         uses contained resource references only as
         `QuestionnaireResponse.item.answer.valueReference` values.
       )
-      verifies_requirements 'hl7.fhir.us.davinci-dtr_2.2.0@spec-141'
+      verifies_requirements 'hl7.fhir.us.davinci-dtr_2.2.0@spec-140',
+                            'hl7.fhir.us.davinci-dtr_2.2.0@spec-141'
 
       run do
         load_tagged_requests(QUESTIONNAIRE_TAG)
