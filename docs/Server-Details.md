@@ -39,7 +39,7 @@ suite. Below is a list of untested requirements along with reasons they are not
 tested.
 
 ### Organizational Requirements
-These are requirements for the payer organization itself rather than on the
+These are requirements on the payer organization itself rather than on the
 interactions between the payer server and a DTR client.
 * [conf-10](https://hl7.org/fhir/us/davinci-dtr/2.2.0/en/confexpectations.html#ci-c-conf-10)
 * [conf-14](https://hl7.org/fhir/us/davinci-dtr/2.2.0/en/confexpectations.html#ci-c-conf-14)
