@@ -42,7 +42,7 @@ module DaVinciDTRTestKit
           end
         end
 
-        skip_if !adaptive_package_found, 'No adaptive Questionnaire packages were returned.'
+        omit_if !adaptive_package_found, 'No adaptive Questionnaire packages were returned.'
 
         assert_no_error_messages(
           "#{requests_with_errors_prefix}Adaptive QuestionnaireResponses must reference a contained Questionnaire " \
