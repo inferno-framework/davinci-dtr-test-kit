@@ -86,7 +86,6 @@ versions of the payer server suite. Some of these requirements would
 significantly expand the scope of of test suite, such as validating CQL content,
 or verifying that all security and privacy rules from FHIR Core, HREX, and SMART
 App Launch are followed.
-* [oper-15](https://hl7.org/fhir/us/davinci-dtr/2.2.0/en/OperationDefinition-questionnaire-package.html#ci-c-oper-15) [[IN PROGRESS](https://github.com/inferno-framework/davinci-dtr-test-kit/pull/121)]
 * [sec-1](https://hl7.org/fhir/us/davinci-dtr/2.2.0/en/security.html#ci-c-sec-1)
 * [spec-92](https://hl7.org/fhir/us/davinci-dtr/2.2.0/en/specification.html#ci-c-spec-92)
 * [spec-93](https://hl7.org/fhir/us/davinci-dtr/2.2.0/en/specification.html#ci-c-spec-93)
