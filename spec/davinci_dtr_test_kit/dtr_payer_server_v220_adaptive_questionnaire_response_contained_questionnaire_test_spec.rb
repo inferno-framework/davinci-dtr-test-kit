@@ -119,12 +119,12 @@ RSpec.describe(
     expect(result.result_message).to include('Adaptive QuestionnaireResponses must reference a contained Questionnaire')
   end
 
-  it 'skips when no adaptive Questionnaire package was returned' do
+  it 'omits when no adaptive Questionnaire package was returned' do
     store_response(questionnaire_package_response(FHIR::Questionnaire.new(status: 'active')))
 
     result = run(described_class)
 
-    expect(result.result).to eq('skip')
+    expect(result.result).to eq('omit')
     expect(result.result_message).to include('No adaptive Questionnaire packages were returned')
   end
 end
