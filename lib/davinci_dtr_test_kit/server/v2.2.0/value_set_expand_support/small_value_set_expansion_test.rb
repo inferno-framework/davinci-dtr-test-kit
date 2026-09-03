@@ -44,15 +44,12 @@ module DaVinciDTRTestKit
 
               next if expansion_size.nil? || expansion_size >= 40
 
-              next if value_set_expanded?(value_set)
-
               add_request_message(
                 'error',
                 "ValueSet `#{url}` has #{expansion_size} codes and is not expanded in the " \
                 '$questionnaire-package response.',
                 request_index
               )
-              next
             end
           end
         rescue JSON::ParserError, FHIR::ClientException
