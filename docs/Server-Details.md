@@ -28,8 +28,8 @@ as the terminology server.
 
 ## Limitations
 
-The tests currently require the user to input bodies for all
-`$questionnaire-package** and `$next-question** requests that will be made in the
+The tests currently require user input to populate request bodies for all
+`$questionnaire-package` and `$next-question` requests that will be made in the
 suite. The tests may be updated in the future to allow Inferno to act as a proxy
 between the payer server and a DTR client so that the user does not have to
 provide these request bodies manually.
@@ -72,7 +72,7 @@ semantics of an interaction, or on content that is not machine-readable.
 * [spec-120](https://hl7.org/fhir/us/davinci-dtr/2.2.0/en/specification.html#ci-c-spec-120)
 * [spec-128](https://hl7.org/fhir/us/davinci-dtr/2.2.0/en/specification.html#ci-c-spec-128)
 * [spec-159](https://hl7.org/fhir/us/davinci-dtr/2.2.0/en/specification.html#ci-c-spec-159)
-* [spec-165](https://hl7.org/fhir/us/davinci-dtr/2.2.0/en/specification.html#ci-c-spec-165
+* [spec-165](https://hl7.org/fhir/us/davinci-dtr/2.2.0/en/specification.html#ci-c-spec-165)
 
 ### Not Server Requirements
 These requirements are identified as requirements for payer servers, but are
