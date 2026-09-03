@@ -23,6 +23,7 @@ require_relative 'next_question_support/adaptive_questionnaire_endpoint_test'
 require_relative 'questionnaire_package_support/adaptive_questionnaire_response_validation_test'
 require_relative 'questionnaire_package_support/adaptive_questionnaire_response_contained_questionnaire_test'
 require_relative 'value_set_expand_support/value_set_expansion_test'
+require_relative 'value_set_expand_support/small_value_set_expansion_test'
 require_relative 'questionnaire_design/questionnaire_expression_elm_test'
 require_relative 'questionnaire_design/questionnaire_expression_language_test'
 require_relative 'questionnaire_design/questionnaire_prepopulation_test'
@@ -198,6 +199,7 @@ module DaVinciDTRTestKit
           test from: :dtr_v220_payer_initial_questionnaire_response
           test from: :dtr_server_v220_no_custom_extension_test
           test from: :dtr_v220_payer_value_set_validation
+          test from: :dtr_v220_payer_small_value_set_expansion
           test from: :dtr_v220_payer_questionnaire_references_version_specific
 
           test from: :dtr_v220_payer_adaptive_questionnaire_response_contained_questionnaire
@@ -265,9 +267,6 @@ module DaVinciDTRTestKit
           DESCRIPTION
 
           test from: :dtr_v220_payer_value_set_expansion
-
-          # TODO
-          # oper-15 - [NOT TESTED in 2.0] VS with <40 entries SHALL be expanded
         end
 
         group do
