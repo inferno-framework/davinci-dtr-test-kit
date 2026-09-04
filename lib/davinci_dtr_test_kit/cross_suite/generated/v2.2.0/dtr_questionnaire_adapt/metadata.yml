@@ -1,0 +1,17 @@
+---
+:resource: Questionnaire
+:profile_url: http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/dtr-questionnaire-adapt
+:profile_name: DTR Questionnaire for adaptive form
+:profile_version: 2.2.0
+:must_supports:
+  :extensions:
+  - :id: Questionnaire.extension:questionnaireAdaptive
+    :slice_name: questionnaireAdaptive
+    :path: extension
+    :url: http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-questionnaireAdaptive
+    :modifier_extension: false
+  :slices: []
+  :elements:
+  - :path: item.enableWhen
+  :recursive_elements:
+  - item

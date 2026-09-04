@@ -1,0 +1,80 @@
+# frozen_string_literal: true
+
+require 'davinci_dtr_test_kit/server/v2.2.0/next_question_support/next_question_response_references_test'
+
+RSpec.describe DaVinciDTRTestKit::DTRPayerServerV220::NextQuestionResponseReferencesTest, :runnable do # rubocop:disable RSpec/SpecFilePathFormat
+  let(:suite_id) { 'dtr_payer_server_v220' }
+
+  def store_response(response_body, tags: [DaVinciDTRTestKit::NEXT_TAG])
+    result = repo_create(:result, test_session_id: test_session.id)
+    repo_create(:request, result_id: result.id, test_session_id: test_session.id, response_body:, tags:)
+  end
+
+  it 'passes when next-question responses use relative client references' do
+    questionnaire_response = FHIR::QuestionnaireResponse.new(
+      status: 'in-progress',
+      subject: FHIR::Reference.new(reference: 'Patient/example')
+    )
+    store_response(questionnaire_response.to_json)
+
+    result = run(described_class, client_fhir_endpoint: 'https://client.example/fhir')
+
+    expect(result.result).to eq('pass'), result.result_message
+  end
+
+  it 'omits when no next-question requests were made' do
+    result = run(described_class, client_fhir_endpoint: 'https://client.example/fhir')
+
+    expect(result.result).to eq('omit'), result.result_message
+    expect(result.result_message).to include('No $next-question')
+  end
+
+  it 'fails when a next-question response references another endpoint' do
+    questionnaire_response = FHIR::QuestionnaireResponse.new(
+      status: 'in-progress',
+      subject: FHIR::Reference.new(reference: 'https://payer.example/fhir/Patient/example')
+    )
+    store_response(questionnaire_response.to_json)
+
+    result = run(described_class, client_fhir_endpoint: 'https://client.example/fhir')
+
+    expect(result.result).to eq('fail')
+    expect(result.result_message).to include("DTR client's FHIR endpoint")
+  end
+
+  it 'skips when an absolute reference is returned without a client FHIR endpoint' do
+    questionnaire_response = FHIR::QuestionnaireResponse.new(
+      status: 'in-progress',
+      subject: FHIR::Reference.new(reference: 'https://client.example/fhir/Patient/example')
+    )
+    store_response(questionnaire_response.to_json)
+
+    result = run(described_class)
+
+    expect(result.result).to eq('skip')
+    expect(result.result_message).to include('no DTR Client FHIR Endpoint was provided')
+  end
+
+  it 'fails before skipping when an absolute reference and an invalid contained reference are returned' do
+    questionnaire_response = FHIR::QuestionnaireResponse.new(
+      status: 'in-progress',
+      subject: FHIR::Reference.new(reference: '#missing'),
+      author: FHIR::Reference.new(reference: 'https://client.example/fhir/Practitioner/example')
+    )
+    store_response(questionnaire_response.to_json)
+
+    result = run(described_class)
+
+    expect(result.result).to eq('fail')
+    expect(result.result_message).to include('References must target contained resources')
+  end
+
+  it 'skips when no QuestionnaireResponse was returned' do
+    store_response('{}')
+
+    result = run(described_class, client_fhir_endpoint: 'https://client.example/fhir')
+
+    expect(result.result).to eq('skip')
+    expect(result.result_message).to include('No QuestionnaireResponse resources were returned')
+  end
+end

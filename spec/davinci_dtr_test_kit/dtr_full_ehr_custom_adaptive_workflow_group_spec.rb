@@ -41,14 +41,14 @@ RSpec.describe DaVinciDTRTestKit::DTRFullEHRCustomAdaptiveWorkflowGroup, :reques
       result = run(runnable, client_id:, adaptive_custom_questionnaire_package_response: {}.to_json,
                              custom_next_question_questionnaires: custom_questionnaires.to_json)
       expect(result.result).to eq('fail')
-      expect(result.result_message).to match(/Custom questionnaire package response is empty/)
+      expect(result.result_message).to include('Custom questionnaire package response is empty')
     end
 
     it 'fails when an empty questionnaire list is provided' do
       result = run(runnable, client_id:, adaptive_custom_questionnaire_package_response:,
                              custom_next_question_questionnaires: [].to_json)
       expect(result.result).to eq('fail')
-      expect(result.result_message).to match(/Custom questionnaires list is empty/)
+      expect(result.result_message).to include('Custom questionnaires list is empty')
     end
 
     it 'returns the user provided custom package to the questionnaire package request' do
@@ -65,7 +65,7 @@ RSpec.describe DaVinciDTRTestKit::DTRFullEHRCustomAdaptiveWorkflowGroup, :reques
 
     it 'returns the expected Questionnaire for each next-question request' do
       allow_any_instance_of(DaVinciDTRTestKit::URLs).to(receive(:next_url).and_return(''))
-      allow_any_instance_of(DaVinciDTRTestKit::MockPayer::NextQuestionEndpoint).to(
+      allow_any_instance_of(DaVinciDTRTestKit::MockPayer::FullEHRNextQuestionEndpoint).to(
         receive(:evaluate_fhirpath).and_return([])
       )
       result = run(runnable, client_id:, adaptive_custom_questionnaire_package_response:,
@@ -111,7 +111,7 @@ RSpec.describe DaVinciDTRTestKit::DTRFullEHRCustomAdaptiveWorkflowGroup, :reques
       result = run(runnable, custom_next_question_questionnaires: custom_questionnaires.to_json)
       expect(result.result).to eq('fail')
 
-      expect(result.result_message).to match(/Workflow not completed/)
+      expect(result.result_message).to include('Workflow not completed')
     end
 
     it 'fails if a next-question request does not contain the expected questionnaire' do
@@ -125,7 +125,7 @@ RSpec.describe DaVinciDTRTestKit::DTRFullEHRCustomAdaptiveWorkflowGroup, :reques
         .current_results_for_test_session_and_runnables(test_session.id, [runnable])
         .first.messages.map(&:message).join
 
-      expect(result_messages_string).to match(/contained Questionnaire `item` does not match/)
+      expect(result_messages_string).to include('contained Questionnaire `item` does not match')
     end
   end
 end

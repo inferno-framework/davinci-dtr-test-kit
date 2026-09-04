@@ -1,5 +1,7 @@
 require:
   - rubocop-rake
+
+plugins: 
   - rubocop-rspec
 
 AllCops:
@@ -77,8 +79,7 @@ RSpec/SpecFilePathFormat:
     DaVinciDTRTestKit: davinci_dtr_test_kit
 
 RSpec/SpecFilePathSuffix:
-  CustomTransform:
-    DaVinciDTRTestKit: davinci_dtr_test_kit
+  Enabled: false
 
 RSpec/MultipleExpectations:
   Enabled: false

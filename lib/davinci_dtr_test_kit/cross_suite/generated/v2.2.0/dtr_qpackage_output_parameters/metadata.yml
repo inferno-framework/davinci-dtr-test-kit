@@ -1,0 +1,30 @@
+---
+:resource: Parameters
+:profile_url: http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/dtr-qpackage-output-parameters
+:profile_name: DTR Questionnaire Package Output Parameters
+:profile_version: 2.2.0
+:must_supports:
+  :extensions: []
+  :slices:
+  - :slice_id: Parameters.parameter:packagebundle
+    :slice_name: packagebundle
+    :path: parameter
+    :discriminator:
+      :type: value
+      :values:
+      - :path: name
+        :value: packagebundle
+  - :slice_id: Parameters.parameter:outcome
+    :slice_name: outcome
+    :path: parameter
+    :discriminator:
+      :type: value
+      :values:
+      - :path: name
+        :value: outcome
+  :elements:
+  - :path: parameter
+  - :path: parameter:packagebundle.resource
+  - :path: parameter:outcome.resource
+  :recursive_elements:
+  - part
