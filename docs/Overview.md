@@ -26,8 +26,8 @@ FHIR-based data exchange.
 
 ## Test Kit Actors and Approach
 
-The DTR specification defines two sides of the basic exchange: a payer side which is
-providing Questionnaires and a provider side which is completing them. The specification
+The DTR specification defines two sides of the basic exchange: a payer side which
+provides Questionnaires and a provider side which completes them. The specification
 further provides for the provider side to be fulfilled either by
 - a single DTR Full EHR actor that retrieves Questionnaires, renders them for users to complete,
   and supplies the data, or
@@ -78,10 +78,9 @@ While these tests cover core aspects of the DTR IG, there are known limitations:
 
 For a details on specific specific limitations, detailed requirements, and known
 issues, please consult the following resources: 
-- [Client Testing Limitations](https://github.com/inferno-framework/davinci-dtr-test-kit/wiki/Client-Details#testing-limitations)
-- [Server Testing Limitations](https://github.com/inferno-framework/davinci-dtr-test-kit/wiki/Server-Details#testing-limitations)
-- Relevant [requirements](https://inferno-framework.github.io/docs/advanced-test-features/requirements.html)
-  including those in the
+- [Client Testing Limitations](https://github.com/inferno-framework/davinci-dtr-test-kit/wiki/Client-Details#limitations)
+- [Server Testing Limitations](https://github.com/inferno-framework/davinci-dtr-test-kit/wiki/Server-Details#limitations)
+- Relevant [requirements](https://inferno-framework.github.io/docs/advanced-test-features/requirements.html):
   - DTR Requirements Spreadsheets
     - [v2.0.1](https://github.com/inferno-framework/davinci-dtr-test-kit/blob/main/lib/davinci_dtr_test_kit/requirements/hl7.fhir.us.davinci-dtr_2.0.1_requirements.xlsx)
     - [v2.2.0](https://github.com/inferno-framework/davinci-dtr-test-kit/blob/main/lib/davinci_dtr_test_kit/requirements/hl7.fhir.us.davinci-dtr_2.2.0_requirements.xlsx)
@@ -93,7 +92,8 @@ A test run is considered successful if all mandatory tests pass:
 * **Passing Tests**: Indicate expected behavior for specific scenarios
 * **Failing Tests**: Indicate deviations from DTR IG requirements
 * **Warnings**: Highlight potential concerns that require manual review
-* **Skipped Tests**: Occur when prerequisites are not met
+* **Skipped Tests**: Occur when necessary prerequisites are not met
+* **Omitted Tests**: Occur when optional prerequisites are not met
 
 Given the [known limitations](#test-scope-and-limitations), passing all automated tests does **not**
 solely constitute full DTR IG conformance. Systems should also meet requirements verified through

@@ -1,4 +1,9 @@
+Note: most of this page describes the v2.2.0 DTR payer server tests. For
+information on the v2.0.1 tests, see the [_DTR v2.0.1 Server Tests_](#dtr-v201-server-tests)
+section below.
+
 ## Test Methodology
+
 
 Inferno will simulate a DTR client that makes requests for questionnaires and
 submits QuestionnaireResponses to the system under test. The server will be
@@ -16,9 +21,10 @@ fields.
 
 Because the business logic that determines which questionnaires are returned
 is outside of the DTR specification and will vary between implementers, testers
-are required to provide the requests that Inferno will make to the server, either
-by providing the requests to make up-front, or by sending them to Inferno during
-test execution using a tester-controlled client.
+are required to provide the requests that Inferno will make to the server. See
+the [_Controlling Simulated DTR Client Requests_ page](https://github.com/inferno-framework/davinci-dtr-test-kit/wiki/Controlling-Simulated-Requests)
+for details on how to specify requests for the `$questionnaire-package` and
+`$next-question` operations.
 
 All responses returned by the server, as well as tester-provided requests, will
 be checked for conformance to the DTR IG requirements individually and used in
@@ -91,3 +97,13 @@ App Launch are followed.
 * [spec-93](https://hl7.org/fhir/us/davinci-dtr/2.2.0/en/specification.html#ci-c-spec-93)
 * [spec-94](https://hl7.org/fhir/us/davinci-dtr/2.2.0/en/specification.html#ci-c-spec-94)
 * [spec-97](https://hl7.org/fhir/us/davinci-dtr/2.2.0/en/specification.html#ci-c-spec-97)
+
+## DTR v2.0.1 Server Tests
+
+The DTR Test Kit includes a suite, Da Vinci DTR Payer Server Test Suite v2.0.1,
+that test payer server actors against requirements from the v2.0.1 version of
+the DTR IG.
+
+Due to the complexity of the DTR spec and the lack of robust implementations to
+test against during development, these tests remain immature compared to the
+v2.2.0 versions and are not currently being actively enhanced.
