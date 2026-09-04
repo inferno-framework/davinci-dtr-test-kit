@@ -186,7 +186,7 @@ RSpec.describe DaVinciDTRTestKit::DTRFullEHRV220QuestionnaireBaseMustSupportTest
   it 'skips when no requests have been made' do
     result = run(described_class)
     expect(result.result).to eq('skip')
-    expect(result.result_message).to match(/Requests must be made/)
+    expect(result.result_message).to include('Requests must be made')
   end
 
   it 'skips when the tagged requests contain no Questionnaires' do
@@ -194,7 +194,7 @@ RSpec.describe DaVinciDTRTestKit::DTRFullEHRV220QuestionnaireBaseMustSupportTest
 
     result = run(described_class)
     expect(result.result).to eq('skip')
-    expect(result.result_message).to match(/No Questionnaires found/)
+    expect(result.result_message).to include('No Questionnaires found')
   end
 
   it 'ignores requests that are not valid JSON' do
@@ -202,7 +202,7 @@ RSpec.describe DaVinciDTRTestKit::DTRFullEHRV220QuestionnaireBaseMustSupportTest
 
     result = run(described_class)
     expect(result.result).to eq('skip')
-    expect(result.result_message).to match(/No Questionnaires found/)
+    expect(result.result_message).to include('No Questionnaires found')
   end
 
   it 'fails and lists the missing elements when the Questionnaire is missing must support elements' do
@@ -210,7 +210,7 @@ RSpec.describe DaVinciDTRTestKit::DTRFullEHRV220QuestionnaireBaseMustSupportTest
 
     result = run(described_class)
     expect(result.result).to eq('fail')
-    expect(result.result_message).to match(/Could not find/)
+    expect(result.result_message).to include('Could not find')
     expect(result.result_message).to include('Questionnaire.extension:terminologyServer')
   end
 

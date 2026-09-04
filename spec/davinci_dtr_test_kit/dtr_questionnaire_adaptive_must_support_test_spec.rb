@@ -63,7 +63,7 @@ RSpec.describe DaVinciDTRTestKit::DTRFullEHRV220QuestionnaireAdaptiveMustSupport
   it 'skips when no requests have been made' do
     result = run(described_class)
     expect(result.result).to eq('skip')
-    expect(result.result_message).to match(/Requests must be made/)
+    expect(result.result_message).to include('Requests must be made')
   end
 
   it 'ignores $questionnaire-package responses, even with a conformant adaptive-shaped Questionnaire' do
@@ -75,7 +75,7 @@ RSpec.describe DaVinciDTRTestKit::DTRFullEHRV220QuestionnaireAdaptiveMustSupport
 
     result = run(described_class)
     expect(result.result).to eq('skip')
-    expect(result.result_message).to match(/Requests must be made/)
+    expect(result.result_message).to include('Requests must be made')
   end
 
   it 'skips when the tagged requests contain no adaptive Questionnaires' do
@@ -83,7 +83,7 @@ RSpec.describe DaVinciDTRTestKit::DTRFullEHRV220QuestionnaireAdaptiveMustSupport
 
     result = run(described_class)
     expect(result.result).to eq('skip')
-    expect(result.result_message).to match(/No adaptive Questionnaires found/)
+    expect(result.result_message).to include('No adaptive Questionnaires found')
   end
 
   it 'fails and lists the missing elements when the adaptive Questionnaire is missing must support elements' do

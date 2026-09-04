@@ -10,7 +10,7 @@ RSpec.describe DaVinciDTRTestKit::DTRPayerServerV220::QuestionnaireAdaptiveMustS
     result = run(described_class)
 
     expect(result.result).to eq('skip')
-    expect(result.result_message).to match(/No adaptive Questionnaires/)
+    expect(result.result_message).to include('No adaptive Questionnaires')
   end
 
   it 'skips when $questionnaire-package responses contain no Questionnaires' do
@@ -19,7 +19,7 @@ RSpec.describe DaVinciDTRTestKit::DTRPayerServerV220::QuestionnaireAdaptiveMustS
     result = run(described_class)
 
     expect(result.result).to eq('skip')
-    expect(result.result_message).to match(/No adaptive Questionnaires/)
+    expect(result.result_message).to include('No adaptive Questionnaires')
   end
 
   it 'omits when only standard Questionnaires were returned' do
@@ -30,7 +30,7 @@ RSpec.describe DaVinciDTRTestKit::DTRPayerServerV220::QuestionnaireAdaptiveMustS
     result = run(described_class)
 
     expect(result.result).to eq('omit')
-    expect(result.result_message).to match(/did not return any adaptive-search Questionnaires/)
+    expect(result.result_message).to include('did not return any adaptive-search Questionnaires')
   end
 
   it 'skips when an adaptive-search Questionnaire was returned but no $next-question requests were made' do
@@ -41,7 +41,7 @@ RSpec.describe DaVinciDTRTestKit::DTRPayerServerV220::QuestionnaireAdaptiveMustS
     result = run(described_class)
 
     expect(result.result).to eq('skip')
-    expect(result.result_message).to match(/No adaptive Questionnaires/)
+    expect(result.result_message).to include('No adaptive Questionnaires')
   end
 
   it 'skips when $next-question responses contain no adaptive Questionnaires' do
@@ -57,7 +57,7 @@ RSpec.describe DaVinciDTRTestKit::DTRPayerServerV220::QuestionnaireAdaptiveMustS
     result = run(described_class)
 
     expect(result.result).to eq('skip')
-    expect(result.result_message).to match(/No adaptive Questionnaires/)
+    expect(result.result_message).to include('No adaptive Questionnaires')
   end
 
   it 'passes when $next-question demonstrates the adaptive differential without a $questionnaire-package request' do

@@ -95,9 +95,8 @@ RSpec.describe DaVinciDTRTestKit::DTRPayerServerV220::QuestionnaireResponseQuest
     result = run(described_class)
 
     expect(result.result).to eq('omit')
-    expect(result.result_message).to match(
-      /No QuestionnaireResponse resources accompanying standard Questionnaires were returned/
-    )
+    expect(result.result_message)
+      .to include('No QuestionnaireResponse resources accompanying standard Questionnaires were returned')
   end
 
   it 'omits when only adaptive Questionnaires were returned' do
@@ -107,8 +106,7 @@ RSpec.describe DaVinciDTRTestKit::DTRPayerServerV220::QuestionnaireResponseQuest
     result = run(described_class)
 
     expect(result.result).to eq('omit')
-    expect(result.result_message).to match(
-      /No QuestionnaireResponse resources accompanying standard Questionnaires were returned/
-    )
+    expect(result.result_message)
+      .to include('No QuestionnaireResponse resources accompanying standard Questionnaires were returned')
   end
 end

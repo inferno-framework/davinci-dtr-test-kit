@@ -260,7 +260,7 @@ RSpec.describe DaVinciDTRTestKit::DTRPayerServerV220::InteractionTest do # ruboc
                                questionnaire_response_templates: qr_template)
       expect(result.result).to eq('pass'), result.result_message
       expect(WebMock).to have_requested(:post, nq_url).once
-      expect(result_messages.map(&:message).join).to_not match(/did not result in a completed form/)
+      expect(result_messages.map(&:message).join).to_not include('did not result in a completed form')
     end
 
     it 'makes multiple NQ requests iterating through new questions until the form completes' do
@@ -274,7 +274,7 @@ RSpec.describe DaVinciDTRTestKit::DTRPayerServerV220::InteractionTest do # ruboc
                                questionnaire_response_templates: qr_template(answer_items: ['Q1']))
       expect(result.result).to eq('pass'), result.result_message
       expect(WebMock).to have_requested(:post, nq_url).twice
-      expect(result_messages.map(&:message).join).to_not match(/did not result in a completed form/)
+      expect(result_messages.map(&:message).join).to_not include('did not result in a completed form')
     end
 
     it 'records a warning message when NQ requests do not produce a completed form' do
@@ -288,7 +288,7 @@ RSpec.describe DaVinciDTRTestKit::DTRPayerServerV220::InteractionTest do # ruboc
                                questionnaire_package_request_parameters: single_parameters_input,
                                questionnaire_response_templates: qr_template(answer_items: ['Q1']))
       expect(result.result).to eq('pass'), result.result_message
-      expect(result_messages.map(&:message).join).to match(/did not result in a completed form/)
+      expect(result_messages.map(&:message).join).to include('did not result in a completed form')
     end
 
     it 'skips the NQ loop for adaptive questionnaires when no template is provided' do
@@ -297,7 +297,7 @@ RSpec.describe DaVinciDTRTestKit::DTRPayerServerV220::InteractionTest do # ruboc
                                questionnaire_package_request_parameters: single_parameters_input)
       expect(result.result).to eq('pass'), result.result_message
       expect(WebMock).to_not have_requested(:post, nq_url)
-      expect(result_messages.map(&:message).join).to match(/No QuestionnaireResponse template/)
+      expect(result_messages.map(&:message).join).to include('No QuestionnaireResponse template')
     end
 
     it 'does not attempt NQ requests for static (non-adaptive) questionnaires' do
@@ -316,7 +316,7 @@ RSpec.describe DaVinciDTRTestKit::DTRPayerServerV220::InteractionTest do # ruboc
                                questionnaire_package_request_parameters: single_parameters_input,
                                questionnaire_response_templates: qr_template)
       expect(result.result).to eq('pass'), result.result_message
-      expect(result_messages.map(&:message).join).to match(/did not result in a completed form/)
+      expect(result_messages.map(&:message).join).to include('did not result in a completed form')
     end
   end
 end

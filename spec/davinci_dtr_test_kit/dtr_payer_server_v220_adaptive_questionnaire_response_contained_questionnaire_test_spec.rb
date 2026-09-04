@@ -5,7 +5,7 @@ require(
   'adaptive_questionnaire_response_contained_questionnaire_test'
 )
 
-# rubocop:disable RSpec/SpecFilePathFormat
+# rubocop:disable-next RSpec/SpecFilePathFormat
 RSpec.describe(
   DaVinciDTRTestKit::DTRPayerServerV220::AdaptiveQuestionnaireResponseContainedQuestionnaireTest,
   :runnable
@@ -128,4 +128,3 @@ RSpec.describe(
     expect(result.result_message).to include('No adaptive Questionnaire packages were returned')
   end
 end
-# rubocop:enable RSpec/SpecFilePathFormat

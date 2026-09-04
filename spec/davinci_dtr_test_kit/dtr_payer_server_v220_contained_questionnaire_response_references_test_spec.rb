@@ -50,6 +50,6 @@ RSpec.describe DaVinciDTRTestKit::DTRPayerServerV220::ContainedQuestionnaireResp
     result = run(described_class)
 
     expect(result.result).to eq('skip')
-    expect(result.result_message).to match(/No QuestionnaireResponse resources were returned/)
+    expect(result.result_message).to include('No QuestionnaireResponse resources were returned')
   end
 end

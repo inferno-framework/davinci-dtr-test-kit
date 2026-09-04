@@ -10,7 +10,7 @@ RSpec.describe DaVinciDTRTestKit::DTRPayerServerV220::QuestionnaireAdaptiveSearc
     result = run(described_class)
 
     expect(result.result).to eq('skip')
-    expect(result.result_message).to match(/No Questionnaires were found/)
+    expect(result.result_message).to include('No Questionnaires were found')
   end
 
   it 'skips when $questionnaire-package responses contain no Questionnaires' do
@@ -19,7 +19,7 @@ RSpec.describe DaVinciDTRTestKit::DTRPayerServerV220::QuestionnaireAdaptiveSearc
     result = run(described_class)
 
     expect(result.result).to eq('skip')
-    expect(result.result_message).to match(/No Questionnaires were found/)
+    expect(result.result_message).to include('No Questionnaires were found')
   end
 
   it 'omits when only standard Questionnaires were returned' do
@@ -30,7 +30,7 @@ RSpec.describe DaVinciDTRTestKit::DTRPayerServerV220::QuestionnaireAdaptiveSearc
     result = run(described_class)
 
     expect(result.result).to eq('omit')
-    expect(result.result_message).to match(/did not return any adaptive-search Questionnaires/)
+    expect(result.result_message).to include('did not return any adaptive-search Questionnaires')
   end
 
   it 'fails when the adaptive-search Questionnaire must support elements have not all been demonstrated' do

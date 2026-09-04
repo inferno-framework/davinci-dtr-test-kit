@@ -72,7 +72,7 @@ RSpec.describe DaVinciDTRTestKit::DTRFullEHRV220QuestionnaireStandardMustSupport
   it 'skips when no requests have been made' do
     result = run(described_class)
     expect(result.result).to eq('skip')
-    expect(result.result_message).to match(/Requests must be made/)
+    expect(result.result_message).to include('Requests must be made')
   end
 
   it 'skips when the questionnaire-package bundle has no standard Questionnaire' do
@@ -80,7 +80,7 @@ RSpec.describe DaVinciDTRTestKit::DTRFullEHRV220QuestionnaireStandardMustSupport
 
     result = run(described_class)
     expect(result.result).to eq('skip')
-    expect(result.result_message).to match(/No standard Questionnaires found/)
+    expect(result.result_message).to include('No standard Questionnaires found')
   end
 
   it 'ignores $next-question responses entirely, even with a conformant contained Questionnaire' do
@@ -91,7 +91,7 @@ RSpec.describe DaVinciDTRTestKit::DTRFullEHRV220QuestionnaireStandardMustSupport
 
     result = run(described_class)
     expect(result.result).to eq('skip')
-    expect(result.result_message).to match(/No standard Questionnaires found/)
+    expect(result.result_message).to include('No standard Questionnaires found')
   end
 
   it 'fails and lists the missing elements when the standard Questionnaire is missing must support elements' do

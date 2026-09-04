@@ -1,7 +1,7 @@
 RSpec.describe DaVinciDTRTestKit::DTRQuestionnaireResponseValidation, :runnable do
   let(:suite_id) { :dtr_smart_app }
 
-  # rubocop:disable RSpec/EmptyExampleGroup
+  # rubocop:disable-next RSpec/EmptyExampleGroup
   describe '#validate_questionnaire_pre_population' do
     let(:test) do
       Class.new(Inferno::Test) do
@@ -88,5 +88,4 @@ RSpec.describe DaVinciDTRTestKit::DTRQuestionnaireResponseValidation, :runnable 
     #   end
     # end
   end
-  # rubocop:enable RSpec/EmptyExampleGroup
 end

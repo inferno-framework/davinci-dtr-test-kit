@@ -14,7 +14,7 @@ RSpec.describe DaVinciDTRTestKit::DTRPayerServerV220::QuestionnaireBaseMustSuppo
     result = run(described_class)
 
     expect(result.result).to eq('skip')
-    expect(result.result_message).to match(/No standard or adaptive Questionnaires/)
+    expect(result.result_message).to include('No standard or adaptive Questionnaires')
   end
 
   it 'fails when the base Questionnaire must support elements have not all been demonstrated' do

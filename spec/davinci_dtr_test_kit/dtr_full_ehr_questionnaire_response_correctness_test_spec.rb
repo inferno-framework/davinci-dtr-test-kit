@@ -26,7 +26,7 @@ RSpec.describe DaVinciDTRTestKit::DTRFullEHRQuestionnaireResponseCorrectnessTest
     it 'skips if no questionnaire_response provided for validation' do
       result = run(runnable, custom_questionnaire_package_response:)
       expect(result.result).to eq('skip')
-      expect(result.result_message).to match(/QuestionnaireResponse input was blank/)
+      expect(result.result_message).to include('QuestionnaireResponse input was blank')
     end
 
     it 'skips if the questionnaire referenced in the QR is not in the provided custom package response' do
@@ -34,7 +34,7 @@ RSpec.describe DaVinciDTRTestKit::DTRFullEHRQuestionnaireResponseCorrectnessTest
         runnable, questionnaire_response:, custom_questionnaire_package_response: FHIR::Bundle.new.to_json
       )
       expect(result.result).to eq('skip')
-      expect(result.result_message).to match(/Couldn't find Questionnaire/)
+      expect(result.result_message).to include("Couldn't find Questionnaire")
     end
 
     it 'fails if a required answer is missing or all QR items do not have an origin.source' do
@@ -43,7 +43,7 @@ RSpec.describe DaVinciDTRTestKit::DTRFullEHRQuestionnaireResponseCorrectnessTest
                   custom_questionnaire_package_response:
       )
       expect(result.result).to eq('fail')
-      expect(result.result_message).to match(/QuestionnaireResponse is not correct/)
+      expect(result.result_message).to include('QuestionnaireResponse is not correct')
     end
   end
 end

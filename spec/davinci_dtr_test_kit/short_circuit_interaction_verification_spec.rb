@@ -74,7 +74,7 @@ RSpec.describe DaVinciDTRTestKit::ShortCircuitInteractionVerification do
     it 'errors out on an unrecognized flag' do
       result = run(test_class, {}, { short_circuit: :bogus })
       expect(result.result).to eq('error')
-      expect(result.result_message).to match(/invalid short circuit action: bogus/)
+      expect(result.result_message).to include('invalid short circuit action: bogus')
     end
 
     it 'falls back to the module default ok message when none is given' do

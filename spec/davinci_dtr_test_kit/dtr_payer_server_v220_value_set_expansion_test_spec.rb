@@ -58,7 +58,7 @@ RSpec.describe DaVinciDTRTestKit::DTRPayerServerV220::ValueSetExpansionTest, :ru
 
     expect(result.result).to eq('fail')
     expect(result_messages.map(&:message).join)
-      .to match(/\(Request 1\) expansion contains inactive code/)
+      .to include('(Request 1) expansion contains inactive code')
   end
 
   it 'fails when any returned ValueSet does not contain an expansion' do
@@ -86,6 +86,6 @@ RSpec.describe DaVinciDTRTestKit::DTRPayerServerV220::ValueSetExpansionTest, :ru
     result = run(described_class)
 
     expect(result.result).to eq('skip')
-    expect(result.result_message).to match(%r{No ValueSet/\$expand requests were made})
+    expect(result.result_message).to include('No ValueSet/$expand requests were made')
   end
 end

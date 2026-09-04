@@ -47,7 +47,7 @@ RSpec.describe DaVinciDTRTestKit::DTRFullEHRV220NextQuestionResponseValidationTe
     result = run(described_class)
 
     expect(result.result).to eq('skip')
-    expect(result.result_message).to match(/A Next Question request must be made/)
+    expect(result.result_message).to include('A Next Question request must be made')
   end
 
   it 'fails and reports the wrong URL when the request was not made to the $next-question endpoint' do

@@ -39,7 +39,7 @@ RSpec.describe DaVinciDTRTestKit::DTRPayerServerV220::NextQuestionResponseRefere
     result = run(described_class, client_fhir_endpoint: 'https://client.example/fhir')
 
     expect(result.result).to eq('fail')
-    expect(result.result_message).to match(/DTR client's FHIR endpoint/)
+    expect(result.result_message).to include("DTR client's FHIR endpoint")
   end
 
   it 'skips when an absolute reference is returned without a client FHIR endpoint' do
@@ -52,7 +52,7 @@ RSpec.describe DaVinciDTRTestKit::DTRPayerServerV220::NextQuestionResponseRefere
     result = run(described_class)
 
     expect(result.result).to eq('skip')
-    expect(result.result_message).to match(/no DTR Client FHIR Endpoint was provided/)
+    expect(result.result_message).to include('no DTR Client FHIR Endpoint was provided')
   end
 
   it 'fails before skipping when an absolute reference and an invalid contained reference are returned' do
@@ -66,7 +66,7 @@ RSpec.describe DaVinciDTRTestKit::DTRPayerServerV220::NextQuestionResponseRefere
     result = run(described_class)
 
     expect(result.result).to eq('fail')
-    expect(result.result_message).to match(/References must target contained resources/)
+    expect(result.result_message).to include('References must target contained resources')
   end
 
   it 'skips when no QuestionnaireResponse was returned' do
@@ -75,6 +75,6 @@ RSpec.describe DaVinciDTRTestKit::DTRPayerServerV220::NextQuestionResponseRefere
     result = run(described_class, client_fhir_endpoint: 'https://client.example/fhir')
 
     expect(result.result).to eq('skip')
-    expect(result.result_message).to match(/No QuestionnaireResponse resources were returned/)
+    expect(result.result_message).to include('No QuestionnaireResponse resources were returned')
   end
 end

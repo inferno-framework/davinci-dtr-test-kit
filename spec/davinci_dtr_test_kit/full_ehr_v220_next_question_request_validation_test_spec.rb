@@ -47,7 +47,7 @@ RSpec.describe DaVinciDTRTestKit::DTRFullEHRV220NextQuestionRequestValidationTes
     result = run(described_class)
 
     expect(result.result).to eq('skip')
-    expect(result.result_message).to match(/A \$next-question request must be made/)
+    expect(result.result_message).to include('A $next-question request must be made')
   end
 
   it 'fails and reports the wrong URL when the request was not made to the $next-question endpoint' do
@@ -113,7 +113,7 @@ RSpec.describe DaVinciDTRTestKit::DTRFullEHRV220NextQuestionRequestValidationTes
     expect(result.result).to eq('fail')
     message = messages_for(result).find { |candidate| candidate.include?('unexpected resource type') }
     expect(message).to include('expected Parameters or QuestionnaireResponse')
-    expect(message).to match(/OperationOutcome/)
+    expect(message).to include('OperationOutcome')
   end
 
   it 'fails when the validator rejects the resource' do

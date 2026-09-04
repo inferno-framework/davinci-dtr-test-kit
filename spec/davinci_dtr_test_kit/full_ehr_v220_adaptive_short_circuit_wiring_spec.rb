@@ -77,7 +77,7 @@ RSpec.describe 'DTR Full EHR v2.2.0 adaptive short-circuit wiring' do # rubocop:
       result = run(described_class, {}, {})
 
       expect(result.result).to eq('skip')
-      expect(result.result_message).to match(/A \$next-question request must be made/)
+      expect(result.result_message).to include('A $next-question request must be made')
     end
   end
 
@@ -96,7 +96,7 @@ RSpec.describe 'DTR Full EHR v2.2.0 adaptive short-circuit wiring' do # rubocop:
       result = run(described_class, {}, {})
 
       expect(result.result).to eq('skip')
-      expect(result.result_message).to match(/A Next Question request must be made/)
+      expect(result.result_message).to include('A Next Question request must be made')
     end
   end
 end

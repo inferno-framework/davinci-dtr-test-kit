@@ -808,7 +808,7 @@ RSpec.describe DaVinciDTRTestKit::MockPayer::FullEHRV220QuestionnairePackageEndp
         result = run(input_template_test, client_id:)
 
         expect(result.result).to eq('fail')
-        expect(result.result_message).to match(/No response template provided/)
+        expect(result.result_message).to include('No response template provided')
       end
 
       it 'fails before waiting when the input is valid JSON but not a FHIR resource' do
@@ -871,7 +871,7 @@ RSpec.describe DaVinciDTRTestKit::MockPayer::FullEHRV220QuestionnairePackageEndp
         expect(last_response.status).to eq(400)
         parsed = JSON.parse(last_response.body)
         expect(parsed['resourceType']).to eq('OperationOutcome')
-        expect(parsed['issue'].first['details']['text']).to match(/only once/)
+        expect(parsed['issue'].first['details']['text']).to include('only once')
       end
 
       it 'does not block subsequent requests when qp_single_use is not set' do

@@ -51,7 +51,7 @@ module DaVinciDTRTestKit
       def ehr_input_bundle(test, test_result)
         input_name = "#{input_group_prefix(test)}_ehr_bundle"
         ehr_bundle_input = JSON.parse(test_result.input_json).find { |input| input['name'] == input_name }
-        ehr_bundle_input_value = ehr_bundle_input_value = ehr_bundle_input['value'] if ehr_bundle_input.present?
+        ehr_bundle_input_value = ehr_bundle_input['value'] if ehr_bundle_input.present?
         ehr_bundle = FHIR.from_contents(ehr_bundle_input_value) if ehr_bundle_input_value.present?
         ehr_bundle if ehr_bundle.is_a?(FHIR::Bundle)
       rescue StandardError

@@ -11,7 +11,7 @@ RSpec.describe DaVinciDTRTestKit::DTRPayerServerV220::QuestionnairePackageOutput
     result = run(described_class)
 
     expect(result.result).to eq('skip')
-    expect(result.result_message).to match(/Requests must be made prior/)
+    expect(result.result_message).to include('Requests must be made prior')
   end
 
   it 'passes when must support parameters are present cumulatively across responses' do

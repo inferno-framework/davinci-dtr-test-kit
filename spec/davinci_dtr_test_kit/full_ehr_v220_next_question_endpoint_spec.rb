@@ -461,7 +461,7 @@ RSpec.describe DaVinciDTRTestKit::MockPayer::FullEHRV220NextQuestionEndpoint, :r
       expect(last_response.status).to eq(500)
       parsed = JSON.parse(last_response.body)
       expect(parsed['resourceType']).to eq('OperationOutcome')
-      expect(parsed['issue'].first['details']['text']).to match(/No response template source indicated/)
+      expect(parsed['issue'].first['details']['text']).to include('No response template source indicated')
     end
 
     # -------------------------------------------------------------------
@@ -504,7 +504,7 @@ RSpec.describe DaVinciDTRTestKit::MockPayer::FullEHRV220NextQuestionEndpoint, :r
         expect(last_response.status).to eq(500)
         parsed = JSON.parse(last_response.body)
         expect(parsed['resourceType']).to eq('OperationOutcome')
-        expect(parsed['issue'].first['details']['text']).to match(/File not found/)
+        expect(parsed['issue'].first['details']['text']).to include('File not found')
       end
 
       it 'returns 500 with OperationOutcome when the FHIRPath service returns a non-2xx status ' \
@@ -519,7 +519,7 @@ RSpec.describe DaVinciDTRTestKit::MockPayer::FullEHRV220NextQuestionEndpoint, :r
         expect(last_response.status).to eq(500)
         parsed = JSON.parse(last_response.body)
         expect(parsed['resourceType']).to eq('OperationOutcome')
-        expect(parsed['issue'].first['details']['text']).to match(/FHIRPath service returned 422/)
+        expect(parsed['issue'].first['details']['text']).to include('FHIRPath service returned 422')
       end
     end
 
@@ -554,7 +554,7 @@ RSpec.describe DaVinciDTRTestKit::MockPayer::FullEHRV220NextQuestionEndpoint, :r
         result = run(nq_input_test, client_id:, qp_response_template: adaptive_questionnaire_package_json)
 
         expect(result.result).to eq('fail')
-        expect(result.result_message).to match(/No response template provided/)
+        expect(result.result_message).to include('No response template provided')
       end
 
       it 'fails before waiting when the nq_questionnaire_template_input is not valid JSON' do
@@ -871,7 +871,7 @@ RSpec.describe DaVinciDTRTestKit::MockPayer::FullEHRV220NextQuestionEndpoint, :r
         expect(last_response.status).to eq(400)
         parsed = JSON.parse(last_response.body)
         expect(parsed['resourceType']).to eq('OperationOutcome')
-        expect(parsed['issue'].first['details']['text']).to match(/FHIRPath service returned 422/)
+        expect(parsed['issue'].first['details']['text']).to include('FHIRPath service returned 422')
       end
     end
 

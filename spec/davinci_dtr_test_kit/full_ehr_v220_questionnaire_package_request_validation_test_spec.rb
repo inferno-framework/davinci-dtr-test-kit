@@ -56,7 +56,7 @@ RSpec.describe DaVinciDTRTestKit::DTRFullEHRV220QuestionnairePackageRequestValid
     result = run(described_class)
 
     expect(result.result).to eq('skip')
-    expect(result.result_message).to match(/A Questionnaire Package request must be made/)
+    expect(result.result_message).to include('A Questionnaire Package request must be made')
   end
 
   it 'fails and reports the wrong URL when the request was not made to the $questionnaire-package endpoint' do

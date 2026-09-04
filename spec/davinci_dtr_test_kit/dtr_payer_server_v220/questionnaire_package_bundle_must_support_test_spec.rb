@@ -12,7 +12,7 @@ RSpec.describe DaVinciDTRTestKit::DTRPayerServerV220::QuestionnairePackageBundle
     result = run(described_class)
 
     expect(result.result).to eq('skip')
-    expect(result.result_message).to match(/No Questionnaire Package Bundle/)
+    expect(result.result_message).to include('No Questionnaire Package Bundle')
   end
 
   it 'passes when must support entries are present cumulatively across package Bundles' do
