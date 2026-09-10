@@ -109,7 +109,7 @@ module DaVinciDTRTestKit
 
               - Questionnaire Package: `#{questionnaire_package_url}`
               - Next Question: `#{next_url}`
-              - ValueSet Expand: `#{fhir_base_url}/ValueSet/$expand`
+              - ValueSet Expand: `#{value_set_expand_url}`
 
               Inferno will forward each request to the payer server, return the payer response to the
               client, and use the recorded interaction in subsequent tests.

@@ -53,6 +53,10 @@ module DaVinciDTRTestKit
       @next_url ||= base_url + NEXT_PATH
     end
 
+    def value_set_expand_url
+      @value_set_expand_url ||= base_url + VALUE_SET_EXPAND_PATH
+    end
+
     def questionnaire_response_url
       @questionnaire_response_url ||= base_url + QUESTIONNAIRE_RESPONSE_PATH
     end
