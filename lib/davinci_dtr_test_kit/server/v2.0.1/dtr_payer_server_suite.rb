@@ -78,7 +78,7 @@ module DaVinciDTRTestKit
           title: 'Custom Endpoint for Accessing a Particular Resource',
           description: 'Either Flow (optional)'
 
-    input :backend_services_smart_auth_info,
+    input :smart_auth_info,
           title: 'OAuth Credentials',
           type: :auth_info,
           optional: true
@@ -90,12 +90,12 @@ module DaVinciDTRTestKit
                 :initial_static_questionnaire_request,
                 :initial_adaptive_questionnaire_request,
                 :next_question_requests,
-                :backend_services_smart_auth_info
+                :smart_auth_info
 
     # All FHIR requests in this suite will use this FHIR client
     fhir_client do
       url :url
-      auth_info :backend_services_smart_auth_info
+      auth_info :smart_auth_info
     end
 
     # Hl7 Validator Wrapper:

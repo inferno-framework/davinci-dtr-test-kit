@@ -9,6 +9,7 @@ RSpec.describe DaVinciDTRTestKit::MockPayer::PayerProxyEndpoint, :request do # r
     Class.new(DaVinciDTRTestKit::DTRPayerServerV220::InteractionTest) do
       id :dtr_v220_payer_proxy_endpoint_spec_interaction
       input :backend_services_smart_auth_info, type: :auth_info, optional: true
+      input :smart_auth_info, type: :auth_info, optional: true
     end
   end
   let(:results_repo) { Inferno::Repositories::Results.new }
@@ -44,12 +45,14 @@ RSpec.describe DaVinciDTRTestKit::MockPayer::PayerProxyEndpoint, :request do # r
     allow_any_instance_of(DaVinciDTRTestKit::URLs).to receive(:suite_id).and_return(suite_id)
   end
 
-  def start_proxy_wait
-    result = run(runnable,
-                 url:,
-                 request_mode: DaVinciDTRTestKit::DTRPayerServerV220::InteractionTest::CLIENT_MODE,
-                 dtr_client_access_token: dtr_client_access_token,
-                 backend_services_smart_auth_info: { access_token: backend_access_token })
+  def start_proxy_wait(auth_info_name: :backend_services_smart_auth_info)
+    inputs = {
+      url:,
+      request_mode: DaVinciDTRTestKit::DTRPayerServerV220::InteractionTest::CLIENT_MODE,
+      dtr_client_access_token: dtr_client_access_token,
+      auth_info_name => { access_token: backend_access_token }
+    }
+    result = run(runnable, inputs)
     expect(result.result).to eq('wait'), result.result_message
     result
   end
@@ -110,6 +113,18 @@ RSpec.describe DaVinciDTRTestKit::MockPayer::PayerProxyEndpoint, :request do # r
 
     expect(last_response.status).to eq(400), last_response.body
     expect(last_response.body).to eq(payer_response_body)
+  end
+
+  it 'uses the legacy smart_auth_info input when backend services credentials are absent' do
+    start_proxy_wait(auth_info_name: :smart_auth_info)
+    stub_request(:post, "#{url}/Questionnaire/$questionnaire-package")
+      .with(headers: { 'Authorization' => "Bearer #{backend_access_token}" })
+      .to_return(status: 200, body: FHIR::OperationOutcome.new.to_json)
+
+    header 'Authorization', "Bearer #{dtr_client_access_token}"
+    post("/custom/#{suite_id}#{DaVinciDTRTestKit::QUESTIONNAIRE_PACKAGE_PATH}", request_body)
+
+    expect(last_response.status).to eq(200)
   end
 
   it_behaves_like 'a proxied operation',

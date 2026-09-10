@@ -36,12 +36,8 @@ module DaVinciDTRTestKit
       def forward_and_persist_request
         url_input = session_data.load(test_session_id: result.test_session_id, name: 'url')
         payer_url = "#{url_input.chomp('/')}#{payer_path}"
-        credentials =
-          session_data.load(
-            test_session_id: result.test_session_id,
-            name: 'backend_services_smart_auth_info',
-            type: 'auth_info'
-          )
+        credentials = auth_info('backend_services_smart_auth_info')
+        credentials = auth_info('smart_auth_info') if credentials.access_token.blank?
 
         client = FHIR::Client.new(url_input)
         client.set_bearer_token(credentials.access_token) if credentials&.access_token
@@ -75,6 +71,10 @@ module DaVinciDTRTestKit
           response_headers: payer_response[:headers].map { |name, value| { name:, value: } },
           tags: outgoing_request_tags
         )
+      end
+
+      def auth_info(name)
+        session_data.load(test_session_id: result.test_session_id, name:, type: 'auth_info')
       end
 
       def session_data

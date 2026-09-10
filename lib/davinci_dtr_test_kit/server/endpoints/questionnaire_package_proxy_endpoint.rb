@@ -15,5 +15,3 @@ module DaVinciDTRTestKit
     end
   end
 end
-
-# TODO: when finished, copy contents of payer_proxy_endpoint.rb to here, and commit that first (for diffs)
