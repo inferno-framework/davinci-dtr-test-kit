@@ -1,4 +1,8 @@
 require 'smart_app_launch_test_kit'
+require_relative '../../cross_suite/cors'
+require_relative '../endpoints/questionnaire_package_proxy_endpoint'
+require_relative '../endpoints/next_question_proxy_endpoint'
+require_relative '../endpoints/value_set_expand_proxy_endpoint'
 require_relative 'interaction_test'
 require_relative 'log_questionnaire_errors_support_test'
 require_relative 'next_question_support/invalid_questionnaire_response_test'
@@ -41,6 +45,8 @@ require_relative 'must_support/questionnaire_adaptive_search_must_support_test'
 module DaVinciDTRTestKit
   module DTRPayerServerV220
     class DTRPayerServerSuiteV220 < Inferno::TestSuite
+      extend CORS
+
       id :dtr_payer_server_v220
       title 'Da Vinci DTR Payer Server Test Suite v2.2.0'
       description File.read(File.join(__dir__, 'dtr_payer_server_suite_description_v220.md'))
@@ -78,6 +84,16 @@ module DaVinciDTRTestKit
         exclude_message do |message|
           message.message.match?(/\A\S+: \S+: URL value '.*' does not resolve/)
         end
+      end
+
+      allow_cors QUESTIONNAIRE_PACKAGE_PATH, NEXT_PATH, VALUE_SET_EXPAND_PATH
+
+      suite_endpoint :post, QUESTIONNAIRE_PACKAGE_PATH, MockPayer::QuestionnairePackageProxyEndpoint
+      suite_endpoint :post, NEXT_PATH, MockPayer::NextQuestionProxyEndpoint
+      suite_endpoint :post, VALUE_SET_EXPAND_PATH, MockPayer::ValueSetExpandProxyEndpoint
+
+      resume_test_route :get, RESUME_PASS_PATH do |request|
+        request.query_parameters['token']
       end
 
       input :url,
@@ -274,7 +290,8 @@ module DaVinciDTRTestKit
           id :dtr_payer_v220_error_handling
           description <<~DESCRIPTION
             This group makes requests which contain errors and verifies that the
-            server handles them in accordance with DTR IG requirements.
+            server handles them in accordance with DTR IG requirements. It is
+            independent of DTR Request Mode.
           DESCRIPTION
 
           test from: :dtr_server_v220_payer_questionnaire_not_found

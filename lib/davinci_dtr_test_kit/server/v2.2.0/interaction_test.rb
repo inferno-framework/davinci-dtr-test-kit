@@ -1,9 +1,14 @@
 require_relative 'client_simulation'
+require_relative '../../urls'
 
 module DaVinciDTRTestKit
   module DTRPayerServerV220
     class InteractionTest < Inferno::Test
       include ClientSimulation
+      include URLs
+
+      MANUAL_MODE = 'manual_mode'.freeze
+      CLIENT_MODE = 'client_mode'.freeze
 
       id :dtr_v220_payer_interaction
       title 'Request Questionnaires'
@@ -29,21 +34,48 @@ module DaVinciDTRTestKit
 
         Requests made during this test are tagged for analysis in subsequent tests.
       )
+      config options: { accepts_multiple_requests: true }
 
       input :url,
             title: 'Payer FHIR Server Base Url',
             description: 'Base FHIR URL implementing the DTR server operations.'
+      input :request_mode,
+            title: 'DTR Request Mode',
+            description: %(
+              Choose how Inferno generates requests:
+
+              **Manual mode:** Inferno generates requests from supplied JSON.
+
+              **Client mode:** Inferno proxies requests from a tester-controlled DTR client.
+            ),
+            type: 'radio',
+            default: MANUAL_MODE,
+            options: {
+              list_options: [
+                {
+                  label: 'Manual mode',
+                  value: MANUAL_MODE
+                },
+                {
+                  label: 'Client mode',
+                  value: CLIENT_MODE
+                }
+              ]
+            }
+      # We put '(required)*' in the titles, because actually required inputs are incompatible with enable_when
       input :questionnaire_package_request_parameters,
-            title: '$questionnaire-package Request Parameters',
+            title: '$questionnaire-package Request Parameters (required)*',
             description: %(
               Tester-provided list of one or more $questionnaire-package requests each
               as a Parameters resource in json format. Inferno will call the
               `Questionnaire/$questionnaire-package` operation once for each
               with the request as the body of the invocation.
             ),
-            type: 'textarea'
+            type: 'textarea',
+            optional: true,
+            enable_when: { input_name: 'request_mode', value: MANUAL_MODE }
       input :questionnaire_response_templates,
-            title: 'QuestionnaireResponse Templates for $next-question requests',
+            title: 'QuestionnaireResponse Templates for $next-question requests (required)*',
             description: %(
               Tester-provided list of one or more QuestionnaireResponse resources in json format
               that Inferno will use to populate answers for adaptive forms for the purpose
@@ -51,13 +83,49 @@ module DaVinciDTRTestKit
               If not provided, no `$next-question` requests will be performed.
             ),
             type: 'textarea',
-            optional: true
+            optional: true,
+            enable_when: { input_name: 'request_mode', value: MANUAL_MODE }
+      input :dtr_client_access_token,
+            title: 'DTR Client Access Token (required)*',
+            description: %(
+              In DTR Client Mode, bearer token used to identify requests from a tester-controlled DTR client.
+            ),
+            optional: true,
+            enable_when: { input_name: 'request_mode', value: CLIENT_MODE }
       input :backend_services_smart_auth_info
 
       run do
-        parameters = extract_fhir_parameters(questionnaire_package_request_parameters)
-        templates = extract_fhir_questionnaire_response_templates(questionnaire_response_templates)
-        parameters.each { |parameter| questionnaire_interaction(url, parameter, templates) }
+        if request_mode == CLIENT_MODE
+          skip_if dtr_client_access_token.blank?, 'A DTR Client Access Token is required for DTR Client mode.'
+
+          wait(
+            identifier: dtr_client_access_token,
+            timeout: 1200,
+            message: %(
+              **Tester-Controlled DTR Client Flow**
+
+              Send DTR requests from the client to Inferno while this test is waiting.
+              Include `Authorization: Bearer #{dtr_client_access_token}` on every request.
+
+              - Questionnaire Package: `#{questionnaire_package_url}`
+              - Next Question: `#{next_url}`
+              - ValueSet Expand: `#{fhir_base_url}/ValueSet/$expand`
+
+              Inferno will forward each request to the payer server, return the payer response to the
+              client, and use the recorded interaction in subsequent tests.
+
+              **[Click here](#{resume_pass_url}?token=#{dtr_client_access_token})** after the client workflow is
+              complete.
+            )
+          )
+        else
+          skip_if questionnaire_package_request_parameters.blank?,
+                  '$questionnaire-package Request Parameters input is required for Manual mode'
+
+          parameters = extract_fhir_parameters(questionnaire_package_request_parameters)
+          templates = extract_fhir_questionnaire_response_templates(questionnaire_response_templates)
+          parameters.each { |parameter| questionnaire_interaction(url, parameter, templates) }
+        end
       end
 
       def extract_fhir_parameters(questionnaire_package_request_parameters)

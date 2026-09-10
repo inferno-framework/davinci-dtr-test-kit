@@ -15,16 +15,18 @@ When running the tests, the tester will need to provide:
 1. The base FHIR url of the system under test.
 1. SMART Backend Services credentials to allow Inferno to perform authorization
    with the system under test.
-1. JSON request bodies for `$questionnaire-package`, and Questionnaire response
-   templates for `$next-question` if the system supports adaptive Questionnaires
-   (see see the [_Test Kit Actors and Approach_
-   section](https://github.com/inferno-framework/davinci-dtr-test-kit/wiki/Overview#test-kit-actors-and-approach)
-   for more information). Request bodies must be provided which will cause the
-   system under test to return responses which demonstrate support for all
-   behaviors required by the IG and all Must Support fields.
+1. Select the **DTR Request Mode**. For manual mode, provide JSON request bodies
+   for `$questionnaire-package` and Questionnaire response templates for
+   `$next-question`. For client mode, provide the **DTR Client Access Token**,
+   and send `$questionnaire-package`, `$next-question`, and `ValueSet/$expand`
+   requests to Inferno with `Authorization: Bearer <token>` on every request.
+   Directly provided request bodies must cause the system under test to return
+   responses which demonstrate support for all behaviors required by the IG and
+   all Must Support fields.
 1. Request bodies for `$questionnaire-package` which include invalid source data
    and an invalid QuestionnaireResponse to validate that the server handles
-   these errors correctly.
+   these errors correctly. These inputs are required regardless of DTR Request
+   Mode.
 1. The canonical url of a Questionnaire that the server supports in order to
    test the `$log-questionnaire-errors` operation.
 1. If the server's responses include references to resources on the client's

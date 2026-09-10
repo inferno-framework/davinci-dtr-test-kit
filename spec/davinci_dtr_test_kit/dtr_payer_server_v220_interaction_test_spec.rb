@@ -1,6 +1,6 @@
-require 'davinci_dtr_test_kit/server/v2.2.0/interaction_test'
+require 'davinci_dtr_test_kit/server/v2.2.0/dtr_payer_server_suite'
 
-RSpec.describe DaVinciDTRTestKit::DTRPayerServerV220::InteractionTest do # rubocop:disable RSpec/SpecFilePathFormat
+RSpec.describe DaVinciDTRTestKit::DTRPayerServerV220::InteractionTest, :request do # rubocop:disable RSpec/SpecFilePathFormat
   let(:suite_id) { 'dtr_payer_server_v220' }
   let(:canonical) { 'urn:example:adaptive-q' }
   let(:url) { 'https://payer.example.com/fhir' }
@@ -15,6 +15,7 @@ RSpec.describe DaVinciDTRTestKit::DTRPayerServerV220::InteractionTest do # ruboc
     Class.new(described_class) do
       id :dtr_v220_payer_interaction_spec
       input :backend_services_smart_auth_info, optional: true
+      input :request_mode, optional: true
 
       fhir_client { url :url }
     end
@@ -317,6 +318,52 @@ RSpec.describe DaVinciDTRTestKit::DTRPayerServerV220::InteractionTest do # ruboc
                                questionnaire_response_templates: qr_template)
       expect(result.result).to eq('pass'), result.result_message
       expect(result_messages.map(&:message).join).to include('did not result in a completed form')
+    end
+  end
+
+  # ---------------------------------------------------------------------------
+  # Client mode
+  # ---------------------------------------------------------------------------
+
+  describe 'tester-controlled client mode' do
+    it 'waits for client requests when in client mode' do
+      result = run(test_class,
+                   url:,
+                   request_mode: described_class::CLIENT_MODE,
+                   dtr_client_access_token: 'client-flow-token')
+
+      expect(result.result).to eq('wait'), result.result_message
+      expect(result.result_message).to include('Authorization: Bearer client-flow-token')
+      expect(result.result_message).to include('ValueSet Expand')
+    end
+
+    it 'passes when the resume URL with access token is hit' do
+      access_token = 'client-flow-token'
+      result = run(test_class,
+                   url:,
+                   request_mode: described_class::CLIENT_MODE,
+                   dtr_client_access_token: access_token)
+      expect(result.result).to eq('wait'), result.result_message
+
+      get("/custom/#{suite_id}/resume_pass?token=#{access_token}")
+
+      expect(results_repo.find(result.id).result).to eq('pass')
+    end
+
+    it 'skips when client mode is selected without an access token' do
+      result = run(test_class, url:, request_mode: described_class::CLIENT_MODE)
+
+      expect(result.result).to eq('skip'), result.result_message
+      expect(result.result_message).to include('DTR Client Access Token is required for DTR Client mode')
+    end
+
+    it 'skips when manual mode is selected without request parameters' do
+      result = run(test_class, url:, request_mode: described_class::MANUAL_MODE)
+
+      expect(result.result).to eq('skip'), result.result_message
+      expect(result.result_message).to include(
+        '$questionnaire-package Request Parameters input is required for Manual mode'
+      )
     end
   end
 end

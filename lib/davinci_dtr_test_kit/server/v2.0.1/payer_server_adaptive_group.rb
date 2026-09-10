@@ -59,7 +59,7 @@ module DaVinciDTRTestKit
                 :access_token,
                 :initial_adaptive_questionnaire_request,
                 :next_question_requests,
-                :smart_auth_info
+                :backend_services_smart_auth_info
 
     # receive client request
     test from: :payer_server_questionnaire_request,

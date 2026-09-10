@@ -7,12 +7,13 @@ module DaVinciDTRTestKit
       include DaVinciDTRTestKit::ValidationTest
 
       id :dtr_v220_payer_next_question_request_validation
-      title '$next-question QuestionnaireResponse request is valid'
+      title '$next-question QuestionnaireResponse requests are valid'
       description %(
         This test validates that each outgoing QuestionnaireResponse request to the
         `$next-question` operation
         conforms to the [DTR Questionnaire Response for adaptive form profile](https://hl7.org/fhir/us/davinci-dtr/2.2.0/en/StructureDefinition-dtr-questionnaireresponse-adapt.html).
-        Inferno generates these request bodies from the provided test input.
+        Inferno either generates these request bodies from the provided test input
+        or forwards requests from a tester-provided DTR Client.
       )
       simulation_verification
 
