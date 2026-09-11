@@ -21,7 +21,8 @@ fields.
 
 Because the business logic that determines which questionnaires are returned
 is outside of the DTR specification and will vary between implementers, testers
-are required to provide the requests that Inferno will make to the server. See
+are required to provide the requests that Inferno will make to the server,
+either via user input or a tester-controlled DTR client. See
 the [_Controlling Simulated DTR Client Requests_ page](https://github.com/inferno-framework/davinci-dtr-test-kit/wiki/Controlling-Simulated-Requests)
 for details on how to specify requests for the `$questionnaire-package` and
 `$next-question` operations.
@@ -33,12 +34,6 @@ HL7® FHIR® resources are validated with the Java validator using `tx.fhir.org`
 as the terminology server.
 
 ## Limitations
-
-The tests currently require user input to populate request bodies for all
-`$questionnaire-package` and `$next-question` requests that will be made in the
-suite. The tests may be updated in the future to allow Inferno to act as a proxy
-between the payer server and a DTR client so that the user does not have to
-provide these request bodies manually.
 
 Some of the server requirements in the IG are not currently tested by the payer
 suite. Below is a list of untested requirements along with reasons they are not

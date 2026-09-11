@@ -11,6 +11,7 @@ module DaVinciDTRTestKit
   PAYER_TOKEN_PATH = "#{FHIR_BASE_PATH}/mock_payer_auth/token".freeze
   QUESTIONNAIRE_PACKAGE_PATH = "#{FHIR_BASE_PATH}/Questionnaire/$questionnaire-package".freeze
   NEXT_PATH = "#{FHIR_BASE_PATH}/Questionnaire/$next-question".freeze
+  VALUE_SET_EXPAND_PATH = "#{FHIR_BASE_PATH}/ValueSet/$expand".freeze
   QUESTIONNAIRE_RESPONSE_PATH = "#{FHIR_BASE_PATH}/QuestionnaireResponse".freeze
   FHIR_RESOURCE_PATH = "#{FHIR_BASE_PATH}/:resource/:id".freeze
   FHIR_SEARCH_PATH = "#{FHIR_BASE_PATH}/:resource".freeze
@@ -50,6 +51,10 @@ module DaVinciDTRTestKit
 
     def next_url
       @next_url ||= base_url + NEXT_PATH
+    end
+
+    def value_set_expand_url
+      @value_set_expand_url ||= base_url + VALUE_SET_EXPAND_PATH
     end
 
     def questionnaire_response_url

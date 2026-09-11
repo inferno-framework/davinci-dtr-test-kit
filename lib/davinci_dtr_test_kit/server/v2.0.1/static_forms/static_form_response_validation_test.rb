@@ -31,7 +31,7 @@ module DaVinciDTRTestKit
     run do
       skip_if retrieval_method == 'Adaptive', 'Performing only adaptive flow tests - only one flow is required.'
       req = if initial_static_questionnaire_request.nil?
-              load_tagged_requests(QUESTIONNAIRE_TAG)
+              load_tagged_requests(QUESTIONNAIRE_TAG).first
             else
               fhir_operation("#{url}/Questionnaire/$questionnaire-package",
                              body: JSON.parse(initial_static_questionnaire_request),

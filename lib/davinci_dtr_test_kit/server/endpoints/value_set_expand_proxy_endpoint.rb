@@ -2,13 +2,13 @@ require_relative 'payer_proxy_endpoint'
 
 module DaVinciDTRTestKit
   module MockPayer
-    class NextQuestionProxyEndpoint < PayerProxyEndpoint
+    class ValueSetExpandProxyEndpoint < PayerProxyEndpoint
       def outgoing_request_tags
-        [NEXT_TAG]
+        [VALUE_SET_EXPAND_TAG]
       end
 
       def payer_path
-        '/Questionnaire/$next-question'
+        '/ValueSet/$expand'
       end
     end
   end

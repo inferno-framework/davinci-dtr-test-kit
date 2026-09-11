@@ -20,9 +20,10 @@ limitations of these tests.
 Inferno will simulate a DTR client and make a series of requests to the system
 under test. Because the business logic that determines Questionnaire design and
 which Questionnaires will be returned is outside of the scope of the DTR
-specification and will vary between implementers, testers are required to
-provide the requests that Inferno will make to the server. These requests must
-cause the server to return Questionnaires which demonstrate support for DTR
+specification and will vary between implementers, testers must either provide
+the requests that Inferno will make to the server or send DTR requests to
+Inferno from a tester-controlled DTR client. These requests must cause the
+server to return Questionnaires which demonstrate support for DTR
 requirements, including
 - Advertising support for DTR operations in the CapabilityStatement
 - Support for SMART backend services authorization

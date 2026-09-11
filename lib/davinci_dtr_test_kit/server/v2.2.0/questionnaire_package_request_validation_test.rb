@@ -7,11 +7,12 @@ module DaVinciDTRTestKit
       include DaVinciDTRTestKit::ValidationTest
 
       id :dtr_v220_payer_questionnaire_package_request_validation
-      title '$questionnaire-package request is valid'
+      title '$questionnaire-package requests are valid'
       description %(
         This test validates that each outgoing $questionnaire-package request body
         conforms to the [DTR Questionnaire Package Input Parameters profile](https://hl7.org/fhir/us/davinci-dtr/2.2.0/en/StructureDefinition-dtr-qpackage-input-parameters.html).
-        Inferno generates these request bodies from the provided test input.
+        Inferno either generates these request bodies from the provided test input
+        or forwards requests from a tester-provided DTR Client.
       )
       simulation_verification
 
