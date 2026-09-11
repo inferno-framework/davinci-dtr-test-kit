@@ -30,7 +30,9 @@ module DaVinciDTRTestKit
         - A list of QuestionnaireResponse templates: When an adaptive form is returned in
           a `$questionnaire-package` response, Inferno will find a matching template from
           this list based on the Questionnaire and use the answers to construct a sequence
-          of `$next-question` calls.
+          of `$next-question` calls. See
+          [here](https://github.com/inferno-framework/davinci-dtr-test-kit/wiki/Controlling-Simulated-Requests#next-question-requests)
+          for more information on how Inferno generates these `$next-question` requests.
 
         Requests made during this test are tagged for analysis in subsequent tests.
       )
