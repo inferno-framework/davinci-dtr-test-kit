@@ -188,6 +188,105 @@ RSpec.describe DaVinciDTRTestKit::DTRFullEHRV220NextQuestionRequestValidationTes
     expect(result_messages_string).to_not include('is required and enabled')
   end
 
+  describe 'when answers and nested items are not where the item types say they belong' do
+    it 'fails when a group carries answers of its own' do
+      build_next_requests(
+        request_body_for(
+          questionnaire_items: [
+            FHIR::Questionnaire::Item.new(
+              linkId: 'Group1', type: 'group',
+              item: [FHIR::Questionnaire::Item.new(linkId: 'Q1', type: 'string', required: true)]
+            )
+          ],
+          response_items: [
+            FHIR::QuestionnaireResponse::Item.new(
+              linkId: 'Group1',
+              answer: [FHIR::QuestionnaireResponse::Item::Answer.new(valueString: 'belongs to a question')],
+              item: [
+                FHIR::QuestionnaireResponse::Item.new(
+                  linkId: 'Q1',
+                  answer: [FHIR::QuestionnaireResponse::Item::Answer.new(valueString: 'an answer')]
+                )
+              ]
+            )
+          ]
+        )
+      )
+
+      expect(run(runnable).result).to eq('fail')
+      expect(result_messages_string).to include('Item `Group1` is a group, so it must not have answers')
+    end
+
+    it 'fails when a question nests its items directly rather than within its answers' do
+      build_next_requests(
+        request_body_for(
+          questionnaire_items: [
+            FHIR::Questionnaire::Item.new(
+              linkId: 'Q1', type: 'string', required: true,
+              item: [FHIR::Questionnaire::Item.new(linkId: 'Q1.1', type: 'string', required: true)]
+            )
+          ],
+          response_items: [
+            FHIR::QuestionnaireResponse::Item.new(
+              linkId: 'Q1',
+              answer: [
+                FHIR::QuestionnaireResponse::Item::Answer.new(
+                  valueString: 'an answer',
+                  item: [
+                    FHIR::QuestionnaireResponse::Item.new(
+                      linkId: 'Q1.1',
+                      answer: [FHIR::QuestionnaireResponse::Item::Answer.new(valueString: 'a nested answer')]
+                    )
+                  ]
+                )
+              ],
+              item: [
+                FHIR::QuestionnaireResponse::Item.new(
+                  linkId: 'Q1.1',
+                  answer: [FHIR::QuestionnaireResponse::Item::Answer.new(valueString: 'a misplaced answer')]
+                )
+              ]
+            )
+          ]
+        )
+      )
+
+      expect(run(runnable).result).to eq('fail')
+      expect(result_messages_string)
+        .to include('Item `Q1` is not a group, so its nested items must appear within its answers')
+    end
+
+    it 'reports each request that misplaces answers' do
+      group_with_answers = request_body_for(
+        questionnaire_items: [
+          FHIR::Questionnaire::Item.new(
+            linkId: 'Group1', type: 'group',
+            item: [FHIR::Questionnaire::Item.new(linkId: 'Q1', type: 'string', required: true)]
+          )
+        ],
+        response_items: [
+          FHIR::QuestionnaireResponse::Item.new(
+            linkId: 'Group1',
+            answer: [FHIR::QuestionnaireResponse::Item::Answer.new(valueString: 'belongs to a question')],
+            item: [
+              FHIR::QuestionnaireResponse::Item.new(
+                linkId: 'Q1',
+                answer: [FHIR::QuestionnaireResponse::Item::Answer.new(valueString: 'an answer')]
+              )
+            ]
+          )
+        ]
+      )
+      build_next_requests(initial_request_body, group_with_answers)
+
+      result = run(runnable)
+
+      expect(result.result).to eq('fail')
+      expect(result.result_message).to include('Request 2:')
+      expect(result_messages_string).to include('(Request 2) Item `Group1` is a group')
+    end
+  end
+
   it 'passes when unanswered questions are not required' do
     build_next_requests(
       request_body_for(
