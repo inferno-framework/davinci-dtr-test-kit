@@ -1,0 +1,60 @@
+{
+  "resourceType": "QuestionnaireResponse",
+  "meta": {
+    "profile": [
+      "http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/dtr-questionnaireresponse"
+    ]
+  },
+  "id": "valid-concerns",
+  "status": "completed",
+  "item": [
+    {
+      "linkId": "concern",
+      "answer": [
+        {
+          "valueString": "duplicate link ids",
+          "item": [
+            {
+              "linkId": "concern.talk",
+              "answer": [
+                {
+                  "valueString": "no"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "valueString": "other",
+          "item": [
+            {
+              "linkId": "concern.other",
+              "answer": [
+                {
+                  "valueString": "my head is going to explode"
+                }
+              ]
+            },
+            {
+              "linkId": "concern.talk",
+              "answer": [
+                {
+                  "valueString": "yes"
+                }
+              ]
+            },
+            {
+              "linkId": "concern.contact",
+              "answer": [
+                {
+                  "valueString": "call me"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "questionnaire": "urn:inferno:dtr-test-kit:enable-when-multiple-parent-example"
+}
