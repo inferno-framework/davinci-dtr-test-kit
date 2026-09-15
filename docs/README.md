@@ -15,7 +15,10 @@ to this test kit.
 ## Using this Test Kit
 
 *   **[Getting Started](https://github.com/inferno-framework/davinci-dtr-test-kit/tree/main/README.md#how-to-run)**: Instructions on how to set up and run the test kit.
-*   **[Test Kit Overview](https://github.com/inferno-framework/davinci-dtr-test-kit/wiki/Overview)**: (TODO) A detailed explanation of what the test kit does, its scope, and how its tests are structured.
+*   **[Test Kit Overview](https://github.com/inferno-framework/davinci-dtr-test-kit/wiki/Overview)**: A detailed explanation of what the test kit does, its scope, and how its tests are structured.
+*   **[Running the Client and Server Suites Against Each Other](https://github.com/inferno-framework/davinci-dtr-test-kit/wiki/Running-Suites-Against-Each-Other)**:
+     Step-by-step guide for using the client and server suites to demonstrate the test execution without a separate DTR
+    implementation, which can be useful for learning as well as debugging.
 
 ### Using the Da Vinci DTR Client Test Suites
 *   **[Client Testing Details](https://github.com/inferno-framework/davinci-dtr-test-kit/wiki/Client-Details)**: Description of the client tests.
@@ -26,12 +29,6 @@ to this test kit.
 *   **[Server Testing Details](https://github.com/inferno-framework/davinci-dtr-test-kit/wiki/Server-Details)**: Description of the server tests.
 *   **Server Testing Instructions**: Step-by-step guide for testing server systems against the [v2.2.0 version](https://github.com/inferno-framework/davinci-dtr-test-kit/wiki/Server-Instructions-v2.2.0).
 *   **[Controlling Simulated DTR Client Requests](https://github.com/inferno-framework/davinci-dtr-test-kit/wiki/Controlling-Simulated-Requests)**: Details on how testers can control the requests made by Inferno's simulated DTR client during payer server testing.
-
-## Contributing to this Test Kit
-
-*   **[Running the Client and Server Suites Against Each Other](https://github.com/inferno-framework/davinci-dtr-test-kit/wiki/Running-Suites-Against-Each-Other)**:
-     Step-by-step guide for using the client and server suites to demonstrate the test execution without a separate DTR
-    implementation, which can be useful for learning as well as debugging.
 
 ## Reference Documents
 
