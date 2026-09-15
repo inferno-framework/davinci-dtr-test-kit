@@ -2,7 +2,8 @@
 
 **Using this Test Kit**
 - [Getting Started](https://github.com/inferno-framework/davinci-dtr-test-kit/tree/main/README.md#how-to-run)
-- [Test Kit Overview](https://github.com/inferno-framework/davinci-dtr-test-kit/wiki/Overview)
+- [Test Kit Overview](docs/Overview.md)
+- [Running the Suites Against Each Other](Running-Suites-Against-Each-Other)
 
 **DTR Client Suites**
 - [Client Testing Details](Client-Details)
@@ -13,11 +14,6 @@
 - [Server Testing Details](Server-Details)
 - [Server v2.2.0 Testing Instructions](Server-Instructions-v2.2.0)
 - [Controlling Simulated Requests](Controlling-Simulated-Requests)
-
-**Simulation and Integration**
-- [Controlling Simulated Responses](Controlling-Simulated-Responses)
-- [Controlling Simulated Requests](Controlling-Simulated-Requests)
-- [Running the Suites Against Each Other](Running-Suites-Against-Each-Other)
 
 **Reference Documents & External Links**
 - DTR Requirements Spreadsheets

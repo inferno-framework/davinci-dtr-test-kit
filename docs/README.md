@@ -15,7 +15,7 @@ to this test kit.
 ## Using this Test Kit
 
 *   **[Getting Started](https://github.com/inferno-framework/davinci-dtr-test-kit/tree/main/README.md#how-to-run)**: Instructions on how to set up and run the test kit.
-*   **[Test Kit Overview](https://github.com/inferno-framework/davinci-dtr-test-kit/wiki/Overview)**: (TODO) A detailed explanation of what the test kit does, its scope, and how its tests are structured.
+*   **[Test Kit Overview](https://github.com/inferno-framework/davinci-dtr-test-kit/wiki/Overview)**: A detailed explanation of what the test kit does, its scope, and how its tests are structured.
 
 ### Using the Da Vinci DTR Client Test Suites
 *   **[Client Testing Details](https://github.com/inferno-framework/davinci-dtr-test-kit/wiki/Client-Details)**: Description of the client tests.
