@@ -64,9 +64,8 @@ module DaVinciDTRTestKit
                 }
               ]
             }
-      # We put '(required)*' in the titles, because actually required inputs are incompatible with enable_when
       input :questionnaire_package_request_parameters,
-            title: '$questionnaire-package Request Parameters (required)*',
+            title: '$questionnaire-package Request Parameters',
             description: %(
               Tester-provided list of one or more $questionnaire-package requests each
               as a Parameters resource in json format. Inferno will call the
@@ -74,10 +73,9 @@ module DaVinciDTRTestKit
               with the request as the body of the invocation.
             ),
             type: 'textarea',
-            optional: true,
             enable_when: { input_name: 'request_mode', value: MANUAL_MODE }
       input :questionnaire_response_templates,
-            title: 'QuestionnaireResponse Templates for $next-question requests (required)*',
+            title: 'QuestionnaireResponse Templates for $next-question requests',
             description: %(
               Tester-provided list of one or more QuestionnaireResponse resources in json format
               that Inferno will use to populate answers for adaptive forms for the purpose
@@ -85,21 +83,17 @@ module DaVinciDTRTestKit
               If not provided, no `$next-question` requests will be performed.
             ),
             type: 'textarea',
-            optional: true,
             enable_when: { input_name: 'request_mode', value: MANUAL_MODE }
       input :dtr_client_access_token,
-            title: 'DTR Client Access Token (required)*',
+            title: 'DTR Client Access Token',
             description: %(
               In DTR Client Mode, bearer token used to identify requests from a tester-controlled DTR client.
             ),
-            optional: true,
             enable_when: { input_name: 'request_mode', value: CLIENT_MODE }
       input :backend_services_smart_auth_info
 
       run do
         if request_mode == CLIENT_MODE
-          skip_if dtr_client_access_token.blank?, 'A DTR Client Access Token is required for DTR Client mode.'
-
           wait(
             identifier: dtr_client_access_token,
             timeout: 1200,
@@ -121,9 +115,6 @@ module DaVinciDTRTestKit
             )
           )
         else
-          skip_if questionnaire_package_request_parameters.blank?,
-                  '$questionnaire-package Request Parameters input is required for Manual mode'
-
           parameters = extract_fhir_parameters(questionnaire_package_request_parameters)
           templates = extract_fhir_questionnaire_response_templates(questionnaire_response_templates)
           parameters.each { |parameter| questionnaire_interaction(url, parameter, templates) }
