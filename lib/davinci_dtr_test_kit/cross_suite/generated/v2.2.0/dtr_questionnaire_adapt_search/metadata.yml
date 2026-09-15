@@ -20,11 +20,6 @@
     :path: extension
     :url: http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-performerType
     :modifier_extension: false
-  - :id: Questionnaire.extension:assemble-expectation
-    :slice_name: assemble-expectation
-    :path: extension
-    :url: http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-assemble-expectation
-    :modifier_extension: false
   - :id: Questionnaire.extension:questionnaireAdaptive
     :slice_name: questionnaireAdaptive
     :path: extension
@@ -45,24 +40,7 @@
     :path: extension
     :url: http://hl7.org/fhir/StructureDefinition/cqf-library
     :modifier_extension: false
-  - :id: Questionnaire.item.extension:hidden
-    :slice_name: hidden
-    :path: item.extension
-    :url: http://hl7.org/fhir/StructureDefinition/questionnaire-hidden
-    :modifier_extension: false
-  :slices:
-  - :slice_id: Questionnaire.item.answerOption.value[x]:valueCoding
-    :slice_name: valueCoding
-    :path: item.answerOption.value[x]
-    :discriminator:
-      :type: type
-      :code: Coding
-  - :slice_id: Questionnaire.item.answerOption.value[x]:valueReference
-    :slice_name: valueReference
-    :path: item.answerOption.value[x]
-    :discriminator:
-      :type: type
-      :code: Reference
+  :slices: []
   :elements:
   - :path: url
   - :path: version
@@ -70,22 +48,5 @@
   - :path: status
   - :path: subjectType
   - :path: effectivePeriod
-  - :path: item
-  - :path: item.linkId
-  - :path: item.prefix
-  - :path: item.type
-  - :path: item.required
-  - :path: item.repeats
-  - :path: item.readOnly
-  - :path: item.answerValueSet
-  - :path: item.answerOption
-  - :path: item.answerOption.value[x]
-    :types:
-    - Reference
-  - :path: item.initial
-  - :path: item.initial.value[x]
-    :types:
-    - Reference
-  - :path: item.item
   :recursive_elements:
   - item

@@ -20,11 +20,6 @@
     :path: extension
     :url: http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-performerType
     :modifier_extension: false
-  - :id: Questionnaire.extension:assemble-expectation
-    :slice_name: assemble-expectation
-    :path: extension
-    :url: http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-assemble-expectation
-    :modifier_extension: false
   - :id: Questionnaire.extension:estimatedCompletionTime
     :slice_name: estimatedCompletionTime
     :path: extension
