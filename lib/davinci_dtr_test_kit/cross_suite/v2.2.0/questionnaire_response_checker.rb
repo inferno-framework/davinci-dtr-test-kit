@@ -19,7 +19,7 @@ module DaVinciDTRTestKit
   # the item is missing is the only thing to report, whatever its descendants say. See
   # https://chat.fhir.org/#narrow/channel/197320-Da-Vinci-DTR/topic/Questionnaire.2Eitem.2Erequired.20meaning.20when.20nested/near/615899196
   class QuestionnaireResponseChecker
-    Finding = Struct.new(:type, :link_id, :path, :message)
+    Finding = Struct.new(:type, :severity, :link_id, :path, :message)
 
     # An ancestor of the position being evaluated. When the walk steps into one answer of a question,
     # the ancestor holds only that answer, so that a condition referencing the question resolves to
@@ -30,8 +30,19 @@ module DaVinciDTRTestKit
       required_unanswered: 'is required and enabled, but has no answer',
       answered_while_disabled: 'has an answer, but is not enabled based on its `enableWhen` condition(s)',
       group_with_answers: 'is a group, so it must not have answers',
-      items_outside_answer: 'is not a group, so its nested items must appear within its answers'
+      items_outside_answer: 'is not a group, so its nested items must appear within its answers',
+      enable_when_expression_not_evaluated:
+        'has an `enableWhenExpression` extension, which Inferno does not evaluate, so whether it is enabled ' \
+        'was presumed from whether it has an answer'
     }.freeze
+
+    # Findings that describe what was not checked rather than a way the QuestionnaireResponse fails to
+    # line up with the Questionnaire.
+    INFORMATIONAL_TYPES = [:enable_when_expression_not_evaluated].freeze
+
+    # http://hl7.org/fhir/uv/sdc/STU4/en/StructureDefinition-sdc-questionnaire-enableWhenExpression.html
+    ENABLE_WHEN_EXPRESSION_URL =
+      'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-enableWhenExpression'.freeze
 
     def initialize(questionnaire, questionnaire_response)
       @questionnaire = questionnaire
@@ -68,7 +79,8 @@ module DaVinciDTRTestKit
     # parent is present, so nothing within a missing item needs an answer.
     def check_missing_item(item, response_node, definition_order, ancestors:, path:)
       index = insertion_index(item, response_node, definition_order)
-      return unless item_enabled?(item, QuestionnaireResponsePosition.within(response_node, index), ancestors)
+      position = QuestionnaireResponsePosition.within(response_node, index)
+      return unless item_enabled?(item, position, ancestors, present: false, path:)
 
       add_finding(:required_unanswered, item, path) if item.required == true
     end
@@ -83,8 +95,8 @@ module DaVinciDTRTestKit
     end
 
     def check_occurrence(item, occurrence, segment, ancestors:, path:)
-      enabled = item_enabled?(item, QuestionnaireResponsePosition.at(occurrence), ancestors)
       present = present?(item, occurrence)
+      enabled = item_enabled?(item, QuestionnaireResponsePosition.at(occurrence), ancestors, present:, path:)
       check_enabled_and_required(item, enabled, present, path)
       # The questions within an item only need answers once the item itself is present, so the walk
       # goes no further when it is not.
@@ -160,12 +172,26 @@ module DaVinciDTRTestKit
     # enableWhen evaluation
     # ***********************************************************************
 
-    def item_enabled?(item, position, ancestors)
+    # An `enableWhenExpression` extension decides enablement with an expression that Inferno has no way
+    # to evaluate, so whether such an item is enabled is presumed from whether the client answered it.
+    # That presumption is what keeps the enablement rules from reporting an item whose condition was
+    # never actually checked: an answered item is presumed enabled, so it is not reported as answered
+    # while disabled, and an unanswered one is presumed disabled, so it is not reported as unanswered.
+    def item_enabled?(item, position, ancestors, present:, path:)
+      if enable_when_expression?(item)
+        add_finding(:enable_when_expression_not_evaluated, item, path)
+        return present
+      end
+
       conditions = Array(item.enableWhen)
       return true if conditions.empty?
 
       results = conditions.map { |condition| condition_met?(condition, position, ancestors) }
       item.enableBehavior == 'all' ? results.all? : results.any?
+    end
+
+    def enable_when_expression?(item)
+      Array(item.extension).any? { |extension| extension.url == ENABLE_WHEN_EXPRESSION_URL }
     end
 
     def condition_met?(condition, position, ancestors)
@@ -198,8 +224,13 @@ module DaVinciDTRTestKit
 
     def add_finding(type, item, path)
       location = path.empty? ? '' : " within `#{path.join(' > ')}`"
-      @findings << Finding.new(type, item.linkId, path.join(' > '),
-                               "Item `#{item.linkId}`#{location} #{DESCRIPTIONS[type]}.")
+      severity = INFORMATIONAL_TYPES.include?(type) ? :info : :error
+      finding = Finding.new(type, severity, item.linkId, path.join(' > '),
+                            "Item `#{item.linkId}`#{location} #{DESCRIPTIONS[type]}.")
+      # A repeating item is evaluated once per occurrence, which would otherwise repeat the same note
+      return if severity == :info && @findings.any? { |existing| existing.message == finding.message }
+
+      @findings << finding
     end
   end
 end

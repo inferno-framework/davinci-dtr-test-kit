@@ -354,6 +354,75 @@ RSpec.describe DaVinciDTRTestKit::QuestionnaireResponseChecker do
     end
   end
 
+  # Inferno has no way to evaluate these expressions, so an item that carries one is presumed to have
+  # been handled correctly and the enablement rules never report it.
+  describe 'enableWhenExpression extension' do
+    def expression_extension
+      FHIR::Extension.new(
+        url: 'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-enableWhenExpression',
+        valueExpression: FHIR::Expression.new(language: 'text/fhirpath',
+                                              expression: '%resource.item.count() > 0')
+      )
+    end
+
+    let(:questionnaire) do
+      questionnaire_with_items([question('Q1', extension: [expression_extension], required: true)])
+    end
+
+    it 'reports an informational finding rather than an error when the item is unanswered' do
+      findings = findings_for(questionnaire, response_with_items([]))
+
+      expect(summarize(findings)).to eq([[:enable_when_expression_not_evaluated, 'Q1', '']])
+      expect(findings.first.severity).to eq(:info)
+      expect(findings.first.message).to eq(
+        'Item `Q1` has an `enableWhenExpression` extension, which Inferno does not evaluate, ' \
+        'so whether it is enabled was presumed from whether it has an answer.'
+      )
+    end
+
+    it 'presumes an answered item was enabled' do
+      response = response_with_items([answered_item('Q1', 'an answer')])
+
+      expect(summarize(findings_for(questionnaire, response)))
+        .to eq([[:enable_when_expression_not_evaluated, 'Q1', '']])
+    end
+
+    it 'presumes the item was handled correctly even when its enableWhen conditions say otherwise' do
+      both = questionnaire_with_items([
+                                        question('Q0'),
+                                        question('Q1', required: true, extension: [expression_extension],
+                                                       enableWhen: [enable_when('Q0', '=', { answerString: 'no' })])
+                                      ])
+      response = response_with_items([answered_item('Q0', 'yes'), answered_item('Q1', 'an answer')])
+
+      expect(summarize(findings_for(both, response)))
+        .to eq([[:enable_when_expression_not_evaluated, 'Q1', '']])
+    end
+
+    it 'still checks the questions within an item that was answered' do
+      nested = questionnaire_with_items([
+                                          question('Q1', extension: [expression_extension],
+                                                         item: [question('Q1.1', required: true)])
+                                        ])
+      response = response_with_items([answered_item('Q1', 'an answer')])
+
+      expect(summarize(findings_for(nested, response))).to eq(
+        [
+          [:enable_when_expression_not_evaluated, 'Q1', ''],
+          [:required_unanswered, 'Q1.1', 'Q1']
+        ]
+      )
+    end
+
+    it 'notes the expression once for an item that repeats' do
+      repeating = questionnaire_with_items([question('Q1', repeats: true, extension: [expression_extension])])
+      response = response_with_items([answered_item('Q1', 'first'), answered_item('Q1', 'second')])
+
+      expect(summarize(findings_for(repeating, response)))
+        .to eq([[:enable_when_expression_not_evaluated, 'Q1', '']])
+    end
+  end
+
   describe "Karl's multiple parent example" do
     let(:questionnaire) { fixture('enable_when_multiple_parent_questionnaire.json') }
 

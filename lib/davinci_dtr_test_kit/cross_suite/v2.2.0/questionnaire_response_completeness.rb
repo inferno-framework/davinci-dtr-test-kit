@@ -9,7 +9,9 @@ module DaVinciDTRTestKit
   # Whether a question needs an answer depends on its `enableWhen` conditions: a question that is not
   # enabled is not required, and neither are the questions nested within it. `required` also only
   # applies once the item holding the question is present, so the questions within an optional group
-  # need answers only when that group is answered. See QuestionnaireResponseChecker for the details.
+  # need answers only when that group is answered. A question enabled by an `enableWhenExpression`
+  # extension is presumed to have been handled correctly, since Inferno cannot evaluate the expression.
+  # See QuestionnaireResponseChecker for the details.
   module QuestionnaireResponseCompleteness
     # Every way in which the QuestionnaireResponse does not line up with the Questionnaire, as
     # QuestionnaireResponseChecker::Finding structs.

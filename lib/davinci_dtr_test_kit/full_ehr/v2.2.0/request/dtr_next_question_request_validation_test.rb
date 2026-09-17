@@ -48,6 +48,12 @@ module DaVinciDTRTestKit
       itself optional may be left out of the QuestionnaireResponse along with the required questions within
       it. A group whose questions must be answered has to be marked `required` itself, and when such a group
       is missing it is reported in place of the questions within it.
+
+      A question may also be enabled by an
+      [enableWhenExpression](https://hl7.org/fhir/uv/sdc/STU4/en/StructureDefinition-sdc-questionnaire-enableWhenExpression.html)
+      extension. Inferno does not evaluate these expressions, so such a question is presumed to have been
+      handled correctly by the client, and an informational message records that the expression was not
+      evaluated.
     )
     verifies_requirements 'hl7.fhir.us.davinci-dtr_2.2.0@spec-146'
 
@@ -66,7 +72,7 @@ module DaVinciDTRTestKit
       return if questionnaire.blank?
 
       questionnaire_response_findings(questionnaire, questionnaire_response).each do |finding|
-        add_request_message('error', finding.message, request_index)
+        add_request_message(finding.severity.to_s, finding.message, request_index)
       end
     end
 

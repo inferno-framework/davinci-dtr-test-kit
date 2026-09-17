@@ -188,6 +188,65 @@ RSpec.describe DaVinciDTRTestKit::DTRFullEHRV220NextQuestionRequestValidationTes
     expect(result_messages_string).to_not include('is required and enabled')
   end
 
+  # Inferno cannot evaluate these expressions, so the test says so rather than guessing.
+  describe 'when a question is enabled by an enableWhenExpression extension' do
+    def expression_question(link_id, attributes = {})
+      FHIR::Questionnaire::Item.new(
+        {
+          linkId: link_id, type: 'string',
+          extension: [
+            FHIR::Extension.new(
+              url: 'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-enableWhenExpression',
+              valueExpression: FHIR::Expression.new(language: 'text/fhirpath', expression: 'true')
+            )
+          ]
+        }.merge(attributes)
+      )
+    end
+
+    it 'passes with an informational message when the question was not answered' do
+      build_next_requests(
+        request_body_for(questionnaire_items: [expression_question('Q1', required: true)], response_items: [])
+      )
+
+      expect(run(runnable).result).to eq('pass')
+      expect(result_messages_string).to include(
+        'Item `Q1` has an `enableWhenExpression` extension, which Inferno does not evaluate'
+      )
+    end
+
+    it 'passes with an informational message when the question was answered' do
+      build_next_requests(
+        request_body_for(
+          questionnaire_items: [expression_question('Q1')],
+          response_items: [
+            FHIR::QuestionnaireResponse::Item.new(
+              linkId: 'Q1',
+              answer: [FHIR::QuestionnaireResponse::Item::Answer.new(valueString: 'an answer')]
+            )
+          ]
+        )
+      )
+
+      expect(run(runnable).result).to eq('pass')
+      expect(result_messages_string).to include('which Inferno does not evaluate')
+    end
+
+    it 'records the message as info rather than as an error' do
+      build_next_requests(
+        request_body_for(questionnaire_items: [expression_question('Q1', required: true)], response_items: [])
+      )
+
+      run(runnable)
+      messages = results_repo
+        .current_results_for_test_session_and_runnables(test_session.id, [runnable])
+        .first.messages
+      note = messages.find { |message| message.message.include?('enableWhenExpression') }
+
+      expect(note.type).to eq('info')
+    end
+  end
+
   describe 'when answers and nested items are not where the item types say they belong' do
     it 'fails when a group carries answers of its own' do
       build_next_requests(
