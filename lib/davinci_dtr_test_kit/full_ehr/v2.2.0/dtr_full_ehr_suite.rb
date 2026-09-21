@@ -3,6 +3,7 @@ require 'smart_app_launch_test_kit'
 require_relative '../v2.0.1/dtr_payer_registration_group'
 require_relative '../../cross_suite/cors'
 require_relative '../endpoints/mock_udap_smart_server/token_endpoint'
+require_relative '../endpoints/fhir_metadata_helper'
 require_relative 'full_ehr_questionnaire_package_endpoint'
 require_relative 'full_ehr_next_question_endpoint'
 require_relative '../dtr_full_ehr_options'
@@ -85,6 +86,7 @@ module DaVinciDTRTestKit
 
     allow_cors QUESTIONNAIRE_PACKAGE_PATH, NEXT_PATH
 
+    route(:get, METADATA_PATH, DaVinciDTRTestKit::MockPayer::FHIRMetadataHelper.get_metadata('v220'))
     route(:get, UDAPSecurityTestKit::UDAP_DISCOVERY_PATH, lambda { |_env|
       UDAPSecurityTestKit::MockUDAPServer.udap_server_metadata(id)
     })
