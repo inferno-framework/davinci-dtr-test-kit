@@ -354,6 +354,53 @@ RSpec.describe DaVinciDTRTestKit::QuestionnaireResponseChecker do
     end
   end
 
+  describe 'what counts as a duplicate finding' do
+    let(:gate) { [enable_when('GATE', '=', { answerString: 'no' })] }
+
+    it 'reports a disabled question once however many answers it has' do
+      questionnaire = questionnaire_with_items([question('GATE'), question('Q1', enableWhen: gate)])
+      response = response_with_items([answered_item('GATE', 'yes'), answered_item('Q1', 'a', 'b', 'c')])
+
+      expect(summarize(findings_for(questionnaire, response))).to eq([[:answered_while_disabled, 'Q1', '']])
+    end
+
+    it 'names the repetition so two occurrences of one question are reported separately' do
+      questionnaire = questionnaire_with_items([question('GATE'),
+                                                question('Q1', repeats: true, enableWhen: gate)])
+      response = response_with_items([answered_item('GATE', 'yes'), answered_item('Q1', 'a'),
+                                      answered_item('Q1', 'b')])
+
+      expect(summarize(findings_for(questionnaire, response))).to eq(
+        [
+          [:answered_while_disabled, 'Q1[1]', ''],
+          [:answered_while_disabled, 'Q1[2]', '']
+        ]
+      )
+    end
+
+    it 'reports the same question at different paths separately' do
+      questionnaire = questionnaire_with_items([
+                                                 question('GRP', type: 'group', repeats: true,
+                                                                 item: [question('Q1', required: true)])
+                                               ])
+      response = response_with_items([
+                                       FHIR::QuestionnaireResponse::Item.new(
+                                         linkId: 'GRP', item: [answered_item('X', 'a')]
+                                       ),
+                                       FHIR::QuestionnaireResponse::Item.new(
+                                         linkId: 'GRP', item: [answered_item('Y', 'b')]
+                                       )
+                                     ])
+
+      expect(summarize(findings_for(questionnaire, response))).to eq(
+        [
+          [:required_unanswered, 'Q1', 'GRP[1]'],
+          [:required_unanswered, 'Q1', 'GRP[2]']
+        ]
+      )
+    end
+  end
+
   # Inferno has no way to evaluate these expressions, so an item that carries one is presumed to have
   # been handled correctly and the enablement rules never report it.
   describe 'enableWhenExpression extension' do

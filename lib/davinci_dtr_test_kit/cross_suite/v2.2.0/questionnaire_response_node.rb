@@ -129,6 +129,18 @@ module DaVinciDTRTestKit
     # descendants in reverse order, then the siblings preceding the parent, and so on outwards.
     # Ancestors are not included because they are searched separately.
     def preceding_nodes
+      @preceding_nodes ||= build_preceding_nodes
+    end
+
+    # The nodes that come after this position, nearest first: each following sibling followed by its
+    # descendants in document order, then the siblings following the parent, and so on outwards.
+    def following_nodes
+      @following_nodes ||= build_following_nodes
+    end
+
+    private
+
+    def build_preceding_nodes
       nodes = []
       node = parent
       index = before_index
@@ -142,9 +154,7 @@ module DaVinciDTRTestKit
       nodes
     end
 
-    # The nodes that come after this position, nearest first: each following sibling followed by its
-    # descendants in document order, then the siblings following the parent, and so on outwards.
-    def following_nodes
+    def build_following_nodes
       nodes = []
       node = parent
       index = after_index

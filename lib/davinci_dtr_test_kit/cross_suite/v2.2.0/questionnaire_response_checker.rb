@@ -63,15 +63,26 @@ module DaVinciDTRTestKit
     # Checks each item defined at this level of the questionnaire against the matching items at this
     # level of the response.
     def check_level(item_definitions, response_node, ancestors:, path:)
-      definition_order = item_definitions.each_with_index.to_h { |item, index| [item.linkId, index] }
       item_definitions.each do |item|
         occurrences = response_node.item_children_with_link_id(item.linkId)
+        # The note belongs to the item as the questionnaire defines it, so it is recorded here, once,
+        # rather than once per occurrence or per answer.
+        add_finding(:enable_when_expression_not_evaluated, item.linkId, path) if enable_when_expression?(item)
+
         if occurrences.empty?
-          check_missing_item(item, response_node, definition_order, ancestors:, path:)
+          check_missing_item(item, response_node, definition_order(item_definitions), ancestors:, path:)
         else
           check_occurrences(item, occurrences, ancestors:, path:)
         end
       end
+    end
+
+    # The same list of definitions is walked once per answer of a repeating question and once per
+    # repetition of a group, so the index of link ids is built once per list rather than per walk.
+    def definition_order(item_definitions)
+      @definition_orders ||= {}.compare_by_identity
+      @definition_orders[item_definitions] ||=
+        item_definitions.each_with_index.to_h { |item, index| [item.linkId, index] }
     end
 
     # An item with no matching response item is evaluated from the position it would occupy had it been
@@ -80,9 +91,9 @@ module DaVinciDTRTestKit
     def check_missing_item(item, response_node, definition_order, ancestors:, path:)
       index = insertion_index(item, response_node, definition_order)
       position = QuestionnaireResponsePosition.within(response_node, index)
-      return unless item_enabled?(item, position, ancestors, present: false, path:)
+      return unless item_enabled?(item, position, ancestors, present: false)
 
-      add_finding(:required_unanswered, item, path) if item.required == true
+      add_finding(:required_unanswered, item.linkId, path) if item.required == true
     end
 
     def check_occurrences(item, occurrences, ancestors:, path:)
@@ -96,8 +107,9 @@ module DaVinciDTRTestKit
 
     def check_occurrence(item, occurrence, segment, ancestors:, path:)
       present = present?(item, occurrence)
-      enabled = item_enabled?(item, QuestionnaireResponsePosition.at(occurrence), ancestors, present:, path:)
-      check_enabled_and_required(item, enabled, present, path)
+      enabled = item_enabled?(item, QuestionnaireResponsePosition.at(occurrence), ancestors, present:)
+      # `segment` carries the repetition, so each occurrence of a repeating item is named separately.
+      check_enabled_and_required(item, enabled, present, segment, path)
       # The questions within an item only need answers once the item itself is present, so the walk
       # goes no further when it is not.
       return unless enabled && present
@@ -109,17 +121,17 @@ module DaVinciDTRTestKit
       end
     end
 
-    def check_enabled_and_required(item, enabled, present, path)
+    def check_enabled_and_required(item, enabled, present, label, path)
       if enabled
-        add_finding(:required_unanswered, item, path) if item.required == true && !present
+        add_finding(:required_unanswered, label, path) if item.required == true && !present
       elsif present
-        add_finding(:answered_while_disabled, item, path)
+        add_finding(:answered_while_disabled, label, path)
       end
     end
 
     # A group is answered through its nested items, so the walk continues into the response item.
     def check_group_children(item, occurrence, segment, ancestors:, path:)
-      add_finding(:group_with_answers, item, path) if occurrence.answers.any?
+      add_finding(:group_with_answers, segment, path) if occurrence.answers.any?
 
       check_level(Array(item.item), occurrence,
                   ancestors: ancestors + [Ancestor.new(item.linkId, occurrence.answer_values)],
@@ -129,7 +141,7 @@ module DaVinciDTRTestKit
     # A question's nested items belong to its answers, so the walk continues into each answer
     # separately, with the ancestor narrowed to that one answer.
     def check_question_children(item, occurrence, segment, ancestors:, path:)
-      add_finding(:items_outside_answer, item, path) if occurrence.item_children.any?
+      add_finding(:items_outside_answer, segment, path) if occurrence.item_children.any?
 
       answer_nodes = occurrence.answer_children
       answer_nodes.each_with_index do |answer_node, index|
@@ -177,11 +189,8 @@ module DaVinciDTRTestKit
     # That presumption is what keeps the enablement rules from reporting an item whose condition was
     # never actually checked: an answered item is presumed enabled, so it is not reported as answered
     # while disabled, and an unanswered one is presumed disabled, so it is not reported as unanswered.
-    def item_enabled?(item, position, ancestors, present:, path:)
-      if enable_when_expression?(item)
-        add_finding(:enable_when_expression_not_evaluated, item, path)
-        return present
-      end
+    def item_enabled?(item, position, ancestors, present:)
+      return present if enable_when_expression?(item)
 
       conditions = Array(item.enableWhen)
       return true if conditions.empty?
@@ -222,15 +231,25 @@ module DaVinciDTRTestKit
     # Findings
     # ***********************************************************************
 
-    def add_finding(type, item, path)
+    # `label` names the item as it appears at this point in the response, which for a repeating item
+    # carries the repetition, so that two occurrences of one item are reported separately. A finding
+    # is a duplicate only when the same thing is reported about the same item in the same place, which
+    # the walk does not do, so this is a guard against repeating a message rather than a filter.
+    def add_finding(type, label, path)
       location = path.empty? ? '' : " within `#{path.join(' > ')}`"
-      severity = INFORMATIONAL_TYPES.include?(type) ? :info : :error
-      finding = Finding.new(type, severity, item.linkId, path.join(' > '),
-                            "Item `#{item.linkId}`#{location} #{DESCRIPTIONS[type]}.")
-      # A repeating item is evaluated once per occurrence, which would otherwise repeat the same note
-      return if severity == :info && @findings.any? { |existing| existing.message == finding.message }
+      finding = Finding.new(type, severity_for(type), label, path.join(' > '),
+                            "Item `#{label}`#{location} #{DESCRIPTIONS[type]}.")
+      return if @findings.any? { |existing| duplicate?(existing, finding) }
 
       @findings << finding
+    end
+
+    def duplicate?(existing, finding)
+      existing.type == finding.type && existing.link_id == finding.link_id && existing.path == finding.path
+    end
+
+    def severity_for(type)
+      INFORMATIONAL_TYPES.include?(type) ? :info : :error
     end
   end
 end
