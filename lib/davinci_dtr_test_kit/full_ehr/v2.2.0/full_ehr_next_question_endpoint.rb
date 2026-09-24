@@ -317,6 +317,11 @@ module DaVinciDTRTestKit
       # ***********************************************************************
 
       def update_response
+        # The caller checks both of these before reaching here, but reading them as resources when
+        # they may be an OperationOutcome is the kind of thing that breaks quietly later.
+        return request_questionnaire if request_questionnaire.is_a?(FHIR::OperationOutcome)
+        return request_questionnaire_response if request_questionnaire_response.is_a?(FHIR::OperationOutcome)
+
         @new_questions_added = false
         add_questions_from_questionnaire_template
         if !@new_questions_added &&

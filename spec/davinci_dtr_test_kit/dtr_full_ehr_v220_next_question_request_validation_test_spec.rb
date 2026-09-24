@@ -188,6 +188,76 @@ RSpec.describe DaVinciDTRTestKit::DTRFullEHRV220NextQuestionRequestValidationTes
     expect(result_messages_string).to_not include('is required and enabled')
   end
 
+  # A client is expected to send back the questions it was given, so the Questionnaire in each request
+  # is compared against the one Inferno returned in the previous response.
+  describe 'when the client alters the Questionnaire it was given' do
+    def contained(items)
+      FHIR::Questionnaire.new(
+        id: 'DinnerOrderAdaptive', url: 'urn:inferno:dtr-test-kit:dinner-order-adaptive',
+        status: 'draft', item: items
+      )
+    end
+
+    def response_body_returning(items)
+      FHIR::QuestionnaireResponse.new(status: 'in-progress', questionnaire: '#DinnerOrderAdaptive',
+                                      contained: [contained(items)]).to_json
+    end
+
+    # The first request carries what the payer returned; the second carries what the client sent back.
+    def build_pair(returned_items, sent_items)
+      result = repo_create(:result, test_session_id: test_session.id)
+      repo_create(:request, result_id: result.id, url: next_url,
+                            request_body: request_body_for(questionnaire_items: [], response_items: []),
+                            response_body: response_body_returning(returned_items),
+                            test_session_id: test_session.id, tags: request_tags)
+      repo_create(:request, result_id: result.id, url: next_url,
+                            request_body: request_body_for(questionnaire_items: sent_items, response_items: []),
+                            test_session_id: test_session.id, tags: request_tags)
+    end
+
+    it 'passes when the client sends back the questions it was given' do
+      build_pair([FHIR::Questionnaire::Item.new(linkId: 'Q1', type: 'string')],
+                 [FHIR::Questionnaire::Item.new(linkId: 'Q1', type: 'string')])
+
+      expect(run(runnable).result).to eq('pass')
+    end
+
+    it 'fails when the client drops a required question' do
+      build_pair([FHIR::Questionnaire::Item.new(linkId: 'Q1', type: 'string', required: true)], [])
+
+      expect(run(runnable).result).to eq('fail')
+      expect(result_messages_string).to include(
+        'Item `Q1` was returned by the payer but is missing from the Questionnaire in this request'
+      )
+    end
+
+    it 'fails when the client turns a required question off with a condition' do
+      returned = [FHIR::Questionnaire::Item.new(linkId: 'Q0', type: 'string'),
+                  FHIR::Questionnaire::Item.new(linkId: 'Q1', type: 'string', required: true)]
+      sent = [FHIR::Questionnaire::Item.new(linkId: 'Q0', type: 'string'),
+              FHIR::Questionnaire::Item.new(
+                linkId: 'Q1', type: 'string', required: true,
+                enableWhen: [FHIR::Questionnaire::Item::EnableWhen.new(question: 'Q0', operator: '=',
+                                                                       answerString: 'never')]
+              )]
+      build_pair(returned, sent)
+
+      expect(run(runnable).result).to eq('fail')
+      expect(result_messages_string).to include('(Request 2) Item `Q1` differs from the question the payer returned')
+    end
+
+    it 'has nothing to compare the first request against' do
+      build_next_requests(
+        request_body_for(
+          questionnaire_items: [FHIR::Questionnaire::Item.new(linkId: 'Q1', type: 'string')],
+          response_items: []
+        )
+      )
+
+      expect(run(runnable).result).to eq('pass')
+    end
+  end
+
   # Inferno cannot evaluate these expressions, so the test says so rather than guessing.
   describe 'when a question is enabled by an enableWhenExpression extension' do
     def expression_question(link_id, attributes = {})

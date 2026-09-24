@@ -51,15 +51,20 @@ module DaVinciDTRTestKit
     end
 
     def item_children
-      children.select(&:item?)
+      @item_children ||= children.select(&:item?)
     end
 
     def answer_children
-      children.select(&:answer?)
+      @answer_children ||= children.select(&:answer?)
+    end
+
+    # The walk asks for one link id after another at the same level, so the children are indexed once.
+    def item_children_by_link_id
+      @item_children_by_link_id ||= item_children.group_by(&:link_id)
     end
 
     def item_children_with_link_id(target_link_id)
-      item_children.select { |child| child.link_id == target_link_id }
+      item_children_by_link_id[target_link_id] || []
     end
 
     # True when any descendant of this node is an answer with a value

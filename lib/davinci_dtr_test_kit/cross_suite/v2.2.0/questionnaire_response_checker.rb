@@ -89,11 +89,15 @@ module DaVinciDTRTestKit
     # answered. Reporting that the item itself is missing is enough: `required` only applies once the
     # parent is present, so nothing within a missing item needs an answer.
     def check_missing_item(item, response_node, definition_order, ancestors:, path:)
+      # Only a required item has anything to report when it is missing, so the enablement of the rest
+      # is never worked out.
+      return unless item.required == true
+
       index = insertion_index(item, response_node, definition_order)
       position = QuestionnaireResponsePosition.within(response_node, index)
       return unless item_enabled?(item, position, ancestors, present: false)
 
-      add_finding(:required_unanswered, item.linkId, path) if item.required == true
+      add_finding(:required_unanswered, item.linkId, path)
     end
 
     def check_occurrences(item, occurrences, ancestors:, path:)

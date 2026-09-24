@@ -1,6 +1,7 @@
 require_relative '../../../urls'
 require_relative '../../../cross_suite/v2.2.0/multi_request_message_helper'
 require_relative '../../../cross_suite/v2.2.0/questionnaire_response_completeness'
+require_relative '../../../cross_suite/v2.2.0/questionnaire_question_comparison'
 require_relative '../../short_circuit_interaction_verification'
 require_relative '../../../cross_suite/v2.2.0/questionnaire_helper'
 
@@ -54,6 +55,11 @@ module DaVinciDTRTestKit
       extension. Inferno does not evaluate these expressions, so such a question is presumed to have been
       handled correctly by the client, and an informational message records that the expression was not
       evaluated.
+
+      Finally, the Questionnaire contained in each request is compared against the one Inferno returned in
+      the previous `$next-question` response. A client is expected to send back the questions it was given,
+      adding only answers, so a question that has been removed, added or altered is reported. Removing a
+      question, or attaching a condition that turns it off, would otherwise be a way to avoid answering it.
     )
     verifies_requirements 'hl7.fhir.us.davinci-dtr_2.2.0@spec-146'
 
@@ -62,6 +68,28 @@ module DaVinciDTRTestKit
       tags << config.options[:dtr_workflow_tag] if config.options[:dtr_workflow_tag].present?
 
       tags
+    end
+
+    # The Questionnaire the payer returned in the previous response, which the client is expected to
+    # send back. The first request has nothing before it to compare against.
+    def previously_returned_questionnaire(requests, request_index)
+      return nil if request_index.zero?
+
+      previous_body = requests[request_index - 1].response_body
+      return nil if previous_body.blank?
+
+      returned_response = questionnaire_response_from_next_question_response(FHIR.from_contents(previous_body))
+      contained_questionnaire_from_questionnaire_response(returned_response)
+    rescue JSON::ParserError
+      nil # a malformed response is reported by the response validation test
+    end
+
+    def check_questionnaire_unaltered(questionnaire, returned_questionnaire, request_index)
+      return if returned_questionnaire.blank?
+
+      QuestionnaireQuestionComparison.new(returned_questionnaire, questionnaire).findings.each do |finding|
+        add_request_message(finding.severity.to_s, finding.message, request_index)
+      end
     end
 
     def check_questionnaire_response_readiness(questionnaire_response, request_index)
@@ -121,7 +149,11 @@ module DaVinciDTRTestKit
         end
 
         questionnaire_response = questionnaire_response_from_next_question_request(input_resource)
-        check_questionnaire_response_readiness(questionnaire_response, request_index) if questionnaire_response.present?
+        next if questionnaire_response.blank?
+
+        check_questionnaire_response_readiness(questionnaire_response, request_index)
+        check_questionnaire_unaltered(contained_questionnaire_from_questionnaire_response(questionnaire_response),
+                                      previously_returned_questionnaire(requests, request_index), request_index)
       end
 
       assert_no_error_messages(
