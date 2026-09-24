@@ -1,0 +1,82 @@
+{
+  "resourceType": "QuestionnaireResponse",
+  "meta": {
+    "profile": [
+      "http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/dtr-questionnaireresponse"
+    ]
+  },
+  "id": "invalid-concerns",
+  "status": "completed",
+  "item": [
+    {
+      "linkId": "concern",
+      "answer": [
+        {
+          "valueString": "duplicate link ids",
+          "item": [
+            {
+              "linkId": "concern.other",
+              "extension": [
+                {
+                  "url": "urn:inferno:comment",
+                  "valueString": "expected error: shouldn't be enabled"
+                }
+              ],
+              "answer": [
+                {
+                  "valueString": "my head is going to explode"
+                }
+              ]
+            },
+            {
+              "linkId": "concern.talk",
+              "answer": [
+                {
+                  "valueString": "no"
+                }
+              ]
+            },
+            {
+              "linkId": "concern.contact",
+              "extension": [
+                {
+                  "url": "urn:inferno:comment",
+                  "valueString": "expected error: shouldn't be enabled"
+                }
+              ],
+              "answer": [
+                {
+                  "valueString": "call me"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "valueString": "other",
+          "item": [
+            {
+              "linkId": "concern.talk",
+              "extension": [
+                {
+                  "url": "urn:inferno:comment",
+                  "valueString": "expected error: concern.other is enabled and required"
+                },
+                {
+                  "url": "urn:inferno:comment",
+                  "valueString": "expected error: concern.contact is enabled and required"
+                }
+              ],
+              "answer": [
+                {
+                  "valueString": "yes"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "questionnaire": "urn:inferno:dtr-test-kit:enable-when-multiple-parent-example"
+}

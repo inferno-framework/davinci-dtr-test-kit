@@ -1,0 +1,259 @@
+require_relative 'enable_when_comparison'
+require_relative 'questionnaire_response_node'
+
+module DaVinciDTRTestKit
+  # Walks a Questionnaire and a QuestionnaireResponse together, reporting the places where the
+  # response does not line up with the questionnaire: required questions that are enabled but have no
+  # answer, questions that have been answered even though they are not enabled, and answers or nested
+  # items that are not where the questionnaire's item types say they belong.
+  #
+  # The two resources are walked in parallel because whether a question is enabled, and whether it is
+  # required, depends on where in the response the question is, or would be, answered. A repeating
+  # question with nested questions is the case that makes this necessary: within one answer of the
+  # repeating question, a condition referencing that question resolves to that single answer rather
+  # than to all of them.
+  #
+  # `required` behaves like cardinality and only comes into play once the parent is present, so an
+  # optional group may hold required questions and those questions only need answers when the group
+  # itself is answered. The walk therefore stops at an item that is missing or holds no answer: that
+  # the item is missing is the only thing to report, whatever its descendants say. See
+  # https://chat.fhir.org/#narrow/channel/197320-Da-Vinci-DTR/topic/Questionnaire.2Eitem.2Erequired.20meaning.20when.20nested/near/615899196
+  class QuestionnaireResponseChecker
+    Finding = Struct.new(:type, :severity, :link_id, :path, :message)
+
+    # An ancestor of the position being evaluated. When the walk steps into one answer of a question,
+    # the ancestor holds only that answer, so that a condition referencing the question resolves to
+    # the answer the walk is inside of.
+    Ancestor = Struct.new(:link_id, :answer_values)
+
+    DESCRIPTIONS = {
+      required_unanswered: 'is required and enabled, but has no answer',
+      answered_while_disabled: 'has an answer, but is not enabled based on its `enableWhen` condition(s)',
+      group_with_answers: 'is a group, so it must not have answers',
+      items_outside_answer: 'is not a group, so its nested items must appear within its answers',
+      enable_when_expression_not_evaluated:
+        'has an `enableWhenExpression` extension, which Inferno does not evaluate, so whether it is enabled ' \
+        'was presumed from whether it has an answer'
+    }.freeze
+
+    # Findings that describe what was not checked rather than a way the QuestionnaireResponse fails to
+    # line up with the Questionnaire.
+    INFORMATIONAL_TYPES = [:enable_when_expression_not_evaluated].freeze
+
+    # http://hl7.org/fhir/uv/sdc/STU4/en/StructureDefinition-sdc-questionnaire-enableWhenExpression.html
+    ENABLE_WHEN_EXPRESSION_URL =
+      'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-enableWhenExpression'.freeze
+
+    def initialize(questionnaire, questionnaire_response)
+      @questionnaire = questionnaire
+      @questionnaire_response = questionnaire_response
+    end
+
+    def findings
+      return @findings if @findings
+
+      @findings = []
+      check_level(Array(@questionnaire.item), QuestionnaireResponseNode.root(@questionnaire_response),
+                  ancestors: [], path: [])
+      @findings
+    end
+
+    private
+
+    # Checks each item defined at this level of the questionnaire against the matching items at this
+    # level of the response.
+    def check_level(item_definitions, response_node, ancestors:, path:)
+      item_definitions.each do |item|
+        occurrences = response_node.item_children_with_link_id(item.linkId)
+        # The note belongs to the item as the questionnaire defines it, so it is recorded here, once,
+        # rather than once per occurrence or per answer.
+        add_finding(:enable_when_expression_not_evaluated, item.linkId, path) if enable_when_expression?(item)
+
+        if occurrences.empty?
+          check_missing_item(item, response_node, definition_order(item_definitions), ancestors:, path:)
+        else
+          check_occurrences(item, occurrences, ancestors:, path:)
+        end
+      end
+    end
+
+    # The same list of definitions is walked once per answer of a repeating question and once per
+    # repetition of a group, so the index of link ids is built once per list rather than per walk.
+    def definition_order(item_definitions)
+      @definition_orders ||= {}.compare_by_identity
+      @definition_orders[item_definitions] ||=
+        item_definitions.each_with_index.to_h { |item, index| [item.linkId, index] }
+    end
+
+    # An item with no matching response item is evaluated from the position it would occupy had it been
+    # answered. Reporting that the item itself is missing is enough: `required` only applies once the
+    # parent is present, so nothing within a missing item needs an answer.
+    def check_missing_item(item, response_node, definition_order, ancestors:, path:)
+      # Only a required item has anything to report when it is missing, so the enablement of the rest
+      # is never worked out.
+      return unless item.required == true
+
+      index = insertion_index(item, response_node, definition_order)
+      position = QuestionnaireResponsePosition.within(response_node, index)
+      return unless item_enabled?(item, position, ancestors, present: false)
+
+      add_finding(:required_unanswered, item.linkId, path)
+    end
+
+    def check_occurrences(item, occurrences, ancestors:, path:)
+      occurrences.each_with_index do |occurrence, index|
+        # A repeating group appears as several response items with the same linkId, and each of them
+        # is evaluated on its own because they occupy different positions.
+        segment = occurrences.length > 1 ? "#{item.linkId}[#{index + 1}]" : item.linkId
+        check_occurrence(item, occurrence, segment, ancestors:, path:)
+      end
+    end
+
+    def check_occurrence(item, occurrence, segment, ancestors:, path:)
+      present = present?(item, occurrence)
+      enabled = item_enabled?(item, QuestionnaireResponsePosition.at(occurrence), ancestors, present:)
+      # `segment` carries the repetition, so each occurrence of a repeating item is named separately.
+      check_enabled_and_required(item, enabled, present, segment, path)
+      # The questions within an item only need answers once the item itself is present, so the walk
+      # goes no further when it is not.
+      return unless enabled && present
+
+      if group?(item)
+        check_group_children(item, occurrence, segment, ancestors:, path:)
+      else
+        check_question_children(item, occurrence, segment, ancestors:, path:)
+      end
+    end
+
+    def check_enabled_and_required(item, enabled, present, label, path)
+      if enabled
+        add_finding(:required_unanswered, label, path) if item.required == true && !present
+      elsif present
+        add_finding(:answered_while_disabled, label, path)
+      end
+    end
+
+    # A group is answered through its nested items, so the walk continues into the response item.
+    def check_group_children(item, occurrence, segment, ancestors:, path:)
+      add_finding(:group_with_answers, segment, path) if occurrence.answers.any?
+
+      check_level(Array(item.item), occurrence,
+                  ancestors: ancestors + [Ancestor.new(item.linkId, occurrence.answer_values)],
+                  path: path + [segment])
+    end
+
+    # A question's nested items belong to its answers, so the walk continues into each answer
+    # separately, with the ancestor narrowed to that one answer.
+    def check_question_children(item, occurrence, segment, ancestors:, path:)
+      add_finding(:items_outside_answer, segment, path) if occurrence.item_children.any?
+
+      answer_nodes = occurrence.answer_children
+      answer_nodes.each_with_index do |answer_node, index|
+        answer_segment = answer_nodes.length > 1 ? "#{segment}[answer #{index + 1}]" : segment
+        check_level(Array(item.item), answer_node,
+                    ancestors: ancestors + [answer_ancestor(item, answer_node)],
+                    path: path + [answer_segment])
+      end
+    end
+
+    def answer_ancestor(item, answer_node)
+      Ancestor.new(item.linkId, [answer_node.payload.value].compact)
+    end
+
+    # A group is present when one of its descendants holds an answer, a question when it has an answer
+    # of its own. `answer_values` has already had answers without a value removed, and an answer value
+    # of `false` must count, so presence is emptiness of that list rather than its truthiness.
+    def present?(item, occurrence)
+      group?(item) ? occurrence.answered_descendant? : !occurrence.answer_values.empty?
+    end
+
+    def group?(item)
+      item.type == 'group'
+    end
+
+    # The index a missing item would occupy among the response node's children, based on the order in
+    # which the questions are defined in the questionnaire.
+    def insertion_index(item, response_node, definition_order)
+      target_index = definition_order[item.linkId]
+      following_child = response_node.children.index do |child|
+        next false unless child.item?
+
+        child_index = definition_order[child.link_id]
+        !child_index.nil? && child_index > target_index
+      end
+      following_child || response_node.children.length
+    end
+
+    # ***********************************************************************
+    # enableWhen evaluation
+    # ***********************************************************************
+
+    # An `enableWhenExpression` extension decides enablement with an expression that Inferno has no way
+    # to evaluate, so whether such an item is enabled is presumed from whether the client answered it.
+    # That presumption is what keeps the enablement rules from reporting an item whose condition was
+    # never actually checked: an answered item is presumed enabled, so it is not reported as answered
+    # while disabled, and an unanswered one is presumed disabled, so it is not reported as unanswered.
+    def item_enabled?(item, position, ancestors, present:)
+      return present if enable_when_expression?(item)
+
+      conditions = Array(item.enableWhen)
+      return true if conditions.empty?
+
+      results = conditions.map { |condition| condition_met?(condition, position, ancestors) }
+      item.enableBehavior == 'all' ? results.all? : results.any?
+    end
+
+    def enable_when_expression?(item)
+      Array(item.extension).any? { |extension| extension.url == ENABLE_WHEN_EXPRESSION_URL }
+    end
+
+    def condition_met?(condition, position, ancestors)
+      answer_values = resolve_answer_values(condition.question, position, ancestors)
+      return !answer_values.empty? == (condition.answer == true) if condition.operator == 'exists'
+
+      answer_values.any? do |answer_value|
+        EnableWhenComparison.met?(condition.operator, answer_value, condition.answer)
+      end
+    end
+
+    # Resolves the answers of the question a condition references, using the first item found while
+    # searching the ancestors of the position, then the nodes preceding it, then the nodes following
+    # it.
+    def resolve_answer_values(link_id, position, ancestors)
+      ancestor = ancestors.reverse.find { |candidate| candidate.link_id == link_id }
+      return ancestor.answer_values if ancestor
+
+      match = find_item_node(position.preceding_nodes, link_id) || find_item_node(position.following_nodes, link_id)
+      match ? match.answer_values : []
+    end
+
+    def find_item_node(nodes, link_id)
+      nodes.find { |node| node.item? && node.link_id == link_id }
+    end
+
+    # ***********************************************************************
+    # Findings
+    # ***********************************************************************
+
+    # `label` names the item as it appears at this point in the response, which for a repeating item
+    # carries the repetition, so that two occurrences of one item are reported separately. A finding
+    # is a duplicate only when the same thing is reported about the same item in the same place, which
+    # the walk does not do, so this is a guard against repeating a message rather than a filter.
+    def add_finding(type, label, path)
+      location = path.empty? ? '' : " within `#{path.join(' > ')}`"
+      finding = Finding.new(type, severity_for(type), label, path.join(' > '),
+                            "Item `#{label}`#{location} #{DESCRIPTIONS[type]}.")
+      return if @findings.any? { |existing| duplicate?(existing, finding) }
+
+      @findings << finding
+    end
+
+    def duplicate?(existing, finding)
+      existing.type == finding.type && existing.link_id == finding.link_id && existing.path == finding.path
+    end
+
+    def severity_for(type)
+      INFORMATIONAL_TYPES.include?(type) ? :info : :error
+    end
+  end
+end

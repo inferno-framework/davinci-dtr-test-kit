@@ -1,0 +1,63 @@
+{
+  "resourceType": "QuestionnaireResponse",
+  "meta": {
+    "profile": [
+      "http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/dtr-questionnaireresponse"
+    ]
+  },
+  "id": "valid-concerns-search",
+  "status": "completed",
+  "item": [
+    {
+      "linkId": "forward-search",
+      "answer": [
+        {
+          "valueString": "yes"
+        }
+      ]
+    },
+    {
+      "linkId": "concern",
+      "answer": [
+        {
+          "valueString": "other",
+          "item": [
+            {
+              "linkId": "concern.other",
+              "answer": [
+                {
+                  "valueString": "very specific concern"
+                }
+              ]
+            },
+            {
+              "linkId": "concern.talk",
+              "answer": [
+                {
+                  "valueString": "yes"
+                }
+              ]
+            },
+            {
+              "linkId": "concern.contact",
+              "answer": [
+                {
+                  "valueString": "call me"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "linkId": "backward-search",
+      "answer": [
+        {
+          "valueString": "yes"
+        }
+      ]
+    }
+  ],
+  "questionnaire": "urn:inferno:dtr-test-kit:enable-when-search-example"
+}
