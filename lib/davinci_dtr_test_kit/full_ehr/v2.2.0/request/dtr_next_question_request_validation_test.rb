@@ -56,10 +56,11 @@ module DaVinciDTRTestKit
       handled correctly by the client, and an informational message records that the expression was not
       evaluated.
 
-      Finally, the Questionnaire contained in each request is compared against the one Inferno returned in
-      the previous `$next-question` response. A client is expected to send back the questions it was given,
-      adding only answers, so a question that has been removed, added or altered is reported. Removing a
-      question, or attaching a condition that turns it off, would otherwise be a way to avoid answering it.
+      Finally, the Questionnaire contained in each request is compared against the one the client was given:
+      the Questionnaire Inferno returned in the previous `$next-question` response, or for the first request
+      the one returned by `$questionnaire-package`. A client is expected to send back the questions it was
+      given, adding only answers, so a question that has been removed, added or altered is reported. Removing
+      a question, or attaching a condition that turns it off, would otherwise be a way to avoid answering it.
     )
     verifies_requirements 'hl7.fhir.us.davinci-dtr_2.2.0@spec-146'
 
@@ -70,8 +71,59 @@ module DaVinciDTRTestKit
       tags
     end
 
+    def package_target_tags
+      tags = [QUESTIONNAIRE_PACKAGE_TAG]
+      tags << config.options[:dtr_workflow_tag] if config.options[:dtr_workflow_tag].present?
+
+      tags
+    end
+
+    # Read rather than validated here, so they are fetched directly instead of being added to this
+    # test's own list of requests. Tagged requests arrive without their bodies, so each one is loaded
+    # in full.
+    def questionnaire_package_responses
+      @questionnaire_package_responses ||= begin
+        requests_repo = Inferno::Repositories::Requests.new
+        requests_repo.tagged_requests(test_session_id, package_target_tags)
+          .map { |package_request| requests_repo.find_full_request(package_request.id) }
+          .filter_map { |package_request| parsed_package_response(package_request) }
+      end
+    end
+
+    def parsed_package_response(package_request)
+      return nil if package_request&.response_body.blank?
+
+      parsed = FHIR.from_contents(package_request.response_body)
+      parsed if parsed.is_a?(FHIR::Parameters)
+    rescue JSON::ParserError
+      nil # a malformed response is reported by the package response validation test
+    end
+
+    # The Questionnaires the package offered the client to start from. A QuestionnaireResponse in the
+    # package carries the Questionnaire an adaptive form begins with, so those come first.
+    def packaged_questionnaires
+      @packaged_questionnaires ||= questionnaire_package_responses.flat_map do |parameters|
+        resources = questionnaire_package_bundles(parameters).flat_map { |bundle| Array(bundle.entry).map(&:resource) }
+        resources.grep(FHIR::QuestionnaireResponse)
+          .filter_map { |response| contained_questionnaire_from_questionnaire_response(response) } +
+          resources.grep(FHIR::Questionnaire)
+      end
+    end
+
+    # The first request has no previous response, so what the client started from is whichever
+    # Questionnaire the package returned for the canonical its contained Questionnaire names.
+    def packaged_questionnaire_for(questionnaire)
+      return nil if questionnaire.blank?
+
+      canonicals = [questionnaire_canonical_url(questionnaire), questionnaire.url].compact +
+                   Array(questionnaire.derivedFrom)
+      packaged_questionnaires.find do |packaged|
+        canonicals.include?(questionnaire_canonical_url(packaged)) || canonicals.include?(packaged.url)
+      end
+    end
+
     # The Questionnaire the payer returned in the previous response, which the client is expected to
-    # send back. The first request has nothing before it to compare against.
+    # send back.
     def previously_returned_questionnaire(requests, request_index)
       return nil if request_index.zero?
 
@@ -152,8 +204,13 @@ module DaVinciDTRTestKit
         next if questionnaire_response.blank?
 
         check_questionnaire_response_readiness(questionnaire_response, request_index)
-        check_questionnaire_unaltered(contained_questionnaire_from_questionnaire_response(questionnaire_response),
-                                      previously_returned_questionnaire(requests, request_index), request_index)
+        request_questionnaire = contained_questionnaire_from_questionnaire_response(questionnaire_response)
+        returned_questionnaire = if request_index.zero?
+                                   packaged_questionnaire_for(request_questionnaire)
+                                 else
+                                   previously_returned_questionnaire(requests, request_index)
+                                 end
+        check_questionnaire_unaltered(request_questionnaire, returned_questionnaire, request_index)
       end
 
       assert_no_error_messages(

@@ -246,7 +246,71 @@ RSpec.describe DaVinciDTRTestKit::DTRFullEHRV220NextQuestionRequestValidationTes
       expect(result_messages_string).to include('(Request 2) Item `Q1` differs from the question the payer returned')
     end
 
-    it 'has nothing to compare the first request against' do
+    # The first request has no previous response, so it is compared against what $questionnaire-package
+    # returned.
+    def build_package_and_next_requests(questionnaire_items, *next_bodies)
+      result = repo_create(:result, test_session_id: test_session.id)
+      package_response = FHIR::Parameters.new(
+        parameter: [
+          FHIR::Parameters::Parameter.new(
+            name: 'packagebundle',
+            resource: FHIR::Bundle.new(
+              type: 'collection',
+              entry: [FHIR::Bundle::Entry.new(resource: contained(questionnaire_items))]
+            )
+          )
+        ]
+      ).to_json
+      repo_create(:request, result_id: result.id,
+                            url: "#{Inferno::Application['base_url']}/custom/#{suite_id}" \
+                                 "#{DaVinciDTRTestKit::QUESTIONNAIRE_PACKAGE_PATH}",
+                            request_body: '{}', response_body: package_response,
+                            test_session_id: test_session.id,
+                            tags: [DaVinciDTRTestKit::QUESTIONNAIRE_PACKAGE_TAG, 'adaptive'])
+      next_bodies.each do |request_body|
+        repo_create(:request, result_id: result.id, url: next_url, request_body:,
+                              test_session_id: test_session.id, tags: request_tags)
+      end
+    end
+
+    it 'passes when the first request carries the Questionnaire the package returned' do
+      build_package_and_next_requests(
+        [FHIR::Questionnaire::Item.new(linkId: 'Q1', type: 'string')],
+        request_body_for(
+          questionnaire_items: [FHIR::Questionnaire::Item.new(linkId: 'Q1', type: 'string')],
+          response_items: []
+        )
+      )
+
+      expect(run(runnable).result).to eq('pass')
+    end
+
+    it 'fails when the first request drops a question the package returned' do
+      build_package_and_next_requests([FHIR::Questionnaire::Item.new(linkId: 'Q1', type: 'string', required: true)],
+                                      request_body_for(questionnaire_items: [], response_items: []))
+
+      expect(run(runnable).result).to eq('fail')
+      expect(result_messages_string).to include(
+        'Item `Q1` was returned by the payer but is missing from the Questionnaire in this request'
+      )
+    end
+
+    it 'fails when the first request invents a question the package never returned' do
+      build_package_and_next_requests(
+        [],
+        request_body_for(
+          questionnaire_items: [FHIR::Questionnaire::Item.new(linkId: 'Sneaky', type: 'string')],
+          response_items: []
+        )
+      )
+
+      expect(run(runnable).result).to eq('fail')
+      expect(result_messages_string).to include(
+        'Item `Sneaky` is in the Questionnaire in this request but was not returned by the payer'
+      )
+    end
+
+    it 'has nothing to compare against when no package request was made' do
       build_next_requests(
         request_body_for(
           questionnaire_items: [FHIR::Questionnaire::Item.new(linkId: 'Q1', type: 'string')],
