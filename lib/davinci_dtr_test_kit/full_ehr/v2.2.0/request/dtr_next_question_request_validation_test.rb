@@ -1,7 +1,6 @@
 require_relative '../../../urls'
 require_relative '../../../cross_suite/v2.2.0/multi_request_message_helper'
 require_relative '../../../cross_suite/v2.2.0/questionnaire_response_completeness'
-require_relative '../../../cross_suite/v2.2.0/questionnaire_question_comparison'
 require_relative '../../short_circuit_interaction_verification'
 require_relative '../../../cross_suite/v2.2.0/questionnaire_helper'
 
@@ -30,7 +29,9 @@ module DaVinciDTRTestKit
       This test also verifies that the QuestionnaireResponse provided in the request is ready for the next
       question, because the client is not allowed to indicate that the user is ready for the next question
       until the answers to the current QuestionnaireResponse pass validation rules. The QuestionnaireResponse
-      is compared against the Questionnaire contained within it, and the following are reported:
+      is compared against the Questionnaire Inferno returned to the client, which is the one from the previous
+      `$next-question` response, or for the first request the one returned by `$questionnaire-package`. The
+      following are reported:
 
       - a question marked `required` that is enabled but has no answer
       - a question that has an answer even though it is not enabled
@@ -56,11 +57,10 @@ module DaVinciDTRTestKit
       handled correctly by the client, and an informational message records that the expression was not
       evaluated.
 
-      Finally, the Questionnaire contained in each request is compared against the one the client was given:
-      the Questionnaire Inferno returned in the previous `$next-question` response, or for the first request
-      the one returned by `$questionnaire-package`. A client is expected to send back the questions it was
-      given, adding only answers, so a question that has been removed, added or altered is reported. Removing
-      a question, or attaching a condition that turns it off, would otherwise be a way to avoid answering it.
+      Judging the answers against the Questionnaire Inferno returned, rather than against the copy contained
+      in the request, means a client cannot excuse itself from a question by dropping it or turning it off:
+      the questions Inferno asked still have to be answered, so the missing answers are reported. Working out
+      that the contained Questionnaire was altered is then left to the tester.
     )
     verifies_requirements 'hl7.fhir.us.davinci-dtr_2.2.0@spec-146'
 
@@ -136,19 +136,22 @@ module DaVinciDTRTestKit
       nil # a malformed response is reported by the response validation test
     end
 
-    def check_questionnaire_unaltered(questionnaire, returned_questionnaire, request_index)
-      return if returned_questionnaire.blank?
+    # What Inferno gave the client to answer: the Questionnaire from the previous `$next-question`
+    # response, or for the first request whichever Questionnaire `$questionnaire-package` returned for
+    # the canonical the client named.
+    def questionnaire_inferno_returned(requests, request_index, questionnaire_response)
+      return previously_returned_questionnaire(requests, request_index) unless request_index.zero?
 
-      QuestionnaireQuestionComparison.new(returned_questionnaire, questionnaire).findings.each do |finding|
-        add_request_message(finding.severity.to_s, finding.message, request_index)
-      end
+      packaged_questionnaire_for(contained_questionnaire_from_questionnaire_response(questionnaire_response))
     end
 
-    def check_questionnaire_response_readiness(questionnaire_response, request_index)
-      # Without a contained Questionnaire there is nothing to check the answers against. An adaptive
-      # QuestionnaireResponse has to contain one, but that is a profile constraint reported by the
-      # validation above, so it is not repeated here.
-      questionnaire = contained_questionnaire_from_questionnaire_response(questionnaire_response)
+    # The answers are judged against the Questionnaire Inferno returned rather than the copy the client
+    # embedded, so a client that drops or alters a question does not excuse itself from answering it:
+    # the answers it owes simply turn up missing. The embedded copy is used only when Inferno has
+    # nothing on record to compare with, which leaves a check in place rather than none at all.
+    def check_questionnaire_response_readiness(questionnaire_response, returned_questionnaire, request_index)
+      questionnaire = returned_questionnaire ||
+                      contained_questionnaire_from_questionnaire_response(questionnaire_response)
       return if questionnaire.blank?
 
       questionnaire_response_findings(questionnaire, questionnaire_response).each do |finding|
@@ -203,14 +206,8 @@ module DaVinciDTRTestKit
         questionnaire_response = questionnaire_response_from_next_question_request(input_resource)
         next if questionnaire_response.blank?
 
-        check_questionnaire_response_readiness(questionnaire_response, request_index)
-        request_questionnaire = contained_questionnaire_from_questionnaire_response(questionnaire_response)
-        returned_questionnaire = if request_index.zero?
-                                   packaged_questionnaire_for(request_questionnaire)
-                                 else
-                                   previously_returned_questionnaire(requests, request_index)
-                                 end
-        check_questionnaire_unaltered(request_questionnaire, returned_questionnaire, request_index)
+        returned_questionnaire = questionnaire_inferno_returned(requests, request_index, questionnaire_response)
+        check_questionnaire_response_readiness(questionnaire_response, returned_questionnaire, request_index)
       end
 
       assert_no_error_messages(

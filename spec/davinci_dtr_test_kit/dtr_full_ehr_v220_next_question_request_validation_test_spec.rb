@@ -188,8 +188,8 @@ RSpec.describe DaVinciDTRTestKit::DTRFullEHRV220NextQuestionRequestValidationTes
     expect(result_messages_string).to_not include('is required and enabled')
   end
 
-  # A client is expected to send back the questions it was given, so the Questionnaire in each request
-  # is compared against the one Inferno returned in the previous response.
+  # The answers are judged against the Questionnaire Inferno returned, not the copy in the request, so
+  # a client that mangles its copy still owes the answers Inferno asked for.
   describe 'when the client alters the Questionnaire it was given' do
     def contained(items)
       FHIR::Questionnaire.new(
@@ -204,34 +204,38 @@ RSpec.describe DaVinciDTRTestKit::DTRFullEHRV220NextQuestionRequestValidationTes
     end
 
     # The first request carries what the payer returned; the second carries what the client sent back.
-    def build_pair(returned_items, sent_items)
+    def build_pair(returned_items, sent_items, response_items: [])
       result = repo_create(:result, test_session_id: test_session.id)
       repo_create(:request, result_id: result.id, url: next_url,
                             request_body: request_body_for(questionnaire_items: [], response_items: []),
                             response_body: response_body_returning(returned_items),
                             test_session_id: test_session.id, tags: request_tags)
       repo_create(:request, result_id: result.id, url: next_url,
-                            request_body: request_body_for(questionnaire_items: sent_items, response_items: []),
+                            request_body: request_body_for(questionnaire_items: sent_items,
+                                                           response_items:),
                             test_session_id: test_session.id, tags: request_tags)
     end
 
-    it 'passes when the client sends back the questions it was given' do
-      build_pair([FHIR::Questionnaire::Item.new(linkId: 'Q1', type: 'string')],
-                 [FHIR::Questionnaire::Item.new(linkId: 'Q1', type: 'string')])
+    it 'passes when the questions Inferno returned have been answered' do
+      question = FHIR::Questionnaire::Item.new(linkId: 'Q1', type: 'string', required: true)
+      build_pair([question], [question], response_items: [
+                   FHIR::QuestionnaireResponse::Item.new(
+                     linkId: 'Q1',
+                     answer: [FHIR::QuestionnaireResponse::Item::Answer.new(valueString: 'an answer')]
+                   )
+                 ])
 
       expect(run(runnable).result).to eq('pass')
     end
 
-    it 'fails when the client drops a required question' do
+    it 'still expects an answer to a required question the client dropped from its copy' do
       build_pair([FHIR::Questionnaire::Item.new(linkId: 'Q1', type: 'string', required: true)], [])
 
       expect(run(runnable).result).to eq('fail')
-      expect(result_messages_string).to include(
-        'Item `Q1` was returned by the payer but is missing from the Questionnaire in this request'
-      )
+      expect(result_messages_string).to include('(Request 2) Item `Q1` is required and enabled, but has no answer')
     end
 
-    it 'fails when the client turns a required question off with a condition' do
+    it 'still expects an answer to a required question the client turned off with a condition' do
       returned = [FHIR::Questionnaire::Item.new(linkId: 'Q0', type: 'string'),
                   FHIR::Questionnaire::Item.new(linkId: 'Q1', type: 'string', required: true)]
       sent = [FHIR::Questionnaire::Item.new(linkId: 'Q0', type: 'string'),
@@ -243,10 +247,10 @@ RSpec.describe DaVinciDTRTestKit::DTRFullEHRV220NextQuestionRequestValidationTes
       build_pair(returned, sent)
 
       expect(run(runnable).result).to eq('fail')
-      expect(result_messages_string).to include('(Request 2) Item `Q1` differs from the question the payer returned')
+      expect(result_messages_string).to include('(Request 2) Item `Q1` is required and enabled, but has no answer')
     end
 
-    # The first request has no previous response, so it is compared against what $questionnaire-package
+    # The first request has no previous response, so it is judged against what $questionnaire-package
     # returned.
     def build_package_and_next_requests(questionnaire_items, *next_bodies)
       result = repo_create(:result, test_session_id: test_session.id)
@@ -273,52 +277,41 @@ RSpec.describe DaVinciDTRTestKit::DTRFullEHRV220NextQuestionRequestValidationTes
       end
     end
 
-    it 'passes when the first request carries the Questionnaire the package returned' do
-      build_package_and_next_requests(
-        [FHIR::Questionnaire::Item.new(linkId: 'Q1', type: 'string')],
-        request_body_for(
-          questionnaire_items: [FHIR::Questionnaire::Item.new(linkId: 'Q1', type: 'string')],
-          response_items: []
-        )
-      )
-
-      expect(run(runnable).result).to eq('pass')
-    end
-
-    it 'fails when the first request drops a question the package returned' do
+    it 'still expects an answer to a required question the first request dropped from its copy' do
       build_package_and_next_requests([FHIR::Questionnaire::Item.new(linkId: 'Q1', type: 'string', required: true)],
                                       request_body_for(questionnaire_items: [], response_items: []))
 
       expect(run(runnable).result).to eq('fail')
-      expect(result_messages_string).to include(
-        'Item `Q1` was returned by the payer but is missing from the Questionnaire in this request'
-      )
+      expect(result_messages_string).to include('Item `Q1` is required and enabled, but has no answer')
     end
 
-    it 'fails when the first request invents a question the package never returned' do
+    it 'passes when the first request answers what the package asked for' do
       build_package_and_next_requests(
-        [],
+        [FHIR::Questionnaire::Item.new(linkId: 'Q1', type: 'string', required: true)],
         request_body_for(
-          questionnaire_items: [FHIR::Questionnaire::Item.new(linkId: 'Sneaky', type: 'string')],
+          questionnaire_items: [FHIR::Questionnaire::Item.new(linkId: 'Q1', type: 'string', required: true)],
+          response_items: [
+            FHIR::QuestionnaireResponse::Item.new(
+              linkId: 'Q1',
+              answer: [FHIR::QuestionnaireResponse::Item::Answer.new(valueString: 'an answer')]
+            )
+          ]
+        )
+      )
+
+      expect(run(runnable).result).to eq('pass')
+    end
+
+    it 'falls back to the contained Questionnaire when Inferno has nothing on record' do
+      build_next_requests(
+        request_body_for(
+          questionnaire_items: [FHIR::Questionnaire::Item.new(linkId: 'Q1', type: 'string', required: true)],
           response_items: []
         )
       )
 
       expect(run(runnable).result).to eq('fail')
-      expect(result_messages_string).to include(
-        'Item `Sneaky` is in the Questionnaire in this request but was not returned by the payer'
-      )
-    end
-
-    it 'has nothing to compare against when no package request was made' do
-      build_next_requests(
-        request_body_for(
-          questionnaire_items: [FHIR::Questionnaire::Item.new(linkId: 'Q1', type: 'string')],
-          response_items: []
-        )
-      )
-
-      expect(run(runnable).result).to eq('pass')
+      expect(result_messages_string).to include('Item `Q1` is required and enabled, but has no answer')
     end
   end
 
