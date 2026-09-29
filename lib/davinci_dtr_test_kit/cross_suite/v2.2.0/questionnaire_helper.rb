@@ -117,6 +117,32 @@ module DaVinciDTRTestKit
       end
     end
 
+    # Client-produced QuestionnaireResponses are only visible to Inferno as the bodies of
+    # $next-question requests (either a bare QuestionnaireResponse or one wrapped in the
+    # `questionnaire-response` parameter). Every tagged request contributes, not just each
+    # workflow's final one: each carries a progressively fuller snapshot of the same response,
+    # and must support coverage is cumulative across them.
+    def questionnaire_responses_from_operation_requests(requests)
+      parsed_operation_requests(requests).filter_map do |_request, request_body|
+        questionnaire_response_from_next_question_request(request_body)
+      end
+    end
+
+    # Inferno's must support check follows item.item nesting on its own, but not items nested
+    # under answers (item.answer.item). To make item-level elements count at any depth, add a
+    # single bare QuestionnaireResponse that holds every nested item (from either kind of
+    # nesting) as a top-level item. The originals keep supplying the root-level elements.
+    def questionnaire_responses_with_flattened_items(questionnaire_responses)
+      nested_items = questionnaire_responses.flat_map do |questionnaire_response|
+        nested_questionnaire_response_items(questionnaire_response.item)
+      end
+      return questionnaire_responses if nested_items.blank?
+
+      flattened = FHIR::QuestionnaireResponse.new
+      flattened.item = nested_items
+      questionnaire_responses + [flattened]
+    end
+
     ###########################################################################
     # $questionnaire-package extraction of Parameters, Bundle, Questionnaire
     ###########################################################################
@@ -156,6 +182,25 @@ module DaVinciDTRTestKit
         [request, FHIR.from_contents(request.response_body)]
       rescue JSON::ParserError
         nil # errors handled elsewhere
+      end
+    end
+
+    def parsed_operation_requests(requests)
+      requests.filter_map do |request|
+        next if request.request_body.blank?
+
+        [request, FHIR.from_contents(request.request_body)]
+      rescue JSON::ParserError
+        nil # errors handled elsewhere
+      end
+    end
+
+    # Every item below the top level of a QuestionnaireResponse, whether nested under
+    # item.item or under item.answer.item, at any depth.
+    def nested_questionnaire_response_items(items)
+      Array.wrap(items).flat_map do |item|
+        children = Array.wrap(item.item) + Array.wrap(item.answer).flat_map { |answer| Array.wrap(answer.item) }
+        children + nested_questionnaire_response_items(children)
       end
     end
   end

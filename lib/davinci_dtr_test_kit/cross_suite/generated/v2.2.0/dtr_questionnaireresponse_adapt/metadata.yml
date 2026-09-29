@@ -1,0 +1,12 @@
+---
+:resource: QuestionnaireResponse
+:profile_url: http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/dtr-questionnaireresponse-adapt
+:profile_name: DTR Questionnaire Response for adaptive form
+:profile_version: 2.2.0
+:must_supports:
+  :extensions: []
+  :slices: []
+  :elements:
+  - :path: contained
+  :recursive_elements:
+  - item
