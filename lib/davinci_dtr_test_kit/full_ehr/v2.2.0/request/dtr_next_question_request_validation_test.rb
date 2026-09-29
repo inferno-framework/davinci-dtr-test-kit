@@ -29,8 +29,9 @@ module DaVinciDTRTestKit
       This test also verifies that the QuestionnaireResponse provided in the request is ready for the next
       question, because the client is not allowed to indicate that the user is ready for the next question
       until the answers to the current QuestionnaireResponse pass validation rules. The QuestionnaireResponse
-      is compared against the Questionnaire Inferno returned to the client, which is the one from the previous
-      `$next-question` response, or for the first request the one returned by `$questionnaire-package`. The
+      is compared against the Questionnaire Inferno returned to the client: the one from the most recent
+      earlier `$next-question` response for the same Questionnaire, or the one returned by
+      `$questionnaire-package` when there is no such response or when it completed the Questionnaire. The
       following are reported:
 
       - a question marked `required` that is enabled but has no answer
@@ -61,6 +62,14 @@ module DaVinciDTRTestKit
       in the request, means a client cannot excuse itself from a question by dropping it or turning it off:
       the questions Inferno asked still have to be answered, so the missing answers are reported. Working out
       that the contained Questionnaire was altered is then left to the tester.
+
+      More than one adaptive Questionnaire may be completed during a single interaction, so earlier responses
+      are matched to a request by the url and version of the Questionnaire it contains. For Inferno to pair
+      each request with the Questionnaire it was given, complete an adaptive Questionnaire before starting
+      another one, and if one cannot be completed, abort the test rather than starting that Questionnaire
+      over. A request that follows a response whose QuestionnaireResponse had a `status` of `completed` is
+      taken to be starting that Questionnaire again, and is compared against the Questionnaire that
+      `$questionnaire-package` returned.
     )
     verifies_requirements 'hl7.fhir.us.davinci-dtr_2.2.0@spec-146'
 
@@ -122,27 +131,47 @@ module DaVinciDTRTestKit
       end
     end
 
-    # The Questionnaire the payer returned in the previous response, which the client is expected to
-    # send back.
-    def previously_returned_questionnaire(requests, request_index)
-      return nil if request_index.zero?
+    # The QuestionnaireResponse the payer returned earlier for the Questionnaire this request names.
+    # More than one adaptive Questionnaire may be worked on during a single interaction, so the search
+    # runs backwards from the request being checked and takes the most recent response whose contained
+    # Questionnaire carries the same url and version, rather than assuming the request immediately
+    # before this one was for the same Questionnaire.
+    def previously_returned_questionnaire_response(requests, request_index, request_questionnaire)
+      return nil if request_index.zero? || request_questionnaire.blank?
 
-      previous_body = requests[request_index - 1].response_body
-      return nil if previous_body.blank?
+      canonical = questionnaire_canonical_url(request_questionnaire)
+      (request_index - 1).downto(0) do |previous_index|
+        returned_response = returned_questionnaire_response(requests[previous_index])
+        returned_questionnaire = contained_questionnaire_from_questionnaire_response(returned_response)
+        next if returned_questionnaire.blank?
 
-      returned_response = questionnaire_response_from_next_question_response(FHIR.from_contents(previous_body))
-      contained_questionnaire_from_questionnaire_response(returned_response)
+        return returned_response if questionnaire_canonical_url(returned_questionnaire) == canonical
+      end
+
+      nil
+    end
+
+    def returned_questionnaire_response(request)
+      return nil if request.response_body.blank?
+
+      questionnaire_response_from_next_question_response(FHIR.from_contents(request.response_body))
     rescue JSON::ParserError
       nil # a malformed response is reported by the response validation test
     end
 
     # What Inferno gave the client to answer: the Questionnaire from the previous `$next-question`
-    # response, or for the first request whichever Questionnaire `$questionnaire-package` returned for
-    # the canonical the client named.
+    # response for this Questionnaire, or whichever Questionnaire `$questionnaire-package` returned for
+    # the canonical the client named. The package Questionnaire is the right one both for the first
+    # request of a Questionnaire and when the previous response completed it, because a request that
+    # follows a completed QuestionnaireResponse starts the Questionnaire over.
     def questionnaire_inferno_returned(requests, request_index, questionnaire_response)
-      return previously_returned_questionnaire(requests, request_index) unless request_index.zero?
+      request_questionnaire = contained_questionnaire_from_questionnaire_response(questionnaire_response)
+      previous_response = previously_returned_questionnaire_response(requests, request_index, request_questionnaire)
+      if previous_response.blank? || previous_response.status == 'completed'
+        return packaged_questionnaire_for(request_questionnaire)
+      end
 
-      packaged_questionnaire_for(contained_questionnaire_from_questionnaire_response(questionnaire_response))
+      contained_questionnaire_from_questionnaire_response(previous_response)
     end
 
     # The answers are judged against the Questionnaire Inferno returned rather than the copy the client

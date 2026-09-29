@@ -315,6 +315,129 @@ RSpec.describe DaVinciDTRTestKit::DTRFullEHRV220NextQuestionRequestValidationTes
     end
   end
 
+  # A tester may work through more than one adaptive Questionnaire during a single interaction, so
+  # the response to compare a request against is found by searching backwards for one that returned
+  # the same Questionnaire.
+  describe 'when choosing the earlier response to compare a request against' do
+    def adaptive_questionnaire(url, version, items)
+      FHIR::Questionnaire.new(id: 'Adaptive', url:, version:, status: 'draft', item: items)
+    end
+
+    def required_question(link_id)
+      FHIR::Questionnaire::Item.new(linkId: link_id, type: 'string', required: true)
+    end
+
+    def answered(link_id)
+      FHIR::QuestionnaireResponse::Item.new(
+        linkId: link_id,
+        answer: [FHIR::QuestionnaireResponse::Item::Answer.new(valueString: 'an answer')]
+      )
+    end
+
+    def request_for(url, version, items: [], response_items: [])
+      FHIR::QuestionnaireResponse.new(status: 'in-progress', questionnaire: '#Adaptive',
+                                      contained: [adaptive_questionnaire(url, version, items)],
+                                      item: response_items).to_json
+    end
+
+    def response_returning(url, version, items, status: 'in-progress')
+      FHIR::QuestionnaireResponse.new(status:, questionnaire: '#Adaptive',
+                                      contained: [adaptive_questionnaire(url, version, items)]).to_json
+    end
+
+    def package_returning(url, version, items)
+      FHIR::Parameters.new(
+        parameter: [
+          FHIR::Parameters::Parameter.new(
+            name: 'packagebundle',
+            resource: FHIR::Bundle.new(
+              type: 'collection',
+              entry: [FHIR::Bundle::Entry.new(resource: adaptive_questionnaire(url, version, items))]
+            )
+          )
+        ]
+      ).to_json
+    end
+
+    # Each exchange is a [request body, response body] pair, recorded in order under one result the
+    # way a live interaction records them.
+    def build_exchanges(exchanges, package: nil)
+      result = repo_create(:result, test_session_id: test_session.id)
+      if package.present?
+        repo_create(:request, result_id: result.id,
+                              url: "#{Inferno::Application['base_url']}/custom/#{suite_id}" \
+                                   "#{DaVinciDTRTestKit::QUESTIONNAIRE_PACKAGE_PATH}",
+                              request_body: '{}', response_body: package,
+                              test_session_id: test_session.id,
+                              tags: [DaVinciDTRTestKit::QUESTIONNAIRE_PACKAGE_TAG, 'adaptive'])
+      end
+      exchanges.each do |request_body, response_body|
+        repo_create(:request, result_id: result.id, url: next_url, request_body:, response_body:,
+                              test_session_id: test_session.id, tags: request_tags)
+      end
+    end
+
+    let(:first_url) { 'urn:inferno:dtr-test-kit:adaptive-one' }
+    let(:second_url) { 'urn:inferno:dtr-test-kit:adaptive-two' }
+
+    it 'looks past a response that returned a different Questionnaire' do
+      build_exchanges(
+        [
+          [request_for(first_url, nil), response_returning(first_url, nil, [required_question('Q1')])],
+          [request_for(second_url, nil), response_returning(second_url, nil, [])],
+          [request_for(first_url, nil), nil]
+        ]
+      )
+
+      expect(run(runnable).result).to eq('fail')
+      expect(result_messages_string).to include('(Request 3) Item `Q1` is required and enabled, but has no answer')
+    end
+
+    it 'ignores a response that returned a different version of the same Questionnaire' do
+      build_exchanges(
+        [
+          [request_for(first_url, '1.0.0'), response_returning(first_url, '1.0.0', [required_question('Q1')])],
+          [request_for(first_url, '2.0.0'), nil]
+        ],
+        package: package_returning(first_url, '2.0.0', [required_question('Q2')])
+      )
+
+      expect(run(runnable).result).to eq('fail')
+      expect(result_messages_string).to include('(Request 2) Item `Q2` is required and enabled, but has no answer')
+      expect(result_messages_string).to_not include('Item `Q1`')
+    end
+
+    # Completing a Questionnaire and then asking for a next question again starts it over, so the
+    # request is compared against what $questionnaire-package returned.
+    it 'starts over from the package response when the previous response completed the Questionnaire' do
+      build_exchanges(
+        [
+          [request_for(first_url, nil, response_items: [answered('Q0')]),
+           response_returning(first_url, nil, [required_question('Q1')], status: 'completed')],
+          [request_for(first_url, nil), nil]
+        ],
+        package: package_returning(first_url, nil, [required_question('Q0')])
+      )
+
+      expect(run(runnable).result).to eq('fail')
+      expect(result_messages_string).to include('(Request 2) Item `Q0` is required and enabled, but has no answer')
+      expect(result_messages_string).to_not include('Item `Q1`')
+    end
+
+    it 'keeps using the previous response while the Questionnaire is still in progress' do
+      build_exchanges(
+        [
+          [request_for(first_url, nil, response_items: [answered('Q0')]),
+           response_returning(first_url, nil, [required_question('Q1')])],
+          [request_for(first_url, nil, response_items: [answered('Q1')]), nil]
+        ],
+        package: package_returning(first_url, nil, [required_question('Q0')])
+      )
+
+      expect(run(runnable).result).to eq('pass')
+    end
+  end
+
   # Inferno cannot evaluate these expressions, so the test says so rather than guessing.
   describe 'when a question is enabled by an enableWhenExpression extension' do
     def expression_question(link_id, attributes = {})
