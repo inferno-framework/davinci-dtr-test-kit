@@ -74,7 +74,6 @@ module DaVinciDTRTestKit
 
         # handle gap when looking at differential
         profile_metadata.must_supports[:recursive_elements] << 'item' if element_scope == 'differential'
-        add_parameters_slice_discriminators(profile_metadata) if questionnaire_package_output_parameters?(profile)
 
         profile_metadata
       end
@@ -97,21 +96,6 @@ module DaVinciDTRTestKit
 
     def questionnaire_package_output_parameters?(profile)
       profile.url == 'http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/dtr-qpackage-output-parameters'
-    end
-
-    # This is a workaround for Inferno Core treating slice discriminators defined with `patternString` as unsupported.
-    # The QuestionnairePackage Output Parameters profile slices `Parameters.parameter` by `name` (`packagebundle`
-    # and `outcome`), so replace only unsupported discriminators with equivalent value metadata. If Core gets updated
-    # to support `patternString`, this method becomes a no-op and can be removed.
-    def add_parameters_slice_discriminators(profile_metadata)
-      profile_metadata.must_supports[:slices].each do |slice|
-        next unless slice.dig(:discriminator, :type) == 'unsupported'
-
-        slice[:discriminator] = {
-          type: 'value',
-          values: [{ path: 'name', value: slice[:slice_name] }]
-        }
-      end
     end
   end
 end
