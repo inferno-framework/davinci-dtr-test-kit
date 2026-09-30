@@ -128,7 +128,7 @@ module DaVinciDTRTestKit
 
     def extract_required_link_ids(questionnaire_items)
       questionnaire_items.each_with_object([]) do |item, required_link_ids|
-        required_link_ids << item.linkId if item.required
+        required_link_ids << item.linkId if item.required && item.type != 'group'
 
         required_link_ids.concat(extract_required_link_ids(item.item)) if item.item.present?
       end
