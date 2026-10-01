@@ -470,6 +470,121 @@ RSpec.describe DaVinciDTRTestKit::QuestionnaireResponseChecker do
     end
   end
 
+  # Repetitions of an item are ordinary siblings in the response, so a condition evaluated within one
+  # repetition must not resolve against the answers of another one.
+  describe 'conditions within a repeating item' do
+    def repeating_group_questionnaire
+      questionnaire_with_items(
+        [
+          FHIR::Questionnaire::Item.new(
+            linkId: 'Occ', type: 'group', repeats: true,
+            item: [question('Other'), question('Cond'), dependent_question]
+          )
+        ]
+      )
+    end
+
+    def repeating_question_questionnaire
+      questionnaire_with_items(
+        [
+          question('Q', repeats: true, item: [question('Other'), question('Cond'), dependent_question])
+        ]
+      )
+    end
+
+    def dependent_question
+      question('Dep', required: true, enableWhen: [enable_when('Cond', '=', { answerString: 'yes' })])
+    end
+
+    def repetition(items)
+      FHIR::QuestionnaireResponse::Item.new(linkId: 'Occ', item: items)
+    end
+
+    def answers(*item_lists)
+      FHIR::QuestionnaireResponse::Item.new(
+        linkId: 'Q',
+        answer: item_lists.each_with_index.map do |items, index|
+          FHIR::QuestionnaireResponse::Item::Answer.new(valueString: "answer #{index + 1}", item: items)
+        end
+      )
+    end
+
+    let(:condition_met) { answered_item('Cond', 'yes') }
+    let(:other_answered) { answered_item('Other', 'something') }
+
+    context 'when the item is a repeating group' do
+      let(:questionnaire) { repeating_group_questionnaire }
+
+      it 'does not require a question whose repetition never answered the condition' do
+        response = response_with_items(
+          [repetition([condition_met, answered_item('Dep', 'first')]), repetition([other_answered])]
+        )
+
+        expect(findings_for(questionnaire, response)).to be_empty
+      end
+
+      it 'reports an answer in a repetition that never answered the condition' do
+        response = response_with_items(
+          [
+            repetition([condition_met, answered_item('Dep', 'first')]),
+            repetition([other_answered, answered_item('Dep', 'second')])
+          ]
+        )
+
+        expect(summarize(findings_for(questionnaire, response)))
+          .to eq([[:answered_while_disabled, 'Dep', 'Occ[2]']])
+      end
+
+      it 'resolves the condition against the repetition it belongs to' do
+        response = response_with_items(
+          [
+            repetition([condition_met, answered_item('Dep', 'first')]),
+            repetition([condition_met, answered_item('Dep', 'second')])
+          ]
+        )
+
+        expect(findings_for(questionnaire, response)).to be_empty
+      end
+    end
+
+    # The nested items of a repeating question sit within its answers, which carry no link id of
+    # their own, so the boundary between repetitions is the answer rather than the item.
+    context 'when the item is a repeating question' do
+      let(:questionnaire) { repeating_question_questionnaire }
+
+      it 'does not require a question whose answer never answered the condition' do
+        response = response_with_items(
+          [answers([condition_met, answered_item('Dep', 'first')], [other_answered])]
+        )
+
+        expect(findings_for(questionnaire, response)).to be_empty
+      end
+
+      it 'reports an answer under an answer that never answered the condition' do
+        response = response_with_items(
+          [
+            answers([condition_met, answered_item('Dep', 'first')],
+                    [other_answered, answered_item('Dep', 'second')])
+          ]
+        )
+
+        expect(summarize(findings_for(questionnaire, response)))
+          .to eq([[:answered_while_disabled, 'Dep', 'Q[answer 2]']])
+      end
+
+      it 'resolves the condition against the answer it belongs to' do
+        response = response_with_items(
+          [
+            answers([condition_met, answered_item('Dep', 'first')],
+                    [condition_met, answered_item('Dep', 'second')])
+          ]
+        )
+
+        expect(findings_for(questionnaire, response)).to be_empty
+      end
+    end
+  end
+
   describe "Karl's multiple parent example" do
     let(:questionnaire) { fixture('enable_when_multiple_parent_questionnaire.json') }
 

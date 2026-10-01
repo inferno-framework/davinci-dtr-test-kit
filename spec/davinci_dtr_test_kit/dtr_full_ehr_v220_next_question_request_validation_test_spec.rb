@@ -424,6 +424,47 @@ RSpec.describe DaVinciDTRTestKit::DTRFullEHRV220NextQuestionRequestValidationTes
       expect(result_messages_string).to_not include('Item `Q1`')
     end
 
+    it 'matches an earlier response on url alone when the request Questionnaire has no version' do
+      build_exchanges(
+        [
+          [request_for(first_url, '1.0.0'), response_returning(first_url, '1.0.0', [required_question('Q1')])],
+          [request_for(first_url, nil), nil]
+        ]
+      )
+
+      expect(run(runnable).result).to eq('fail')
+      expect(result_messages_string).to include('(Request 2) Item `Q1` is required and enabled, but has no answer')
+    end
+
+    it 'does not use a packaged Questionnaire whose version differs from the request' do
+      build_exchanges(
+        [[request_for(first_url, '2.0.0'), nil]],
+        package: package_returning(first_url, '1.0.0', [required_question('Q1')])
+      )
+
+      expect(run(runnable).result).to eq('pass')
+    end
+
+    it 'uses a packaged Questionnaire whose version matches the request' do
+      build_exchanges(
+        [[request_for(first_url, '2.0.0'), nil]],
+        package: package_returning(first_url, '2.0.0', [required_question('Q1')])
+      )
+
+      expect(run(runnable).result).to eq('fail')
+      expect(result_messages_string).to include('Item `Q1` is required and enabled, but has no answer')
+    end
+
+    it 'uses a packaged Questionnaire of any version when the request names none' do
+      build_exchanges(
+        [[request_for(first_url, nil), nil]],
+        package: package_returning(first_url, '1.0.0', [required_question('Q1')])
+      )
+
+      expect(run(runnable).result).to eq('fail')
+      expect(result_messages_string).to include('Item `Q1` is required and enabled, but has no answer')
+    end
+
     it 'keeps using the previous response while the Questionnaire is still in progress' do
       build_exchanges(
         [

@@ -149,10 +149,13 @@ module DaVinciDTRTestKit
       nodes = []
       node = parent
       index = before_index
+      left = nil
       while node
         (index - 1).downto(0) do |sibling_index|
-          nodes.concat(node.children[sibling_index].self_and_descendants_reversed)
+          sibling = node.children[sibling_index]
+          nodes.concat(sibling.self_and_descendants_reversed) unless another_occurrence?(sibling, left)
         end
+        left = node
         index = node.index_in_parent
         node = node.parent
       end
@@ -163,14 +166,29 @@ module DaVinciDTRTestKit
       nodes = []
       node = parent
       index = after_index
+      left = nil
       while node
         index.upto(node.children.length - 1) do |sibling_index|
-          nodes.concat(node.children[sibling_index].self_and_descendants)
+          sibling = node.children[sibling_index]
+          nodes.concat(sibling.self_and_descendants) unless another_occurrence?(sibling, left)
         end
+        left = node
         index = node.index_in_parent.to_i + 1
         node = node.parent
       end
       nodes
+    end
+
+    # Repetitions of an item are ordinary siblings, so once the walk climbs out of one it would
+    # otherwise carry straight on into the next. A sibling that repeats whatever the walk just left
+    # belongs to a different repetition and is not outward context: an item repetition is a sibling
+    # item with the same link id, and an answer repetition is any sibling answer of the same
+    # question. Everything else at that level is still searched.
+    def another_occurrence?(sibling, left)
+      return false if left.nil?
+      return sibling.answer? if left.answer?
+
+      sibling.item? && sibling.link_id == left.link_id
     end
   end
 end

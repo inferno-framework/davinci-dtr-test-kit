@@ -119,15 +119,32 @@ module DaVinciDTRTestKit
       end
     end
 
+    # Two Questionnaires are the same one when their urls match and, where the one being looked for
+    # names a version, their versions match too. A reference without a version matches any version,
+    # since that is what a canonical without a version means.
+    def questionnaire_matches?(candidate, reference)
+      return false if candidate.blank? || reference.blank?
+
+      candidate.url == reference.url && (reference.version.blank? || candidate.version == reference.version)
+    end
+
+    # `derivedFrom` holds canonicals as strings rather than Questionnaires, so they are compared by
+    # the same rule after splitting the version off.
+    def canonical_matches?(candidate, canonical)
+      return false if candidate.blank? || canonical.blank?
+
+      url, version = canonical.split('|', 2)
+      candidate.url == url && (version.blank? || candidate.version == version)
+    end
+
     # The first request has no previous response, so what the client started from is whichever
     # Questionnaire the package returned for the canonical its contained Questionnaire names.
     def packaged_questionnaire_for(questionnaire)
       return nil if questionnaire.blank?
 
-      canonicals = [questionnaire_canonical_url(questionnaire), questionnaire.url].compact +
-                   Array(questionnaire.derivedFrom)
       packaged_questionnaires.find do |packaged|
-        canonicals.include?(questionnaire_canonical_url(packaged)) || canonicals.include?(packaged.url)
+        questionnaire_matches?(packaged, questionnaire) ||
+          Array(questionnaire.derivedFrom).any? { |canonical| canonical_matches?(packaged, canonical) }
       end
     end
 
@@ -139,13 +156,11 @@ module DaVinciDTRTestKit
     def previously_returned_questionnaire_response(requests, request_index, request_questionnaire)
       return nil if request_index.zero? || request_questionnaire.blank?
 
-      canonical = questionnaire_canonical_url(request_questionnaire)
       (request_index - 1).downto(0) do |previous_index|
         returned_response = returned_questionnaire_response(requests[previous_index])
         returned_questionnaire = contained_questionnaire_from_questionnaire_response(returned_response)
-        next if returned_questionnaire.blank?
 
-        return returned_response if questionnaire_canonical_url(returned_questionnaire) == canonical
+        return returned_response if questionnaire_matches?(returned_questionnaire, request_questionnaire)
       end
 
       nil
