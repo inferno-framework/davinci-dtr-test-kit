@@ -585,6 +585,131 @@ RSpec.describe DaVinciDTRTestKit::QuestionnaireResponseChecker do
     end
   end
 
+  # Unlike a condition inside one occurrence of a repeating item, which only applies to that
+  # occurrence (see "conditions within a repeating item" above), a condition outside the
+  # repeating item is shared by every occurrence. The exclusion that keeps one occurrence from
+  # resolving a condition against another must not also exclude this shared ancestor sibling.
+  describe 'a condition shared above a repeating item' do
+    def questionnaire
+      questionnaire_with_items(
+        [
+          question('Gate'),
+          FHIR::Questionnaire::Item.new(
+            linkId: 'Occ', type: 'group', repeats: true,
+            item: [question('Other'), dependent_question]
+          )
+        ]
+      )
+    end
+
+    def dependent_question
+      question('Dep', required: true, enableWhen: [enable_when('Gate', '=', { answerString: 'yes' })])
+    end
+
+    def repetition(items)
+      FHIR::QuestionnaireResponse::Item.new(linkId: 'Occ', item: items)
+    end
+
+    let(:other_answered) { answered_item('Other', 'something') }
+
+    it 'requires the question in every occurrence when the shared condition is met' do
+      response = response_with_items(
+        [
+          answered_item('Gate', 'yes'),
+          repetition([other_answered, answered_item('Dep', 'first')]),
+          repetition([other_answered])
+        ]
+      )
+
+      expect(summarize(findings_for(questionnaire, response))).to eq([[:required_unanswered, 'Dep', 'Occ[2]']])
+    end
+
+    it 'reports an answer in any occurrence when the shared condition is not met' do
+      response = response_with_items(
+        [
+          answered_item('Gate', 'no'),
+          repetition([other_answered, answered_item('Dep', 'first')]),
+          repetition([other_answered])
+        ]
+      )
+
+      expect(summarize(findings_for(questionnaire, response))).to eq([[:answered_while_disabled, 'Dep', 'Occ[1]']])
+    end
+
+    it 'returns no findings when every occurrence answers the question the shared condition enables' do
+      response = response_with_items(
+        [
+          answered_item('Gate', 'yes'),
+          repetition([other_answered, answered_item('Dep', 'first')]),
+          repetition([other_answered, answered_item('Dep', 'second')])
+        ]
+      )
+
+      expect(findings_for(questionnaire, response)).to be_empty
+    end
+  end
+
+  # A condition unresolved within its own repetition must not be resolved against a different
+  # repetition found further out, even when there are two repeat boundaries to climb past: an
+  # inner repeating group's own repetitions, and then the outer repeating group's.
+  describe 'conditions within nested repeating items' do
+    def questionnaire
+      questionnaire_with_items(
+        [
+          FHIR::Questionnaire::Item.new(
+            linkId: 'Outer', type: 'group', repeats: true,
+            item: [
+              FHIR::Questionnaire::Item.new(
+                linkId: 'Inner', type: 'group', repeats: true,
+                item: [question('Other'), question('Cond'), dependent_question]
+              )
+            ]
+          )
+        ]
+      )
+    end
+
+    def dependent_question
+      question('Dep', required: true, enableWhen: [enable_when('Cond', '=', { answerString: 'yes' })])
+    end
+
+    def outer(inners)
+      FHIR::QuestionnaireResponse::Item.new(linkId: 'Outer', item: inners)
+    end
+
+    def inner(items)
+      FHIR::QuestionnaireResponse::Item.new(linkId: 'Inner', item: items)
+    end
+
+    let(:condition_met) { answered_item('Cond', 'yes') }
+    let(:other_answered) { answered_item('Other', 'something') }
+
+    it 'does not require a question whose inner repetition never answered the condition, in ' \
+       'either outer repetition' do
+      response = response_with_items(
+        [
+          outer([inner([condition_met, answered_item('Dep', 'first')]), inner([other_answered])]),
+          outer([inner([other_answered])])
+        ]
+      )
+
+      expect(findings_for(questionnaire, response)).to be_empty
+    end
+
+    it 'reports an answer in an inner repetition, of a different outer repetition, that never ' \
+       'answered the condition' do
+      response = response_with_items(
+        [
+          outer([inner([condition_met, answered_item('Dep', 'first')])]),
+          outer([inner([other_answered, answered_item('Dep', 'second')])])
+        ]
+      )
+
+      expect(summarize(findings_for(questionnaire, response)))
+        .to eq([[:answered_while_disabled, 'Dep', 'Outer[2] > Inner']])
+    end
+  end
+
   describe "Karl's multiple parent example" do
     let(:questionnaire) { fixture('enable_when_multiple_parent_questionnaire.json') }
 
