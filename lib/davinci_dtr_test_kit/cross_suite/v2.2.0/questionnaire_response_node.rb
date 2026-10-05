@@ -130,53 +130,45 @@ module DaVinciDTRTestKit
       @after_index = after_index
     end
 
-    # The nodes that come before this position, nearest first: each preceding sibling followed by its
-    # descendants in reverse order, then the siblings preceding the parent, and so on outwards.
-    # Ancestors are not included because they are searched separately.
+    # The nodes that come before this position, nearest first, with the descendants of each visited in
+    # reverse order. Ancestors are not included because they are searched separately.
     def preceding_nodes
-      @preceding_nodes ||= build_preceding_nodes
+      @preceding_nodes ||= nodes_outward(before_index, -1)
     end
 
-    # The nodes that come after this position, nearest first: each following sibling followed by its
-    # descendants in document order, then the siblings following the parent, and so on outwards.
+    # The nodes that come after this position, nearest first, in document order.
     def following_nodes
-      @following_nodes ||= build_following_nodes
+      @following_nodes ||= nodes_outward(after_index, 1)
     end
 
     private
 
-    def build_preceding_nodes
+    # Walks outward from this position, nearest first, toward the document's start (direction -1)
+    # or end (direction 1): each sibling at this level in turn, then the siblings at the parent's
+    # level, and so on. Repetitions of whatever the walk just climbed out of are excluded, since
+    # they are not outward context (see `another_occurrence?`).
+    def nodes_outward(index, direction)
       nodes = []
       node = parent
-      index = before_index
       left = nil
       while node
-        (index - 1).downto(0) do |sibling_index|
+        sibling_indexes(node, index, direction).each do |sibling_index|
           sibling = node.children[sibling_index]
-          nodes.concat(sibling.self_and_descendants_reversed) unless another_occurrence?(sibling, left)
+          nodes.concat(subtree(sibling, direction)) unless another_occurrence?(sibling, left)
         end
         left = node
-        index = node.index_in_parent
+        index = direction.negative? ? node.index_in_parent : node.index_in_parent.to_i + 1
         node = node.parent
       end
       nodes
     end
 
-    def build_following_nodes
-      nodes = []
-      node = parent
-      index = after_index
-      left = nil
-      while node
-        index.upto(node.children.length - 1) do |sibling_index|
-          sibling = node.children[sibling_index]
-          nodes.concat(sibling.self_and_descendants) unless another_occurrence?(sibling, left)
-        end
-        left = node
-        index = node.index_in_parent.to_i + 1
-        node = node.parent
-      end
-      nodes
+    def sibling_indexes(node, index, direction)
+      direction.negative? ? (0...index).to_a.reverse! : (index...node.children.length)
+    end
+
+    def subtree(node, direction)
+      direction.negative? ? node.self_and_descendants_reversed : node.self_and_descendants
     end
 
     # Repetitions of an item are ordinary siblings, so once the walk climbs out of one it would

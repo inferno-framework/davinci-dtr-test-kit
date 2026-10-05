@@ -100,6 +100,19 @@ RSpec.describe DaVinciDTRTestKit::QuestionnaireResponseChecker do
       expect(summarize(findings_for(questionnaire, response))).to eq([[:required_unanswered, 'Q1', 'Group1']])
     end
 
+    # The answer carries no value, so the group counts as unanswered and nothing within it is walked,
+    # but a group must not carry answers at all.
+    it 'reports a group whose only answer has no value' do
+      response = response_with_items([
+                                       FHIR::QuestionnaireResponse::Item.new(
+                                         linkId: 'Group1',
+                                         answer: [FHIR::QuestionnaireResponse::Item::Answer.new]
+                                       )
+                                     ])
+
+      expect(summarize(findings_for(questionnaire, response))).to eq([[:group_with_answers, 'Group1', '']])
+    end
+
     # `required` only applies once the parent is present, so an optional group that holds required
     # questions needs no answers at all until the group itself is answered.
     it 'does not report the questions within an optional group that is absent from the response' do
@@ -204,6 +217,19 @@ RSpec.describe DaVinciDTRTestKit::QuestionnaireResponseChecker do
                                      ])
 
       expect(summarize(findings_for(questionnaire, response))).to eq([[:items_outside_answer, 'Q1', '']])
+    end
+
+    # Where the nested items sit is a matter of how the response is put together, so it is reported
+    # even though the question has no answer of its own and nothing below it is walked.
+    it 'reports nested items that are not within an answer when the question has no answer at all' do
+      response = response_with_items([
+                                       FHIR::QuestionnaireResponse::Item.new(
+                                         linkId: 'Q1', item: [answered_item('Q1.1', 'misplaced answer')]
+                                       )
+                                     ])
+
+      expect(summarize(findings_for(questionnaire, response)))
+        .to eq([[:required_unanswered, 'Q1', ''], [:items_outside_answer, 'Q1', '']])
     end
 
     it 'labels the answer each finding belongs to when a question has several answers' do

@@ -114,14 +114,27 @@ module DaVinciDTRTestKit
       enabled = item_enabled?(item, QuestionnaireResponsePosition.at(occurrence), ancestors, present:)
       # `segment` carries the repetition, so each occurrence of a repeating item is named separately.
       check_enabled_and_required(item, enabled, present, segment, path)
+      # Where an answer or a nested item sits is a matter of how the response is put together rather
+      # than of what has been answered, so it is reported for any occurrence that appears at all.
+      check_placement(item, occurrence, segment, path)
       # The questions within an item only need answers once the item itself is present, so the walk
       # goes no further when it is not.
       return unless enabled && present
 
       if group?(item)
-        check_group_children(item, occurrence, segment, ancestors:, path:)
+        walk_group_children(item, occurrence, segment, ancestors:, path:)
       else
-        check_question_children(item, occurrence, segment, ancestors:, path:)
+        walk_question_children(item, occurrence, segment, ancestors:, path:)
+      end
+    end
+
+    # A group is answered through its nested items and so must carry no answers of its own, and a
+    # question's nested items belong within its answers rather than beside them.
+    def check_placement(item, occurrence, segment, path)
+      if group?(item)
+        add_finding(:group_with_answers, segment, path) if occurrence.answers.any?
+      elsif occurrence.item_children.any?
+        add_finding(:items_outside_answer, segment, path)
       end
     end
 
@@ -134,9 +147,7 @@ module DaVinciDTRTestKit
     end
 
     # A group is answered through its nested items, so the walk continues into the response item.
-    def check_group_children(item, occurrence, segment, ancestors:, path:)
-      add_finding(:group_with_answers, segment, path) if occurrence.answers.any?
-
+    def walk_group_children(item, occurrence, segment, ancestors:, path:)
       check_level(Array(item.item), occurrence,
                   ancestors: ancestors + [Ancestor.new(item.linkId, occurrence.answer_values)],
                   path: path + [segment])
@@ -144,9 +155,7 @@ module DaVinciDTRTestKit
 
     # A question's nested items belong to its answers, so the walk continues into each answer
     # separately, with the ancestor narrowed to that one answer.
-    def check_question_children(item, occurrence, segment, ancestors:, path:)
-      add_finding(:items_outside_answer, segment, path) if occurrence.item_children.any?
-
+    def walk_question_children(item, occurrence, segment, ancestors:, path:)
       answer_nodes = occurrence.answer_children
       answer_nodes.each_with_index do |answer_node, index|
         answer_segment = answer_nodes.length > 1 ? "#{segment}[answer #{index + 1}]" : segment
