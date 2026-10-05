@@ -46,7 +46,6 @@
             "linkId": "PBD",
             "text": "Patient Information",
             "type": "group",
-            "required": true,
             "item": [
               {
                 "extension": [
@@ -97,7 +96,6 @@
             "linkId": "LOC",
             "text": "Patient's Location",
             "type": "group",
-            "required": true,
             "item": [
               {
                 "extension": [
@@ -120,7 +118,6 @@
             "linkId": "3",
             "text": "Dinner Order",
             "type": "group",
-            "required": true,
             "item": [
               {
                 "linkId": "3.1",
