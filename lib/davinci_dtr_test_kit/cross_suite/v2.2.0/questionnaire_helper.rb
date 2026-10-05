@@ -49,7 +49,7 @@ module DaVinciDTRTestKit
     def questionnaires_from_operation_responses(requests, include_standard: true, include_adaptive: true)
       questionnaires = []
 
-      parsed_operation_responses(requests).each do |request, response|
+      parsed_operation_bodies(requests).each do |request, response|
         # pull out Questionnaires from requests ($q-p and $n-q)
         if response.is_a?(FHIR::QuestionnaireResponse)
           questionnaires << contained_questionnaire_from_questionnaire_response(response) if include_adaptive
@@ -123,24 +123,21 @@ module DaVinciDTRTestKit
     # workflow's final one: each carries a progressively fuller snapshot of the same response,
     # and must support coverage is cumulative across them.
     def questionnaire_responses_from_operation_requests(requests)
-      parsed_operation_requests(requests).filter_map do |_request, request_body|
+      parsed_operation_bodies(requests, body: :request_body).filter_map do |_request, request_body|
         questionnaire_response_from_next_question_request(request_body)
       end
     end
 
     # Inferno's must support check follows item.item nesting on its own, but not items nested
-    # under answers (item.answer.item). To make item-level elements count at any depth, add a
-    # single bare QuestionnaireResponse that holds every nested item (from either kind of
-    # nesting) as a top-level item. The originals keep supplying the root-level elements.
-    def questionnaire_responses_with_flattened_items(questionnaire_responses)
-      nested_items = questionnaire_responses.flat_map do |questionnaire_response|
-        nested_questionnaire_response_items(questionnaire_response.item)
+    # under answers (item.answer.item). To make item-level elements count at any depth, copy every
+    # nested item (from either kind of nesting) to the top level of the QuestionnaireResponse it
+    # came from. This modifies the given QuestionnaireResponses, so only pass ones parsed for the
+    # current analysis.
+    def flatten_questionnaire_response_items!(questionnaire_responses)
+      questionnaire_responses.each do |questionnaire_response|
+        questionnaire_response.item =
+          Array.wrap(questionnaire_response.item) + nested_questionnaire_response_items(questionnaire_response.item)
       end
-      return questionnaire_responses if nested_items.blank?
-
-      flattened = FHIR::QuestionnaireResponse.new
-      flattened.item = nested_items
-      questionnaire_responses + [flattened]
     end
 
     ###########################################################################
@@ -148,7 +145,7 @@ module DaVinciDTRTestKit
     ###########################################################################
 
     def questionnaire_package_output_parameters_from_operation_responses(requests)
-      parsed_operation_responses(requests).filter_map do |_request, response|
+      parsed_operation_bodies(requests).filter_map do |_request, response|
         response if response.is_a?(FHIR::Parameters)
       end
     end
@@ -175,21 +172,12 @@ module DaVinciDTRTestKit
 
     private
 
-    def parsed_operation_responses(requests)
+    # @param body [Symbol] :response_body or :request_body
+    def parsed_operation_bodies(requests, body: :response_body)
       requests.filter_map do |request|
-        next if request.response_body.blank?
+        next if request.public_send(body).blank?
 
-        [request, FHIR.from_contents(request.response_body)]
-      rescue JSON::ParserError
-        nil # errors handled elsewhere
-      end
-    end
-
-    def parsed_operation_requests(requests)
-      requests.filter_map do |request|
-        next if request.request_body.blank?
-
-        [request, FHIR.from_contents(request.request_body)]
+        [request, FHIR.from_contents(request.public_send(body))]
       rescue JSON::ParserError
         nil # errors handled elsewhere
       end

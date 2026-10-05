@@ -38,7 +38,7 @@ module DaVinciDTRTestKit
       skip_if questionnaire_responses.blank?,
               'No QuestionnaireResponses found to evaluate in $next-question requests.'
 
-      assert_must_support_elements_present(questionnaire_responses_with_flattened_items(questionnaire_responses),
+      assert_must_support_elements_present(questionnaire_responses,
                                            MUST_SUPPORT_METADATA.profile_url, metadata: MUST_SUPPORT_METADATA)
     end
   end
