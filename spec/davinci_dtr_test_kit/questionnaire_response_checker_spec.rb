@@ -54,7 +54,10 @@ RSpec.describe DaVinciDTRTestKit::QuestionnaireResponseChecker do
       findings = findings_for(questionnaire, response_with_items([]))
 
       expect(summarize(findings)).to eq([[:required_unanswered, 'Q1', '']])
-      expect(findings.first.message).to eq('Item `Q1` is required and enabled, but has no answer.')
+      expect(findings.first.message).to eq(
+        'Item `Q1` is required and enabled, but has no answer where the response structure requires it ' \
+        "(nested within its parent question's answer, or within its parent group)."
+      )
     end
 
     it 'reports a required question whose response item has no answer' do
@@ -596,6 +599,22 @@ RSpec.describe DaVinciDTRTestKit::QuestionnaireResponseChecker do
 
         expect(summarize(findings_for(questionnaire, response)))
           .to eq([[:answered_while_disabled, 'Dep', 'Q[answer 2]']])
+      end
+
+      # An item beside a question's answers is forbidden by the QuestionnaireResponse invariants, so
+      # it is reported as misplaced and is no part of the context the answers are evaluated in.
+      it 'does not resolve a condition against an item placed beside the answers' do
+        response = response_with_items(
+          [
+            FHIR::QuestionnaireResponse::Item.new(
+              linkId: 'Q',
+              answer: [FHIR::QuestionnaireResponse::Item::Answer.new(valueString: 'answer 1')],
+              item: [condition_met]
+            )
+          ]
+        )
+
+        expect(summarize(findings_for(questionnaire, response))).to eq([[:items_outside_answer, 'Q', '']])
       end
 
       it 'resolves the condition against the answer it belongs to' do

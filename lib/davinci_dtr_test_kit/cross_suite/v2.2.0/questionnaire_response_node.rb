@@ -172,13 +172,15 @@ module DaVinciDTRTestKit
     end
 
     # Repetitions of an item are ordinary siblings, so once the walk climbs out of one it would
-    # otherwise carry straight on into the next. A sibling that repeats whatever the walk just left
-    # belongs to a different repetition and is not outward context: an item repetition is a sibling
-    # item with the same link id, and an answer repetition is any sibling answer of the same
-    # question. Everything else at that level is still searched.
+    # otherwise carry straight on into the next, which is not outward context. Climbing out of an
+    # answer leaves nothing at that level to search: the siblings are the question's other answers,
+    # and an item beside them is forbidden by the QuestionnaireResponse invariants
+    # (https://hl7.org/fhir/R4/questionnaireresponse.html#invs) so it is not in scope either.
+    # Climbing out of an item excludes the siblings that repeat it, which are the ones carrying its
+    # link id; everything else at that level is still searched.
     def another_occurrence?(sibling, left)
       return false if left.nil?
-      return sibling.answer? if left.answer?
+      return true if left.answer?
 
       sibling.item? && sibling.link_id == left.link_id
     end

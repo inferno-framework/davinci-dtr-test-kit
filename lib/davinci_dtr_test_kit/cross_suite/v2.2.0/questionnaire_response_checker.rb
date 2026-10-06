@@ -27,7 +27,8 @@ module DaVinciDTRTestKit
     Ancestor = Struct.new(:link_id, :answer_values)
 
     DESCRIPTIONS = {
-      required_unanswered: 'is required and enabled, but has no answer',
+      required_unanswered: 'is required and enabled, but has no answer where the response structure requires it ' \
+                           "(nested within its parent question's answer, or within its parent group)",
       answered_while_disabled: 'has an answer, but is not enabled based on its `enableWhen` condition(s)',
       group_with_answers: 'is a group, so it must not have answers',
       items_outside_answer: 'is not a group, so its nested items must appear within its answers',
