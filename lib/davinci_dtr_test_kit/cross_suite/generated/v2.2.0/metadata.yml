@@ -385,6 +385,103 @@
     - :path: item.enableWhen
     :recursive_elements:
     - item
+- :resource: QuestionnaireResponse
+  :profile_url: http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/dtr-questionnaireresponse-adapt
+  :profile_name: DTR Questionnaire Response for adaptive form
+  :profile_version: 2.2.0
+  :must_supports:
+    :extensions: []
+    :slices: []
+    :elements:
+    - :path: contained
+    :recursive_elements:
+    - item
+- :resource: QuestionnaireResponse
+  :profile_url: http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/dtr-questionnaireresponse
+  :profile_name: DTR Questionnaire Response
+  :profile_version: 2.2.0
+  :must_supports:
+    :extensions:
+    - :id: QuestionnaireResponse.extension:signature
+      :slice_name: signature
+      :path: extension
+      :url: http://hl7.org/fhir/StructureDefinition/questionnaireresponse-signature
+      :modifier_extension: false
+    - :id: QuestionnaireResponse.extension:coverage
+      :slice_name: coverage
+      :path: extension
+      :url: http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/qr-coverage
+      :modifier_extension: false
+    - :id: QuestionnaireResponse.extension:context
+      :slice_name: context
+      :path: extension
+      :url: http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/qr-context
+      :modifier_extension: false
+    - :id: QuestionnaireResponse.extension:coverage-information
+      :slice_name: coverage-information
+      :path: extension
+      :url: http://hl7.org/fhir/us/davinci-crd/StructureDefinition/ext-coverage-information
+      :modifier_extension: false
+    - :id: QuestionnaireResponse.extension:intendedUse
+      :slice_name: intendedUse
+      :path: extension
+      :url: http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/intendedUse
+      :modifier_extension: false
+    - :id: QuestionnaireResponse.questionnaire.extension:questionnaireDisplay
+      :slice_name: questionnaireDisplay
+      :path: questionnaire.extension
+      :url: http://hl7.org/fhir/StructureDefinition/display
+      :modifier_extension: false
+    - :id: QuestionnaireResponse.item.extension:ItemSignature
+      :slice_name: ItemSignature
+      :path: item.extension
+      :url: http://hl7.org/fhir/StructureDefinition/questionnaireresponse-signature
+      :modifier_extension: false
+    - :id: QuestionnaireResponse.item.answer.extension:itemAnswerMedia
+      :slice_name: itemAnswerMedia
+      :path: item.answer.extension
+      :url: http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-itemAnswerMedia
+      :modifier_extension: false
+    - :id: QuestionnaireResponse.item.answer.extension:itemWeight
+      :slice_name: itemWeight
+      :path: item.answer.extension
+      :url: http://hl7.org/fhir/StructureDefinition/itemWeight
+      :modifier_extension: false
+    - :id: QuestionnaireResponse.item.answer.extension:origin
+      :slice_name: origin
+      :path: item.answer.extension
+      :url: http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/information-origin
+      :modifier_extension: false
+    - :id: QuestionnaireResponse.item.answer.extension:containedReference
+      :slice_name: containedReference
+      :path: item.answer.extension
+      :url: http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/containedReference
+      :modifier_extension: false
+    :slices: []
+    :elements:
+    - :path: identifier
+    - :path: questionnaire
+    - :path: status
+    - :path: subject
+      :types:
+      - Reference
+      :target_profiles:
+      - http://hl7.org/fhir/us/davinci-crd/StructureDefinition/profile-patient
+    - :path: authored
+    - :path: author
+      :types:
+      - Reference
+    - :path: item
+    - :path: item.linkId
+    - :path: item.text
+    - :path: item.answer
+    - :path: item.answer.value[x]
+      :types:
+      - Reference
+    - :path: item.answer.item
+    - :path: item.item
+    :recursive_elements:
+    - item
 - :resource: Questionnaire
   :profile_url: http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/dtr-std-questionnaire
   :profile_name: DTR Standard Questionnaire

@@ -10,6 +10,8 @@ require_relative 'must_support/dtr_additional_questionnaires_interaction_group'
 require_relative 'must_support/dtr_questionnaire_base_must_support_test'
 require_relative 'must_support/dtr_questionnaire_adaptive_must_support_test'
 require_relative 'must_support/dtr_questionnaire_standard_must_support_test'
+require_relative 'must_support/dtr_questionnaire_response_base_must_support_test'
+require_relative 'must_support/dtr_questionnaire_response_adaptive_must_support_test'
 require_relative 'workflows/dtr_full_ehr_workflow_adaptive_group'
 require_relative 'workflows/dtr_full_ehr_workflow_standard_group'
 
@@ -130,6 +132,15 @@ module DaVinciDTRTestKit
         test from: :dtr_full_ehr_v220_questionnaire_base_must_support
         test from: :dtr_full_ehr_v220_questionnaire_adaptive_must_support
         test from: :dtr_full_ehr_v220_questionnaire_standard_must_support
+      end
+
+      group do
+        id :dtr_full_ehr_v220_questionnaire_response_must_support
+        title 'QuestionnaireResponse Must Support'
+        run_as_group
+
+        test from: :dtr_full_ehr_v220_questionnaire_response_base_must_support
+        test from: :dtr_full_ehr_v220_questionnaire_response_adaptive_must_support
       end
     end
 

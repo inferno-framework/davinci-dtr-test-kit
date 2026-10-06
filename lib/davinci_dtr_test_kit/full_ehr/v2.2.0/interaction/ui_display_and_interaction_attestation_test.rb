@@ -33,6 +33,17 @@ module DaVinciDTRTestKit
         By attesting **true** during this test, the tester confirms that each of the must support or differential
         items observed within the Questionnaires returned during the previous interaction were exercised and
         appropriately supported by the client and resulted in the correct behavior (or were ignored if allowed).
+      - The ability to display QuestionnaireResponse details and answers: DTR requires form fillers to be able to
+        display ([conf-5](https://hl7.org/fhir/us/davinci-dtr/2.2.0/en/confexpectations.html#ci-c-conf-5)) the
+        Questionnaire's display title (`QuestionnaireResponse.questionnaire.questionnaireDisplay` or
+        `Questionnaire.title`), the `authored` date, the names of the `author` and `source`, each item's `text`,
+        answers of all data types, and the same for all nested items. Inferno only sees QuestionnaireResponses for
+        adaptive Questionnaires, as sent in $next-question requests, and cannot see how any of them were rendered.
+        The presence of these elements in adaptive QuestionnaireResponses is checked mechanically in the
+        QuestionnaireResponse Must Support tests, but their correct display is not. By attesting **true** during
+        this test, the tester confirms that these details and answers were displayed correctly for each
+        QuestionnaireResponse completed during the previous interaction, for both standard and adaptive
+        Questionnaires.
       - The ability to complete standard Questionnaires: unlike adaptive Questionnaires, where Inferno
         acting as the payer sees the QuestionnaireResponse on $next-question requests and determines
         whether it is complete, Inferno has no access to QuestionnaireResponses for standard Questionnaires.
@@ -109,6 +120,10 @@ module DaVinciDTRTestKit
             observed items and extensions below).
           - Storage of each completed Questionnaires for later use as QuestionnaireResponses
             (see list of returned Questionnaires below).
+          - Displaying each QuestionnaireResponse's details and answers: the Questionnaire's display
+            title, authored date, author and source names, each item's text, and answers of all data
+            types, including within nested items (see
+            [conf-5](https://hl7.org/fhir/us/davinci-dtr/2.2.0/en/confexpectations.html#ci-c-conf-5)).
 
           [Click here](#{attest_true_url}) if the above statement is **true**.
 
