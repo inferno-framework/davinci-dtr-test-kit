@@ -83,6 +83,7 @@ module DaVinciDTRTestKit
               If not provided, no `$next-question` requests will be performed.
             ),
             type: 'textarea',
+            optional: true,
             enable_when: { input_name: 'request_mode', value: MANUAL_MODE }
       input :dtr_client_access_token,
             title: 'DTR Client Access Token',
