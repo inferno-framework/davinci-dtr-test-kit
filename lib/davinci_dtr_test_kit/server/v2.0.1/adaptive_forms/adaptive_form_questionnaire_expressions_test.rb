@@ -17,7 +17,6 @@ module DaVinciDTRTestKit
       skip_if scratch[:adaptive_questionnaire_bundles].blank?, 'No questionnaire bundle returned.'
       questionnaires = extract_questionnaires_from_bundles(scratch[:adaptive_questionnaire_bundles])
       verify_questionnaire_items(questionnaires)
-      scratch[:adaptive_questionnaire_bundles] = nil
     end
   end
 end
