@@ -85,7 +85,7 @@ module DaVinciDTRTestKit
 
           Available endpoints on Inferno's simulated payer server include
 
-          - FHIR Base: `#{fhir_base_url}
+          - FHIR Base: `#{fhir_base_url}`
           - Questionnaire Package Operation: `#{questionnaire_package_url}`
           - Next Question Operation: `#{next_url}`
 

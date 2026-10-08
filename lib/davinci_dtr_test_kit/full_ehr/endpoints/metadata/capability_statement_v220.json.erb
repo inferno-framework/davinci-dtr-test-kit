@@ -1,0 +1,82 @@
+{
+  "resourceType": "CapabilityStatement",
+  "id": "inferno-dtr-payer-service",
+  "language": "en",
+  "name": "InfernoDTRPayerService",
+  "title": "Inferno DTR Payer Service",
+  "status": "active",
+  "experimental": false,
+  "date": "2026-02-04",
+  "publisher": "Inferno",
+  "description": "This capability statement defines the capabilities of Inferno's simulated DTR payer systems that provides questionnaires to DTR clients.",
+  "kind": "instance",
+  "software": {
+    "name": "Inferno DTR Da Vinci DTR Client Test Suite v2.2.0",
+    "version": "<%= DaVinciDTRTestKit::VERSION %>",
+    "date": "<%= DaVinciDTRTestKit::LAST_UPDATED  %>"
+  },
+  "implementation": {
+    "url": "<%= Inferno::Application['base_url'] %>/davinci_dtr"
+  },
+  "fhirVersion": "4.0.1",
+  "format": [
+    "json"
+  ],
+  "rest": [
+    {
+      "mode": "server",
+      "security": {
+        "extension": [
+          {
+            "url": "http://fhir-registry.smarthealthit.org/StructureDefinition/oauth-uris",
+            "extension": [
+              {
+                "url": "token",
+                "valueUri": "<%= Inferno::Application['base_url'] %>/custom/dtr_full_ehr_v220/auth/token"
+              }
+            ]
+          }
+        ],
+        "service": [
+          {
+            "coding": [
+              {
+                "system": "http://hl7.org/fhir/restful-security-service",
+                "code": "SMART-on-FHIR"
+              }
+            ],
+            "text": "OAuth2 using SMART-on-FHIR profile (see http://docs.smarthealthit.org)"
+          }
+        ]
+      },
+      "resource": [
+        {
+          "type": "Questionnaire",
+          "operation": [
+            {
+              "name": "questionnaire-package",
+              "definition": "http://hl7.org/fhir/us/davinci-dtr/OperationDefinition/questionnaire-package|2.2.0"
+            },
+            {
+              "name": "next-question",
+              "definition": "http://hl7.org/fhir/uv/sdc/OperationDefinition/Questionnaire-next-question|4.0.0"
+            },
+            {
+              "name": "log-questionnaire-errors",
+              "definition": "http://hl7.org/fhir/us/davinci-dtr/OperationDefinition/log-questionnaire-errors|2.2.0"
+            }
+          ]
+        },
+        {
+          "type": "ValueSet",
+          "operation": [
+            {
+              "name": "expand",
+              "definition": "http://hl7.org/fhir/OperationDefinition/ValueSet-expand"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
