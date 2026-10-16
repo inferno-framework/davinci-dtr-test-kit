@@ -350,20 +350,18 @@ RSpec.describe DaVinciDTRTestKit::DTRPayerServerV220::InteractionTest, :request 
       expect(results_repo.find(result.id).result).to eq('pass')
     end
 
-    it 'skips when client mode is selected without an access token' do
+    it 'skips when client mode is selected without the required access token' do
       result = run(test_class, url:, request_mode: described_class::CLIENT_MODE)
 
       expect(result.result).to eq('skip'), result.result_message
-      expect(result.result_message).to include('DTR Client Access Token is required for DTR Client mode')
+      expect(result.result_message).to include("Input 'dtr_client_access_token' is nil")
     end
 
-    it 'skips when manual mode is selected without request parameters' do
+    it 'skips when manual mode is selected without required request parameters' do
       result = run(test_class, url:, request_mode: described_class::MANUAL_MODE)
 
       expect(result.result).to eq('skip'), result.result_message
-      expect(result.result_message).to include(
-        '$questionnaire-package Request Parameters input is required for Manual mode'
-      )
+      expect(result.result_message).to include("Input 'questionnaire_package_request_parameters' is nil")
     end
   end
 end
