@@ -42,6 +42,26 @@ module DaVinciDTRTestKit
   #     uses developer-specified responses.
   #   - nq_questionnaire_template_input: the name of an input that will contain template.
   #     Used when testers can provide their own Questionnaires.
+  # - library_bundle_*: (Optional) If there are CQL Libraries that need to be included in
+  #   Inferno responses that are not already specified directly in the other templates,
+  #   one of the following must be set to indicate the source of a Bundle that includes those
+  #   Libraries. If none is specified, an mepty Bundle will be used. Inferno will use the Library
+  #   `url` and `version` elements to identify referencd Library resources to include.
+  #   - library_bundle_fixture: path relative to the `lib/davinci_dtr_test_kit/full_ehr/fixtures`
+  #     directory pointing to a file containing the libraries Bundle. Used when the scenario
+  #     uses developer-specified responses.
+  #   - library_bundle_input: the name of an input that will contain the libraries Bundle.
+  #     Used when testers can provide their own Questionnaires.
+  # - value_set_bundle_*: (Optional) If there are ValueSet resources that need to be included in
+  #   Inferno responses that are not already specified directly in the other templates,
+  #   one of the following must be set to indicate the source of a Bundle that includes those
+  #   ValueSets. If none is specified, an mepty Bundle will be used. Inferno will use the ValueSet
+  #   `url` and `version` elements to identify referencd Library resources to include.
+  #   - value_set_bundle_fixture: path relative to the `lib/davinci_dtr_test_kit/full_ehr/fixtures`
+  #     directory pointing to a file containing the ValueSet Bundle. Used when the scenario
+  #     uses developer-specified responses.
+  #   - value_set_bundle_input: the name of an input that will contain the ValueSet Bundle.
+  #     Used when testers can provide their own Questionnaires.
   # - short_circuit_pass_input: (Optional) If testers can decide to not complete any Questionnaires
   #   during this group (e.g., for the must support group when no additional elements need to
   #   be demonstrated), points to an input that indicates that decision. When Questionnaires

@@ -4,8 +4,8 @@ During the DTR client tests, client systems are asked to demonstrate
 that they can handle and complete Questionnaires meeting certain requirements.
 Some of the scenarios in the client tests require testers to complete
 Inferno-built Questionnaires to prove conformance to certain requirements.
-However, many of them allow testers to provide their own Questionnaires and
-in generaly, Inferno does not have Questionnaires that demonstrate all of
+However, many of them allow testers to provide their own Questionnaires.
+Inferno does not have Questionnaires that demonstrate all of
 the capabilities of the DTR specification, so in practice testers will
 need to provide some Questionnaires for Inferno to provide back as a part
 of its DTR payer server simulation. This page describes how testers specify
@@ -84,8 +84,8 @@ Inclusion criteria extension options include:
 - `urn:inferno:dtr:inclusion-criteria`: element `valueExpression.expression` contains
   a FHIRPath expression executed against the QuestionnaireResponse from the request.
   To determine inclusion, the FHIRPath result is interpreted as a boolean where
-  - empty collections, collections with multiple entries, and collections with a single `false`
-    value are interepreted as `false`.
+  - empty collections, collections with multiple entries, and collections with a single
+    `false` value are interepreted as `false`.
   - all other collections interpreted as `true`.
 - `urn:inferno:dtr:request-range`: element `valueString` contains a single or comma-separated
   list of 1-indexed request numbers or ranges indicaing the requests that the item can first
@@ -100,5 +100,5 @@ to be evaluated for inclusion.
 
 Tokens of the form `{{<fhirpath>}}` within response templates are replaced with the results
 of the `<fhirpath>>` executed against the request body. The results of the FHIRpath
-must be one or more strings and results with more than one string are  converted into a
+must be one or more strings and results with more than one string are converted into a
 single string separated by commas. Results that are objects and arrays will be silently discarded.

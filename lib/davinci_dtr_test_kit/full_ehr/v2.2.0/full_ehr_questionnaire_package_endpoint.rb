@@ -93,19 +93,42 @@ module DaVinciDTRTestKit
       # ***********************************************************************
 
       def instantiate_template
-        result = replace_tokens(
-          FHIR::Parameters.new(
-            parameter: response_template.parameter.select do |param|
-              include_entity?(param, request_parameters, '$questionnaire-package')
-            end
-          )
-        )
-        result.parameter.each { |param| strip_inferno_extensions(param) } if result.is_a?(FHIR::Parameters)
-        result
+        instantiate_selected_bundles(select_package_bundles)
       rescue FhirpathServiceError => e
         raise if template_from_fixture?
 
         operation_outcome('error', 'invalid', e.message)
+      end
+
+      def select_package_bundles
+        FHIR::Parameters.new(
+          parameter: response_template.parameter.select do |param|
+            include_entity?(param, request_parameters, '$questionnaire-package')
+          end
+        )
+      end
+
+      def instantiate_selected_bundles(selected_parameters)
+        selected_parameters.each do |parameter|
+          next unless parameter.name == 'packagebundle'
+
+          instantiate_bundle(parameter.resource)
+        end
+
+        result = replace_tokens(selected_parameters)
+        clean_up_instantiation(result)
+        result
+      end
+
+      def clean_up_instantiation(instantiated_parameters)
+        return unless instantiated_parameters.is_a?(FHIR::Parameters)
+
+        instantiated_parameters.parameter.each do |param|
+          strip_inferno_extensions(param)
+        end
+      end
+
+      def instantiate_bundle(questionnaire_package_bundle)
       end
 
       # ***********************************************************************

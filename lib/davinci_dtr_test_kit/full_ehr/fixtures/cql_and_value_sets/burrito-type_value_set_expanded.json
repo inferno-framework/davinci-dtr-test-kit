@@ -1,0 +1,47 @@
+{
+  "resourceType": "ValueSet",
+  "id": "toppings",
+  "url": "https://inferno.healthit.gov/test-kits/davinci-dtr/ValueSet/burrito-type",
+  "version": "1.0.0",
+  "status": "active",
+  "date": "2026-09-14",
+  "description": "Types of Burrito Filling",
+  "extension": [
+    {
+      "url": "https://inferno.healthit.gov/test-kits/davinci-dtr/StructureDefinition/extension-include-value-set-expanded",
+      "valueBoolean": "true"
+    }
+  ],
+  "compose": {
+    "include": [
+      {
+        "system": "https://inferno.healthit.gov/test-kits/davinci-dtr/CodeSystem/burrito-type"
+      }
+    ]
+  },
+  "expansion": {
+    "timestamp": "2026-09-14T00:00:01+00:00",
+    "contains": [
+      {
+        "system": "https://inferno.healthit.gov/test-kits/davinci-dtr/CodeSystem/burrito-type",
+        "code": "beef",
+        "display": "Ground Beef"
+      },
+      {
+        "system": "https://inferno.healthit.gov/test-kits/davinci-dtr/CodeSystem/burrito-type",
+        "code": "carnitas",
+        "display": "Carnitas"
+      },
+      {
+        "system": "https://inferno.healthit.gov/test-kits/davinci-dtr/CodeSystem/burrito-type",
+        "code": "beans",
+        "display": "Beans"
+      },
+      {
+        "system": "https://inferno.healthit.gov/test-kits/davinci-dtr/CodeSystem/burrito-type",
+        "code": "chicken",
+        "display": "Chicken"
+      }
+    ]
+  }
+}
