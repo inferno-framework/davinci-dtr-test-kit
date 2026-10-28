@@ -45,8 +45,9 @@ module DaVinciDTRTestKit
   # - library_bundle_*: (Optional) If there are CQL Libraries that need to be included in
   #   Inferno responses that are not already specified directly in the other templates,
   #   one of the following must be set to indicate the source of a Bundle that includes those
-  #   Libraries. If none is specified, an mepty Bundle will be used. Inferno will use the Library
-  #   `url` and `version` elements to identify referencd Library resources to include.
+  #   Libraries. If none is specified, no Libraries will be added. Inferno adds a Library when
+  #   its `url` (and `version`, if the reference has one) matches a reference from a returned
+  #   Questionnaire or item (see FullEHRV220SupportingResources for which references count).
   #   - library_bundle_fixture: path relative to the `lib/davinci_dtr_test_kit/full_ehr/fixtures`
   #     directory pointing to a file containing the libraries Bundle. Used when the scenario
   #     uses developer-specified responses.
@@ -55,8 +56,8 @@ module DaVinciDTRTestKit
   # - value_set_bundle_*: (Optional) If there are ValueSet resources that need to be included in
   #   Inferno responses that are not already specified directly in the other templates,
   #   one of the following must be set to indicate the source of a Bundle that includes those
-  #   ValueSets. If none is specified, an mepty Bundle will be used. Inferno will use the ValueSet
-  #   `url` and `version` elements to identify referencd Library resources to include.
+  #   ValueSets. If none is specified, no ValueSets will be added. Inferno selects ValueSets
+  #   to include the same way as Libraries.
   #   - value_set_bundle_fixture: path relative to the `lib/davinci_dtr_test_kit/full_ehr/fixtures`
   #     directory pointing to a file containing the ValueSet Bundle. Used when the scenario
   #     uses developer-specified responses.

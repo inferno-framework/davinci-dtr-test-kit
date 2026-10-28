@@ -1452,6 +1452,48 @@ RSpec.describe DaVinciDTRTestKit::MockPayer::FullEHRV220NextQuestionEndpoint, :r
         expect(last_response.status).to eq(200)
         expect(JSON.parse(last_response.body)['resourceType']).to eq('QuestionnaireResponse')
       end
+
+      it 'skips a 200 $questionnaire-package response whose body is not a Parameters resource' do
+        wait_result = run(nq_input_test, client_id:,
+                                         qp_response_template: adaptive_questionnaire_package_json,
+                                         nq_questionnaire_template: valid_nq_questionnaire_template_json)
+        # The QP endpoint never stores a 200 response that isn't Parameters, so insert one directly
+        # ahead of the valid response to show the lookup skips it rather than erroring.
+        repo_create(:request, result_id: wait_result.id, test_session_id: test_session.id,
+                              url: qp_server_endpoint, verb: 'post', direction: 'incoming', status: 200,
+                              response_body: FHIR::OperationOutcome.new(
+                                issue: [FHIR::OperationOutcome::Issue.new(severity: 'error', code: 'invalid')]
+                              ).to_json)
+        post_qp_with_token
+        post_nq_with_token
+
+        expect(last_response.status).to eq(200)
+        expect(JSON.parse(last_response.body)['resourceType']).to eq('QuestionnaireResponse')
+      end
+
+      it 'skips packagebundle parameters that do not contain a Bundle when looking up the questionnaire' do
+        adaptive_bundle = FHIR.from_contents(adaptive_questionnaire_package_json).parameter.first.resource
+        template = FHIR::Parameters.new(
+          parameter: [
+            FHIR::Parameters::Parameter.new(name: 'packagebundle'),
+            FHIR::Parameters::Parameter.new(
+              name: 'packagebundle',
+              resource: FHIR::Questionnaire.new(url: 'urn:inferno:dtr-test-kit:dinner-order-adaptive',
+                                                status: 'draft')
+            ),
+            FHIR::Parameters::Parameter.new(name: 'packagebundle', resource: adaptive_bundle)
+          ]
+        ).to_json
+
+        run(nq_input_test, client_id:,
+                           qp_response_template: template,
+                           nq_questionnaire_template: valid_nq_questionnaire_template_json)
+        post_qp_with_token
+        post_nq_with_token
+
+        expect(last_response.status).to eq(200)
+        expect(JSON.parse(last_response.body)['resourceType']).to eq('QuestionnaireResponse')
+      end
     end
 
     # -------------------------------------------------------------------
@@ -1622,6 +1664,121 @@ RSpec.describe DaVinciDTRTestKit::MockPayer::FullEHRV220NextQuestionEndpoint, :r
 
       expect(last_response.status).to eq(200)
       expect(JSON.parse(last_response.body)['resourceType']).to eq('QuestionnaireResponse')
+    end
+
+    # -------------------------------------------------------------------
+    # Supporting Libraries and ValueSets
+    #
+    # Libraries and ValueSets from the configured Bundles that are referenced by newly added
+    # items are added as contained resources of the returned QuestionnaireResponse, unless the
+    # client already has them from the request or the $questionnaire-package response.
+    # -------------------------------------------------------------------
+
+    context 'when supporting Library and ValueSet Bundles are configured' do
+      let(:burger_library_url) { 'https://madie.cms.gov/Library/InfernoDTRSampleBurgerCQLLibrary' }
+      let(:burger_type_url) { 'https://inferno.healthit.gov/test-kits/davinci-dtr/ValueSet/burger-type' }
+      let(:toppings_url) { 'https://inferno.healthit.gov/test-kits/davinci-dtr/ValueSet/toppings' }
+
+      let(:supporting_nq_test) do
+        Class.new(DaVinciDTRTestKit::DTRFullEHRV220InteractionWaitTest) do
+          id :dtr_full_ehr_v220_nq_endpoint_spec_supporting_resources
+          input :qp_response_template, optional: true
+          input :nq_questionnaire_template, optional: true
+          config options: {
+            qp_response_template_input: 'qp_response_template',
+            nq_questionnaire_template_input: 'nq_questionnaire_template',
+            library_bundle_fixture: 'cql_and_value_sets/cql_and_value_sets_libraries.json',
+            value_set_bundle_fixture: 'cql_and_value_sets/cql_and_value_sets_value_sets.json',
+            dtr_workflow_tag: nil
+          }
+        end
+      end
+
+      # The adaptive package plus the toppings ValueSet, which the client therefore already has.
+      let(:package_with_toppings_json) do
+        package = FHIR.from_contents(adaptive_questionnaire_package_json)
+        package.parameter.first.resource.entry << FHIR::Bundle::Entry.new(
+          resource: FHIR::ValueSet.new(id: 'toppings', url: toppings_url, status: 'active')
+        )
+        package.to_json
+      end
+
+      let(:burger_template_json) do
+        FHIR.from_contents({
+          resourceType: 'Questionnaire',
+          status: 'draft',
+          item: [
+            { linkId: 'Burger', type: 'group',
+              extension: [{ url: 'urn:inferno:dtr:include-resource', valueCanonical: "#{burger_library_url}|0.0.000" }],
+              item: [
+                { linkId: 'Burger.1', type: 'choice', answerValueSet: burger_type_url },
+                { linkId: 'Burger.2', type: 'choice', answerValueSet: toppings_url }
+              ] }
+          ]
+        }.to_json).to_json
+      end
+
+      def nq_request_body(contained)
+        questionnaire = FHIR::Questionnaire.new(id: 'DinnerOrderAdaptive',
+                                                url: 'urn:inferno:dtr-test-kit:dinner-order-adaptive',
+                                                status: 'draft')
+        FHIR::Parameters.new(
+          parameter: [
+            FHIR::Parameters::Parameter.new(
+              name: 'questionnaire-response',
+              resource: FHIR::QuestionnaireResponse.new(status: 'in-progress', contained: [questionnaire] + contained)
+            )
+          ]
+        ).to_json
+      end
+
+      def post_nq(body)
+        header('Authorization', "Bearer #{UDAPSecurityTestKit::MockUDAPServer.client_id_to_token(client_id, 5)}")
+        post(nq_server_endpoint, body, 'CONTENT_TYPE' => 'application/json', 'REQUEST_PATH' => nq_server_endpoint)
+      end
+
+      def contained_supporting_canonicals
+        JSON.parse(last_response.body).fetch('contained', [])
+          .reject { |resource| resource['resourceType'] == 'Questionnaire' }
+          .map { |resource| "#{resource['resourceType']}|#{resource['url']}" }
+      end
+
+      it 'contains the Libraries and ValueSets referenced by new items that the package did not include' do
+        run(supporting_nq_test, client_id:, qp_response_template: package_with_toppings_json,
+                                nq_questionnaire_template: burger_template_json)
+        post_qp_with_token
+        post_nq(nq_request_body([]))
+
+        expect(last_response.status).to eq(200)
+        expect(contained_supporting_canonicals).to contain_exactly(
+          "Library|#{burger_library_url}",
+          "ValueSet|#{burger_type_url}"
+        )
+      end
+
+      it 'does not duplicate resources already contained in the request QuestionnaireResponse' do
+        run(supporting_nq_test, client_id:, qp_response_template: package_with_toppings_json,
+                                nq_questionnaire_template: burger_template_json)
+        post_qp_with_token
+        already_contained = FHIR::Library.new(id: 'burger', url: burger_library_url, version: '0.0.000',
+                                              status: 'active')
+        post_nq(nq_request_body([already_contained]))
+
+        expect(contained_supporting_canonicals.count("Library|#{burger_library_url}")).to eq(1)
+        expect(contained_supporting_canonicals).to include("ValueSet|#{burger_type_url}")
+      end
+
+      it 'strips the include-resource extension from added items' do
+        run(supporting_nq_test, client_id:, qp_response_template: package_with_toppings_json,
+                                nq_questionnaire_template: burger_template_json)
+        post_qp_with_token
+        post_nq(nq_request_body([]))
+
+        burger_group = JSON.parse(last_response.body)['contained']
+          .find { |resource| resource['resourceType'] == 'Questionnaire' }['item'].first
+        expect(burger_group.fetch('extension', []).map { |ext| ext['url'] })
+          .to_not include('urn:inferno:dtr:include-resource')
+      end
     end
   end
 end

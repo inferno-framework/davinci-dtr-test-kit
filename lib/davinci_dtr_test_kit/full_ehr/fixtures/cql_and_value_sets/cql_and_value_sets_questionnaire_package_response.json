@@ -233,7 +233,7 @@
             "resource": {
               "resourceType": "ValueSet",
               "id": "toppings",
-              "url": "https://inferno.healthit.gov/suites/davinci-dtr/ValueSet/toppings",
+              "url": "https://inferno.healthit.gov/test-kits/davinci-dtr/ValueSet/toppings",
               "version": "2.2.0",
               "status": "active",
               "date": "2026-09-14",

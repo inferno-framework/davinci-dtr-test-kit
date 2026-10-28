@@ -38,7 +38,7 @@
       "extension": [
         {
           "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-hidden",
-          "valueBoolean": "true"
+          "valueBoolean": true
         }
       ],
       "linkId": "HIDDEN-1",
@@ -49,7 +49,7 @@
           "extension": [
             {
              "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-hidden",
-              "valueBoolean": "true"
+              "valueBoolean": true
             }
           ],
           "linkId": "HIDDEN-1.1",
@@ -62,7 +62,7 @@
           "extension": [
             {
              "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-hidden",
-              "valueBoolean": "true"
+              "valueBoolean": true
             },
             {
               "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-initialExpression",
@@ -81,7 +81,7 @@
           "extension": [
             {
              "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-hidden",
-              "valueBoolean": "true"
+              "valueBoolean": true
             },
             {
               "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-initialExpression",
@@ -100,7 +100,7 @@
           "extension": [
             {
              "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-hidden",
-              "valueBoolean": "true"
+              "valueBoolean": true
             },
             {
               "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-initialExpression",

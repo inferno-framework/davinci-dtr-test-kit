@@ -28,7 +28,7 @@
       "extension": [
         {
           "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-hidden",
-          "valueBoolean": "true"
+          "valueBoolean": true
         }
       ],
       "linkId": "HIDDEN-1",
@@ -39,7 +39,7 @@
           "extension": [
             {
              "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-hidden",
-              "valueBoolean": "true"
+              "valueBoolean": true
             },
             {
               "url": "urn:inferno:dtr:inclusion-criteria",
@@ -56,7 +56,7 @@
           "extension": [
             {
              "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-hidden",
-              "valueBoolean": "true"
+              "valueBoolean": true
             },
             {
               "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-initialExpression",
@@ -79,7 +79,7 @@
           "extension": [
             {
              "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-hidden",
-              "valueBoolean": "true"
+              "valueBoolean": true
             },
             {
               "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-initialExpression",
@@ -102,7 +102,7 @@
           "extension": [
             {
              "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-hidden",
-              "valueBoolean": "true"
+              "valueBoolean": true
             },
             {
               "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-initialExpression",
@@ -225,7 +225,7 @@
           "extension": [
             {
              "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-hidden",
-              "valueBoolean": "true"
+              "valueBoolean": true
             },
             {
               "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-initialExpression",
@@ -293,12 +293,8 @@
               }
             },
             {
-              "url": "urn:inferno:dtr:add-contained-library-on-inclusion",
-              "valueString": "library-InfernoDTRSampleBurgerCQLLibrary-0.0.000.json"
-            },
-            {
-              "url": "urn:inferno:dtr:add-contained-value-set-on-inclusion",
-              "valueString": "burger-type_value_set_expanded.json"
+              "url": "urn:inferno:dtr:include-resource",
+              "valueCanonical": "https://madie.cms.gov/Library/InfernoDTRSampleBurgerCQLLibrary|0.0.000"
             }
           ],
           "item": [
@@ -325,7 +321,7 @@
               "extension": [
                 {
                 "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-hidden",
-                  "valueBoolean": "true"
+                  "valueBoolean": true
                 },
                 {
                   "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-initialExpression",
@@ -353,12 +349,8 @@
               }
             },
             {
-              "url": "urn:inferno:dtr:add-contained-library-on-inclusion",
-              "valueString": "library-InfernoDTRSampleBurritoCQLLibrary-0.0.000.json"
-            },
-            {
-              "url": "urn:inferno:dtr:add-contained-value-set-on-inclusion",
-              "valueString": "burrito-type_value_set_expanded.json"
+              "url": "urn:inferno:dtr:include-resource",
+              "valueCanonical": "https://madie.cms.gov/Library/InfernoDTRSampleBurritoCQLLibrary|0.0.000"
             }
           ],
           "item": [
@@ -385,7 +377,7 @@
               "extension": [
                 {
                 "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-hidden",
-                  "valueBoolean": "true"
+                  "valueBoolean": true
                 },
                 {
                   "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-initialExpression",

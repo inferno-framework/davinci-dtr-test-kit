@@ -76,6 +76,27 @@ the Inferno will mark the QuestionnaireRepsonse as complete by changing the
 
 TODO - not implemented yet
 
+### CQL Libraries and ValueSets
+
+Some tests also provide inputs for a Bundle of CQL Library resources and a Bundle
+of ValueSet resources. Rather than copying these resources into each template,
+Inferno adds them to responses when the returned Questionnaires reference them.
+A resource is referenced when its `url` (and `version`, if the reference includes
+one, e.g., `http://example.org/Library/Example|1.0.0`) matches
+- a `http://hl7.org/fhir/StructureDefinition/cqf-library` extension on a Questionnaire or item,
+- an item's `answerValueSet`,
+- a [`urn:inferno:dtr:include-resource`](#including-libraries-and-valuesets) extension
+  on a Questionnaire or item, or
+- a `depends-on` `relatedArtifact` of a Library that is referenced, e.g., FHIRHelpers.
+
+References that don't match a provided resource are ignored. Where the resources are
+added depends on the operation:
+- `$questionnaire-package`: referenced resources are added as entries to each
+  'packagebundle' that doesn't already include them.
+- `$next-question`: resources referenced by newly added items are added as
+  `contained` resources of the returned QuestionnaireResponse, unless the client
+  already has them from the request or from the `$questionnaire-package` response.
+
 ## Specifying Dynamic Content in Response Templates
 
 ### Inclusion Criteria
@@ -95,6 +116,15 @@ Inclusion criteria extension options include:
 If multiple criteria are included, all must be met for the item to be included. Recall that if
 the item is nested under another item, its parent must already present or added for the child
 to be evaluated for inclusion.
+
+### Including Libraries and ValueSets
+
+CQL expressions refer to Libraries by name rather than canonical url, so Inferno cannot
+tell that an item needs a Library from its expressions. Add a `urn:inferno:dtr:include-resource`
+extension, whose `valueCanonical` contains the Library's canonical url, to the item (or Questionnaire)
+to have Inferno include that Library from the provided Bundle when it returns the item.
+See [CQL Libraries and ValueSets](#cql-libraries-and-valuesets) for details. The extension
+is removed before responding.
 
 ### Dynamic Tokens
 

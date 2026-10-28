@@ -2,7 +2,8 @@ module DaVinciDTRTestKit
   module ResponseSelectionUtils
     INFERNO_CONTROL_EXTENSION_URLS = [
       'urn:inferno:dtr:inclusion-criteria',
-      'urn:inferno:dtr:request-range'
+      'urn:inferno:dtr:request-range',
+      'urn:inferno:dtr:include-resource'
     ].freeze
 
     # ***********************************************************************

@@ -4,6 +4,7 @@ require_relative '../../cross_suite/fhirpath_utils'
 require_relative '../../cross_suite/response_selection_utils'
 require_relative '../fixture_loader'
 require_relative '../../tags'
+require_relative 'full_ehr_supporting_resources'
 
 module DaVinciDTRTestKit
   module MockPayer
@@ -11,6 +12,7 @@ module DaVinciDTRTestKit
       include MockPayer
       include DaVinciDTRTestKit::FhirpathUtils
       include DaVinciDTRTestKit::ResponseSelectionUtils
+      include FullEHRV220SupportingResources
 
       def test_run_identifier
         return request.params[:session_path] if request.params[:session_path].present?
@@ -93,14 +95,21 @@ module DaVinciDTRTestKit
       # ***********************************************************************
 
       def instantiate_template
-        instantiate_selected_bundles(select_package_bundles)
+        # replace_tokens builds a new resource, so later steps can modify it without
+        # changing the (cached) template.
+        result = replace_tokens(select_package_parameters)
+        return result unless result.is_a?(FHIR::Parameters)
+
+        add_supporting_resources_to_package_bundles(result)
+        clean_up_instantiation(result)
+        result
       rescue FhirpathServiceError => e
         raise if template_from_fixture?
 
         operation_outcome('error', 'invalid', e.message)
       end
 
-      def select_package_bundles
+      def select_package_parameters
         FHIR::Parameters.new(
           parameter: response_template.parameter.select do |param|
             include_entity?(param, request_parameters, '$questionnaire-package')
@@ -108,27 +117,34 @@ module DaVinciDTRTestKit
         )
       end
 
-      def instantiate_selected_bundles(selected_parameters)
-        selected_parameters.each do |parameter|
-          next unless parameter.name == 'packagebundle'
+      def package_bundles(parameters)
+        parameters.parameter.select { |param| param.name == 'packagebundle' }.map(&:resource).grep(FHIR::Bundle)
+      end
 
-          instantiate_bundle(parameter.resource)
+      def bundle_questionnaires(bundle)
+        bundle.entry.map(&:resource).grep(FHIR::Questionnaire)
+      end
+
+      # Adds the configured Libraries and ValueSets referenced by each package bundle's
+      # Questionnaires that the bundle doesn't already include.
+      def add_supporting_resources_to_package_bundles(parameters)
+        package_bundles(parameters).each do |bundle|
+          canonicals = bundle_questionnaires(bundle).flat_map { |questionnaire| referenced_canonicals(questionnaire) }
+          resolve_supporting_resources(canonicals, exclude: bundle.entry.map(&:resource)).each do |resource|
+            bundle.entry << FHIR::Bundle::Entry.new(resource:)
+          end
         end
-
-        result = replace_tokens(selected_parameters)
-        clean_up_instantiation(result)
-        result
       end
 
       def clean_up_instantiation(instantiated_parameters)
-        return unless instantiated_parameters.is_a?(FHIR::Parameters)
-
         instantiated_parameters.parameter.each do |param|
           strip_inferno_extensions(param)
         end
-      end
-
-      def instantiate_bundle(questionnaire_package_bundle)
+        package_bundles(instantiated_parameters).flat_map { |bundle| bundle_questionnaires(bundle) }
+          .each do |questionnaire|
+            strip_inferno_extensions(questionnaire)
+            all_questionnaire_items(questionnaire.item).each { |item| strip_inferno_extensions(item) }
+          end
       end
 
       # ***********************************************************************

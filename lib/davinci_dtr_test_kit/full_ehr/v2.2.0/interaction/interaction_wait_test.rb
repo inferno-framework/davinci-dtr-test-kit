@@ -117,6 +117,8 @@ module DaVinciDTRTestKit
     def validate_response_template_inputs
       validate_qp_response_template_input
       validate_nq_questionnaire_template_input
+      validate_supporting_resource_bundle_input(config.options[:library_bundle_input])
+      validate_supporting_resource_bundle_input(config.options[:value_set_bundle_input])
     rescue Inferno::Exceptions::AssertionException => e
       short_circuit_validation_tests(:skip)
       raise e
@@ -166,6 +168,18 @@ module DaVinciDTRTestKit
       end
     rescue JSON::ParserError
       assert false, "Input '#{title}' does not contain valid JSON."
+    end
+
+    # Library and ValueSet Bundle inputs are optional, so an empty value is allowed.
+    def validate_supporting_resource_bundle_input(input_name)
+      return if input_name.blank?
+
+      value = send(input_name)
+      return if value.blank?
+
+      title = input_title(input_name)
+      parsed = parse_qp_template_value(value, title)
+      assert parsed.is_a?(FHIR::Bundle), "Input '#{title}' must contain a Bundle resource."
     end
 
     # config.options input references are stored as input names (e.g. 'additional_ms_qp_responses');

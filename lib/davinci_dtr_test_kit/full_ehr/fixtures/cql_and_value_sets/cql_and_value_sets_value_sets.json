@@ -1,0 +1,403 @@
+{
+  "resourceType": "Bundle",
+  "type": "collection",
+  "entry": [
+    {
+      "resource": {
+        "resourceType": "ValueSet",
+        "id": "toppings",
+        "url": "https://inferno.healthit.gov/test-kits/davinci-dtr/ValueSet/toppings",
+        "version": "1.0.0",
+        "status": "active",
+        "date": "2026-09-14",
+        "description": "Toppings that might go on your dinner",
+        "extension": [
+          {
+            "url": "https://inferno.healthit.gov/test-kits/davinci-dtr/StructureDefinition/extension-include-value-set-expanded",
+            "valueBoolean": "false"
+          }
+        ],
+        "compose": {
+          "include": [
+            {
+              "system": "https://inferno.healthit.gov/test-kits/davinci-dtr/CodeSystem/toppings"
+            }
+          ]
+        },
+        "expansion": {
+          "timestamp": "2026-09-14T00:00:01+00:00",
+          "contains": [
+            {
+              "system": "https://inferno.healthit.gov/test-kits/davinci-dtr/CodeSystem/toppings",
+              "code": "ketchup",
+              "display": "Ketchup"
+            },
+            {
+              "system": "https://inferno.healthit.gov/test-kits/davinci-dtr/CodeSystem/toppings",
+              "code": "spicy_mustard",
+              "display": "Spicy Mustard"
+            },
+            {
+              "system": "https://inferno.healthit.gov/test-kits/davinci-dtr/CodeSystem/toppings",
+              "code": "yellow_mustard",
+              "display": "Yellow Mustard"
+            },
+            {
+              "system": "https://inferno.healthit.gov/test-kits/davinci-dtr/CodeSystem/toppings",
+              "code": "dijon_mustard",
+              "display": "Dijon Mustard"
+            },
+            {
+              "system": "https://inferno.healthit.gov/test-kits/davinci-dtr/CodeSystem/toppings",
+              "code": "mayonnaise",
+              "display": "Mayonnaise"
+            },
+            {
+              "system": "https://inferno.healthit.gov/test-kits/davinci-dtr/CodeSystem/toppings",
+              "code": "lettuce",
+              "display": "Lettuce"
+            },
+            {
+              "system": "https://inferno.healthit.gov/test-kits/davinci-dtr/CodeSystem/toppings",
+              "code": "tomato",
+              "display": "Tomato"
+            },
+            {
+              "system": "https://inferno.healthit.gov/test-kits/davinci-dtr/CodeSystem/toppings",
+              "code": "pickles",
+              "display": "Pickles"
+            },
+            {
+              "system": "https://inferno.healthit.gov/test-kits/davinci-dtr/CodeSystem/toppings",
+              "code": "relish",
+              "display": "Relish"
+            },
+            {
+              "system": "https://inferno.healthit.gov/test-kits/davinci-dtr/CodeSystem/toppings",
+              "code": "onions",
+              "display": "Onions"
+            },
+            {
+              "system": "https://inferno.healthit.gov/test-kits/davinci-dtr/CodeSystem/toppings",
+              "code": "cheddar_cheese",
+              "display": "Cheddar Cheese"
+            },
+            {
+              "system": "https://inferno.healthit.gov/test-kits/davinci-dtr/CodeSystem/toppings",
+              "code": "pepper_jack_cheese",
+              "display": "Pepper Jack Cheese"
+            },
+            {
+              "system": "https://inferno.healthit.gov/test-kits/davinci-dtr/CodeSystem/toppings",
+              "code": "swiss_cheese",
+              "display": "Swiss Cheese"
+            },
+            {
+              "system": "https://inferno.healthit.gov/test-kits/davinci-dtr/CodeSystem/toppings",
+              "code": "sauerkraut",
+              "display": "Sauerkraut"
+            },
+            {
+              "system": "https://inferno.healthit.gov/test-kits/davinci-dtr/CodeSystem/toppings",
+              "code": "bacon",
+              "display": "Bacon"
+            },
+            {
+              "system": "https://inferno.healthit.gov/test-kits/davinci-dtr/CodeSystem/toppings",
+              "code": "cilantro",
+              "display": "Cilantro"
+            },
+            {
+              "system": "https://inferno.healthit.gov/test-kits/davinci-dtr/CodeSystem/toppings",
+              "code": "sour_cream",
+              "display": "Sour Cream"
+            },
+            {
+              "system": "https://inferno.healthit.gov/test-kits/davinci-dtr/CodeSystem/toppings",
+              "code": "guacamole",
+              "display": "Guacamole"
+            },
+            {
+              "system": "https://inferno.healthit.gov/test-kits/davinci-dtr/CodeSystem/toppings",
+              "code": "mild_salsa",
+              "display": "Mild Salsa"
+            },
+            {
+              "system": "https://inferno.healthit.gov/test-kits/davinci-dtr/CodeSystem/toppings",
+              "code": "medium_salsa",
+              "display": "Medium Salsa"
+            },
+            {
+              "system": "https://inferno.healthit.gov/test-kits/davinci-dtr/CodeSystem/toppings",
+              "code": "hot_salsa",
+              "display": "Hot Salsa"
+            },
+            {
+              "system": "https://inferno.healthit.gov/test-kits/davinci-dtr/CodeSystem/toppings",
+              "code": "salsa_verde",
+              "display": "Salsa Verde"
+            },
+            {
+              "system": "https://inferno.healthit.gov/test-kits/davinci-dtr/CodeSystem/toppings",
+              "code": "hot_sauce",
+              "display": "Hot Sauce"
+            },
+            {
+              "system": "https://inferno.healthit.gov/test-kits/davinci-dtr/CodeSystem/toppings",
+              "code": "coleslaw",
+              "display": "Coleslaw"
+            },
+            {
+              "system": "https://inferno.healthit.gov/test-kits/davinci-dtr/CodeSystem/toppings",
+              "code": "barbecue_sauce",
+              "display": "Barbecue Sauce"
+            },
+            {
+              "system": "https://inferno.healthit.gov/test-kits/davinci-dtr/CodeSystem/toppings",
+              "code": "red_onion",
+              "display": "Red Onion"
+            },
+            {
+              "system": "https://inferno.healthit.gov/test-kits/davinci-dtr/CodeSystem/toppings",
+              "code": "chunky_peanut_butter",
+              "display": "Chunky Peanut Butter"
+            },
+            {
+              "system": "https://inferno.healthit.gov/test-kits/davinci-dtr/CodeSystem/toppings",
+              "code": "smooth_peanut_butter",
+              "display": "Smooth Peanut Butter"
+            },
+            {
+              "system": "https://inferno.healthit.gov/test-kits/davinci-dtr/CodeSystem/toppings",
+              "code": "almond_butter",
+              "display": "Almond Butter"
+            },
+            {
+              "system": "https://inferno.healthit.gov/test-kits/davinci-dtr/CodeSystem/toppings",
+              "code": "sunflower_seed_butter",
+              "display": "Sunflower Seed Butter"
+            },
+            {
+              "system": "https://inferno.healthit.gov/test-kits/davinci-dtr/CodeSystem/toppings",
+              "code": "honey",
+              "display": "Honey"
+            },
+            {
+              "system": "https://inferno.healthit.gov/test-kits/davinci-dtr/CodeSystem/toppings",
+              "code": "butter",
+              "display": "Butter"
+            },
+            {
+              "system": "https://inferno.healthit.gov/test-kits/davinci-dtr/CodeSystem/toppings",
+              "code": "strawberry_jam",
+              "display": "Strawberry Jam"
+            },
+            {
+              "system": "https://inferno.healthit.gov/test-kits/davinci-dtr/CodeSystem/toppings",
+              "code": "raspberry_jam",
+              "display": "Raspberry Jam"
+            },
+            {
+              "system": "https://inferno.healthit.gov/test-kits/davinci-dtr/CodeSystem/toppings",
+              "code": "tomato_jam",
+              "display": "Tomato Jam"
+            },
+            {
+              "system": "https://inferno.healthit.gov/test-kits/davinci-dtr/CodeSystem/toppings",
+              "code": "mixed_berry_jam",
+              "display": "Mixed Berry Jam"
+            },
+            {
+              "system": "https://inferno.healthit.gov/test-kits/davinci-dtr/CodeSystem/toppings",
+              "code": "cream_cheese",
+              "display": "Cream Cheese"
+            },
+            {
+              "system": "https://inferno.healthit.gov/test-kits/davinci-dtr/CodeSystem/toppings",
+              "code": "marmalade",
+              "display": "Marmalade"
+            },
+            {
+              "system": "https://inferno.healthit.gov/test-kits/davinci-dtr/CodeSystem/toppings",
+              "code": "hummus",
+              "display": "Hummus"
+            },
+            {
+              "system": "https://inferno.healthit.gov/test-kits/davinci-dtr/CodeSystem/toppings",
+              "code": "baba_ghanoush",
+              "display": "Baba Ghanoush"
+            },
+            {
+              "system": "https://inferno.healthit.gov/test-kits/davinci-dtr/CodeSystem/toppings",
+              "code": "muhammara",
+              "display": "Muhammara"
+            },
+            {
+              "system": "https://inferno.healthit.gov/test-kits/davinci-dtr/CodeSystem/toppings",
+              "code": "ricotta_cheese",
+              "display": "Ricotta Cheese"
+            },
+            {
+              "system": "https://inferno.healthit.gov/test-kits/davinci-dtr/CodeSystem/toppings",
+              "code": "aioli",
+              "display": "Aioli"
+            },
+            {
+              "system": "https://inferno.healthit.gov/test-kits/davinci-dtr/CodeSystem/toppings",
+              "code": "olive_tapenade",
+              "display": "Olive Tapenade"
+            },
+            {
+              "system": "https://inferno.healthit.gov/test-kits/davinci-dtr/CodeSystem/toppings",
+              "code": "greek_yogurt",
+              "display": "Greek Yogurt"
+            },
+            {
+              "system": "https://inferno.healthit.gov/test-kits/davinci-dtr/CodeSystem/toppings",
+              "code": "whole_milk_yogurt",
+              "display": "Whole Milk Yogurt"
+            },
+            {
+              "system": "https://inferno.healthit.gov/test-kits/davinci-dtr/CodeSystem/toppings",
+              "code": "lowfat_yogurt",
+              "display": "Lowfat Yogurt"
+            },
+            {
+              "system": "https://inferno.healthit.gov/test-kits/davinci-dtr/CodeSystem/toppings",
+              "code": "skim_yogurt",
+              "display": "Skim Yogurt"
+            },
+            {
+              "system": "https://inferno.healthit.gov/test-kits/davinci-dtr/CodeSystem/toppings",
+              "code": "cinnamon_sugar",
+              "display": "Cinnamon Sugar"
+            },
+            {
+              "system": "https://inferno.healthit.gov/test-kits/davinci-dtr/CodeSystem/toppings",
+              "code": "dill",
+              "display": "Dill"
+            },
+            {
+              "system": "https://inferno.healthit.gov/test-kits/davinci-dtr/CodeSystem/toppings",
+              "code": "parsley",
+              "display": "Parsley"
+            },
+            {
+              "system": "https://inferno.healthit.gov/test-kits/davinci-dtr/CodeSystem/toppings",
+              "code": "sriracha",
+              "display": "Sriracha"
+            },
+            {
+              "system": "https://inferno.healthit.gov/test-kits/davinci-dtr/CodeSystem/toppings",
+              "code": "plum_sauce",
+              "display": "Plum Sauce"
+            },
+            {
+              "system": "https://inferno.healthit.gov/test-kits/davinci-dtr/CodeSystem/toppings",
+              "code": "hoisin_sauce",
+              "display": "Hoisin Sauce"
+            },
+            {
+              "system": "https://inferno.healthit.gov/test-kits/davinci-dtr/CodeSystem/toppings",
+              "code": "soy_sauce",
+              "display": "Soy Sauce"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "ValueSet",
+        "id": "burger-type",
+        "url": "https://inferno.healthit.gov/test-kits/davinci-dtr/ValueSet/burger-type",
+        "version": "1.0.0",
+        "status": "active",
+        "date": "2026-09-14",
+        "description": "Toppings that might go on your dinner",
+        "extension": [
+          {
+            "url": "https://inferno.healthit.gov/test-kits/davinci-dtr/StructureDefinition/extension-include-value-set-expanded",
+            "valueBoolean": true
+          }
+        ],
+        "compose": {
+          "include": [
+            {
+              "system": "https://inferno.healthit.gov/test-kits/davinci-dtr/CodeSystem/burger-type"
+            }
+          ]
+        },
+        "expansion": {
+          "timestamp": "2026-09-14T00:00:01+00:00",
+          "contains": [
+            {
+              "system": "https://inferno.healthit.gov/test-kits/davinci-dtr/CodeSystem/burger-type",
+              "code": "hamburger",
+              "display": "Hamburger"
+            },
+            {
+              "system": "https://inferno.healthit.gov/test-kits/davinci-dtr/CodeSystem/burger-type",
+              "code": "black-bean",
+              "display": "Black Bean Burger"
+            },
+            {
+              "system": "https://inferno.healthit.gov/test-kits/davinci-dtr/CodeSystem/burger-type",
+              "code": "chicken",
+              "display": "Chicken Burger"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "ValueSet",
+        "id": "burrito-type",
+        "url": "https://inferno.healthit.gov/test-kits/davinci-dtr/ValueSet/burrito-type",
+        "version": "1.0.0",
+        "status": "active",
+        "date": "2026-09-14",
+        "description": "Types of Burrito Filling",
+        "extension": [
+          {
+            "url": "https://inferno.healthit.gov/test-kits/davinci-dtr/StructureDefinition/extension-include-value-set-expanded",
+            "valueBoolean": true
+          }
+        ],
+        "compose": {
+          "include": [
+            {
+              "system": "https://inferno.healthit.gov/test-kits/davinci-dtr/CodeSystem/burrito-type"
+            }
+          ]
+        },
+        "expansion": {
+          "timestamp": "2026-09-14T00:00:01+00:00",
+          "contains": [
+            {
+              "system": "https://inferno.healthit.gov/test-kits/davinci-dtr/CodeSystem/burrito-type",
+              "code": "beef",
+              "display": "Ground Beef"
+            },
+            {
+              "system": "https://inferno.healthit.gov/test-kits/davinci-dtr/CodeSystem/burrito-type",
+              "code": "carnitas",
+              "display": "Carnitas"
+            },
+            {
+              "system": "https://inferno.healthit.gov/test-kits/davinci-dtr/CodeSystem/burrito-type",
+              "code": "beans",
+              "display": "Beans"
+            },
+            {
+              "system": "https://inferno.healthit.gov/test-kits/davinci-dtr/CodeSystem/burrito-type",
+              "code": "chicken",
+              "display": "Chicken"
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

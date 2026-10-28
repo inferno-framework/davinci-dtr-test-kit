@@ -911,5 +911,153 @@ RSpec.describe DaVinciDTRTestKit::MockPayer::FullEHRV220QuestionnairePackageEndp
         expect(last_response.status).to eq(200)
       end
     end
+
+    # -------------------------------------------------------------------
+    # Supporting Libraries and ValueSets
+    #
+    # Libraries and ValueSets from the configured Bundles are added to each package bundle when
+    # its Questionnaires reference them, along with the Libraries those depend on.
+    # -------------------------------------------------------------------
+
+    context 'when supporting Library and ValueSet Bundles are configured' do
+      let(:main_library_url) { 'https://madie.cms.gov/Library/InfernoDTRSampleCQLLibrary' }
+      let(:burrito_library_canonical) { 'https://madie.cms.gov/Library/InfernoDTRSampleBurritoCQLLibrary|0.0.000' }
+      let(:fhir_helpers_url) { 'http://hl7.org/fhir/uv/cql/Library/FHIRHelpers' }
+      let(:burger_type_url) { 'https://inferno.healthit.gov/test-kits/davinci-dtr/ValueSet/burger-type' }
+      let(:libraries_fixture) { 'cql_and_value_sets/cql_and_value_sets_libraries.json' }
+
+      let(:supporting_fixture_test) do
+        Class.new(DaVinciDTRTestKit::DTRFullEHRV220InteractionWaitTest) do
+          id :dtr_full_ehr_v220_qp_endpoint_spec_supporting_fixture_test
+          input :qp_response_template, optional: true
+          config options: {
+            qp_response_template_input: 'qp_response_template',
+            library_bundle_fixture: 'cql_and_value_sets/cql_and_value_sets_libraries.json',
+            value_set_bundle_fixture: 'cql_and_value_sets/cql_and_value_sets_value_sets.json',
+            dtr_workflow_tag: nil
+          }
+        end
+      end
+
+      let(:supporting_input_test) do
+        Class.new(DaVinciDTRTestKit::DTRFullEHRV220InteractionWaitTest) do
+          id :dtr_full_ehr_v220_qp_endpoint_spec_supporting_input_test
+          input :qp_response_template, optional: true
+          input :library_bundle, optional: true
+          config options: {
+            qp_response_template_input: 'qp_response_template',
+            library_bundle_input: 'library_bundle',
+            dtr_workflow_tag: nil
+          }
+        end
+      end
+
+      # References the main library from the Questionnaire, the burger-type ValueSet from an
+      # item's answerValueSet, and the burrito library from an include-resource extension.
+      let(:referencing_questionnaire) do
+        FHIR.from_contents({
+          resourceType: 'Questionnaire',
+          url: 'urn:inferno:dtr-test-kit:supporting-resources',
+          status: 'draft',
+          extension: [{ url: 'http://hl7.org/fhir/StructureDefinition/cqf-library', valueCanonical: main_library_url }],
+          item: [
+            { linkId: 'G', type: 'group', item: [
+              { linkId: 'G.1', type: 'choice', answerValueSet: burger_type_url },
+              { linkId: 'G.2', type: 'string',
+                extension: [{ url: 'urn:inferno:dtr:include-resource', valueCanonical: burrito_library_canonical }] }
+            ] }
+          ]
+        }.to_json)
+      end
+
+      def package_template(resources)
+        FHIR::Parameters.new(
+          parameter: [
+            FHIR::Parameters::Parameter.new(
+              name: 'packagebundle',
+              resource: FHIR::Bundle.new(
+                type: 'collection',
+                entry: resources.map { |resource| FHIR::Bundle::Entry.new(resource:) }
+              )
+            )
+          ]
+        ).to_json
+      end
+
+      def response_bundle_resources
+        JSON.parse(last_response.body)['parameter'].first['resource']['entry'].map { |entry| entry['resource'] }
+      end
+
+      def response_supporting_canonicals
+        response_bundle_resources.reject { |resource| resource['resourceType'] == 'Questionnaire' }
+          .map { |resource| "#{resource['resourceType']}|#{resource['url']}" }
+      end
+
+      it 'adds referenced Libraries and ValueSets and the Libraries they depend on' do
+        run(supporting_fixture_test, client_id:, qp_response_template: package_template([referencing_questionnaire]))
+        post_with_token
+
+        expect(last_response.status).to eq(200)
+        expect(response_supporting_canonicals).to contain_exactly(
+          "Library|#{main_library_url}",
+          "Library|#{fhir_helpers_url}",
+          "Library|#{burrito_library_canonical.split('|').first}",
+          "ValueSet|#{burger_type_url}"
+        )
+      end
+
+      it 'does not duplicate a Library already in the package bundle but still adds its dependencies' do
+        main_library = FHIR::Library.new(id: 'main', url: main_library_url, version: '0.0.000', status: 'active',
+                                         relatedArtifact: [FHIR::RelatedArtifact.new(
+                                           type: 'depends-on', resource: "#{fhir_helpers_url}|4.0.1"
+                                         )])
+        run(supporting_fixture_test, client_id:,
+                                     qp_response_template: package_template([referencing_questionnaire, main_library]))
+        post_with_token
+
+        expect(response_supporting_canonicals.count("Library|#{main_library_url}")).to eq(1)
+        expect(response_supporting_canonicals).to include("Library|#{fhir_helpers_url}")
+      end
+
+      it 'strips the include-resource extension from the returned Questionnaire items' do
+        run(supporting_fixture_test, client_id:, qp_response_template: package_template([referencing_questionnaire]))
+        post_with_token
+
+        questionnaire = response_bundle_resources.find { |resource| resource['resourceType'] == 'Questionnaire' }
+        item_extension_urls = questionnaire['item'].first['item'].flat_map { |item| item.fetch('extension', []) }
+          .map { |ext| ext['url'] }
+        expect(item_extension_urls).to_not include('urn:inferno:dtr:include-resource')
+      end
+
+      it 'adds Libraries from a Bundle provided in an input' do
+        library_bundle = File.read(File.join(__dir__, '..', '..', 'lib', 'davinci_dtr_test_kit', 'full_ehr',
+                                             'fixtures', libraries_fixture))
+        run(supporting_input_test, client_id:,
+                                   qp_response_template: package_template([referencing_questionnaire]),
+                                   library_bundle:)
+        post_with_token
+
+        expect(last_response.status).to eq(200)
+        expect(response_supporting_canonicals).to include("Library|#{main_library_url}")
+        expect(response_supporting_canonicals).to_not include("ValueSet|#{burger_type_url}")
+      end
+
+      it 'adds nothing when the optional Bundle input is empty' do
+        run(supporting_input_test, client_id:, qp_response_template: package_template([referencing_questionnaire]))
+        post_with_token
+
+        expect(last_response.status).to eq(200)
+        expect(response_supporting_canonicals).to be_empty
+      end
+
+      it 'fails before waiting when a supporting resource input is not a Bundle' do
+        result = run(supporting_input_test, client_id:,
+                                            qp_response_template: package_template([referencing_questionnaire]),
+                                            library_bundle: FHIR::Library.new(status: 'active').to_json)
+
+        expect(result.result).to eq('fail')
+        expect(result.result_message).to include('must contain a Bundle resource')
+      end
+    end
   end
 end

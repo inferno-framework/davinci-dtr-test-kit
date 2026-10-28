@@ -17,6 +17,8 @@ module DaVinciDTRTestKit
         dtr_workflow_tag: 'additional_must_support',
         qp_response_template_input: 'additional_ms_qp_responses',
         nq_questionnaire_template_input: 'additional_ms_nq_responses',
+        library_bundle_input: 'additional_ms_libraries',
+        value_set_bundle_input: 'additional_ms_value_sets',
         short_circuit_pass_input: 'complete_additional_questionnaires',
         short_circuit_pass_message: 'Tester chose not to complete additional Questionnaires.',
         adaptive_questionnaires_optional: true
@@ -70,5 +72,23 @@ module DaVinciDTRTestKit
           enable_when: { input_name: 'complete_additional_questionnaires', value: 'true' },
           default: File.read(File.join(__dir__, '..', '..', 'fixtures', 'empty_templates',
                                        'next_question_template_empty.json'))
+    input :additional_ms_libraries,
+          title: 'Additional Must Support CQL Libraries',
+          type: 'textarea',
+          optional: true,
+          description: %(
+            Bundle of CQL Library resources for Inferno to include in responses when they are
+            referenced by the returned Questionnaires and items.
+          ),
+          enable_when: { input_name: 'complete_additional_questionnaires', value: 'true' }
+    input :additional_ms_value_sets,
+          title: 'Additional Must Support ValueSets',
+          type: 'textarea',
+          optional: true,
+          description: %(
+            Bundle of ValueSet resources for Inferno to include in responses when they are
+            referenced by the returned Questionnaires and items.
+          ),
+          enable_when: { input_name: 'complete_additional_questionnaires', value: 'true' }
   end
 end
