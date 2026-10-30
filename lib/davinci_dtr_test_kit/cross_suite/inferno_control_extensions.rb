@@ -9,6 +9,7 @@ module DaVinciDTRTestKit
     REQUEST_RANGE_URL = "#{EXTENSION_BASE_URL}/extension-request-range".freeze
     INCLUDE_RESOURCE_URL = "#{EXTENSION_BASE_URL}/extension-include-resource".freeze
     INCLUDE_IN_PACKAGE_URL = "#{EXTENSION_BASE_URL}/extension-include-in-package".freeze
+    INCLUDE_VALUE_SET_EXPANDED_URL = "#{EXTENSION_BASE_URL}/extension-include-value-set-expanded".freeze
     USE_NEXT_QUESTION_TEMPLATE_URL =
       "#{EXTENSION_BASE_URL}/extension-use-next-question-questionnaire-template".freeze
 
@@ -23,6 +24,7 @@ module DaVinciDTRTestKit
       REQUEST_RANGE_URL,
       INCLUDE_RESOURCE_URL,
       INCLUDE_IN_PACKAGE_URL,
+      INCLUDE_VALUE_SET_EXPANDED_URL,
       USE_NEXT_QUESTION_TEMPLATE_URL
     ] + LEGACY_URLS.values).freeze
 

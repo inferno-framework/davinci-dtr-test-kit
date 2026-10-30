@@ -1061,6 +1061,72 @@ RSpec.describe DaVinciDTRTestKit::MockPayer::FullEHRV220QuestionnairePackageEndp
         expect(result.result).to eq('fail')
         expect(result.result_message).to include('must contain a Bundle resource')
       end
+
+      context 'when deciding whether to include ValueSet expansions' do
+        let(:toppings_url) { 'https://inferno.healthit.gov/test-kits/davinci-dtr/ValueSet/toppings' }
+        let(:expanded_marker_url) { DaVinciDTRTestKit::InfernoControlExtensions::INCLUDE_VALUE_SET_EXPANDED_URL }
+        let(:expansion) do
+          FHIR::ValueSet::Expansion.new(
+            timestamp: '2026-10-30T00:00:00Z',
+            contains: [FHIR::ValueSet::Expansion::Contains.new(system: 'https://example.org', code: 'a')]
+          )
+        end
+
+        # In the fixture Bundle, burger-type is marked to include its expansion and toppings is not.
+        let(:value_set_questionnaire) do
+          FHIR.from_contents({
+            resourceType: 'Questionnaire',
+            url: 'urn:inferno:dtr-test-kit:value-set-expansions',
+            status: 'draft',
+            item: [
+              { linkId: 'Q1', type: 'choice', answerValueSet: burger_type_url },
+              { linkId: 'Q2', type: 'choice', answerValueSet: toppings_url }
+            ]
+          }.to_json)
+        end
+
+        def response_value_set(url)
+          response_bundle_resources.find { |resource| resource['resourceType'] == 'ValueSet' && resource['url'] == url }
+        end
+
+        def template_value_set(id, marker_value = nil)
+          marker = FHIR::Extension.new(url: expanded_marker_url, valueBoolean: marker_value)
+          extension = marker_value.nil? ? [] : [marker]
+          FHIR::ValueSet.new(id:, url: "https://example.org/ValueSet/#{id}", status: 'active', extension:, expansion:)
+        end
+
+        it 'includes the expansion only for Bundle ValueSets marked to include it' do
+          run(supporting_fixture_test, client_id:, qp_response_template: package_template([value_set_questionnaire]))
+          post_with_token
+
+          expect(response_value_set(burger_type_url)['expansion']).to be_present
+          expect(response_value_set(toppings_url)).to be_present
+          expect(response_value_set(toppings_url)).to_not have_key('expansion')
+          expect(last_response.body).to_not include(expanded_marker_url)
+        end
+
+        it 'does not change the configured Bundle when removing an expansion' do
+          run(supporting_fixture_test, client_id:, qp_response_template: package_template([value_set_questionnaire]))
+          post_with_token
+
+          fixture = DaVinciDTRTestKit::FixtureLoader.instance['cql_and_value_sets/cql_and_value_sets_value_sets.json']
+          toppings = fixture.entry.map(&:resource).find { |resource| resource.url == toppings_url }
+          expect(toppings.expansion).to be_present
+          expect(toppings.extension.map(&:url)).to include(expanded_marker_url)
+        end
+
+        it 'keeps the expansion of a template ValueSet unless it is marked otherwise' do
+          resources = [value_set_questionnaire, template_value_set('unmarked'),
+                       template_value_set('marked-false', false), template_value_set('marked-true', true)]
+          run(supporting_input_test, client_id:, qp_response_template: package_template(resources))
+          post_with_token
+
+          expect(response_value_set('https://example.org/ValueSet/unmarked')['expansion']).to be_present
+          expect(response_value_set('https://example.org/ValueSet/marked-false')).to_not have_key('expansion')
+          expect(response_value_set('https://example.org/ValueSet/marked-true')['expansion']).to be_present
+          expect(last_response.body).to_not include(expanded_marker_url)
+        end
+      end
     end
 
     # -------------------------------------------------------------------

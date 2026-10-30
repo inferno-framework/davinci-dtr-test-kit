@@ -100,6 +100,14 @@ added depends on the operation:
   `contained` resources of the returned QuestionnaireResponse, unless the client
   already has them from the request or from the `$questionnaire-package` response.
 
+ValueSets from the provided Bundle are returned without their `expansion` unless
+the ValueSet has an `include-value-set-expanded` extension with `valueBoolean`
+set to `true`. ValueSets written directly into a `$questionnaire-package`
+template keep any `expansion` they have, unless they have an `include-value-set-expanded`
+extension that isn't `true`. The extension is removed before responding.
+When an expansion is not included, DTR clients will need to use `ValueSet/$expand`
+to get the codes included in the ValueSet.
+
 ## Specifying Dynamic Content in Response Templates
 
 Inferno's control extensions all have urls of the form

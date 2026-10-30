@@ -14,7 +14,7 @@
         "extension": [
           {
             "url": "https://inferno.healthit.gov/test-kits/davinci-dtr/StructureDefinition/extension-include-value-set-expanded",
-            "valueBoolean": "false"
+            "valueBoolean": false
           }
         ],
         "compose": {

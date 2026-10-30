@@ -14,7 +14,8 @@ module DaVinciDTRTestKit
     # - an include-resource extension on a Questionnaire or item, or
     # - a depends-on relatedArtifact of a Library that is itself added.
     # References that can't be found in the Bundles (e.g., FHIR-ModelInfo, which DTR clients
-    # provide themselves) are skipped.
+    # provide themselves) are skipped. ValueSets keep their expansion only when they have an
+    # include-value-set-expanded extension set to true, so that clients otherwise need $expand.
     #
     # Including classes must define `input_title(input_name)`.
     module FullEHRV220SupportingResources
@@ -75,9 +76,25 @@ module DaVinciDTRTestKit
           match = find_by_canonical(supporting_resources, canonical)
           return [] if match.nil?
 
-          resolved << match
+          resolved << response_copy(match)
         end
         library_dependencies(match)
+      end
+
+      # The configured resource as it should appear in a response. ValueSets are copied so that
+      # removing the expansion and control extensions doesn't change the configured Bundle.
+      def response_copy(resource)
+        return resource unless resource.is_a?(FHIR::ValueSet)
+
+        copy = FHIR::ValueSet.new(resource.to_hash)
+        copy.expansion = nil unless include_value_set_expansion?(resource)
+        copy.extension.reject! { |extension| InfernoControlExtensions::ALL_URLS.include?(extension.url) }
+        copy
+      end
+
+      def include_value_set_expansion?(value_set)
+        InfernoControlExtensions.find_extension(value_set, InfernoControlExtensions::INCLUDE_VALUE_SET_EXPANDED_URL)
+          &.valueBoolean == true
       end
 
       def find_by_canonical(resources, canonical)

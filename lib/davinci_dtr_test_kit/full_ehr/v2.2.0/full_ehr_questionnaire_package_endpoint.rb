@@ -145,11 +145,24 @@ module DaVinciDTRTestKit
         instantiated_parameters.parameter.each do |param|
           strip_inferno_extensions(param)
         end
-        package_bundles(instantiated_parameters).flat_map { |bundle| package_questionnaires(bundle) }
-          .each do |questionnaire|
-            strip_inferno_extensions(questionnaire)
-            all_questionnaire_items(questionnaire.item).each { |item| strip_inferno_extensions(item) }
-          end
+        package_bundles(instantiated_parameters).each do |bundle|
+          package_questionnaires(bundle).each { |questionnaire| clean_up_questionnaire(questionnaire) }
+          bundle.entry.map(&:resource).grep(FHIR::ValueSet).each { |value_set| clean_up_template_value_set(value_set) }
+        end
+      end
+
+      def clean_up_questionnaire(questionnaire)
+        strip_inferno_extensions(questionnaire)
+        all_questionnaire_items(questionnaire.item).each { |item| strip_inferno_extensions(item) }
+      end
+
+      # ValueSets written into the template keep their expansion unless they have an
+      # include-value-set-expanded extension that isn't true.
+      def clean_up_template_value_set(value_set)
+        marker = InfernoControlExtensions.find_extension(value_set,
+                                                         InfernoControlExtensions::INCLUDE_VALUE_SET_EXPANDED_URL)
+        value_set.expansion = nil if marker.present? && marker.valueBoolean != true
+        strip_inferno_extensions(value_set)
       end
 
       # ***********************************************************************
