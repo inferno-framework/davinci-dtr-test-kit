@@ -78,7 +78,18 @@ the Inferno will mark the QuestionnaireRepsonse as complete by changing the
 
 ### `ValueSet/$expand`
 
-TODO - not implemented yet
+Inferno creates $expand responses from the provided [ValueSet Bundle](#cql-libraries-and-valuesets).
+The requested ValueSet is identified by
+- the `url` parameter and, optionally, the `valueSetVersion` parameter, provided either
+  as query parameters on a GET request or within a Parameters resource in the body of a
+  POST request, or
+- the `url` and `version` of a ValueSet in the `valueSet` parameter of a POST request.
+
+Inferno responds with the matching ValueSet, using the current time as the expansion
+`timestamp`. Other `$expand` parameters, such as `filter` and `count`, are ignored.
+If no ValueSet in the Bundle matches, Inferno responds with a 404 status and an
+OperationOutcome. If the matching ValueSet has no `expansion`, or the request doesn't
+identify a ValueSet, Inferno responds with a 400 status and an OperationOutcome.
 
 ### CQL Libraries and ValueSets
 
