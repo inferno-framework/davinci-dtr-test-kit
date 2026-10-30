@@ -1,4 +1,6 @@
 require_relative '../fixture_loader'
+require_relative '../../cross_suite/canonical_matching'
+require_relative '../../cross_suite/inferno_control_extensions'
 
 module DaVinciDTRTestKit
   module MockPayer
@@ -9,15 +11,17 @@ module DaVinciDTRTestKit
     # A resource is added when it is referenced by canonical from
     # - a cqf-library extension on a Questionnaire or item,
     # - an item's answerValueSet,
-    # - a urn:inferno:dtr:include-resource extension on a Questionnaire or item, or
+    # - an include-resource extension on a Questionnaire or item, or
     # - a depends-on relatedArtifact of a Library that is itself added.
     # References that can't be found in the Bundles (e.g., FHIR-ModelInfo, which DTR clients
     # provide themselves) are skipped.
     #
     # Including classes must define `input_title(input_name)`.
     module FullEHRV220SupportingResources
+      include DaVinciDTRTestKit::CanonicalMatching
+
       CQF_LIBRARY_URL = 'http://hl7.org/fhir/StructureDefinition/cqf-library'.freeze
-      INCLUDE_RESOURCE_URL = 'urn:inferno:dtr:include-resource'.freeze
+      INCLUDE_RESOURCE_URL = InfernoControlExtensions::INCLUDE_RESOURCE_URL
       SUPPORTING_RESOURCE_KINDS = [:library, :value_set].freeze
 
       # ***********************************************************************
@@ -40,11 +44,6 @@ module DaVinciDTRTestKit
 
       def all_questionnaire_items(items)
         items.flat_map { |item| [item] + all_questionnaire_items(item.item) }
-      end
-
-      def canonical_matches?(resource, canonical)
-        url, version = canonical.split('|', 2)
-        resource.try(:url) == url && (version.blank? || resource.version == version)
       end
 
       # ***********************************************************************

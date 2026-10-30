@@ -8,6 +8,9 @@ RSpec.describe DaVinciDTRTestKit::MockPayer::FullEHRV220NextQuestionEndpoint, :r
   let(:results_repo) { Inferno::Repositories::Results.new }
   let(:requests_repo) { Inferno::Repositories::Requests.new }
   let(:client_id) { 'test_client_id' }
+  let(:inclusion_criteria_url) { DaVinciDTRTestKit::InfernoControlExtensions::INCLUSION_CRITERIA_URL }
+  let(:request_range_url) { DaVinciDTRTestKit::InfernoControlExtensions::REQUEST_RANGE_URL }
+  let(:include_resource_url) { DaVinciDTRTestKit::InfernoControlExtensions::INCLUDE_RESOURCE_URL }
   let(:qp_server_endpoint) { "/custom/#{suite_id}/fhir/Questionnaire/$questionnaire-package" }
   let(:nq_server_endpoint) { "/custom/#{suite_id}/fhir/Questionnaire/$next-question" }
 
@@ -767,7 +770,7 @@ RSpec.describe DaVinciDTRTestKit::MockPayer::FullEHRV220NextQuestionEndpoint, :r
             { linkId: 'Conditional',
               text: 'Conditionally included',
               type: 'string',
-              extension: [{ url: 'urn:inferno:dtr:inclusion-criteria',
+              extension: [{ url: inclusion_criteria_url,
                             valueExpression: { expression: 'true', language: 'text/fhirpath' } }] }
           ]
         }.to_json).to_json
@@ -810,7 +813,7 @@ RSpec.describe DaVinciDTRTestKit::MockPayer::FullEHRV220NextQuestionEndpoint, :r
           .find { |r| r['resourceType'] == 'Questionnaire' }
         conditional_item = contained_q&.fetch('item', [])&.find { |i| i['linkId'] == 'Conditional' }
         extension_urls = conditional_item&.fetch('extension', [])&.map { |e| e['url'] } || []
-        expect(extension_urls).to_not include('urn:inferno:dtr:inclusion-criteria')
+        expect(extension_urls).to_not include(inclusion_criteria_url)
       end
 
       it 'excludes the item when the FHIRPath expression evaluates to boolean false' do
@@ -889,7 +892,7 @@ RSpec.describe DaVinciDTRTestKit::MockPayer::FullEHRV220NextQuestionEndpoint, :r
             { linkId: 'RangeLimited',
               text: 'Range-limited',
               type: 'string',
-              extension: [{ url: 'urn:inferno:dtr:request-range', valueString: '1' }] }
+              extension: [{ url: request_range_url, valueString: '1' }] }
           ]
         }.to_json).to_json
       end
@@ -923,7 +926,7 @@ RSpec.describe DaVinciDTRTestKit::MockPayer::FullEHRV220NextQuestionEndpoint, :r
           .find { |r| r['resourceType'] == 'Questionnaire' }
         range_item = contained_q&.fetch('item', [])&.find { |i| i['linkId'] == 'RangeLimited' }
         extension_urls = range_item&.fetch('extension', [])&.map { |e| e['url'] } || []
-        expect(extension_urls).to_not include('urn:inferno:dtr:request-range')
+        expect(extension_urls).to_not include(request_range_url)
       end
 
       it 'excludes the item on the second request (outside range 1)' do
@@ -951,9 +954,9 @@ RSpec.describe DaVinciDTRTestKit::MockPayer::FullEHRV220NextQuestionEndpoint, :r
           item: [
             { linkId: 'Group1', type: 'group', item: [
               { linkId: 'Q1', type: 'string',
-                extension: [{ url: 'urn:inferno:dtr:request-range', valueString: '1' }] },
+                extension: [{ url: request_range_url, valueString: '1' }] },
               { linkId: 'Q2', type: 'string',
-                extension: [{ url: 'urn:inferno:dtr:request-range', valueString: '2' }] }
+                extension: [{ url: request_range_url, valueString: '2' }] }
             ] }
           ]
         }.to_json).to_json
@@ -1709,7 +1712,7 @@ RSpec.describe DaVinciDTRTestKit::MockPayer::FullEHRV220NextQuestionEndpoint, :r
           status: 'draft',
           item: [
             { linkId: 'Burger', type: 'group',
-              extension: [{ url: 'urn:inferno:dtr:include-resource', valueCanonical: "#{burger_library_url}|0.0.000" }],
+              extension: [{ url: include_resource_url, valueCanonical: "#{burger_library_url}|0.0.000" }],
               item: [
                 { linkId: 'Burger.1', type: 'choice', answerValueSet: burger_type_url },
                 { linkId: 'Burger.2', type: 'choice', answerValueSet: toppings_url }
@@ -1777,7 +1780,7 @@ RSpec.describe DaVinciDTRTestKit::MockPayer::FullEHRV220NextQuestionEndpoint, :r
         burger_group = JSON.parse(last_response.body)['contained']
           .find { |resource| resource['resourceType'] == 'Questionnaire' }['item'].first
         expect(burger_group.fetch('extension', []).map { |ext| ext['url'] })
-          .to_not include('urn:inferno:dtr:include-resource')
+          .to_not include(include_resource_url)
       end
     end
   end

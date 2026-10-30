@@ -40,6 +40,10 @@ e.g., certain coverages, orders, or Questionnaires. Inclusion criteria extension
 will be removed and [tokens](#dynamic-tokens) found within selected `parameter`
 entries will be replaced before responding.
 
+Adaptive Questionnaires within a 'packagebundle' can be
+[built from the `$next-question` template](#building-package-questionnaires-from-next-question-templates)
+instead of being copied into this template.
+
 Alternatively, the template can be a FHIR OperationOutcome if an error response
 is appropriate. [Tokens](#dynamic-tokens) are not instantiated within
 the OperationOutcome.
@@ -85,8 +89,7 @@ A resource is referenced when its `url` (and `version`, if the reference include
 one, e.g., `http://example.org/Library/Example|1.0.0`) matches
 - a `http://hl7.org/fhir/StructureDefinition/cqf-library` extension on a Questionnaire or item,
 - an item's `answerValueSet`,
-- a [`urn:inferno:dtr:include-resource`](#including-libraries-and-valuesets) extension
-  on a Questionnaire or item, or
+- an [`include-resource`](#including-libraries-and-valuesets) extension on a Questionnaire or item, or
 - a `depends-on` `relatedArtifact` of a Library that is referenced, e.g., FHIRHelpers.
 
 References that don't match a provided resource are ignored. Where the resources are
@@ -99,16 +102,22 @@ added depends on the operation:
 
 ## Specifying Dynamic Content in Response Templates
 
+Inferno's control extensions all have urls of the form
+`https://inferno.healthit.gov/test-kits/davinci-dtr/StructureDefinition/extension-<name>`,
+and this page refers to them by `<name>`. Inferno removes them before responding.
+The earlier urls `urn:inferno:dtr:inclusion-criteria` and `urn:inferno:dtr:request-range`
+are still accepted for `inclusion-criteria` and `request-range`, but are deprecated.
+
 ### Inclusion Criteria
 
 Inclusion criteria extension options include:
-- `urn:inferno:dtr:inclusion-criteria`: element `valueExpression.expression` contains
+- `inclusion-criteria`: element `valueExpression.expression` contains
   a FHIRPath expression executed against the QuestionnaireResponse from the request.
   To determine inclusion, the FHIRPath result is interpreted as a boolean where
   - empty collections, collections with multiple entries, and collections with a single
     `false` value are interepreted as `false`.
   - all other collections interpreted as `true`.
-- `urn:inferno:dtr:request-range`: element `valueString` contains a single or comma-separated
+- `request-range`: element `valueString` contains a single or comma-separated
   list of 1-indexed request numbers or ranges indicaing the requests that the item can first
   be included the response. For example, "1,3-5" would mean that the item would be added on
   request 1, 3, 4, or 5 if its parent were already present or also added.
@@ -120,15 +129,57 @@ to be evaluated for inclusion.
 ### Including Libraries and ValueSets
 
 CQL expressions refer to Libraries by name rather than canonical url, so Inferno cannot
-tell that an item needs a Library from its expressions. Add a `urn:inferno:dtr:include-resource`
+tell that an item needs a Library from its expressions. Add an `include-resource`
 extension, whose `valueCanonical` contains the Library's canonical url, to the item (or Questionnaire)
 to have Inferno include that Library from the provided Bundle when it returns the item.
-See [CQL Libraries and ValueSets](#cql-libraries-and-valuesets) for details. The extension
-is removed before responding.
+See [CQL Libraries and ValueSets](#cql-libraries-and-valuesets) for details.
+
+### Building Package Questionnaires from `$next-question` Templates
+
+The Questionnaire returned by `$questionnaire-package` for an adaptive form is usually
+the `$next-question` template's Questionnaire with only its first few items. To avoid
+copying it, a Questionnaire in a 'packagebundle', or contained in a QuestionnaireResponse
+in a 'packagebundle', can be a placeholder with a `use-next-question-questionnaire-template`
+extension whose `valueCanonical` is the template Questionnaire's `url` (optionally
+`url|version`). Inferno replaces the placeholder with a copy of the matching template
+Questionnaire that keeps only
+- the items with an `include-in-package` extension whose `valueBoolean` is `true`, and
+- the items that contain them, so that groups are kept for their marked children
+  (a group's unmarked children are not kept).
+
+Elements set on the placeholder, such as `id`, take precedence over the template's, and
+the placeholder's other extensions are added to the template's. For example:
+
+```json
+{
+  "resourceType": "Questionnaire",
+  "extension": [
+    {
+      "url": "https://inferno.healthit.gov/test-kits/davinci-dtr/StructureDefinition/extension-use-next-question-questionnaire-template",
+      "valueCanonical": "https://example.org/Questionnaire/adaptive-example"
+    }
+  ]
+}
+```
+
+Placeholders are expanded before [tokens](#dynamic-tokens) are replaced and before
+[Libraries and ValueSets](#cql-libraries-and-valuesets) are added, so references in the
+copied template are included. A placeholder that doesn't match any `$next-question` template
+Questionnaire is an error, reported before the interaction starts when possible.
 
 ### Dynamic Tokens
 
 Tokens of the form `{{<fhirpath>}}` within response templates are replaced with the results
-of the `<fhirpath>>` executed against the request body. The results of the FHIRpath
+of the `<fhirpath>` executed against the request body. The results of the FHIRpath
 must be one or more strings and results with more than one string are converted into a
 single string separated by commas. Results that are objects and arrays will be silently discarded.
+
+The request body differs by operation: `$questionnaire-package` tokens are evaluated
+against the request's Parameters resource, and `$next-question` tokens against the
+request's QuestionnaireResponse. This matters for `$next-question` template items that are
+[included in the package](#building-package-questionnaires-from-next-question-templates):
+the copies of those items in the `$questionnaire-package` response have their tokens evaluated
+against the `$questionnaire-package` Parameters, so a token written for the QuestionnaireResponse,
+such as `{{item.where(linkId = 'name').answer.value}}`, will usually have no result and be
+replaced with an empty string. In package-included items, use only tokens that make sense
+for the `$questionnaire-package` request, such as ones that don't depend on the request content.

@@ -211,7 +211,7 @@
       "required": true,
       "extension": [
         {
-          "url": "urn:inferno:dtr:inclusion-criteria",
+          "url": "https://inferno.healthit.gov/test-kits/davinci-dtr/StructureDefinition/extension-inclusion-criteria",
           "valueExpression": {
             "language": "text/fhirpath",
             "expression": "item.where(linkId = 'LOC').item.where(linkId = 'LOC.1').answer.value.ofType(string).exists()"
@@ -267,7 +267,7 @@
           ],
           "extension": [
             {
-              "url": "urn:inferno:dtr:inclusion-criteria",
+              "url": "https://inferno.healthit.gov/test-kits/davinci-dtr/StructureDefinition/extension-inclusion-criteria",
               "valueExpression": {
                 "language": "text/fhirpath",
                 "expression": "item.where(linkId = '3').item.where(linkId = '3.1').answer.value.ofType(Coding).where(code = 'Hamburger').exists()"
@@ -300,7 +300,7 @@
           ],
           "extension": [
             {
-              "url": "urn:inferno:dtr:inclusion-criteria",
+              "url": "https://inferno.healthit.gov/test-kits/davinci-dtr/StructureDefinition/extension-inclusion-criteria",
               "valueExpression": {
                 "language": "text/fhirpath",
                 "expression": "item.where(linkId = '3').item.where(linkId = '3.1').answer.value.ofType(Coding).where(code = 'Bean Burrito').exists()"
@@ -315,7 +315,7 @@
           "required": false,
           "extension": [
             {
-              "url": "urn:inferno:dtr:inclusion-criteria",
+              "url": "https://inferno.healthit.gov/test-kits/davinci-dtr/StructureDefinition/extension-inclusion-criteria",
               "valueExpression": {
                 "language": "text/fhirpath",
                 "expression": "item.where(linkId = '3').item.where(linkId = '3.1').answer.value.ofType(Coding).code.exists()"

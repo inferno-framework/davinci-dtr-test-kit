@@ -5,6 +5,8 @@ require_relative '../../cross_suite/response_selection_utils'
 require_relative '../fixture_loader'
 require_relative '../../tags'
 require_relative 'full_ehr_supporting_resources'
+require_relative 'next_question_template_questionnaires'
+require_relative 'package_questionnaire_templates'
 
 module DaVinciDTRTestKit
   module MockPayer
@@ -13,6 +15,8 @@ module DaVinciDTRTestKit
       include DaVinciDTRTestKit::FhirpathUtils
       include DaVinciDTRTestKit::ResponseSelectionUtils
       include FullEHRV220SupportingResources
+      include DaVinciDTRTestKit::NextQuestionTemplateQuestionnaires
+      include DaVinciDTRTestKit::PackageQuestionnaireTemplates
 
       def test_run_identifier
         return request.params[:session_path] if request.params[:session_path].present?
@@ -95,18 +99,27 @@ module DaVinciDTRTestKit
       # ***********************************************************************
 
       def instantiate_template
-        # replace_tokens builds a new resource, so later steps can modify it without
-        # changing the (cached) template.
-        result = replace_tokens(select_package_parameters)
+        # Work on a copy so that expanding placeholders doesn't change the (cached) template.
+        selected = FHIR.from_contents(select_package_parameters.to_json)
+        expand_template_placeholders(selected)
+        result = replace_tokens(selected)
         return result unless result.is_a?(FHIR::Parameters)
 
         add_supporting_resources_to_package_bundles(result)
         clean_up_instantiation(result)
         result
-      rescue FhirpathServiceError => e
-        raise if template_from_fixture?
+      rescue FhirpathServiceError, MissingTemplateError => e
+        raise_if_fixture_template_error('dtr $questionnaire-package response template', e)
 
         operation_outcome('error', 'invalid', e.message)
+      end
+
+      # Errors in developer-provided fixtures are bugs in the test kit rather than tester mistakes.
+      def raise_if_fixture_template_error(source, error)
+        return unless template_from_fixture?
+        raise error if error.is_a?(FhirpathServiceError)
+
+        raise Inferno::Exceptions::TestSuiteImplementationException.new(source, error.message)
       end
 
       def select_package_parameters
@@ -117,19 +130,11 @@ module DaVinciDTRTestKit
         )
       end
 
-      def package_bundles(parameters)
-        parameters.parameter.select { |param| param.name == 'packagebundle' }.map(&:resource).grep(FHIR::Bundle)
-      end
-
-      def bundle_questionnaires(bundle)
-        bundle.entry.map(&:resource).grep(FHIR::Questionnaire)
-      end
-
       # Adds the configured Libraries and ValueSets referenced by each package bundle's
       # Questionnaires that the bundle doesn't already include.
       def add_supporting_resources_to_package_bundles(parameters)
         package_bundles(parameters).each do |bundle|
-          canonicals = bundle_questionnaires(bundle).flat_map { |questionnaire| referenced_canonicals(questionnaire) }
+          canonicals = package_questionnaires(bundle).flat_map { |questionnaire| referenced_canonicals(questionnaire) }
           resolve_supporting_resources(canonicals, exclude: bundle.entry.map(&:resource)).each do |resource|
             bundle.entry << FHIR::Bundle::Entry.new(resource:)
           end
@@ -140,7 +145,7 @@ module DaVinciDTRTestKit
         instantiated_parameters.parameter.each do |param|
           strip_inferno_extensions(param)
         end
-        package_bundles(instantiated_parameters).flat_map { |bundle| bundle_questionnaires(bundle) }
+        package_bundles(instantiated_parameters).flat_map { |bundle| package_questionnaires(bundle) }
           .each do |questionnaire|
             strip_inferno_extensions(questionnaire)
             all_questionnaire_items(questionnaire.item).each { |item| strip_inferno_extensions(item) }
@@ -194,6 +199,26 @@ module DaVinciDTRTestKit
 
       def template_from_input?
         !template_from_fixture? && test.config.options[:qp_response_template_input].present?
+      end
+
+      # The $next-question template Questionnaires, used to expand package Questionnaire placeholders.
+      def next_question_templates
+        @next_question_templates ||= load_next_question_templates
+      end
+
+      def load_next_question_templates
+        fixture_path = test.config.options[:nq_questionnaire_template_fixture]
+        input_name = test.config.options[:nq_questionnaire_template_input]
+        if fixture_path.present?
+          [FixtureLoader.instance[fixture_path]].grep(FHIR::Questionnaire)
+        elsif input_name.present?
+          value = JSON.parse(result.input_json).find { |input| input['name'] == input_name }&.dig('value')
+          value.present? ? questionnaires_from_template_value(value) : []
+        else
+          []
+        end
+      rescue JSON::ParserError
+        []
       end
 
       def parameters_template_from_fixture

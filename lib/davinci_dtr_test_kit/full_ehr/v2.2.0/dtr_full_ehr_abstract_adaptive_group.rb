@@ -25,7 +25,9 @@ module DaVinciDTRTestKit
   #   to $questionnaire-package operation requests. Templates come in the form of a FHIR
   #   Parameters resource in json format. See https://github.com/inferno-framework/davinci-dtr-test-kit/wiki/Controlling-Simulated-Responses
   #   on the wiki for more details on the format for these templates and how Inferno
-  #   turns them into actual responses.
+  #   turns them into actual responses. Adaptive Questionnaires in the template can be
+  #   placeholders built from the nq_questionnaire_template_* template (see
+  #   PackageQuestionnaireTemplates).
   #   - qp_response_template_fixture: path relative to the `lib/davinci_dtr_test_kit/full_ehr/fixtures`
   #     directory pointing to a file containing the template. Used when the scenario
   #     uses developer-specified responses.
