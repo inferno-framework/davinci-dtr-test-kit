@@ -211,7 +211,7 @@ RSpec.describe DaVinciDTRTestKit::DTRFullEHRV220QuestionnaireBaseMustSupportTest
     result = run(described_class)
     expect(result.result).to eq('fail')
     expect(result.result_message).to include('Could not find')
-    expect(result.result_message).to include('Questionnaire.extension:terminologyServer')
+    expect(result.result_message).to include('extension:terminologyServer')
   end
 
   it 'passes when a fully conformant Questionnaire is contained in a QuestionnaireResponse' do

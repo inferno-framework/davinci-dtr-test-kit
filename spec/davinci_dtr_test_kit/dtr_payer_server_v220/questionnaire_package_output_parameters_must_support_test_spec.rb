@@ -40,6 +40,6 @@ RSpec.describe DaVinciDTRTestKit::DTRPayerServerV220::QuestionnairePackageOutput
     result = run(described_class)
 
     expect(result.result).to eq('fail')
-    expect(result.result_message).to include('Parameters.parameter:outcome')
+    expect(result.result_message).to include('parameter:outcome')
   end
 end

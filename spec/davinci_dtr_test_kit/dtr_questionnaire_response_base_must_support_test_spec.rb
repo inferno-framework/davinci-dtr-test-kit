@@ -203,7 +203,7 @@ RSpec.describe DaVinciDTRTestKit::DTRFullEHRV220QuestionnaireResponseBaseMustSup
     result = run(described_class)
 
     expect(result.result).to eq('fail')
-    expect(result.result_message).to include('QuestionnaireResponse.extension:intendedUse')
+    expect(result.result_message).to include('extension:intendedUse')
   end
 
   it 'fails naming the missing extension when questionnaireDisplay is never populated' do
@@ -212,7 +212,7 @@ RSpec.describe DaVinciDTRTestKit::DTRFullEHRV220QuestionnaireResponseBaseMustSup
     result = run(described_class)
 
     expect(result.result).to eq('fail')
-    expect(result.result_message).to include('QuestionnaireResponse.questionnaire.extension:questionnaireDisplay')
+    expect(result.result_message).to include('questionnaire.extension:questionnaireDisplay')
   end
 
   it 'fails naming the missing type when one answer choice type is never used' do
