@@ -8,6 +8,7 @@ require_relative '../../tags'
 require_relative 'next_question_template_questionnaires'
 require_relative '../../cross_suite/v2.2.0/questionnaire_helper'
 require_relative 'full_ehr_supporting_resources'
+require_relative 'package_questionnaire_templates'
 
 module DaVinciDTRTestKit
   module MockPayer
@@ -19,6 +20,7 @@ module DaVinciDTRTestKit
       include DaVinciDTRTestKit::NextQuestionTemplateQuestionnaires
       include DaVinciDTRTestKit::QuestionnaireHelper
       include FullEHRV220SupportingResources
+      include DaVinciDTRTestKit::PackageQuestionnaireTemplates
 
       def test_run_identifier
         return request.params[:session_path] if request.params[:session_path].present?
@@ -198,13 +200,9 @@ module DaVinciDTRTestKit
       def extract_target_questionnaire(bundle, target_questionnaire_canonical)
         return nil unless bundle.is_a?(FHIR::Bundle)
 
-        bundle.entry.each do |entry|
-          next unless entry.resource.is_a?(FHIR::Questionnaire) &&
-                      questionnaire_canonical_url(entry.resource) == target_questionnaire_canonical
-
-          return entry.resource
+        package_questionnaires(bundle).find do |questionnaire|
+          questionnaire_canonical_url(questionnaire) == target_questionnaire_canonical
         end
-        nil
       end
 
       # ***********************************************************************

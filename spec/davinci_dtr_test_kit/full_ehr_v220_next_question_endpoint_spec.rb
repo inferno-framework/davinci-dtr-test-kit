@@ -456,6 +456,39 @@ RSpec.describe DaVinciDTRTestKit::MockPayer::FullEHRV220NextQuestionEndpoint, :r
       expect(JSON.parse(last_response.body)['resourceType']).to eq('QuestionnaireResponse')
     end
 
+    it 'finds the questionnaire when the package delivered it only contained in a QuestionnaireResponse' do
+      adaptive_questionnaire = JSON.parse(adaptive_questionnaire_package_json)
+        .dig('parameter', 0, 'resource', 'entry', 0, 'resource')
+      contained_only_package = FHIR::Parameters.new(
+        parameter: [
+          FHIR::Parameters::Parameter.new(
+            name: 'packagebundle',
+            resource: FHIR::Bundle.new(
+              type: 'collection',
+              entry: [
+                FHIR::Bundle::Entry.new(
+                  resource: FHIR::QuestionnaireResponse.new(
+                    status: 'in-progress',
+                    questionnaire: '#DinnerOrderAdaptive',
+                    contained: [FHIR::Questionnaire.new(adaptive_questionnaire)]
+                  )
+                )
+              ]
+            )
+          )
+        ]
+      ).to_json
+
+      run(nq_input_test, client_id:,
+                         qp_response_template: contained_only_package,
+                         nq_questionnaire_template: valid_nq_questionnaire_template_json)
+      post_qp_with_token
+      post_nq_with_token
+
+      expect(last_response.status).to eq(200)
+      expect(JSON.parse(last_response.body)['resourceType']).to eq('QuestionnaireResponse')
+    end
+
     it 'returns 500 with OperationOutcome when no NQ response template source is configured' do
       run(no_nq_template_test, client_id:, qp_response_template: adaptive_questionnaire_package_json)
       post_qp_with_token

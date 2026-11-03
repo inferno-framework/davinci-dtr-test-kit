@@ -14,8 +14,9 @@ module DaVinciDTRTestKit
   # other extensions are added to the template's.
   #
   # Shared by the $questionnaire-package endpoint and the interaction wait test so that tester
-  # templates can be checked before the interaction starts. Including classes must define
-  # `next_question_templates`, returning the available $next-question template Questionnaires.
+  # templates can be checked before the interaction starts, and by the $next-question endpoint to
+  # find the Questionnaires a package delivered. Including classes that expand placeholders must
+  # define `next_question_templates`, returning the available $next-question template Questionnaires.
   module PackageQuestionnaireTemplates
     include CanonicalMatching
 
