@@ -87,6 +87,15 @@ RSpec.describe DaVinciDTRTestKit::MockPayer::FullEHRV220ValueSetExpandEndpoint, 
       expect(response_resource.expansion.contains).to be_present
     end
 
+    it 'returns 500 with a FHIR JSON OperationOutcome when building the response fails' do
+      allow_any_instance_of(described_class).to receive(:expand_response).and_raise(StandardError, 'unexpected')
+      get_expand(url: toppings_url)
+
+      expect(last_response.status).to eq(500)
+      expect(last_response.headers['Content-Type']).to include('application/fhir+json')
+      expect(response_resource.issue.first.details.text).to include('unexpected')
+    end
+
     it 'sets the expansion timestamp to the current time' do
       get_expand(url: toppings_url)
 

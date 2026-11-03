@@ -83,6 +83,28 @@ RSpec.describe DaVinciDTRTestKit::PackageQuestionnaireTemplates do
       expect(expanded.extension.map(&:url)).to contain_exactly(adaptive_extension[:url], 'https://example.org/other')
     end
 
+    it 'does not repeat extensions that the placeholder shares with the template' do
+      parameters = package_parameters(placeholder)
+      parameters.parameter.first.resource.entry.first.resource.extension << FHIR::Extension.new(adaptive_extension)
+      host.expand_template_placeholders(parameters)
+
+      expanded = parameters.parameter.first.resource.entry.first.resource
+      expect(expanded.extension.map(&:url)).to eq([adaptive_extension[:url]])
+    end
+
+    it 'keeps all the children of a marked group that has no marked children' do
+      template.item << FHIR::Questionnaire::Item.new(
+        linkId: 'G2', type: 'group', extension: in_package,
+        item: [{ linkId: 'G2.1', type: 'string' }, { linkId: 'G2.2', type: 'string' }]
+      )
+      parameters = package_parameters(placeholder)
+      host.expand_template_placeholders(parameters)
+
+      expanded = parameters.parameter.first.resource.entry.first.resource
+      expect(link_ids(expanded.item)).to eq([['G', [['G.1', []]]], ['Q2', []],
+                                             ['G2', [['G2.1', []], ['G2.2', []]]]])
+    end
+
     it 'expands placeholders contained in a QuestionnaireResponse' do
       response = FHIR::QuestionnaireResponse.new(status: 'in-progress', contained: [placeholder])
       parameters = package_parameters(response)

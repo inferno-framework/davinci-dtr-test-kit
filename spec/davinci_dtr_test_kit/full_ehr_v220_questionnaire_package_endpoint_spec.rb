@@ -1114,6 +1114,32 @@ RSpec.describe DaVinciDTRTestKit::MockPayer::FullEHRV220QuestionnairePackageEndp
           expect(response_libraries).to contain_exactly("#{dependent_url}|1.0.0", "#{helper_url}|1.0.0",
                                                         "#{unversioned_url}|3.0.0")
         end
+
+        it 'ignores ELM that is JSON but does not have the expected shape' do
+          malformed = [[], 'text', { library: 'text' }, { library: { includes: 'text' } },
+                       { library: { includes: { def: 'text' } } }, { library: { includes: { def: ['text'] } } }]
+          libraries = malformed.each_with_index.map do |elm, index|
+            library("https://example.org/Library/Malformed#{index}",
+                    content: [FHIR::Attachment.new(contentType: 'application/elm+json',
+                                                   data: Base64.strict_encode64(elm.to_json))])
+          end
+          questionnaire = FHIR::Questionnaire.new(
+            url: 'urn:inferno:dtr-test-kit:malformed-elm', status: 'draft',
+            extension: libraries.map do |malformed_library|
+              FHIR::Extension.new(url: 'http://hl7.org/fhir/StructureDefinition/cqf-library',
+                                  valueCanonical: malformed_library.url)
+            end
+          )
+          bundle = FHIR::Bundle.new(type: 'collection',
+                                    entry: libraries.map { |resource| FHIR::Bundle::Entry.new(resource:) })
+
+          run(supporting_input_test, client_id:, qp_response_template: package_template([questionnaire]),
+                                     library_bundle: bundle.to_json)
+          post_with_token
+
+          expect(last_response.status).to eq(200)
+          expect(response_libraries.size).to eq(malformed.size)
+        end
       end
 
       context 'when deciding whether to include ValueSet expansions' do

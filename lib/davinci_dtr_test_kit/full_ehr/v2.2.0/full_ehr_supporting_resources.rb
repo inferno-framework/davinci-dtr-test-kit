@@ -117,7 +117,15 @@ module DaVinciDTRTestKit
       def elm_include_dependencies(library)
         @elm_include_dependencies ||= {}.compare_by_identity
         @elm_include_dependencies[library] ||=
-          Array(elm_library(library)&.dig('includes', 'def')).filter_map { |include| elm_include_canonical(include) }
+          elm_include_definitions(library).filter_map { |include| elm_include_canonical(include) }
+      end
+
+      # The include definitions in the Library's ELM. ELM that doesn't have the expected shape is
+      # ignored, as is ELM that isn't valid JSON.
+      def elm_include_definitions(library)
+        includes = elm_library(library)&.[]('includes')
+        definitions = includes['def'] if includes.is_a?(Hash)
+        definitions.is_a?(Array) ? definitions.grep(Hash) : []
       end
 
       # An ELM include's path is `{namespace uri}/{library name}`, and by the CQL on FHIR convention
@@ -137,7 +145,8 @@ module DaVinciDTRTestKit
         end
         return if elm_content.nil?
 
-        JSON.parse(Base64.decode64(elm_content.data))['library']
+        elm = JSON.parse(Base64.decode64(elm_content.data))
+        elm['library'] if elm.is_a?(Hash) && elm['library'].is_a?(Hash)
       rescue JSON::ParserError
         nil
       end

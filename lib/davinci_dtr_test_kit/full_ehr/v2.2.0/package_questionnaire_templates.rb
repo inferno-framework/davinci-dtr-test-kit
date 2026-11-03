@@ -9,9 +9,10 @@ module DaVinciDTRTestKit
   # bundle, that has a use-next-question-questionnaire-template extension is a placeholder.
   # Inferno replaces it with the $next-question template Questionnaire whose url (and version,
   # if given) matches the extension's valueCanonical, keeping only the items marked with an
-  # include-in-package extension and the items that contain them. Elements set on the
-  # placeholder, such as `id`, take precedence over the template's, and the placeholder's
-  # other extensions are added to the template's.
+  # include-in-package extension and the items that contain them (a marked item with no marked
+  # children keeps all of them). Elements set on the placeholder, such as `id`, take precedence
+  # over the template's, and the placeholder's other extensions are added to the template's,
+  # except for exact duplicates.
   #
   # Shared by the $questionnaire-package endpoint and the interaction wait test so that tester
   # templates can be checked before the interaction starts, and by the $next-question endpoint to
@@ -81,20 +82,23 @@ module DaVinciDTRTestKit
       template_hash = template.to_hash
 
       expanded = template_hash.except('item').merge(placeholder_hash.except('item'))
-      extensions = (template_hash['extension'] || []) + placeholder_extensions
+      # Placeholders adapted from an existing package may repeat the template's extensions, such as
+      # questionnaireAdaptive, which can appear only once.
+      extensions = ((template_hash['extension'] || []) + placeholder_extensions).uniq
       expanded['extension'] = extensions if extensions.present?
       items = package_items(template_hash['item'] || [])
       expanded['item'] = items if items.present?
       FHIR::Questionnaire.new(expanded)
     end
 
-    # Items marked include-in-package, along with the items that contain them.
+    # Items marked include-in-package, along with the items that contain them. A marked item with no
+    # marked children keeps all of its children, so that a marked group is never left empty.
     def package_items(items)
       items.filter_map do |item|
         children = package_items(item['item'] || [])
         next unless include_in_package?(item) || children.present?
 
-        children.present? ? item.merge('item' => children) : item.except('item')
+        children.present? ? item.merge('item' => children) : item
       end
     end
 

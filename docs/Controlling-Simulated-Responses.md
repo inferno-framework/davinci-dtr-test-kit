@@ -174,8 +174,11 @@ Questionnaire that keeps only
 - the items that contain them, so that groups are kept for their marked children
   (a group's unmarked children are not kept).
 
+A marked group with no marked children is kept with all of its children.
+
 Elements set on the placeholder, such as `id`, take precedence over the template's, and
-the placeholder's other extensions are added to the template's. For example:
+the placeholder's other extensions are added to the template's, except for those that
+exactly match one of the template's. For example:
 
 ```json
 {

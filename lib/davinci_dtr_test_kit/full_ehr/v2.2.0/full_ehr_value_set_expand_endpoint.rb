@@ -34,8 +34,8 @@ module DaVinciDTRTestKit
         response.headers['Access-Control-Allow-Origin'] = '*'
         return if response.status == 401 # response set in update_result (expired token handling there)
 
-        status, body = expand_response
         response.format = 'application/fhir+json'
+        status, body = expand_response
         response.body = body.to_json
         response.status = status
       rescue StandardError => e
