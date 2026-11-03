@@ -115,7 +115,7 @@ module DaVinciDTRTestKit
     group from: :dtr_client_payer_registration
     group do
       id :dtr_full_ehr_v220_questionnaire_workflows
-      title 'Questionnaire Workflows'
+      title 'Questionnaire Scenarios'
 
       group from: :dtr_full_ehr_v220_workflow_standard
       group from: :dtr_full_ehr_v220_workflow_adaptive
@@ -123,7 +123,7 @@ module DaVinciDTRTestKit
 
     group do
       id :dtr_full_ehr_v220_coverage
-      title 'Questionnaire Feature Coverage'
+      title 'Cross-Questionnaire Requirements'
 
       group from: :dtr_full_ehr_v220_additional_qustionnaires_for_ms
 
