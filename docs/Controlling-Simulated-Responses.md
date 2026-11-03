@@ -117,11 +117,15 @@ added depends on the operation:
 
 ValueSets from the provided Bundle are returned without their `expansion` unless
 the ValueSet has an `include-value-set-expanded` extension with `valueBoolean`
-set to `true`. ValueSets written directly into a `$questionnaire-package`
-template keep any `expansion` they have, unless they have an `include-value-set-expanded`
-extension that isn't `true`. The extension is removed before responding.
+set to `true`. The extension is removed before responding.
 When an expansion is not included, DTR clients will need to use `ValueSet/$expand`
 to get the codes included in the ValueSet.
+
+ValueSets written directly into a `$questionnaire-package` template are returned as
+written, with or without an `expansion`, and the `include-value-set-expanded` extension
+has no effect on them. `ValueSet/$expand` can only serve ValueSets from the provided
+Bundle, so a ValueSet that clients should get using `$expand` belongs in the Bundle
+rather than in the template.
 
 ## Specifying Dynamic Content in Response Templates
 

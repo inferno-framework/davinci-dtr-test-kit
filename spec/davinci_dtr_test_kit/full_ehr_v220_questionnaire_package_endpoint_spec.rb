@@ -1169,14 +1169,14 @@ RSpec.describe DaVinciDTRTestKit::MockPayer::FullEHRV220QuestionnairePackageEndp
           expect(toppings.extension.map(&:url)).to include(expanded_marker_url)
         end
 
-        it 'keeps the expansion of a template ValueSet unless it is marked otherwise' do
+        it 'returns template ValueSets as written, ignoring the include-value-set-expanded extension' do
           resources = [value_set_questionnaire, template_value_set('unmarked'),
                        template_value_set('marked-false', false), template_value_set('marked-true', true)]
           run(supporting_input_test, client_id:, qp_response_template: package_template(resources))
           post_with_token
 
           expect(response_value_set('https://example.org/ValueSet/unmarked')['expansion']).to be_present
-          expect(response_value_set('https://example.org/ValueSet/marked-false')).to_not have_key('expansion')
+          expect(response_value_set('https://example.org/ValueSet/marked-false')['expansion']).to be_present
           expect(response_value_set('https://example.org/ValueSet/marked-true')['expansion']).to be_present
           expect(last_response.body).to_not include(expanded_marker_url)
         end
