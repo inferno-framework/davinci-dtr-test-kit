@@ -7,6 +7,8 @@ require_relative '../fixture_loader'
 require_relative '../../tags'
 require_relative 'next_question_template_questionnaires'
 require_relative '../../cross_suite/v2.2.0/questionnaire_helper'
+require_relative 'full_ehr_supporting_resources'
+require_relative 'package_questionnaire_templates'
 
 module DaVinciDTRTestKit
   module MockPayer
@@ -17,6 +19,8 @@ module DaVinciDTRTestKit
       include DaVinciDTRTestKit::QuestionnaireResponseCompleteness
       include DaVinciDTRTestKit::NextQuestionTemplateQuestionnaires
       include DaVinciDTRTestKit::QuestionnaireHelper
+      include FullEHRV220SupportingResources
+      include DaVinciDTRTestKit::PackageQuestionnaireTemplates
 
       def test_run_identifier
         return request.params[:session_path] if request.params[:session_path].present?
@@ -152,7 +156,7 @@ module DaVinciDTRTestKit
         return request_questionnaire if request_questionnaire.is_a?(FHIR::OperationOutcome)
 
         target_questionnaire_canonical = questionnaire_canonical_url(request_questionnaire)
-        packaged_questionnaire = requested_questionnaire(target_questionnaire_canonical)
+        packaged_questionnaire = extract_target_questionnaire(requested_package_bundle, target_questionnaire_canonical)
         unless packaged_questionnaire.present?
           return operation_outcome('error', 'invalid',
                                    'Invalid QuestionnaireResponse for $next-question request: ' \
@@ -168,15 +172,19 @@ module DaVinciDTRTestKit
         nil
       end
 
-      def requested_questionnaire(questionnaire_canonical)
+      # The $questionnaire-package bundle that delivered the requested Questionnaire.
+      def requested_package_bundle
+        @requested_package_bundle ||= find_package_bundle(questionnaire_canonical_url(request_questionnaire))
+      end
+
+      def find_package_bundle(questionnaire_canonical)
         successful_questionnaire_package_requests.each do |qp_request|
           response_parameters = FHIR.from_contents(qp_request.response_body)
-          next unless response_parameters.present?
+          next unless response_parameters.is_a?(FHIR::Parameters)
 
           response_parameters.parameter.select { |param| param.name == 'packagebundle' }.map(&:resource)
             .each do |bundle|
-              target_questionnaire = extract_target_questionnaire(bundle, questionnaire_canonical)
-              return target_questionnaire if target_questionnaire.present?
+              return bundle if extract_target_questionnaire(bundle, questionnaire_canonical).present?
             end
         end
         nil
@@ -190,13 +198,11 @@ module DaVinciDTRTestKit
       end
 
       def extract_target_questionnaire(bundle, target_questionnaire_canonical)
-        bundle.entry.each do |entry|
-          next unless entry.resource.is_a?(FHIR::Questionnaire) &&
-                      questionnaire_canonical_url(entry.resource) == target_questionnaire_canonical
+        return nil unless bundle.is_a?(FHIR::Bundle)
 
-          return entry.resource
+        package_questionnaires(bundle).find do |questionnaire|
+          questionnaire_canonical_url(questionnaire) == target_questionnaire_canonical
         end
-        nil
       end
 
       # ***********************************************************************
@@ -323,7 +329,9 @@ module DaVinciDTRTestKit
         return request_questionnaire_response if request_questionnaire_response.is_a?(FHIR::OperationOutcome)
 
         @new_questions_added = false
+        @new_item_canonicals = []
         add_questions_from_questionnaire_template
+        add_supporting_resources_to_questionnaire_response
         if !@new_questions_added &&
            questionnaire_response_complete?(request_questionnaire, request_questionnaire_response)
           complete_questionnaire_response
@@ -351,6 +359,7 @@ module DaVinciDTRTestKit
         return unless add_missing_item_to_response?(item)
 
         new_item = replace_tokens_in_item(item)
+        @new_item_canonicals.concat(directly_referenced_canonicals(new_item))
         strip_inferno_extensions(new_item)
         new_item.item = []
         target_list << new_item
@@ -368,6 +377,20 @@ module DaVinciDTRTestKit
         return false if item.linkId.blank?
 
         include_entity?(item, request_questionnaire_response, '$next-question')
+      end
+
+      # ***********************************************************************
+      # Add Libraries and ValueSets
+      # ***********************************************************************
+
+      # Adds the configured Libraries and ValueSets referenced by the newly added items as
+      # contained resources, skipping those the client already has from the request or the
+      # $questionnaire-package response.
+      def add_supporting_resources_to_questionnaire_response
+        already_provided = request_questionnaire_response.contained + requested_package_bundle.entry.map(&:resource)
+        request_questionnaire_response.contained.concat(
+          resolve_supporting_resources(@new_item_canonicals, exclude: already_provided)
+        )
       end
 
       # ***********************************************************************

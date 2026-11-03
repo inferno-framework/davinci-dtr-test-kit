@@ -1,10 +1,7 @@
+require_relative 'inferno_control_extensions'
+
 module DaVinciDTRTestKit
   module ResponseSelectionUtils
-    INFERNO_CONTROL_EXTENSION_URLS = [
-      'urn:inferno:dtr:inclusion-criteria',
-      'urn:inferno:dtr:request-range'
-    ].freeze
-
     # ***********************************************************************
     # Selection of entries from the Template
     # ***********************************************************************
@@ -19,7 +16,7 @@ module DaVinciDTRTestKit
     end
 
     def strip_inferno_extensions(entity)
-      entity.extension.reject! { |ext| INFERNO_CONTROL_EXTENSION_URLS.include?(ext.url) }
+      entity.extension.reject! { |ext| InfernoControlExtensions::ALL_URLS.include?(ext.url) }
       entity
     end
 
@@ -28,13 +25,12 @@ module DaVinciDTRTestKit
     # ***********************************************************************
 
     def entity_has_inclusion_criteria?(entity)
-      entity.extension.any? { |ext| ext.url == 'urn:inferno:dtr:inclusion-criteria' }
+      InfernoControlExtensions.find_extension(entity, InfernoControlExtensions::INCLUSION_CRITERIA_URL).present?
     end
 
     def request_meets_inclusion_criteria?(entity, parsed_request_body)
-      criteria = entity.extension.find do |ext|
-        ext.url == 'urn:inferno:dtr:inclusion-criteria'
-      end&.valueExpression&.expression
+      criteria = InfernoControlExtensions.find_extension(entity, InfernoControlExtensions::INCLUSION_CRITERIA_URL)
+        &.valueExpression&.expression
       return false unless criteria.present?
 
       fhirpath_result = execute_fhirpath(parsed_request_body, criteria)
@@ -46,11 +42,12 @@ module DaVinciDTRTestKit
     # ***********************************************************************
 
     def entity_has_request_range_criteria?(entity)
-      entity.extension.any? { |ext| ext.url == 'urn:inferno:dtr:request-range' }
+      InfernoControlExtensions.find_extension(entity, InfernoControlExtensions::REQUEST_RANGE_URL).present?
     end
 
     def request_meets_request_range_criteria?(entity, operation)
-      criteria = entity.extension.find { |ext| ext.url == 'urn:inferno:dtr:request-range' }&.valueString
+      criteria = InfernoControlExtensions.find_extension(entity, InfernoControlExtensions::REQUEST_RANGE_URL)
+        &.valueString
       return false unless criteria.present?
 
       ranges_cover_value?(count_previous_successful_requests(operation) + 1, criteria)
