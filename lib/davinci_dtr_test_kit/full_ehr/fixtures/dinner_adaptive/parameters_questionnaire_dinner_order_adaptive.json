@@ -33,11 +33,6 @@
           },
           {
             "resource": {
-              "resourceType": "QuestionnaireResponse"
-            }
-          },
-          {
-            "resource": {
               "resourceType": "Library",
               "id": "DTRTest",
               "meta": {

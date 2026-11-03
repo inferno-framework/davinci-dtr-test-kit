@@ -5,6 +5,7 @@
       "name": "packagebundle",
       "resource": {
         "resourceType": "Bundle",
+        "type": "collection",
         "entry": [
           {
             "resource": {
@@ -23,6 +24,7 @@
               "contained": [
                 {
                   "resourceType": "Questionnaire",
+                  "id": "inferno-cql-and-value-sets-adaptive-questionnaire",
                   "extension": [
                     {
                       "url": "https://inferno.healthit.gov/test-kits/davinci-dtr/StructureDefinition/extension-use-next-question-questionnaire-template",
@@ -31,6 +33,8 @@
                   ]
                 }
               ],
+              "questionnaire": "#inferno-cql-and-value-sets-adaptive-questionnaire",
+              "status": "in-progress",
               "item": [
                 {
                   "linkId": "HIDDEN-1",

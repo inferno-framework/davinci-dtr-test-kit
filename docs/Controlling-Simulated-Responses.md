@@ -101,7 +101,11 @@ one, e.g., `http://example.org/Library/Example|1.0.0`) matches
 - a `http://hl7.org/fhir/StructureDefinition/cqf-library` extension on a Questionnaire or item,
 - an item's `answerValueSet`,
 - an [`include-resource`](#including-libraries-and-valuesets) extension on a Questionnaire or item, or
-- a `depends-on` `relatedArtifact` of a Library that is referenced, e.g., FHIRHelpers.
+- a dependency of a Library that is referenced, e.g., FHIRHelpers. Dependencies are the
+  Library's `depends-on` `relatedArtifact` entries and the libraries included by its ELM
+  (`application/elm+json` content). An ELM include with path `{namespace}/{name}` and version
+  `{version}` refers to the Library `{namespace}/Library/{name}|{version}`. Authoring tools such as
+  MADiE can leave libraries used only within functions out of `relatedArtifact`.
 
 References that don't match a provided resource are ignored. Where the resources are
 added depends on the operation:

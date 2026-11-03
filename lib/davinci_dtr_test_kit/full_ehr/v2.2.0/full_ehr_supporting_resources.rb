@@ -1,3 +1,4 @@
+require 'base64'
 require_relative '../fixture_loader'
 require_relative '../../cross_suite/canonical_matching'
 require_relative '../../cross_suite/inferno_control_extensions'
@@ -12,7 +13,7 @@ module DaVinciDTRTestKit
     # - a cqf-library extension on a Questionnaire or item,
     # - an item's answerValueSet,
     # - an include-resource extension on a Questionnaire or item, or
-    # - a depends-on relatedArtifact of a Library that is itself added.
+    # - a depends-on relatedArtifact or an ELM include of a Library that is itself added.
     # References that can't be found in the Bundles (e.g., FHIR-ModelInfo, which DTR clients
     # provide themselves) are skipped. ValueSets keep their expansion only when they have an
     # include-value-set-expanded extension set to true, so that clients otherwise need $expand.
@@ -104,7 +105,41 @@ module DaVinciDTRTestKit
       def library_dependencies(resource)
         return [] unless resource.is_a?(FHIR::Library)
 
-        resource.relatedArtifact.select { |artifact| artifact.type == 'depends-on' }.map(&:resource).compact
+        (related_artifact_dependencies(resource) + elm_include_dependencies(resource)).uniq
+      end
+
+      def related_artifact_dependencies(library)
+        library.relatedArtifact.select { |artifact| artifact.type == 'depends-on' }.map(&:resource).compact
+      end
+
+      # Authoring tools such as MADiE leave libraries that are used only within functions out of
+      # relatedArtifact, so the includes in the Library's ELM are followed too.
+      def elm_include_dependencies(library)
+        @elm_include_dependencies ||= {}.compare_by_identity
+        @elm_include_dependencies[library] ||=
+          Array(elm_library(library)&.dig('includes', 'def')).filter_map { |include| elm_include_canonical(include) }
+      end
+
+      # An ELM include's path is `{namespace uri}/{library name}`, and by the CQL on FHIR convention
+      # the Library's canonical url is `{namespace uri}/Library/{library name}`. Includes without a
+      # namespace can't be mapped to a url.
+      def elm_include_canonical(include)
+        namespace, _separator, name = include['path'].to_s.rpartition('/')
+        return if namespace.blank? || name.blank?
+
+        url = "#{namespace}/Library/#{name}"
+        include['version'].present? ? "#{url}|#{include['version']}" : url
+      end
+
+      def elm_library(library)
+        elm_content = library.content.find do |content|
+          content.contentType.to_s.start_with?('application/elm+json') && content.data.present?
+        end
+        return if elm_content.nil?
+
+        JSON.parse(Base64.decode64(elm_content.data))['library']
+      rescue JSON::ParserError
+        nil
       end
 
       # ***********************************************************************

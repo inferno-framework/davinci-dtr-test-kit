@@ -1752,9 +1752,11 @@ RSpec.describe DaVinciDTRTestKit::MockPayer::FullEHRV220NextQuestionEndpoint, :r
         post_qp_with_token
         post_nq(nq_request_body([]))
 
+        # The burger Library's relatedArtifact omits FHIRHelpers, but its ELM includes it.
         expect(last_response.status).to eq(200)
         expect(contained_supporting_canonicals).to contain_exactly(
           "Library|#{burger_library_url}",
+          'Library|http://hl7.org/fhir/uv/cql/Library/FHIRHelpers',
           "ValueSet|#{burger_type_url}"
         )
       end

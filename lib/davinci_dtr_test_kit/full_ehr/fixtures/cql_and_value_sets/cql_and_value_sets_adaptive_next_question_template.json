@@ -125,19 +125,6 @@
       ]
     },
     {
-      "extension": [
-        {
-          "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
-          "valueCodeableConcept": {
-            "coding": [
-              {
-                "system": "http://hl7.org/fhir/questionnaire-item-control",
-                "code": "gtable"
-              }
-            ]
-          }
-        }
-      ],
       "linkId": "PBD",
       "text": "Patient Information",
       "type": "group",
@@ -190,19 +177,6 @@
       ]
     },
     {
-      "extension": [
-        {
-          "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
-          "valueCodeableConcept": {
-            "coding": [
-              {
-                "system": "http://hl7.org/fhir/questionnaire-item-control",
-                "code": "gtable"
-              }
-            ]
-          }
-        }
-      ],
       "linkId": "LOC",
       "text": "Encounter Details",
       "type": "group",
@@ -408,7 +382,7 @@
               "url": "https://inferno.healthit.gov/test-kits/davinci-dtr/StructureDefinition/extension-inclusion-criteria",
               "valueExpression": {
                 "language": "text/fhirpath",
-                "expression": "item.where(linkId = '3').item.where(linkId = '3.2a.1' or linkId = '3.2b.1').answer.value.ofType(Coding).code.exists()"
+                "expression": "item.where(linkId = '3').item.item.where(linkId = '3.2a.1' or linkId = '3.2b.1').answer.value.ofType(Coding).code.exists()"
               }
             }
           ]
@@ -423,7 +397,7 @@
               "url": "https://inferno.healthit.gov/test-kits/davinci-dtr/StructureDefinition/extension-inclusion-criteria",
               "valueExpression": {
                 "language": "text/fhirpath",
-                "expression": "item.where(linkId = '3').item.where(linkId = '3.2a.1' or linkId = '3.2b.1').answer.value.ofType(Coding).code.exists()"
+                "expression": "item.where(linkId = '3').item.item.where(linkId = '3.2a.1' or linkId = '3.2b.1').answer.value.ofType(Coding).code.exists()"
               }
             }
           ]

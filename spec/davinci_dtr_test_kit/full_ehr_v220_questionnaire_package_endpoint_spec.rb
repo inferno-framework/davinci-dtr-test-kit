@@ -1062,6 +1062,60 @@ RSpec.describe DaVinciDTRTestKit::MockPayer::FullEHRV220QuestionnairePackageEndp
         expect(result.result_message).to include('must contain a Bundle resource')
       end
 
+      context 'when a Library has dependencies only in its ELM includes' do
+        let(:dependent_url) { 'https://example.org/Library/Dependent' }
+        let(:helper_url) { 'https://example.org/Library/Helper' }
+        let(:unversioned_url) { 'https://example.org/Library/Unversioned' }
+        # Dependent's ELM includes Helper (versioned), Unversioned (no version), and an include with
+        # no namespace, which can't be mapped to a url.
+        let(:library_bundle) do
+          includes = [
+            { localIdentifier: 'Helper', path: 'https://example.org/Helper', version: '1.0.0' },
+            { localIdentifier: 'Unversioned', path: 'https://example.org/Unversioned' },
+            { localIdentifier: 'NoNamespace', path: 'NoNamespace', version: '1.0.0' }
+          ]
+          FHIR::Bundle.new(
+            type: 'collection',
+            entry: [library(dependent_url, content: [elm_content(includes)]), library(helper_url),
+                    library(helper_url, '2.0.0'), library(unversioned_url, '3.0.0')]
+              .map { |resource| FHIR::Bundle::Entry.new(resource:) }
+          ).to_json
+        end
+        let(:dependent_questionnaire) do
+          FHIR::Questionnaire.new(
+            url: 'urn:inferno:dtr-test-kit:elm-includes', status: 'draft',
+            extension: [FHIR::Extension.new(url: 'http://hl7.org/fhir/StructureDefinition/cqf-library',
+                                            valueCanonical: dependent_url)]
+          )
+        end
+
+        def elm_content(includes)
+          FHIR::Attachment.new(contentType: 'application/elm+json',
+                               data: Base64.strict_encode64({ library: { includes: { def: includes } } }.to_json))
+        end
+
+        def library(url, version = '1.0.0', content: [])
+          FHIR::Library.new(id: url.split('/').last, url:, version:, status: 'active',
+                            type: { coding: [{ code: 'logic-library' }] }, content:)
+        end
+
+        def response_libraries
+          response_bundle_resources.select { |resource| resource['resourceType'] == 'Library' }
+            .map { |resource| "#{resource['url']}|#{resource['version']}" }
+        end
+
+        it 'adds the Libraries the ELM includes, using the include version when there is one' do
+          run(supporting_input_test, client_id:,
+                                     qp_response_template: package_template([dependent_questionnaire]),
+                                     library_bundle:)
+          post_with_token
+
+          expect(last_response.status).to eq(200)
+          expect(response_libraries).to contain_exactly("#{dependent_url}|1.0.0", "#{helper_url}|1.0.0",
+                                                        "#{unversioned_url}|3.0.0")
+        end
+      end
+
       context 'when deciding whether to include ValueSet expansions' do
         let(:toppings_url) { 'https://inferno.healthit.gov/test-kits/davinci-dtr/ValueSet/toppings' }
         let(:expanded_marker_url) { DaVinciDTRTestKit::InfernoControlExtensions::INCLUDE_VALUE_SET_EXPANDED_URL }
@@ -1225,6 +1279,8 @@ RSpec.describe DaVinciDTRTestKit::MockPayer::FullEHRV220QuestionnairePackageEndp
 
         response = package_resources.find { |resource| resource['resourceType'] == 'QuestionnaireResponse' }
         expect(response['contained'].first['url']).to eq(cql_template_url)
+        expect(response['status']).to eq('in-progress')
+        expect(response['questionnaire']).to eq("##{response['contained'].first['id']}")
 
         library_urls = package_resources.select { |resource| resource['resourceType'] == 'Library' }
           .map { |library| library['url'] }
