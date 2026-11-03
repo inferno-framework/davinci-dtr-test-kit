@@ -1,3 +1,13 @@
+# v0.18.1
+* FQM-467: Add DTR client proxy mode for v2.2.0 Server Suite by @tstrass in https://github.com/inferno-framework/davinci-dtr-test-kit/pull/129
+* ID-244: Remove premature scratch clear by @karlnaden in https://github.com/inferno-framework/davinci-dtr-test-kit/pull/133
+* FQM-476: Remove required disabled input workaround by @tstrass in https://github.com/inferno-framework/davinci-dtr-test-kit/pull/135
+* FQM-470: Remove patternString workaround for Core metadata extractor by @tstrass in https://github.com/inferno-framework/davinci-dtr-test-kit/pull/128
+* FQM-477: Remove MS elements with max cardinality 0 from metadata by @tstrass in https://github.com/inferno-framework/davinci-dtr-test-kit/pull/134
+
+# v0.18.0
+* Support v2.2.0 by @karlnaden in https://github.com/inferno-framework/davinci-dtr-test-kit/pull/126
+
 # v0.17.1
 * FI-4124: add smart app limitation documentation by @karlnaden in:
 https://github.com/inferno-framework/davinci-dtr-test-kit/pull/77
