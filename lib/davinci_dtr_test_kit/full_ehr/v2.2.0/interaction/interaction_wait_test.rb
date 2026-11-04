@@ -92,6 +92,7 @@ module DaVinciDTRTestKit
           - Questionnaire Package Operation: `#{questionnaire_package_url}`
           - Next Question Operation: `#{next_url}`
           - ValueSet Expand Operation: `#{value_set_expand_url}`
+          - Log Questionnaire Errors Operation: `#{log_questionnaire_errors_url}`
 
           ### Authenticated and Identification
 
