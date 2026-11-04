@@ -7,15 +7,26 @@ module DaVinciDTRTestKit
     class QuestionnairePackageOutputParametersMustSupportTest < Inferno::Test
       include QuestionnaireHelper
 
-      MUST_SUPPORT_METADATA = GeneratedProfileMetadata.for('v2.2.0', 'dtr_qpackage_output_parameters')
+      # Returns a copy so the shared cached metadata is left unchanged
+      def self.remove_outcome_parameter(metadata)
+        metadata = Inferno::DSL::ProfileMetadata.new(metadata.to_hash.deep_dup)
+        metadata.must_supports[:slices].reject! { |slice| slice[:slice_name] == 'outcome' }
+        metadata.must_supports[:elements].reject! { |element| element[:path].start_with?('parameter:outcome') }
+        metadata
+      end
+
+      MUST_SUPPORT_METADATA = remove_outcome_parameter(
+        GeneratedProfileMetadata.for('v2.2.0', 'dtr_qpackage_output_parameters')
+      )
 
       id :dtr_v220_payer_questionnaire_package_output_parameters_must_support
       title 'Server provides Questionnaire Package Output Parameters must support elements'
       description %(
-        This test confirms that all must support elements defined in the
+        This test confirms that must support elements defined in the
         [DTR Questionnaire Package Output Parameters](https://hl7.org/fhir/us/davinci-dtr/2.2.0/en/StructureDefinition-dtr-qpackage-output-parameters.html)
         profile have been observed cumulatively across `$questionnaire-package` responses
-        returned during previous tests.
+        returned during previous tests. This test does not check for the must support `outcome`
+        parameter, which is verified as a part of the "Error Handling" group.
 
         This includes the following elements:
         - #{MUST_SUPPORT_METADATA.must_support_strings.join("\n        - ")}

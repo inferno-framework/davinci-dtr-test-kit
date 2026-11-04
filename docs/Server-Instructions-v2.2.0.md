@@ -56,9 +56,10 @@ Each group can be run in order.
    1. The "ValueSet/$expand Support" group makes expand requests for unexpanded
       ValueSets returned from `$questionnaire-package` and `$next-question`
       requests validates the responses.
-   1. The "Error Hanlding" group verifies that the server handles particular
-      errors as described in the IG.
    1. The "Must Support" group verifies that the server is capable of populating
       all Must Support fields.
+1. The "Error Handling" group verifies that the server handles particular
+   errors as described in the IG. Note that this group must be run after the 
+   "Questionnaire Operations" group.
 1. The "Log Questionnaire Error Support" group verifies that the server supports
    the `$log-questionnaire-errors` operation.

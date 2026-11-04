@@ -14,10 +14,17 @@ RSpec.describe DaVinciDTRTestKit::DTRPayerServerV220::QuestionnairePackageOutput
     expect(result.result_message).to include('Requests must be made prior')
   end
 
-  it 'passes when must support parameters are present cumulatively across responses' do
+  it 'passes when the outcome parameter is not demonstrated' do
     store_must_support_response(
       questionnaire_package_response(questionnaire_package_bundle(FHIR::Questionnaire.new(status: 'active')))
     )
+
+    result = run(described_class)
+
+    expect(result.result).to eq('pass'), result.result_message
+  end
+
+  it 'fails when no packagebundle parameter was demonstrated' do
     store_must_support_response(
       FHIR::Parameters.new(
         parameter: [FHIR::Parameters::Parameter.new(
@@ -29,17 +36,18 @@ RSpec.describe DaVinciDTRTestKit::DTRPayerServerV220::QuestionnairePackageOutput
 
     result = run(described_class)
 
-    expect(result.result).to eq('pass'), result.result_message
+    expect(result.result).to eq('fail')
+    expect(result.result_message).to include('Parameters.parameter:packagebundle')
   end
 
-  it 'fails when no outcome parameter was demonstrated' do
-    store_must_support_response(
-      questionnaire_package_response(questionnaire_package_bundle(FHIR::Questionnaire.new(status: 'active')))
-    )
+  it 'does not check for the outcome parameter' do
+    expect(described_class::MUST_SUPPORT_METADATA.must_support_strings)
+      .to contain_exactly('parameter', 'parameter:packagebundle', 'parameter:packagebundle.resource')
+  end
 
-    result = run(described_class)
+  it 'does not modify the cached generated metadata' do
+    cached_metadata = DaVinciDTRTestKit::GeneratedProfileMetadata.for('v2.2.0', 'dtr_qpackage_output_parameters')
 
-    expect(result.result).to eq('fail')
-    expect(result.result_message).to include('Parameters.parameter:outcome')
+    expect(cached_metadata.must_support_strings).to include('parameter:outcome', 'parameter:outcome.resource')
   end
 end
