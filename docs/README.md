@@ -30,6 +30,12 @@ to this test kit.
 *   **Server Testing Instructions**: Step-by-step guide for testing server systems against the [v2.2.0 version](https://github.com/inferno-framework/davinci-dtr-test-kit/wiki/Server-Instructions-v2.2.0).
 *   **[Controlling Simulated DTR Client Requests](https://github.com/inferno-framework/davinci-dtr-test-kit/wiki/Controlling-Simulated-Requests)**: Details on how testers can control the requests made by Inferno's simulated DTR client during payer server testing.
 
+## Contributing to this Test Kit
+
+*   **[Running the Client and Server Suites Against Each Other](https://github.com/inferno-framework/davinci-dtr-test-kit/wiki/Running-Suites-Against-Each-Other)**:
+    Step-by-step guide for developers on using the client and server suites to demonstrate the test execution without a separate DTR
+    implementation, which can be useful for learning as well as debugging.
+
 ## Reference Documents
 
 *   **DTR Requirements Spreadsheets**: Spreadsheets detailing the interpretation of DTR IG requirements for this test kit:
