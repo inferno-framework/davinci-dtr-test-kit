@@ -286,22 +286,6 @@ module DaVinciDTRTestKit
         end
 
         group do
-          title 'Error Handling'
-          id :dtr_payer_v220_error_handling
-          description <<~DESCRIPTION
-            This group makes requests which contain errors and verifies that the
-            server handles them in accordance with DTR IG requirements. It is
-            independent of DTR Request Mode.
-          DESCRIPTION
-
-          test from: :dtr_server_v220_payer_questionnaire_not_found
-
-          test from: :dtr_v220_payer_source_data_error
-
-          test from: :dtr_v220_payer_invalid_questionnaire_response
-        end
-
-        group do
           id :dtr_payer_server_v220_must_support
           title 'Must Support'
           description <<~DESCRIPTION
@@ -319,13 +303,32 @@ module DaVinciDTRTestKit
       end
 
       group do
+        title 'Error Handling'
+        id :dtr_payer_v220_error_handling
+        description <<~DESCRIPTION
+          This group makes requests which contain errors and verifies that the
+          server handles them in accordance with DTR IG requirements. It is
+          independent of DTR Request Mode. It must be run after the
+          "Questionnaire Operations" group.
+        DESCRIPTION
+        run_as_group
+
+        input :backend_services_smart_auth_info,
+              title: 'Backend Services Credentials',
+              type: :auth_info
+
+        test from: :dtr_server_v220_payer_questionnaire_not_found
+        test from: :dtr_v220_payer_source_data_error
+        test from: :dtr_v220_payer_invalid_questionnaire_response
+      end
+
+      group do
         title 'Log Questionnaire Error Support'
         id :dtr_payer_v220_log_questionnaire_error_support
         description <<~DESCRIPTION
           This group performs a `$log-questionnaire-errors` operation and
           verifies the server's response.
         DESCRIPTION
-
         run_as_group
 
         input :backend_services_smart_auth_info,

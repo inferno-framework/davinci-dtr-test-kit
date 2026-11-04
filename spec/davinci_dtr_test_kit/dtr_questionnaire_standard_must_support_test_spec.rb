@@ -101,7 +101,7 @@ RSpec.describe DaVinciDTRTestKit::DTRFullEHRV220QuestionnaireStandardMustSupport
     result = run(described_class)
     expect(result.result).to eq('fail')
     expect(result.result_message).to include('item.enableWhen')
-    expect(result.result_message).to include('Questionnaire.item.extension:enableWhenExpression')
+    expect(result.result_message).to include('item.extension:enableWhenExpression')
   end
 
   it 'passes when a fully conformant standard Questionnaire is present' do
