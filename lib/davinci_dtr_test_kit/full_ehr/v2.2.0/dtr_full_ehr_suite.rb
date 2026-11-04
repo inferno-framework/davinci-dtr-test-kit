@@ -12,6 +12,7 @@ require_relative 'must_support/dtr_questionnaire_adaptive_must_support_test'
 require_relative 'must_support/dtr_questionnaire_standard_must_support_test'
 require_relative 'workflows/dtr_full_ehr_workflow_adaptive_group'
 require_relative 'workflows/dtr_full_ehr_workflow_standard_group'
+require_relative 'workflows/dtr_full_ehr_workflow_answer_origin_group'
 
 module DaVinciDTRTestKit
   class DTRFullEHRSuiteV220 < Inferno::TestSuite
@@ -114,6 +115,7 @@ module DaVinciDTRTestKit
 
       group from: :dtr_full_ehr_v220_workflow_standard
       group from: :dtr_full_ehr_v220_workflow_adaptive
+      group from: :dtr_full_ehr_v220_workflow_answer_origin
     end
 
     group do

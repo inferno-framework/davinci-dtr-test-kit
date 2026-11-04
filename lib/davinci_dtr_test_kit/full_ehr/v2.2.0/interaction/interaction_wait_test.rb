@@ -2,12 +2,14 @@ require_relative '../../descriptions'
 require_relative '../../../urls'
 require_relative '../next_question_template_questionnaires'
 require_relative '../../short_circuit_interaction_verification'
+require_relative '../../../cross_suite/v2.2.0/answer_origin_helper'
 
 module DaVinciDTRTestKit
   class DTRFullEHRV220InteractionWaitTest < Inferno::Test
     include URLs
     include NextQuestionTemplateQuestionnaires
     include ShortCircuitInteractionVerification
+    include AnswerOriginHelper
 
     id :dtr_full_ehr_v220_interaction_wait
     title 'Retrieve and complete Questionnaire(s)'
@@ -72,10 +74,12 @@ module DaVinciDTRTestKit
       wait(
         identifier: client_id,
         timeout: 1200,
-        message: %(
+        message: <<~MESSAGE
           Inferno will wait while the tester uses the system to complete
           one or more DTR Questionnaires retrieved from Inferno's simulated
           payer server.
+
+          #{config.options[:interaction_instructions]}
 
           When all Questionnaire returned by Inferno during this period
           have been completed and saved to the EHR [Click here](#{continuation_url})
@@ -85,7 +89,7 @@ module DaVinciDTRTestKit
 
           Available endpoints on Inferno's simulated payer server include
 
-          - FHIR Base: `#{fhir_base_url}
+          - FHIR Base: `#{fhir_base_url}`
           - Questionnaire Package Operation: `#{questionnaire_package_url}`
           - Next Question Operation: `#{next_url}`
 
@@ -96,13 +100,12 @@ module DaVinciDTRTestKit
           Only requests including an obtained access token as a bearer token
           in the `Authentication` header of the HTTP request will be recognized
           as associated with this session and return successful responses.
-        )
+        MESSAGE
       )
     end
 
     # other things that might go into the wait message
     # - Whether multiple successful $questionnaire-package requests are allowed (options)
-    # - specific instructions for completion (TODO)
     # - whether the Questionnaires are provided by Inferno or the tester (options)
 
     private
@@ -158,14 +161,49 @@ module DaVinciDTRTestKit
       is_array = parsed_json.is_a?(Array)
       questionnaire_jsons = is_array ? parsed_json : [parsed_json]
 
+      questionnaires = []
       questionnaire_jsons.each_with_index do |questionnaire_json, index|
-        next if parse_template_questionnaire(questionnaire_json).present?
+        questionnaire = parse_template_questionnaire(questionnaire_json)
+        if questionnaire.nil?
+          location = is_array ? "at index #{index} of input '#{title}'" : "in input '#{title}'"
+          assert false, "Invalid $next-question response template: expected a Questionnaire #{location}."
+        end
 
-        location = is_array ? "at index #{index} of input '#{title}'" : "in input '#{title}'"
-        assert false, "Invalid $next-question response template: expected a Questionnaire #{location}."
+        questionnaires << questionnaire
       end
+
+      validate_nq_template_answer_origin_items(questionnaires, title)
     rescue JSON::ParserError
       assert false, "Input '#{title}' does not contain valid JSON."
+    end
+
+    # For scenarios where the tester must change one pre-populated answer, leave another alone,
+    # and fill in an answer that isn't pre-populated, make sure the template has editable items
+    # that allow all three before the tester starts.
+    def validate_nq_template_answer_origin_items(questionnaires, title) # rubocop:disable Metrics/CyclomaticComplexity
+      return unless config.options[:nq_template_requires_answer_origin_items]
+
+      prepopulated_count = 0
+      not_prepopulated_count = 0
+      questionnaires.each do |questionnaire|
+        all_questionnaire_items(questionnaire.item).each do |item|
+          next if ['group', 'display'].include?(item.type) || item.readOnly == true
+
+          # calculatedExpression answers are recomputed by the client, so users can't override them
+          extension_urls = item.extension.map(&:url)
+          if extension_urls.include?(INITIAL_EXPRESSION_URL) || extension_urls.include?(CANDIDATE_EXPRESSION_URL)
+            prepopulated_count += 1
+          elsif !prepopulated_item?(item)
+            not_prepopulated_count += 1
+          end
+        end
+      end
+
+      assert prepopulated_count >= 2 && not_prepopulated_count >= 1,
+             "The $next-question response template in input '#{title}' must include at least two editable " \
+             'pre-populated items (using an initialExpression or candidateExpression) and at least one editable ' \
+             "item that is not pre-populated. Found #{prepopulated_count} pre-populated and " \
+             "#{not_prepopulated_count} not pre-populated."
     end
 
     # config.options input references are stored as input names (e.g. 'additional_ms_qp_responses');

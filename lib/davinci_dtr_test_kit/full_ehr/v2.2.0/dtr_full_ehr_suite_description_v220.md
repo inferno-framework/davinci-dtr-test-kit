@@ -18,3 +18,9 @@ The EHR will be expected to initiate requests to Inferno to elicit responses. Ov
 course of these interactions, Inferno will seek to observe conformant handling of
 DTR workflows and requirements around the retrieval and completion of questionnaires
 and the storage of questionnaire responses.
+
+Because Inferno sees each QuestionnaireResponse submitted with an adaptive
+`$next-question` request, it can also check details of the answers themselves.
+For example, the Pre-populated Answers and Answer Origin scenario verifies that
+users can change pre-populated answers without being required to, and that the
+client records the origin (`auto-client`, `override`, or `manual`) of each answer.
