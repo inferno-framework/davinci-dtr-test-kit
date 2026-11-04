@@ -224,7 +224,8 @@ RSpec.describe DaVinciDTRTestKit::DTRPayerServerV220::DTRServerQuestionnaireNotF
 
       expect(result.result).to eq('skip')
       expect(result.result_message).to eq(
-        'No $questionnaire-package requests were made in the Request Questionnaires test.'
+        'No $questionnaire-package requests were made in the "Request Questionnaires" test. ' \
+        'Run or re-run the "Questionnaire Operations" group before re-trying this test.'
       )
     end
   end
