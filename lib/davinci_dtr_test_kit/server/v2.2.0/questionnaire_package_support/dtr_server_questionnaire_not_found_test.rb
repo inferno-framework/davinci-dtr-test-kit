@@ -9,13 +9,16 @@ module DaVinciDTRTestKit
         The DTR Questionnaire Package operation requires the server to return a warning
         when a requested Questionnaire cannot be found. Inferno adds an unknown Questionnaire
         to a previously made `$questionnaire-package` request and verifies that the
-        response contains the required warning.
+        response contains the required warning. This demonstrates support for the
+        must support "output" `parameter` of the [DTR Questionnaire Package Output Parameters](https://hl7.org/fhir/us/davinci-dtr/2.2.0/en/StructureDefinition-dtr-qpackage-output-parameters.html)
+        profile.
 
         This test requires that the "Questionnaire Operations" group was previously
         run and will skip if it was not.
       )
 
-      verifies_requirements 'hl7.fhir.us.davinci-dtr_2.2.0@oper-9'
+      verifies_requirements 'hl7.fhir.us.davinci-dtr_2.2.0@oper-9',
+                            'hl7.fhir.us.davinci-dtr_2.2.0@conf-2'
 
       QUESTIONNAIRE_NOT_FOUND_URL = 'https://inferno.health/Questionnaire/does-not-exist'.freeze
 
