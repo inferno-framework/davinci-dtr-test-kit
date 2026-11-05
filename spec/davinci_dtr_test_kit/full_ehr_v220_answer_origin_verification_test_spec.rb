@@ -7,10 +7,12 @@ RSpec.describe DaVinciDTRTestKit::DTRFullEHRV220AnswerOriginVerificationTest do 
   let(:information_origin_url) { 'http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/information-origin' }
   let(:initial_expression_url) { 'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-initialExpression' }
 
+  let(:prepopulated_extension) do
+    [{ url: initial_expression_url, valueExpression: { language: 'text/cql', expression: '"DTRTest".Name' } }]
+  end
+
   # Two pre-populated items (LastName, FirstName) and one item that is not pre-populated (Dinner)
   let(:questionnaire) do
-    prepopulated_extension = [{ url: initial_expression_url,
-                                valueExpression: { language: 'text/cql', expression: '"DTRTest".Name' } }]
     {
       resourceType: 'Questionnaire',
       status: 'active',
@@ -45,11 +47,18 @@ RSpec.describe DaVinciDTRTestKit::DTRFullEHRV220AnswerOriginVerificationTest do 
       &.messages&.map(&:message) || []
   end
 
-  def answer(value, source)
+  # By default, answers the user filled in or changed ('manual' / 'override') name the user as their author,
+  # as spec-137 requires. Pass `author: false` to leave the author out.
+  def answer(value, source, author: true)
     answer = { valueString: value }
-    unless source.nil?
-      answer[:extension] = [{ url: information_origin_url, extension: [{ url: 'source', valueCode: source }] }]
+    return answer if source.nil?
+
+    origin_parts = [{ url: 'source', valueCode: source }]
+    if author && ['manual', 'override'].include?(source)
+      origin_parts << { url: 'author',
+                        extension: [{ url: 'practitioner', valueReference: { reference: 'Practitioner/pra1234' } }] }
     end
+    answer[:extension] = [{ url: information_origin_url, extension: origin_parts }]
     answer
   end
 
@@ -157,18 +166,58 @@ RSpec.describe DaVinciDTRTestKit::DTRFullEHRV220AnswerOriginVerificationTest do 
     )
   end
 
-  it 'fails when a pre-populated item has a manual source' do
-    create_nq_request(
-      questionnaire_response(last_name_source: 'manual', first_name_source: 'override', dinner_source: 'manual')
-    )
+  # e.g. the default Questionnaire's Location comes from the patient's first Encounter; with no Encounter the
+  # user has to type it, and spec-137 says that answer is 'manual'.
+  it 'accepts manual on a pre-populated item the user had to fill in, and counts it as a manual answer' do
+    questionnaire[:item] << { linkId: 'Location', type: 'string', extension: prepopulated_extension }
+    response = questionnaire_response(last_name_source: 'auto-client', first_name_source: 'override',
+                                      dinner_source: 'manual')
+    response[:item].pop # drop Dinner so the only manual answer is on the pre-populated Location item
+    response[:item] << { linkId: 'Location', answer: [answer('Room 1', 'manual')] }
+    create_nq_request(response)
+
+    result = run(described_class)
+
+    expect(result.result).to eq('pass'), result.result_message
+  end
+
+  it 'fails when a manual answer has no author' do
+    response = questionnaire_response(last_name_source: 'auto-client', first_name_source: 'override',
+                                      dinner_source: 'manual')
+    response[:item].last[:answer] = [answer('Pizza', 'manual', author: false)]
+    create_nq_request(response)
 
     result = run(described_class)
 
     expect(result.result).to eq('fail')
     expect(messages_for(result)).to include(
-      'Answer to pre-populated item `LastName` has information-origin source `manual`, ' \
-      'expected one of: auto-client, auto-server, override.'
+      'Answer to item `Dinner` has information-origin source `manual` but no `author` with a `practitioner` ' \
+      'reference identifying the user who entered it.'
     )
+  end
+
+  it 'fails when an override answer has no author' do
+    response = questionnaire_response(last_name_source: 'auto-client', first_name_source: 'override',
+                                      dinner_source: 'manual')
+    response[:item].first[:item].last[:answer] = [answer('Jo', 'override', author: false)]
+    create_nq_request(response)
+
+    result = run(described_class)
+
+    expect(result.result).to eq('fail')
+    expect(messages_for(result)).to include(a_string_including('Answer to item `FirstName` has information-origin ' \
+                                                               'source `override` but no `author`'))
+  end
+
+  it 'does not require an author on answers the client populated itself' do
+    response = questionnaire_response(last_name_source: 'auto-client', first_name_source: 'override',
+                                      dinner_source: 'manual')
+    response[:item].first[:item].first[:answer] = [answer('Smith', 'auto-client', author: false)]
+    create_nq_request(response)
+
+    result = run(described_class)
+
+    expect(result.result).to eq('pass'), result.result_message
   end
 
   it 'fails when an item that is not pre-populated has an auto-client source' do

@@ -10,7 +10,7 @@ module DaVinciDTRTestKit
     include AnswerOriginHelper
 
     id :dtr_full_ehr_v220_answer_origin_verification
-    title 'Answers have the expected information-origin sources'
+    title 'Answers have the expected information-origin details'
     description %(
       This test checks the [information-origin](https://hl7.org/fhir/us/davinci-dtr/2.2.0/en/StructureDefinition-information-origin.html)
       extension on each answer in the completed adaptive QuestionnaireResponse, which is the
@@ -19,19 +19,25 @@ module DaVinciDTRTestKit
       Questionnaire items with an `initialExpression`, `calculatedExpression`, or `candidateExpression`
       are considered pre-populated. The test verifies that:
       - every answer has an information-origin extension with a `source`;
-      - answers to pre-populated items have a source of `auto-client`, `auto-server`, or `override`;
+      - answers to pre-populated items have a source of `auto-client`, `auto-server`, `override`, or
+        `manual` (when the item's expression found nothing and the user filled in the answer);
       - answers to all other items have a source of `manual`;
+      - every answer the user filled in or changed (`manual` or `override`) has an `author` with a
+        `practitioner` reference identifying the user;
       - at least one pre-populated answer was changed by the user (`override`), showing that users
         can revise pre-populated answers;
       - at least one pre-populated answer was left alone (`auto-client`), showing that users
         are not required to change pre-populated answers;
-      - at least one answer that was not pre-populated was filled in by the user (`manual`).
+      - at least one answer was filled in by the user (`manual`).
     )
     verifies_requirements 'hl7.fhir.us.davinci-dtr_2.2.0@spec-132',
                           'hl7.fhir.us.davinci-dtr_2.2.0@spec-137'
 
-    PREPOPULATED_ORIGIN_SOURCES = ['auto-client', 'auto-server', 'override'].freeze
+    # A pre-populated item can still be answered 'manual' if its expression found nothing and the user
+    # filled it in, since spec-137 only calls for 'override' when the answer was already populated.
+    PREPOPULATED_ORIGIN_SOURCES = ['auto-client', 'auto-server', 'override', 'manual'].freeze
     MANUAL_ORIGIN_SOURCES = ['manual'].freeze
+    USER_ENTERED_ORIGIN_SOURCES = ['override', 'manual'].freeze
 
     run do
       check_for_short_circuit(ok_message: config.options[:short_circuit_pass_message])
@@ -95,6 +101,17 @@ module DaVinciDTRTestKit
             next
           end
 
+          # spec-137: an answer the user filled in or changed must name the user as its author
+          if USER_ENTERED_ORIGIN_SOURCES.include?(source)
+            author_extension = origin_extension.extension.find { |extension| extension.url == 'author' }
+            practitioner_extension = author_extension&.extension&.find { |extension| extension.url == 'practitioner' }
+            if practitioner_extension&.value.nil?
+              add_message('error',
+                          "Answer to item `#{link_id}` has information-origin source `#{source}` but no `author` " \
+                          'with a `practitioner` reference identifying the user who entered it.')
+            end
+          end
+
           if prepopulated_item?(questionnaire_items_by_link_id[link_id])
             item_description = 'pre-populated item'
             expected_sources = PREPOPULATED_ORIGIN_SOURCES
@@ -125,11 +142,11 @@ module DaVinciDTRTestKit
       end
       unless demonstrated_sources.include?('manual')
         add_message('error',
-                    'No answer was filled in manually: expected at least one answer to an item that is not ' \
-                    'pre-populated with information-origin source `manual`.')
+                    'No answer was filled in manually: expected at least one answer with information-origin ' \
+                    'source `manual`.')
       end
 
-      assert_no_error_messages('Answer origins do not show the expected sources. See Messages for details.')
+      assert_no_error_messages('Answer origins do not show the expected details. See Messages for details.')
     end
   end
 end
