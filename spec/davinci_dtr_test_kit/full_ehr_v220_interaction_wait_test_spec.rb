@@ -120,4 +120,130 @@ RSpec.describe DaVinciDTRTestKit::DTRFullEHRV220InteractionWaitTest do # rubocop
       expect(result.result).to eq('wait')
     end
   end
+
+  describe 'config.options[:interaction_instructions]' do
+    let(:instructions_test_class) do
+      Class.new(described_class) do
+        id :interaction_wait_instructions_spec_test
+        config options: { interaction_instructions: "Do these things:\n- **Change** a pre-populated answer\n" }
+      end
+    end
+
+    before do
+      tests_repo = Inferno::Repositories::Tests.new
+      tests_repo.insert(instructions_test_class) unless tests_repo.exists?(instructions_test_class.id.to_s)
+    end
+
+    it 'includes the instructions in the wait message without indenting the markdown' do
+      result = run(instructions_test_class, { client_id: })
+
+      expect(result.result).to eq('wait')
+      expect(result.result_message).to include("Do these things:\n- **Change** a pre-populated answer\n")
+      expect(result.result_message).to include("\n### Endpoints\n")
+    end
+
+    it 'leaves the rest of the wait message unchanged when no instructions are configured' do
+      result = run(always_run_test_class, { client_id: })
+
+      expect(result.result_message).to start_with('Inferno will wait while the tester uses the system')
+      expect(result.result_message).to include("\n### Endpoints\n")
+    end
+  end
+
+  describe 'config.options[:nq_template_requires_answer_origin_items]' do
+    let(:answer_origin_test_class) do
+      Class.new(described_class) do
+        id :interaction_wait_answer_origin_spec_test
+        input :qp_template, type: 'textarea', optional: true
+        input :nq_template, type: 'textarea', optional: true
+        config options: {
+          qp_response_template_input: 'qp_template',
+          nq_questionnaire_template_input: 'nq_template',
+          nq_template_requires_answer_origin_items: true
+        }
+      end
+    end
+
+    let(:initial_expression) do
+      { url: 'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-initialExpression',
+        valueExpression: { language: 'text/cql', expression: '"DTRTest".Name' } }
+    end
+    let(:calculated_expression) do
+      { url: 'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-calculatedExpression',
+        valueExpression: { language: 'text/cql', expression: '"DTRTest".Name' } }
+    end
+
+    def nq_template(items)
+      { resourceType: 'Questionnaire', status: 'active', url: 'http://example.org/Questionnaire/q', item: items }
+        .to_json
+    end
+
+    before do
+      tests_repo = Inferno::Repositories::Tests.new
+      tests_repo.insert(answer_origin_test_class) unless tests_repo.exists?(answer_origin_test_class.id.to_s)
+    end
+
+    it 'waits when the template has two editable pre-populated items and one item that is not pre-populated' do
+      template = nq_template([
+                               { linkId: 'group', type: 'group', item: [
+                                 { linkId: 'a', type: 'string', extension: [initial_expression] },
+                                 { linkId: 'b', type: 'string', extension: [initial_expression] }
+                               ] },
+                               { linkId: 'c', type: 'string' }
+                             ])
+
+      result = run(answer_origin_test_class, { client_id:, qp_template: valid_qp_template, nq_template: template })
+
+      expect(result.result).to eq('wait'), result.result_message
+    end
+
+    it 'waits with the default answer origin templates from the fixtures' do
+      fixture_directory = File.join('lib', 'davinci_dtr_test_kit', 'full_ehr', 'fixtures', 'dinner_adaptive')
+      qp_template = File.read(File.join(fixture_directory, 'parameters_questionnaire_dinner_order_adaptive.json'))
+      nq_template = File.read(File.join(fixture_directory, 'dinner_order_adaptive_next_question_template.json'))
+
+      result = run(answer_origin_test_class, { client_id:, qp_template:, nq_template: })
+
+      expect(result.result).to eq('wait'), result.result_message
+    end
+
+    it 'fails and flags downstream tests to skip when there are not enough pre-populated items' do
+      template = nq_template([
+                               { linkId: 'a', type: 'string', extension: [initial_expression] },
+                               { linkId: 'c', type: 'string' }
+                             ])
+      scratch = {}
+
+      result = run(answer_origin_test_class, { client_id:, qp_template: valid_qp_template, nq_template: template },
+                   scratch)
+
+      expect(result.result).to eq('fail')
+      expect(result.result_message).to include('Found 1 pre-populated and 1 not pre-populated.')
+      expect(scratch[:short_circuit]).to eq(:skip)
+    end
+
+    it 'does not count read-only, calculated, or group items' do
+      template = nq_template([
+                               { linkId: 'a', type: 'string', extension: [initial_expression] },
+                               { linkId: 'b', type: 'string', readOnly: true, extension: [initial_expression] },
+                               { linkId: 'c', type: 'string', extension: [calculated_expression] },
+                               { linkId: 'd', type: 'group', item: [{ linkId: 'e', type: 'display' }] }
+                             ])
+
+      result = run(answer_origin_test_class, { client_id:, qp_template: valid_qp_template, nq_template: template })
+
+      expect(result.result).to eq('fail')
+      expect(result.result_message).to include('Found 1 pre-populated and 0 not pre-populated.')
+    end
+
+    it 'does not check the template items when the option is not set' do
+      template = nq_template([{ linkId: 'c', type: 'string' }])
+
+      result = run(test_class, {
+                     client_id:, complete_questionnaires: 'true', qp_template: valid_qp_template, nq_template: template
+                   })
+
+      expect(result.result).to eq('wait'), result.result_message
+    end
+  end
 end
