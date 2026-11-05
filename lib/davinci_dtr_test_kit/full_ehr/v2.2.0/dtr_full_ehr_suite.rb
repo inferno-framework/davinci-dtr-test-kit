@@ -5,11 +5,14 @@ require_relative '../../cross_suite/cors'
 require_relative '../endpoints/mock_udap_smart_server/token_endpoint'
 require_relative 'full_ehr_questionnaire_package_endpoint'
 require_relative 'full_ehr_next_question_endpoint'
+require_relative 'full_ehr_value_set_expand_endpoint'
 require_relative '../dtr_full_ehr_options'
 require_relative 'must_support/dtr_additional_questionnaires_interaction_group'
 require_relative 'must_support/dtr_questionnaire_base_must_support_test'
 require_relative 'must_support/dtr_questionnaire_adaptive_must_support_test'
 require_relative 'must_support/dtr_questionnaire_standard_must_support_test'
+require_relative 'must_support/dtr_questionnaire_response_base_must_support_test'
+require_relative 'must_support/dtr_questionnaire_response_adaptive_must_support_test'
 require_relative 'workflows/dtr_full_ehr_workflow_adaptive_group'
 require_relative 'workflows/dtr_full_ehr_workflow_standard_group'
 require_relative 'workflows/dtr_full_ehr_workflow_answer_origin_group'
@@ -84,7 +87,7 @@ module DaVinciDTRTestKit
       end
     end
 
-    allow_cors QUESTIONNAIRE_PACKAGE_PATH, NEXT_PATH
+    allow_cors QUESTIONNAIRE_PACKAGE_PATH, NEXT_PATH, VALUE_SET_EXPAND_PATH
 
     route(:get, UDAPSecurityTestKit::UDAP_DISCOVERY_PATH, lambda { |_env|
       UDAPSecurityTestKit::MockUDAPServer.udap_server_metadata(id)
@@ -99,6 +102,8 @@ module DaVinciDTRTestKit
 
     suite_endpoint :post, QUESTIONNAIRE_PACKAGE_PATH, MockPayer::FullEHRV220QuestionnairePackageEndpoint
     suite_endpoint :post, NEXT_PATH, MockPayer::FullEHRV220NextQuestionEndpoint
+    suite_endpoint :get, VALUE_SET_EXPAND_PATH, MockPayer::FullEHRV220ValueSetExpandEndpoint
+    suite_endpoint :post, VALUE_SET_EXPAND_PATH, MockPayer::FullEHRV220ValueSetExpandEndpoint
 
     resume_test_route :get, RESUME_PASS_PATH do |request|
       request.query_parameters['token']
@@ -111,7 +116,7 @@ module DaVinciDTRTestKit
     group from: :dtr_client_payer_registration
     group do
       id :dtr_full_ehr_v220_questionnaire_workflows
-      title 'Questionnaire Workflows'
+      title 'Questionnaire Scenarios'
 
       group from: :dtr_full_ehr_v220_workflow_standard
       group from: :dtr_full_ehr_v220_workflow_adaptive
@@ -120,7 +125,7 @@ module DaVinciDTRTestKit
 
     group do
       id :dtr_full_ehr_v220_coverage
-      title 'Questionnaire Feature Coverage'
+      title 'Cross-Questionnaire Requirements'
 
       group from: :dtr_full_ehr_v220_additional_qustionnaires_for_ms
 
@@ -132,6 +137,15 @@ module DaVinciDTRTestKit
         test from: :dtr_full_ehr_v220_questionnaire_base_must_support
         test from: :dtr_full_ehr_v220_questionnaire_adaptive_must_support
         test from: :dtr_full_ehr_v220_questionnaire_standard_must_support
+      end
+
+      group do
+        id :dtr_full_ehr_v220_questionnaire_response_must_support
+        title 'QuestionnaireResponse Must Support'
+        run_as_group
+
+        test from: :dtr_full_ehr_v220_questionnaire_response_base_must_support
+        test from: :dtr_full_ehr_v220_questionnaire_response_adaptive_must_support
       end
     end
 

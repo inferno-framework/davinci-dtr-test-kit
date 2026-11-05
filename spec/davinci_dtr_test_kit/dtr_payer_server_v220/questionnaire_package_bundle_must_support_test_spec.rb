@@ -44,6 +44,6 @@ RSpec.describe DaVinciDTRTestKit::DTRPayerServerV220::QuestionnairePackageBundle
     result = run(described_class)
 
     expect(result.result).to eq('fail')
-    expect(result.result_message).to include('Bundle.entry:library')
+    expect(result.result_message).to include('entry:library')
   end
 end

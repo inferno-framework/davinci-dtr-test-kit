@@ -25,7 +25,9 @@ module DaVinciDTRTestKit
   #   to $questionnaire-package operation requests. Templates come in the form of a FHIR
   #   Parameters resource in json format. See https://github.com/inferno-framework/davinci-dtr-test-kit/wiki/Controlling-Simulated-Responses
   #   on the wiki for more details on the format for these templates and how Inferno
-  #   turns them into actual responses.
+  #   turns them into actual responses. Adaptive Questionnaires in the template can be
+  #   placeholders built from the nq_questionnaire_template_* template (see
+  #   PackageQuestionnaireTemplates).
   #   - qp_response_template_fixture: path relative to the `lib/davinci_dtr_test_kit/full_ehr/fixtures`
   #     directory pointing to a file containing the template. Used when the scenario
   #     uses developer-specified responses.
@@ -41,6 +43,27 @@ module DaVinciDTRTestKit
   #     directory pointing  to a file containing the template. Used when the scenario
   #     uses developer-specified responses.
   #   - nq_questionnaire_template_input: the name of an input that will contain template.
+  #     Used when testers can provide their own Questionnaires.
+  # - library_bundle_*: (Optional) If there are CQL Libraries that need to be included in
+  #   Inferno responses that are not already specified directly in the other templates,
+  #   one of the following must be set to indicate the source of a Bundle that includes those
+  #   Libraries. If none is specified, no Libraries will be added. Inferno adds a Library when
+  #   its `url` (and `version`, if the reference has one) matches a reference from a returned
+  #   Questionnaire or item (see FullEHRV220SupportingResources for which references count).
+  #   - library_bundle_fixture: path relative to the `lib/davinci_dtr_test_kit/full_ehr/fixtures`
+  #     directory pointing to a file containing the libraries Bundle. Used when the scenario
+  #     uses developer-specified responses.
+  #   - library_bundle_input: the name of an input that will contain the libraries Bundle.
+  #     Used when testers can provide their own Questionnaires.
+  # - value_set_bundle_*: (Optional) If there are ValueSet resources that need to be included in
+  #   Inferno responses that are not already specified directly in the other templates,
+  #   one of the following must be set to indicate the source of a Bundle that includes those
+  #   ValueSets. If none is specified, no ValueSets will be added. Inferno selects ValueSets
+  #   to include the same way as Libraries.
+  #   - value_set_bundle_fixture: path relative to the `lib/davinci_dtr_test_kit/full_ehr/fixtures`
+  #     directory pointing to a file containing the ValueSet Bundle. Used when the scenario
+  #     uses developer-specified responses.
+  #   - value_set_bundle_input: the name of an input that will contain the ValueSet Bundle.
   #     Used when testers can provide their own Questionnaires.
   # - short_circuit_pass_input: (Optional) If testers can decide to not complete any Questionnaires
   #   during this group (e.g., for the must support group when no additional elements need to

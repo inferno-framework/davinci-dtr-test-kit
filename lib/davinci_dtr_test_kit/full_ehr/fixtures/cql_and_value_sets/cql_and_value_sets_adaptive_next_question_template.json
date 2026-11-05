@@ -1,0 +1,408 @@
+{
+  "resourceType": "Questionnaire",
+  "id": "inferno-cql-and-value-sets-adaptive-questionnaire",
+  "url": "https://inferno.healthit.gov/test-kits/davinci-dtr/Questionnaire/inferno-cql-and-value-sets-adaptive-questionnaire",
+  "text": {
+    "status": "generated",
+    "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\">This is an adaptive questionnaire that demonstrates the use of ValueSets, CQL, and FHIRPath. It is the version built-up iteratively based on received answers.</div>"
+  },
+  "extension": [
+    {
+      "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-questionnaireAdaptive",
+      "valueBoolean": true
+    },
+    {
+      "url": "http://hl7.org/fhir/StructureDefinition/cqf-library",
+      "valueCanonical": "https://madie.cms.gov/Library/InfernoDTRSampleCQLLibrary"
+    }
+  ],
+  "name": "InfernoCQLandValueSetsAdaptiveQuestionnaire",
+  "title": "Inferno CQL and Value Sets Questionnaire (Adaptive)",
+  "status": "draft",
+  "subjectType": [
+    "Patient"
+  ],
+  "date": "2026-09-15",
+  "publisher": "Inferno",
+  "item": [
+    {
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-hidden",
+          "valueBoolean": true
+        }
+      ],
+      "linkId": "HIDDEN-1",
+      "text": "Hidden group with payer-prepopulated data demonstrating calculation and client pre-population",
+      "type": "group",
+      "item": [
+        {
+          "extension": [
+            {
+             "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-hidden",
+              "valueBoolean": true
+            },
+            {
+              "url": "https://inferno.healthit.gov/test-kits/davinci-dtr/StructureDefinition/extension-include-in-package",
+              "valueBoolean": true
+            }
+          ],
+          "linkId": "HIDDEN-1.1",
+          "text": "Random Data:",
+          "type": "dateTime",
+          "readOnly": true,
+          "required": true
+        },
+        {
+          "extension": [
+            {
+             "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-hidden",
+              "valueBoolean": true
+            },
+            {
+              "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-initialExpression",
+              "valueExpression": {
+                "language": "text/fhirpath",
+                "expression": "%resource.item.where(linkId = 'HIDDEN-1').item.where(linkId = 'HIDDEN-1.1').answer.value"
+              }
+            },
+            {
+              "url": "https://inferno.healthit.gov/test-kits/davinci-dtr/StructureDefinition/extension-include-in-package",
+              "valueBoolean": true
+            }
+          ],
+          "linkId": "HIDDEN-1.2",
+          "text": "Random Data (copy):",
+          "type": "dateTime",
+          "required": true
+        },
+        {
+          "extension": [
+            {
+             "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-hidden",
+              "valueBoolean": true
+            },
+            {
+              "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-initialExpression",
+              "valueExpression": {
+                "language": "text/fhirpath",
+                "expression": "%resource.item.where(linkId = 'HIDDEN-1').item.where(linkId = 'HIDDEN-1.1').answer.value"
+              }
+            },
+            {
+              "url": "https://inferno.healthit.gov/test-kits/davinci-dtr/StructureDefinition/extension-include-in-package",
+              "valueBoolean": true
+            }
+          ],
+          "linkId": "HIDDEN-1.3",
+          "text": "Random Data (payer populated wrong, to replace):",
+          "type": "dateTime",
+          "required": true
+        },
+        {
+          "extension": [
+            {
+             "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-hidden",
+              "valueBoolean": true
+            },
+            {
+              "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-initialExpression",
+              "valueExpression": {
+                "language": "text/fhirpath",
+                "expression": "%resource.item.where(linkId = 'HIDDEN-1').item.where(linkId = 'HIDDEN-1.non-existant').answer.value"
+              }
+            },
+            {
+              "url": "https://inferno.healthit.gov/test-kits/davinci-dtr/StructureDefinition/extension-include-in-package",
+              "valueBoolean": true
+            }
+          ],
+          "linkId": "HIDDEN-1.4",
+          "text": "Random Data (payer populated, but empty result doesn't replace):",
+          "type": "string",
+          "required": true
+        }
+      ]
+    },
+    {
+      "linkId": "PBD",
+      "text": "Patient Information",
+      "type": "group",
+      "item": [
+        {
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-initialExpression",
+              "valueExpression": {
+                "language": "text/cql",
+                "expression": "\"InfernoDTRSampleCQLLibrary\".LastName"
+              }
+            }
+          ],
+          "linkId": "PBD.1",
+          "text": "Last Name:",
+          "type": "string",
+          "required": true
+        },
+        {
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-initialExpression",
+              "valueExpression": {
+                "language": "text/cql",
+                "expression": "\"InfernoDTRSampleCQLLibrary\".FirstName"
+              }
+            }
+          ],
+          "linkId": "PBD.2",
+          "text": "First Name:",
+          "type": "string",
+          "required": true
+        },
+        {
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-initialExpression",
+              "valueExpression": {
+                "language": "text/cql",
+                "expression": "\"InfernoDTRSampleCQLLibrary\".MiddleInitials"
+              }
+            }
+          ],
+          "linkId": "PBD.3",
+          "text": "Middle Initials:",
+          "type": "string",
+          "required": true
+        }
+      ]
+    },
+    {
+      "linkId": "LOC",
+      "text": "Encounter Details",
+      "type": "group",
+      "item": [
+        {
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-initialExpression",
+              "valueExpression": {
+                "language": "text/cql",
+                "expression": "\"InfernoDTRSampleCQLLibrary\".LatestLocationLocationDisplay"
+              }
+            }
+          ],
+          "linkId": "LOC.1",
+          "text": "Location",
+          "type": "string",
+          "required": true
+        },
+        {
+          "extension": [
+            {
+             "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-hidden",
+              "valueBoolean": true
+            },
+            {
+              "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-initialExpression",
+              "valueExpression": {
+                "language": "text/cql",
+                "expression": "\"InfernoDTRSampleCQLLibrary\".LatestLocationStatus"
+              }
+            }
+          ],
+          "linkId": "LOC.2",
+          "text": "Status",
+          "type": "string",
+          "required": true
+        }
+      ]
+    },
+    {
+      "linkId": "3",
+      "text": "Dinner Order",
+      "type": "group",
+      "extension": [
+        {
+          "url": "https://inferno.healthit.gov/test-kits/davinci-dtr/StructureDefinition/extension-inclusion-criteria",
+          "valueExpression": {
+            "language": "text/fhirpath",
+            "expression": "item.where(linkId = 'LOC').item.where(linkId = 'LOC.1').answer.value.ofType(string).exists()"
+          }
+        }
+      ],
+      "item": [
+        {
+          "linkId": "3.1",
+          "text": "What would you like for dinner?",
+          "type": "choice",
+          "required": true,
+          "answerOption": [
+            {
+              "valueCoding": {
+                "system": "https://inferno.healthit.gov/test-kits/davinci-dtr/CodeSystem/dinner",
+                "code": "burger",
+                "display": "Burger"
+              }
+            },
+            {
+              "valueCoding": {
+                "system": "https://inferno.healthit.gov/test-kits/davinci-dtr/CodeSystem/dinner",
+                "code": "burrito",
+                "display": "Burrito"
+              }
+            }
+          ]
+        },
+        {
+          "linkId": "3.2a",
+          "text": "Burger Details",
+          "type": "group",
+          "required": true,
+          "repeats": false,
+          "extension": [
+            {
+              "url": "https://inferno.healthit.gov/test-kits/davinci-dtr/StructureDefinition/extension-inclusion-criteria",
+              "valueExpression": {
+                "language": "text/fhirpath",
+                "expression": "item.where(linkId = '3').item.where(linkId = '3.1').answer.value.ofType(Coding).where(code = 'burger').exists()"
+              }
+            },
+            {
+              "url": "https://inferno.healthit.gov/test-kits/davinci-dtr/StructureDefinition/extension-include-resource",
+              "valueCanonical": "https://madie.cms.gov/Library/InfernoDTRSampleBurgerCQLLibrary|0.0.000"
+            }
+          ],
+          "item": [
+            {
+              "linkId": "3.2a.1",
+              "text": "What kind of burger?",
+              "type": "choice",
+              "required": true,
+              "answerValueSet": "https://inferno.healthit.gov/test-kits/davinci-dtr/ValueSet/burger-type"
+            },
+            {
+              "linkId": "3.2a.2",
+              "text": "Would you like any toppings on your burger?",
+              "type": "choice",
+              "required": false,
+              "repeats": true,
+              "answerValueSet": "https://inferno.healthit.gov/test-kits/davinci-dtr/ValueSet/toppings"
+            },
+            {
+              "linkId": "3.2a.3",
+              "text": "Hidden pre-populated data using burger-specific logic",
+              "type": "string",
+              "required": true,
+              "extension": [
+                {
+                "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-hidden",
+                  "valueBoolean": true
+                },
+                {
+                  "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-initialExpression",
+                  "valueExpression": {
+                    "language": "text/cql",
+                    "expression": "\"InfernoDTRSampleBurgerCQLLibrary\".BurgerString(%resource)"
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "linkId": "3.2b",
+          "text": "Burrito Details",
+          "type": "group",
+          "required": true,
+          "repeats": false,
+          "extension": [
+            {
+              "url": "https://inferno.healthit.gov/test-kits/davinci-dtr/StructureDefinition/extension-inclusion-criteria",
+              "valueExpression": {
+                "language": "text/fhirpath",
+                "expression": "item.where(linkId = '3').item.where(linkId = '3.1').answer.value.ofType(Coding).where(code = 'burrito').exists()"
+              }
+            },
+            {
+              "url": "https://inferno.healthit.gov/test-kits/davinci-dtr/StructureDefinition/extension-include-resource",
+              "valueCanonical": "https://madie.cms.gov/Library/InfernoDTRSampleBurritoCQLLibrary|0.0.000"
+            }
+          ],
+          "item": [
+            {
+              "linkId": "3.2b.1",
+              "text": "What kind of burrito?",
+              "type": "choice",
+              "required": true,
+              "answerValueSet": "https://inferno.healthit.gov/test-kits/davinci-dtr/ValueSet/burrito-type"
+            },
+            {
+              "linkId": "3.2b.2",
+              "text": "Would you like any toppings on your burrito?",
+              "type": "choice",
+              "required": false,
+              "repeats": true,
+              "answerValueSet": "https://inferno.healthit.gov/test-kits/davinci-dtr/ValueSet/toppings"
+            },
+            {
+              "linkId": "3.2b.3",
+              "text": "Hidden pre-populated data using burrito-specific logic",
+              "type": "string",
+              "required": true,
+              "extension": [
+                {
+                "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-hidden",
+                  "valueBoolean": true
+                },
+                {
+                  "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-initialExpression",
+                  "valueExpression": {
+                    "language": "text/cql",
+                    "expression": "\"InfernoDTRSampleBurritoCQLLibrary\".BurritoString(%resource)"
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "linkId": "3.3",
+          "text": "Would you like a drink?",
+          "type": "string",
+          "required": false,
+          "repeats": false,
+          "answerOption": [
+            { "valueCoding": { "code": "water" } },
+            { "valueCoding": { "code": "seltzer" } },
+            { "valueCoding": { "code": "milk" } },
+            { "valueCoding": { "code": "cola" } }
+          ],
+          "extension": [
+            {
+              "url": "https://inferno.healthit.gov/test-kits/davinci-dtr/StructureDefinition/extension-inclusion-criteria",
+              "valueExpression": {
+                "language": "text/fhirpath",
+                "expression": "item.where(linkId = '3').item.item.where(linkId = '3.2a.1' or linkId = '3.2b.1').answer.value.ofType(Coding).code.exists()"
+              }
+            }
+          ]
+        },
+        {
+          "linkId": "3.4",
+          "text": "Any special requests?",
+          "type": "string",
+          "required": false,
+          "extension": [
+            {
+              "url": "https://inferno.healthit.gov/test-kits/davinci-dtr/StructureDefinition/extension-inclusion-criteria",
+              "valueExpression": {
+                "language": "text/fhirpath",
+                "expression": "item.where(linkId = '3').item.item.where(linkId = '3.2a.1' or linkId = '3.2b.1').answer.value.ofType(Coding).code.exists()"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

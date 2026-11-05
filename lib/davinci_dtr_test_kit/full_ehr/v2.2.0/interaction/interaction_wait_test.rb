@@ -1,6 +1,8 @@
 require_relative '../../descriptions'
 require_relative '../../../urls'
 require_relative '../next_question_template_questionnaires'
+require_relative '../package_questionnaire_templates'
+require_relative '../../fixture_loader'
 require_relative '../../short_circuit_interaction_verification'
 require_relative '../../../cross_suite/v2.2.0/answer_origin_helper'
 
@@ -8,6 +10,7 @@ module DaVinciDTRTestKit
   class DTRFullEHRV220InteractionWaitTest < Inferno::Test
     include URLs
     include NextQuestionTemplateQuestionnaires
+    include PackageQuestionnaireTemplates
     include ShortCircuitInteractionVerification
     include AnswerOriginHelper
 
@@ -92,6 +95,7 @@ module DaVinciDTRTestKit
           - FHIR Base: `#{fhir_base_url}`
           - Questionnaire Package Operation: `#{questionnaire_package_url}`
           - Next Question Operation: `#{next_url}`
+          - ValueSet Expand Operation: `#{value_set_expand_url}`
 
           ### Authenticated and Identification
 
@@ -120,6 +124,9 @@ module DaVinciDTRTestKit
     def validate_response_template_inputs
       validate_qp_response_template_input
       validate_nq_questionnaire_template_input
+      validate_package_template_placeholders
+      validate_supporting_resource_bundle_input(config.options[:library_bundle_input])
+      validate_supporting_resource_bundle_input(config.options[:value_set_bundle_input])
     rescue Inferno::Exceptions::AssertionException => e
       short_circuit_validation_tests(:skip)
       raise e
@@ -204,6 +211,43 @@ module DaVinciDTRTestKit
              'pre-populated items (using an initialExpression or candidateExpression) and at least one editable ' \
              "item that is not pre-populated. Found #{prepopulated_count} pre-populated and " \
              "#{not_prepopulated_count} not pre-populated."
+    end
+
+    # Each placeholder Questionnaire in a tester's $questionnaire-package template must name a
+    # $next-question template Questionnaire, or Inferno would have nothing to build it from.
+    def validate_package_template_placeholders
+      input_name = config.options[:qp_response_template_input]
+      return if input_name.blank?
+
+      title = input_title(input_name)
+      template_placeholder_canonicals(FHIR.from_contents(send(input_name))).each do |canonical|
+        assert find_next_question_template(canonical).present?,
+               "Input '#{title}' builds a Questionnaire from the $next-question template #{canonical}, " \
+               'but no $next-question template Questionnaire has that url.'
+      end
+    end
+
+    def next_question_templates
+      @next_question_templates ||=
+        if config.options[:nq_questionnaire_template_fixture].present?
+          [FixtureLoader.instance[config.options[:nq_questionnaire_template_fixture]]].grep(FHIR::Questionnaire)
+        elsif config.options[:nq_questionnaire_template_input].present?
+          questionnaires_from_template_value(send(config.options[:nq_questionnaire_template_input]))
+        else
+          []
+        end
+    end
+
+    # Library and ValueSet Bundle inputs are optional, so an empty value is allowed.
+    def validate_supporting_resource_bundle_input(input_name)
+      return if input_name.blank?
+
+      value = send(input_name)
+      return if value.blank?
+
+      title = input_title(input_name)
+      parsed = parse_qp_template_value(value, title)
+      assert parsed.is_a?(FHIR::Bundle), "Input '#{title}' must contain a Bundle resource."
     end
 
     # config.options input references are stored as input names (e.g. 'additional_ms_qp_responses');

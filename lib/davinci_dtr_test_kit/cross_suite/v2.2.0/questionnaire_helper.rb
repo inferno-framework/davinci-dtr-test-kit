@@ -49,7 +49,7 @@ module DaVinciDTRTestKit
     def questionnaires_from_operation_responses(requests, include_standard: true, include_adaptive: true)
       questionnaires = []
 
-      parsed_operation_responses(requests).each do |request, response|
+      parsed_operation_bodies(requests).each do |request, response|
         # pull out Questionnaires from requests ($q-p and $n-q)
         if response.is_a?(FHIR::QuestionnaireResponse)
           questionnaires << contained_questionnaire_from_questionnaire_response(response) if include_adaptive
@@ -117,12 +117,35 @@ module DaVinciDTRTestKit
       end
     end
 
+    # Client-produced QuestionnaireResponses are only visible to Inferno as the bodies of
+    # $next-question requests (either a bare QuestionnaireResponse or one wrapped in the
+    # `questionnaire-response` parameter). Every tagged request contributes, not just each
+    # workflow's final one: each carries a progressively fuller snapshot of the same response,
+    # and must support coverage is cumulative across them.
+    def questionnaire_responses_from_operation_requests(requests)
+      parsed_operation_bodies(requests, body: :request_body).filter_map do |_request, request_body|
+        questionnaire_response_from_next_question_request(request_body)
+      end
+    end
+
+    # Inferno's must support check follows item.item nesting on its own, but not items nested
+    # under answers (item.answer.item). To make item-level elements count at any depth, copy every
+    # nested item (from either kind of nesting) to the top level of the QuestionnaireResponse it
+    # came from. This modifies the given QuestionnaireResponses, so only pass ones parsed for the
+    # current analysis.
+    def flatten_questionnaire_response_items!(questionnaire_responses)
+      questionnaire_responses.each do |questionnaire_response|
+        questionnaire_response.item =
+          Array.wrap(questionnaire_response.item) + nested_questionnaire_response_items(questionnaire_response.item)
+      end
+    end
+
     ###########################################################################
     # $questionnaire-package extraction of Parameters, Bundle, Questionnaire
     ###########################################################################
 
     def questionnaire_package_output_parameters_from_operation_responses(requests)
-      parsed_operation_responses(requests).filter_map do |_request, response|
+      parsed_operation_bodies(requests).filter_map do |_request, response|
         response if response.is_a?(FHIR::Parameters)
       end
     end
@@ -149,13 +172,23 @@ module DaVinciDTRTestKit
 
     private
 
-    def parsed_operation_responses(requests)
+    # @param body [Symbol] :response_body or :request_body
+    def parsed_operation_bodies(requests, body: :response_body)
       requests.filter_map do |request|
-        next if request.response_body.blank?
+        next if request.public_send(body).blank?
 
-        [request, FHIR.from_contents(request.response_body)]
+        [request, FHIR.from_contents(request.public_send(body))]
       rescue JSON::ParserError
         nil # errors handled elsewhere
+      end
+    end
+
+    # Every item below the top level of a QuestionnaireResponse, whether nested under
+    # item.item or under item.answer.item, at any depth.
+    def nested_questionnaire_response_items(items)
+      Array.wrap(items).flat_map do |item|
+        children = Array.wrap(item.item) + Array.wrap(item.answer).flat_map { |answer| Array.wrap(answer.item) }
+        children + nested_questionnaire_response_items(children)
       end
     end
   end

@@ -2,10 +2,13 @@ require 'udap_security_test_kit'
 require_relative '../endpoints/mock_payer'
 require_relative '../../cross_suite/fhirpath_utils'
 require_relative '../../cross_suite/response_selection_utils'
+require_relative '../../cross_suite/v2.2.0/questionnaire_response_completeness'
 require_relative '../fixture_loader'
 require_relative '../../tags'
 require_relative 'next_question_template_questionnaires'
 require_relative '../../cross_suite/v2.2.0/questionnaire_helper'
+require_relative 'full_ehr_supporting_resources'
+require_relative 'package_questionnaire_templates'
 
 module DaVinciDTRTestKit
   module MockPayer
@@ -13,8 +16,11 @@ module DaVinciDTRTestKit
       include MockPayer
       include DaVinciDTRTestKit::FhirpathUtils
       include DaVinciDTRTestKit::ResponseSelectionUtils
+      include DaVinciDTRTestKit::QuestionnaireResponseCompleteness
       include DaVinciDTRTestKit::NextQuestionTemplateQuestionnaires
       include DaVinciDTRTestKit::QuestionnaireHelper
+      include FullEHRV220SupportingResources
+      include DaVinciDTRTestKit::PackageQuestionnaireTemplates
 
       def test_run_identifier
         return request.params[:session_path] if request.params[:session_path].present?
@@ -125,20 +131,20 @@ module DaVinciDTRTestKit
       end
 
       def extract_contained_questionnaire
-        contained_questionnaire = contained_questionnaire_from_questionnaire_response(request_questionnaire_response)
+        questionnaire = contained_questionnaire_from_questionnaire_response(request_questionnaire_response)
 
-        unless contained_questionnaire.present?
+        unless questionnaire.present?
           return operation_outcome('error', 'invalid',
                                    'Invalid QuestionnaireResponse for $next-question request: ' \
                                    'no contained Questionnaire resource.')
         end
-        unless contained_questionnaire.url.present?
+        unless questionnaire.url.present?
           return operation_outcome('error', 'invalid',
                                    'Invalid QuestionnaireResponse for $next-question request: ' \
                                    'contained Questionnaire must have a url.')
         end
 
-        contained_questionnaire
+        questionnaire
       end
 
       # ***********************************************************************
@@ -150,7 +156,7 @@ module DaVinciDTRTestKit
         return request_questionnaire if request_questionnaire.is_a?(FHIR::OperationOutcome)
 
         target_questionnaire_canonical = questionnaire_canonical_url(request_questionnaire)
-        packaged_questionnaire = requested_questionnaire(target_questionnaire_canonical)
+        packaged_questionnaire = extract_target_questionnaire(requested_package_bundle, target_questionnaire_canonical)
         unless packaged_questionnaire.present?
           return operation_outcome('error', 'invalid',
                                    'Invalid QuestionnaireResponse for $next-question request: ' \
@@ -166,15 +172,19 @@ module DaVinciDTRTestKit
         nil
       end
 
-      def requested_questionnaire(questionnaire_canonical)
+      # The $questionnaire-package bundle that delivered the requested Questionnaire.
+      def requested_package_bundle
+        @requested_package_bundle ||= find_package_bundle(questionnaire_canonical_url(request_questionnaire))
+      end
+
+      def find_package_bundle(questionnaire_canonical)
         successful_questionnaire_package_requests.each do |qp_request|
           response_parameters = FHIR.from_contents(qp_request.response_body)
-          next unless response_parameters.present?
+          next unless response_parameters.is_a?(FHIR::Parameters)
 
           response_parameters.parameter.select { |param| param.name == 'packagebundle' }.map(&:resource)
             .each do |bundle|
-              target_questionnaire = extract_target_questionnaire(bundle, questionnaire_canonical)
-              return target_questionnaire if target_questionnaire.present?
+              return bundle if extract_target_questionnaire(bundle, questionnaire_canonical).present?
             end
         end
         nil
@@ -188,13 +198,11 @@ module DaVinciDTRTestKit
       end
 
       def extract_target_questionnaire(bundle, target_questionnaire_canonical)
-        bundle.entry.each do |entry|
-          next unless entry.resource.is_a?(FHIR::Questionnaire) &&
-                      questionnaire_canonical_url(entry.resource) == target_questionnaire_canonical
+        return nil unless bundle.is_a?(FHIR::Bundle)
 
-          return entry.resource
+        package_questionnaires(bundle).find do |questionnaire|
+          questionnaire_canonical_url(questionnaire) == target_questionnaire_canonical
         end
-        nil
       end
 
       # ***********************************************************************
@@ -315,9 +323,19 @@ module DaVinciDTRTestKit
       # ***********************************************************************
 
       def update_response
+        # The caller checks both of these before reaching here, but reading them as resources when
+        # they may be an OperationOutcome is the kind of thing that breaks quietly later.
+        return request_questionnaire if request_questionnaire.is_a?(FHIR::OperationOutcome)
+        return request_questionnaire_response if request_questionnaire_response.is_a?(FHIR::OperationOutcome)
+
         @new_questions_added = false
+        @new_item_canonicals = []
         add_questions_from_questionnaire_template
-        complete_questionnaire_response if !@new_questions_added && questionnaire_response_completed?
+        add_supporting_resources_to_questionnaire_response
+        if !@new_questions_added &&
+           questionnaire_response_complete?(request_questionnaire, request_questionnaire_response)
+          complete_questionnaire_response
+        end
         request_questionnaire_response
       rescue FhirpathServiceError => e
         raise if template_from_fixture?
@@ -341,6 +359,7 @@ module DaVinciDTRTestKit
         return unless add_missing_item_to_response?(item)
 
         new_item = replace_tokens_in_item(item)
+        @new_item_canonicals.concat(directly_referenced_canonicals(new_item))
         strip_inferno_extensions(new_item)
         new_item.item = []
         target_list << new_item
@@ -361,27 +380,22 @@ module DaVinciDTRTestKit
       end
 
       # ***********************************************************************
-      # Complete QuestionnaireResponse
+      # Add Libraries and ValueSets
       # ***********************************************************************
 
-      def questionnaire_response_completed?
-        request_questionnaire.item.all? do |item|
-          item_not_required_or_completed?(item, request_questionnaire_response.item)
-        end
+      # Adds the configured Libraries and ValueSets referenced by the newly added items as
+      # contained resources, skipping those the client already has from the request or the
+      # $questionnaire-package response.
+      def add_supporting_resources_to_questionnaire_response
+        already_provided = request_questionnaire_response.contained + requested_package_bundle.entry.map(&:resource)
+        request_questionnaire_response.contained.concat(
+          resolve_supporting_resources(@new_item_canonicals, exclude: already_provided)
+        )
       end
 
-      def item_not_required_or_completed?(item, response_item_list)
-        required = (item.required == true)
-        response_item = response_item_list.find { |response_item| response_item.linkId == item.linkId }
-        not_required_or_completed = !required || answer_completed_and_valid?(item, response_item)
-        return false unless not_required_or_completed
-
-        item.item.all? { |sub_item| item_not_required_or_completed?(sub_item, response_item&.item || []) }
-      end
-
-      def answer_completed_and_valid?(_item, response_item)
-        response_item&.answer&.any? { |answer| !answer&.value.nil? }
-      end
+      # ***********************************************************************
+      # Complete QuestionnaireResponse
+      # ***********************************************************************
 
       def complete_questionnaire_response
         request_questionnaire_response.status = 'completed'

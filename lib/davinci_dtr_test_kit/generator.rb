@@ -20,7 +20,9 @@ module DaVinciDTRTestKit
       'http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/dtr-base-questionnaire' => 'snapshot',
       'http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/dtr-questionnaire-adapt' => 'differential',
       'http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/dtr-questionnaire-adapt-search' => 'snapshot',
-      'http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/dtr-std-questionnaire' => 'differential'
+      'http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/dtr-std-questionnaire' => 'differential',
+      'http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/dtr-questionnaireresponse' => 'snapshot',
+      'http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/dtr-questionnaireresponse-adapt' => 'differential'
     }.freeze
 
     def self.generate

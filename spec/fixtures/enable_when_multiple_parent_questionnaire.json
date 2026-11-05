@@ -1,0 +1,87 @@
+{
+  "resourceType": "Questionnaire",
+  "id": "EnableWhenMultipleParentExample",
+  "url": "urn:inferno:dtr-test-kit:enable-when-multiple-parent-example",
+  "meta": {
+    "profile": [
+      "http://hl7.org/fhir/StructureDefinition/cqf-questionnaire",
+      "http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/dtr-questionnaire-r4"
+    ]
+  },
+  "name": "EnableWhenMultipleParentExample",
+  "title": "EnableWhen Multiple Parent Example",
+  "status": "draft",
+  "subjectType": [
+    "Patient"
+  ],
+  "date": "2024-05-06",
+  "publisher": "Inferno",
+  "item": [
+    {
+      "linkId": "concern",
+      "text": "Do you have concerns about any of the following:",
+      "type": "string",
+      "required": true,
+      "repeats": true,
+      "answerOption": [
+        {
+          "valueString": "duplicate link ids"
+        },
+        {
+          "valueString": "complicated Questionnaires"
+        },
+        {
+          "valueString": "CQL execution"
+        },
+        {
+          "valueString": "FHIRpath context variables"
+        },
+        {
+          "valueString": "other"
+        }
+      ],
+      "item": [
+        {
+          "linkId": "concern.other",
+          "text": "What is your other concern?",
+          "type": "text",
+          "required": true,
+          "enableWhen": [
+            {
+              "question": "concern",
+              "operator": "=",
+              "answerString": "other"
+            }
+          ]
+        },
+        {
+          "linkId": "concern.talk",
+          "text": "Do you want to talk about this concern?",
+          "type": "string",
+          "required": true,
+          "answerOption": [
+            {
+              "valueString": "yes"
+            },
+            {
+              "valueString": "no"
+            }
+          ]
+        },
+        {
+          "linkId": "concern.contact",
+          "text": "How can we contact you to discuss this concern?",
+          "type": "text",
+          "required": true,
+          "enableWhen": [
+            {
+              "question": "concern.talk",
+              "operator": "=",
+              "answerString": "yes"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -8,6 +8,9 @@ RSpec.describe DaVinciDTRTestKit::MockPayer::FullEHRV220QuestionnairePackageEndp
   let(:results_repo) { Inferno::Repositories::Results.new }
   let(:requests_repo) { Inferno::Repositories::Requests.new }
   let(:client_id) { 'test_client_id' }
+  let(:inclusion_criteria_url) { DaVinciDTRTestKit::InfernoControlExtensions::INCLUSION_CRITERIA_URL }
+  let(:request_range_url) { DaVinciDTRTestKit::InfernoControlExtensions::REQUEST_RANGE_URL }
+  let(:include_resource_url) { DaVinciDTRTestKit::InfernoControlExtensions::INCLUDE_RESOURCE_URL }
   let(:server_endpoint) { "/custom/#{suite_id}/fhir/Questionnaire/$questionnaire-package" }
 
   let(:valid_request_body) do
@@ -251,7 +254,7 @@ RSpec.describe DaVinciDTRTestKit::MockPayer::FullEHRV220QuestionnairePackageEndp
           parameter: [
             { name: 'AlwaysIncluded', resource: { resourceType: 'Bundle', type: 'collection' } },
             { name: 'Conditional',
-              extension: [{ url: 'urn:inferno:dtr:inclusion-criteria',
+              extension: [{ url: inclusion_criteria_url,
                             valueExpression: { expression: 'true', language: 'text/fhirpath' } }],
               resource: { resourceType: 'Bundle', type: 'collection' } }
           ]
@@ -295,7 +298,7 @@ RSpec.describe DaVinciDTRTestKit::MockPayer::FullEHRV220QuestionnairePackageEndp
         conditional_param = JSON.parse(last_response.body).fetch('parameter', [])
           .find { |p| p['name'] == 'Conditional' }
         extension_urls = conditional_param&.fetch('extension', [])&.map { |e| e['url'] } || []
-        expect(extension_urls).to_not include('urn:inferno:dtr:inclusion-criteria')
+        expect(extension_urls).to_not include(inclusion_criteria_url)
       end
 
       it 'includes a parameter when FHIRPath returns a single non-boolean result' do
@@ -381,7 +384,7 @@ RSpec.describe DaVinciDTRTestKit::MockPayer::FullEHRV220QuestionnairePackageEndp
           parameter: [
             { name: 'AlwaysIncluded', resource: { resourceType: 'Bundle', type: 'collection' } },
             { name: 'RangeLimited',
-              extension: [{ url: 'urn:inferno:dtr:request-range', valueString: range_string }],
+              extension: [{ url: request_range_url, valueString: range_string }],
               resource: { resourceType: 'Bundle', type: 'collection' } }
           ]
         }.to_json).to_json
@@ -415,7 +418,7 @@ RSpec.describe DaVinciDTRTestKit::MockPayer::FullEHRV220QuestionnairePackageEndp
         range_param = JSON.parse(last_response.body).fetch('parameter', [])
           .find { |p| p['name'] == 'RangeLimited' }
         extension_urls = range_param&.fetch('extension', [])&.map { |e| e['url'] } || []
-        expect(extension_urls).to_not include('urn:inferno:dtr:request-range')
+        expect(extension_urls).to_not include(request_range_url)
       end
 
       it 'still includes the parameter on the second request (request 2, top of 1-2)' do
@@ -495,9 +498,9 @@ RSpec.describe DaVinciDTRTestKit::MockPayer::FullEHRV220QuestionnairePackageEndp
             { name: 'AlwaysIncluded', resource: { resourceType: 'Bundle', type: 'collection' } },
             { name: 'DualGated',
               extension: [
-                { url: 'urn:inferno:dtr:inclusion-criteria',
+                { url: inclusion_criteria_url,
                   valueExpression: { expression: 'true', language: 'text/fhirpath' } },
-                { url: 'urn:inferno:dtr:request-range', valueString: '1-2' }
+                { url: request_range_url, valueString: '1-2' }
               ],
               resource: { resourceType: 'Bundle', type: 'collection' } }
           ]
@@ -909,6 +912,461 @@ RSpec.describe DaVinciDTRTestKit::MockPayer::FullEHRV220QuestionnairePackageEndp
 
         post_with_token
         expect(last_response.status).to eq(200)
+      end
+    end
+
+    # -------------------------------------------------------------------
+    # Supporting Libraries and ValueSets
+    #
+    # Libraries and ValueSets from the configured Bundles are added to each package bundle when
+    # its Questionnaires reference them, along with the Libraries those depend on.
+    # -------------------------------------------------------------------
+
+    context 'when supporting Library and ValueSet Bundles are configured' do
+      let(:main_library_url) { 'https://madie.cms.gov/Library/InfernoDTRSampleCQLLibrary' }
+      let(:burrito_library_canonical) { 'https://madie.cms.gov/Library/InfernoDTRSampleBurritoCQLLibrary|0.0.000' }
+      let(:fhir_helpers_url) { 'http://hl7.org/fhir/uv/cql/Library/FHIRHelpers' }
+      let(:burger_type_url) { 'https://inferno.healthit.gov/test-kits/davinci-dtr/ValueSet/burger-type' }
+      let(:libraries_fixture) { 'cql_and_value_sets/cql_and_value_sets_libraries.json' }
+
+      let(:supporting_fixture_test) do
+        Class.new(DaVinciDTRTestKit::DTRFullEHRV220InteractionWaitTest) do
+          id :dtr_full_ehr_v220_qp_endpoint_spec_supporting_fixture_test
+          input :qp_response_template, optional: true
+          config options: {
+            qp_response_template_input: 'qp_response_template',
+            library_bundle_fixture: 'cql_and_value_sets/cql_and_value_sets_libraries.json',
+            value_set_bundle_fixture: 'cql_and_value_sets/cql_and_value_sets_value_sets.json',
+            dtr_workflow_tag: nil
+          }
+        end
+      end
+
+      let(:supporting_input_test) do
+        Class.new(DaVinciDTRTestKit::DTRFullEHRV220InteractionWaitTest) do
+          id :dtr_full_ehr_v220_qp_endpoint_spec_supporting_input_test
+          input :qp_response_template, optional: true
+          input :library_bundle, optional: true
+          config options: {
+            qp_response_template_input: 'qp_response_template',
+            library_bundle_input: 'library_bundle',
+            dtr_workflow_tag: nil
+          }
+        end
+      end
+
+      # References the main library from the Questionnaire, the burger-type ValueSet from an
+      # item's answerValueSet, and the burrito library from an include-resource extension.
+      let(:referencing_questionnaire) do
+        FHIR.from_contents({
+          resourceType: 'Questionnaire',
+          url: 'urn:inferno:dtr-test-kit:supporting-resources',
+          status: 'draft',
+          extension: [{ url: 'http://hl7.org/fhir/StructureDefinition/cqf-library', valueCanonical: main_library_url }],
+          item: [
+            { linkId: 'G', type: 'group', item: [
+              { linkId: 'G.1', type: 'choice', answerValueSet: burger_type_url },
+              { linkId: 'G.2', type: 'string',
+                extension: [{ url: include_resource_url, valueCanonical: burrito_library_canonical }] }
+            ] }
+          ]
+        }.to_json)
+      end
+
+      def package_template(resources)
+        FHIR::Parameters.new(
+          parameter: [
+            FHIR::Parameters::Parameter.new(
+              name: 'packagebundle',
+              resource: FHIR::Bundle.new(
+                type: 'collection',
+                entry: resources.map { |resource| FHIR::Bundle::Entry.new(resource:) }
+              )
+            )
+          ]
+        ).to_json
+      end
+
+      def response_bundle_resources
+        JSON.parse(last_response.body)['parameter'].first['resource']['entry'].map { |entry| entry['resource'] }
+      end
+
+      def response_supporting_canonicals
+        response_bundle_resources.reject { |resource| resource['resourceType'] == 'Questionnaire' }
+          .map { |resource| "#{resource['resourceType']}|#{resource['url']}" }
+      end
+
+      it 'adds referenced Libraries and ValueSets and the Libraries they depend on' do
+        run(supporting_fixture_test, client_id:, qp_response_template: package_template([referencing_questionnaire]))
+        post_with_token
+
+        expect(last_response.status).to eq(200)
+        expect(response_supporting_canonicals).to contain_exactly(
+          "Library|#{main_library_url}",
+          "Library|#{fhir_helpers_url}",
+          "Library|#{burrito_library_canonical.split('|').first}",
+          "ValueSet|#{burger_type_url}"
+        )
+      end
+
+      it 'does not duplicate a Library already in the package bundle but still adds its dependencies' do
+        main_library = FHIR::Library.new(id: 'main', url: main_library_url, version: '0.0.000', status: 'active',
+                                         relatedArtifact: [FHIR::RelatedArtifact.new(
+                                           type: 'depends-on', resource: "#{fhir_helpers_url}|4.0.1"
+                                         )])
+        run(supporting_fixture_test, client_id:,
+                                     qp_response_template: package_template([referencing_questionnaire, main_library]))
+        post_with_token
+
+        expect(response_supporting_canonicals.count("Library|#{main_library_url}")).to eq(1)
+        expect(response_supporting_canonicals).to include("Library|#{fhir_helpers_url}")
+      end
+
+      it 'strips the include-resource extension from the returned Questionnaire items' do
+        run(supporting_fixture_test, client_id:, qp_response_template: package_template([referencing_questionnaire]))
+        post_with_token
+
+        questionnaire = response_bundle_resources.find { |resource| resource['resourceType'] == 'Questionnaire' }
+        item_extension_urls = questionnaire['item'].first['item'].flat_map { |item| item.fetch('extension', []) }
+          .map { |ext| ext['url'] }
+        expect(item_extension_urls).to_not include(include_resource_url)
+      end
+
+      it 'adds Libraries from a Bundle provided in an input' do
+        library_bundle = File.read(File.join(__dir__, '..', '..', 'lib', 'davinci_dtr_test_kit', 'full_ehr',
+                                             'fixtures', libraries_fixture))
+        run(supporting_input_test, client_id:,
+                                   qp_response_template: package_template([referencing_questionnaire]),
+                                   library_bundle:)
+        post_with_token
+
+        expect(last_response.status).to eq(200)
+        expect(response_supporting_canonicals).to include("Library|#{main_library_url}")
+        expect(response_supporting_canonicals).to_not include("ValueSet|#{burger_type_url}")
+      end
+
+      it 'adds nothing when the optional Bundle input is empty' do
+        run(supporting_input_test, client_id:, qp_response_template: package_template([referencing_questionnaire]))
+        post_with_token
+
+        expect(last_response.status).to eq(200)
+        expect(response_supporting_canonicals).to be_empty
+      end
+
+      it 'fails before waiting when a supporting resource input is not a Bundle' do
+        result = run(supporting_input_test, client_id:,
+                                            qp_response_template: package_template([referencing_questionnaire]),
+                                            library_bundle: FHIR::Library.new(status: 'active').to_json)
+
+        expect(result.result).to eq('fail')
+        expect(result.result_message).to include('must contain a Bundle resource')
+      end
+
+      context 'when a Library has dependencies only in its ELM includes' do
+        let(:dependent_url) { 'https://example.org/Library/Dependent' }
+        let(:helper_url) { 'https://example.org/Library/Helper' }
+        let(:unversioned_url) { 'https://example.org/Library/Unversioned' }
+        # Dependent's ELM includes Helper (versioned), Unversioned (no version), and an include with
+        # no namespace, which can't be mapped to a url.
+        let(:library_bundle) do
+          includes = [
+            { localIdentifier: 'Helper', path: 'https://example.org/Helper', version: '1.0.0' },
+            { localIdentifier: 'Unversioned', path: 'https://example.org/Unversioned' },
+            { localIdentifier: 'NoNamespace', path: 'NoNamespace', version: '1.0.0' }
+          ]
+          FHIR::Bundle.new(
+            type: 'collection',
+            entry: [library(dependent_url, content: [elm_content(includes)]), library(helper_url),
+                    library(helper_url, '2.0.0'), library(unversioned_url, '3.0.0')]
+              .map { |resource| FHIR::Bundle::Entry.new(resource:) }
+          ).to_json
+        end
+        let(:dependent_questionnaire) do
+          FHIR::Questionnaire.new(
+            url: 'urn:inferno:dtr-test-kit:elm-includes', status: 'draft',
+            extension: [FHIR::Extension.new(url: 'http://hl7.org/fhir/StructureDefinition/cqf-library',
+                                            valueCanonical: dependent_url)]
+          )
+        end
+
+        def elm_content(includes)
+          FHIR::Attachment.new(contentType: 'application/elm+json',
+                               data: Base64.strict_encode64({ library: { includes: { def: includes } } }.to_json))
+        end
+
+        def library(url, version = '1.0.0', content: [])
+          FHIR::Library.new(id: url.split('/').last, url:, version:, status: 'active',
+                            type: { coding: [{ code: 'logic-library' }] }, content:)
+        end
+
+        def response_libraries
+          response_bundle_resources.select { |resource| resource['resourceType'] == 'Library' }
+            .map { |resource| "#{resource['url']}|#{resource['version']}" }
+        end
+
+        it 'adds the Libraries the ELM includes, using the include version when there is one' do
+          run(supporting_input_test, client_id:,
+                                     qp_response_template: package_template([dependent_questionnaire]),
+                                     library_bundle:)
+          post_with_token
+
+          expect(last_response.status).to eq(200)
+          expect(response_libraries).to contain_exactly("#{dependent_url}|1.0.0", "#{helper_url}|1.0.0",
+                                                        "#{unversioned_url}|3.0.0")
+        end
+
+        it 'ignores ELM that is JSON but does not have the expected shape' do
+          malformed = [[], 'text', { library: 'text' }, { library: { includes: 'text' } },
+                       { library: { includes: { def: 'text' } } }, { library: { includes: { def: ['text'] } } }]
+          libraries = malformed.each_with_index.map do |elm, index|
+            library("https://example.org/Library/Malformed#{index}",
+                    content: [FHIR::Attachment.new(contentType: 'application/elm+json',
+                                                   data: Base64.strict_encode64(elm.to_json))])
+          end
+          questionnaire = FHIR::Questionnaire.new(
+            url: 'urn:inferno:dtr-test-kit:malformed-elm', status: 'draft',
+            extension: libraries.map do |malformed_library|
+              FHIR::Extension.new(url: 'http://hl7.org/fhir/StructureDefinition/cqf-library',
+                                  valueCanonical: malformed_library.url)
+            end
+          )
+          bundle = FHIR::Bundle.new(type: 'collection',
+                                    entry: libraries.map { |resource| FHIR::Bundle::Entry.new(resource:) })
+
+          run(supporting_input_test, client_id:, qp_response_template: package_template([questionnaire]),
+                                     library_bundle: bundle.to_json)
+          post_with_token
+
+          expect(last_response.status).to eq(200)
+          expect(response_libraries.size).to eq(malformed.size)
+        end
+      end
+
+      context 'when deciding whether to include ValueSet expansions' do
+        let(:toppings_url) { 'https://inferno.healthit.gov/test-kits/davinci-dtr/ValueSet/toppings' }
+        let(:expanded_marker_url) { DaVinciDTRTestKit::InfernoControlExtensions::INCLUDE_VALUE_SET_EXPANDED_URL }
+        let(:expansion) do
+          FHIR::ValueSet::Expansion.new(
+            timestamp: '2026-10-30T00:00:00Z',
+            contains: [FHIR::ValueSet::Expansion::Contains.new(system: 'https://example.org', code: 'a')]
+          )
+        end
+
+        # In the fixture Bundle, burger-type is marked to include its expansion and toppings is not.
+        let(:value_set_questionnaire) do
+          FHIR.from_contents({
+            resourceType: 'Questionnaire',
+            url: 'urn:inferno:dtr-test-kit:value-set-expansions',
+            status: 'draft',
+            item: [
+              { linkId: 'Q1', type: 'choice', answerValueSet: burger_type_url },
+              { linkId: 'Q2', type: 'choice', answerValueSet: toppings_url }
+            ]
+          }.to_json)
+        end
+
+        def response_value_set(url)
+          response_bundle_resources.find { |resource| resource['resourceType'] == 'ValueSet' && resource['url'] == url }
+        end
+
+        def template_value_set(id, marker_value = nil)
+          marker = FHIR::Extension.new(url: expanded_marker_url, valueBoolean: marker_value)
+          extension = marker_value.nil? ? [] : [marker]
+          FHIR::ValueSet.new(id:, url: "https://example.org/ValueSet/#{id}", status: 'active', extension:, expansion:)
+        end
+
+        it 'includes the expansion only for Bundle ValueSets marked to include it' do
+          run(supporting_fixture_test, client_id:, qp_response_template: package_template([value_set_questionnaire]))
+          post_with_token
+
+          expect(response_value_set(burger_type_url)['expansion']).to be_present
+          expect(response_value_set(toppings_url)).to be_present
+          expect(response_value_set(toppings_url)).to_not have_key('expansion')
+          expect(last_response.body).to_not include(expanded_marker_url)
+        end
+
+        it 'does not change the configured Bundle when removing an expansion' do
+          run(supporting_fixture_test, client_id:, qp_response_template: package_template([value_set_questionnaire]))
+          post_with_token
+
+          fixture = DaVinciDTRTestKit::FixtureLoader.instance['cql_and_value_sets/cql_and_value_sets_value_sets.json']
+          toppings = fixture.entry.map(&:resource).find { |resource| resource.url == toppings_url }
+          expect(toppings.expansion).to be_present
+          expect(toppings.extension.map(&:url)).to include(expanded_marker_url)
+        end
+
+        it 'returns template ValueSets as written, ignoring the include-value-set-expanded extension' do
+          resources = [value_set_questionnaire, template_value_set('unmarked'),
+                       template_value_set('marked-false', false), template_value_set('marked-true', true)]
+          run(supporting_input_test, client_id:, qp_response_template: package_template(resources))
+          post_with_token
+
+          expect(response_value_set('https://example.org/ValueSet/unmarked')['expansion']).to be_present
+          expect(response_value_set('https://example.org/ValueSet/marked-false')['expansion']).to be_present
+          expect(response_value_set('https://example.org/ValueSet/marked-true')['expansion']).to be_present
+          expect(last_response.body).to_not include(expanded_marker_url)
+        end
+      end
+    end
+
+    # -------------------------------------------------------------------
+    # Questionnaires built from $next-question templates
+    # -------------------------------------------------------------------
+
+    context 'when package Questionnaires are built from $next-question templates' do
+      let(:fhirpath_url) { "#{ENV.fetch('FHIRPATH_URL')}/evaluate" }
+      let(:use_template_url) { DaVinciDTRTestKit::InfernoControlExtensions::USE_NEXT_QUESTION_TEMPLATE_URL }
+      let(:cql_template_url) do
+        'https://inferno.healthit.gov/test-kits/davinci-dtr/Questionnaire/inferno-cql-and-value-sets-adaptive-questionnaire'
+      end
+
+      let(:cql_fixture_test) do
+        Class.new(DaVinciDTRTestKit::DTRFullEHRV220InteractionWaitTest) do
+          id :dtr_full_ehr_v220_qp_endpoint_spec_cql_fixture_test
+          config options: {
+            qp_response_template_fixture:
+              'cql_and_value_sets/cql_and_value_sets_questionnaire_package_response.json',
+            nq_questionnaire_template_fixture:
+              'cql_and_value_sets/cql_and_value_sets_adaptive_next_question_template.json',
+            library_bundle_fixture: 'cql_and_value_sets/cql_and_value_sets_libraries.json',
+            value_set_bundle_fixture: 'cql_and_value_sets/cql_and_value_sets_value_sets.json',
+            dtr_workflow_tag: nil
+          }
+        end
+      end
+
+      # The CQL package fixture with the dinner $next-question template, which it doesn't reference.
+      let(:mismatched_fixture_test) do
+        Class.new(DaVinciDTRTestKit::DTRFullEHRV220InteractionWaitTest) do
+          id :dtr_full_ehr_v220_qp_endpoint_spec_mismatched_template_fixture_test
+          config options: {
+            qp_response_template_fixture:
+              'cql_and_value_sets/cql_and_value_sets_questionnaire_package_response.json',
+            nq_questionnaire_template_fixture: 'dinner_adaptive/dinner_order_adaptive_next_question_template.json',
+            dtr_workflow_tag: nil
+          }
+        end
+      end
+
+      let(:templates_input_test) do
+        Class.new(DaVinciDTRTestKit::DTRFullEHRV220InteractionWaitTest) do
+          id :dtr_full_ehr_v220_qp_endpoint_spec_templates_input_test
+          input :qp_response_template, optional: true
+          input :nq_questionnaire_template, optional: true
+          config options: {
+            qp_response_template_input: 'qp_response_template',
+            nq_questionnaire_template_input: 'nq_questionnaire_template',
+            dtr_workflow_tag: nil
+          }
+        end
+      end
+
+      let(:placeholder_template_json) do
+        FHIR::Parameters.new(
+          parameter: [
+            FHIR::Parameters::Parameter.new(
+              name: 'packagebundle',
+              resource: FHIR::Bundle.new(
+                type: 'collection',
+                entry: [FHIR::Bundle::Entry.new(
+                  resource: FHIR::Questionnaire.new(
+                    extension: [FHIR::Extension.new(url: use_template_url,
+                                                    valueCanonical: 'https://example.org/Questionnaire/adaptive')]
+                  )
+                )]
+              )
+            )
+          ]
+        ).to_json
+      end
+
+      def nq_template_json(url)
+        FHIR::Questionnaire.new(url:, status: 'draft').to_json
+      end
+
+      def package_resources
+        JSON.parse(last_response.body)['parameter'].first['resource']['entry'].map { |entry| entry['resource'] }
+      end
+
+      it 'builds the CQL and ValueSets package from the fixtures' do
+        stub_request(:post, /#{Regexp.quote(fhirpath_url)}/).to_return(
+          status: 200, body: [{ type: 'dateTime', element: '2026-10-28T12:00:00Z' }].to_json,
+          headers: { 'Content-Type' => 'application/json' }
+        )
+        run(cql_fixture_test, client_id:)
+        post_with_token
+
+        expect(last_response.status).to eq(200)
+        questionnaire = package_resources.find { |resource| resource['resourceType'] == 'Questionnaire' }
+        expect(questionnaire['url']).to eq(cql_template_url)
+        expect(questionnaire['item'].map { |item| item['linkId'] }).to eq(['HIDDEN-1'])
+        expect(questionnaire['item'].first['item'].map { |item| item['linkId'] })
+          .to eq(['HIDDEN-1.1', 'HIDDEN-1.2', 'HIDDEN-1.3', 'HIDDEN-1.4'])
+
+        response = package_resources.find { |resource| resource['resourceType'] == 'QuestionnaireResponse' }
+        expect(response['contained'].first['url']).to eq(cql_template_url)
+        expect(response['status']).to eq('in-progress')
+        expect(response['questionnaire']).to eq("##{response['contained'].first['id']}")
+
+        library_urls = package_resources.select { |resource| resource['resourceType'] == 'Library' }
+          .map { |library| library['url'] }
+        expect(library_urls).to contain_exactly('https://madie.cms.gov/Library/InfernoDTRSampleCQLLibrary',
+                                                'http://hl7.org/fhir/uv/cql/Library/FHIRHelpers')
+
+        DaVinciDTRTestKit::InfernoControlExtensions::ALL_URLS.each do |url|
+          expect(last_response.body).to_not include(url)
+        end
+      end
+
+      it 'returns 500 when a fixture placeholder matches no $next-question template' do
+        run(mismatched_fixture_test, client_id:)
+        post_with_token
+
+        expect(last_response.status).to eq(500)
+        expect(last_response.body).to include('No $next-question template Questionnaire matches')
+      end
+
+      it 'fails before waiting when an input placeholder matches no $next-question template' do
+        result = run(templates_input_test, client_id:,
+                                           qp_response_template: placeholder_template_json,
+                                           nq_questionnaire_template: nq_template_json('https://example.org/other'))
+
+        expect(result.result).to eq('fail')
+        expect(result.result_message).to include('no $next-question template Questionnaire has that url')
+      end
+
+      it 'builds the Questionnaire from a $next-question template provided in an input' do
+        run(templates_input_test, client_id:,
+                                  qp_response_template: placeholder_template_json,
+                                  nq_questionnaire_template: nq_template_json('https://example.org/Questionnaire/adaptive'))
+        post_with_token
+
+        expect(last_response.status).to eq(200)
+        expect(package_resources.first['url']).to eq('https://example.org/Questionnaire/adaptive')
+      end
+    end
+
+    context 'when the template uses legacy urn:inferno extension urls' do
+      let(:legacy_range_template) do
+        FHIR.from_contents({
+          resourceType: 'Parameters',
+          parameter: [
+            { name: 'First', extension: [{ url: 'urn:inferno:dtr:request-range', valueString: '1' }],
+              resource: { resourceType: 'Bundle', type: 'collection' } },
+            { name: 'Second', extension: [{ url: 'urn:inferno:dtr:request-range', valueString: '2' }],
+              resource: { resourceType: 'Bundle', type: 'collection' } }
+          ]
+        }.to_json).to_json
+      end
+
+      it 'still applies and removes them' do
+        run(input_template_test, client_id:, qp_response_template: legacy_range_template)
+        header('Authorization', "Bearer #{UDAPSecurityTestKit::MockUDAPServer.client_id_to_token(client_id, 5)}")
+        post(server_endpoint, valid_request_body, 'CONTENT_TYPE' => 'application/json',
+                                                  'REQUEST_PATH' => server_endpoint)
+
+        expect(param_names).to eq(['First'])
+        expect(last_response.body).to_not include('urn:inferno:dtr:request-range')
       end
     end
   end
