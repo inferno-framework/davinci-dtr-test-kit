@@ -7,14 +7,19 @@ module DaVinciDTRTestKit
     title 'Pre-populated Answers and Answer Origin'
     id :dtr_full_ehr_v220_workflow_answer_origin
     description <<~DESCRIPTION
-      During this group, the DTR client will complete an adaptive Questionnaire and demonstrate that
+      During this group, the DTR client will complete a short adaptive Questionnaire and demonstrate that
       - users can change pre-populated answers, but are not required to review or change them, and
       - the client records where each answer came from using the
         [information-origin](https://hl7.org/fhir/us/davinci-dtr/2.2.0/en/StructureDefinition-information-origin.html)
         extension.
 
-      By default, Inferno will return its default sample Questionnaire, which pre-populates the
-      patient's name and location. Testers may instead provide their own Questionnaire through the inputs.
+      Inferno returns a Questionnaire with three questions, each labeled with what the tester should do:
+      - **Last Name (don't change!)**: pre-populated with the patient's last name. Leave it as it is.
+      - **Preferred First Name (update)**: pre-populated with the patient's first name. Change it.
+      - **New Information (add details)**: not pre-populated. Fill it in.
+
+      The two pre-populated questions use FHIRPath, so no CQL Libraries are needed. Complete the
+      Questionnaire for a Patient that has a recorded first and last name.
     DESCRIPTION
     run_as_group
 
@@ -22,65 +27,18 @@ module DaVinciDTRTestKit
       options: {
         qp_single_use: true,
         dtr_workflow_tag: 'answer_origin',
-        qp_response_template_input: 'answer_origin_qp_template',
-        nq_questionnaire_template_input: 'answer_origin_nq_template',
-        library_bundle_input: 'answer_origin_libraries',
-        value_set_bundle_input: 'answer_origin_value_sets',
-        nq_template_requires_answer_origin_items: true,
+        qp_response_template_fixture: File.join('answer_origin', 'answer_origin_questionnaire_package_response.json'),
+        nq_questionnaire_template_fixture: File.join('answer_origin',
+                                                     'answer_origin_adaptive_next_question_template.json'),
         interaction_instructions: <<~INSTRUCTIONS
-          While completing the Questionnaire:
-          - **Change** at least one pre-populated answer to a different value
-            (with Inferno's default sample Questionnaire, change the patient's First Name).
-          - **Leave** at least one pre-populated answer as it was
-            (with Inferno's default sample Questionnaire, leave the patient's Last Name and Location alone).
-          - **Fill in** at least one answer that was not pre-populated
-            (with Inferno's default sample Questionnaire, answer the first question after the patient details).
+          Launch DTR for a Patient that has a recorded first and last name, and complete the
+          Questionnaire as its questions describe:
+          - **Last Name (don't change!)**: leave the pre-populated last name as it is.
+          - **Preferred First Name (update)**: change the pre-populated first name to something else.
+          - **New Information (add details)**: type in any details.
         INSTRUCTIONS
       }
     )
-
-    input :answer_origin_qp_template,
-          title: 'Answer Origin $questionnaire-package Response Template',
-          type: 'textarea',
-          optional: false,
-          description: %(
-            Template for $questionnaire-package responses for Inferno to send back. The default returns
-            Inferno's default sample adaptive Questionnaire. Replace it to use a different adaptive Questionnaire.
-          ),
-          default: File.read(File.join(__dir__, '..', '..', 'fixtures', 'dinner_adaptive',
-                                       'parameters_questionnaire_dinner_order_adaptive.json'))
-    input :answer_origin_nq_template,
-          title: 'Answer Origin $next-question Response Template',
-          type: 'textarea',
-          optional: false,
-          description: %(
-            Template for $next-question responses for Inferno to send back. May be a single Questionnaire or
-            a JSON array of Questionnaires. It must include at least two pre-populated items (using an
-            `initialExpression` or `candidateExpression`) and at least one item that is not pre-populated,
-            all of which users can edit.
-          ),
-          default: File.read(File.join(__dir__, '..', '..', 'fixtures', 'dinner_adaptive',
-                                       'dinner_order_adaptive_next_question_template.json'))
-    # Inferno's default sample Questionnaire doesn't need these. They let a tester's own Questionnaire
-    # use CQL Libraries and ValueSets (including through ValueSet/$expand) that aren't already in the templates.
-    input :answer_origin_libraries,
-          title: 'Answer Origin CQL Libraries',
-          type: 'textarea',
-          optional: true,
-          description: %(
-            Bundle of CQL Library resources for Inferno to include in responses when they are
-            referenced by the returned Questionnaires and items. Not needed for Inferno's default
-            sample Questionnaire.
-          )
-    input :answer_origin_value_sets,
-          title: 'Answer Origin ValueSets',
-          type: 'textarea',
-          optional: true,
-          description: %(
-            Bundle of ValueSet resources for Inferno to include in responses when they are
-            referenced by the returned Questionnaires and items, and to return from ValueSet/$expand.
-            Not needed for Inferno's default sample Questionnaire.
-          )
 
     group do
       id :dtr_full_ehr_v220_answer_origin

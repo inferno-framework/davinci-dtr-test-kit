@@ -24,24 +24,33 @@ RSpec.describe DaVinciDTRTestKit::DTRPayerServerV220::QuestionnaireExpressionLan
     expect(run(described_class).result).to eq('pass')
   end
 
-  it 'fails when a flow expression does not use CQL' do
-    extension = expression_extension(enable_when_expression_url, language: 'text/fhirpath')
+  it 'passes when expressions use FHIRPath, which is a subset of CQL' do
+    enable_when = expression_extension(enable_when_expression_url, language: 'text/fhirpath')
+    initial_expression = expression_extension(initial_expression_url, language: 'text/fhirpath')
+    item = questionnaire_item(extensions: [enable_when, initial_expression])
+    store_response(questionnaire_package_response(questionnaire(items: [item])))
+
+    expect(run(described_class).result).to eq('pass')
+  end
+
+  it 'fails when a flow expression uses neither CQL nor FHIRPath' do
+    extension = expression_extension(enable_when_expression_url, language: 'text/javascript')
     item = questionnaire_item(link_id: 'conditional-item', extensions: [extension])
     store_response(questionnaire_package_response(questionnaire(items: [item])))
 
     test_result = run(described_class)
     expect(test_result.result).to eq('fail')
-    expect(test_result.result_message).to include('conditional-item', 'text/fhirpath')
+    expect(test_result.result_message).to include('conditional-item', 'text/javascript')
   end
 
-  it 'fails when an item expression does not use CQL' do
-    initial_expression = expression_extension(initial_expression_url, language: 'text/fhirpath')
+  it 'fails when an item expression uses neither CQL nor FHIRPath' do
+    initial_expression = expression_extension(initial_expression_url, language: 'text/javascript')
     item = questionnaire_item(link_id: 'prepopulated-item', extensions: [initial_expression])
     store_response(questionnaire_package_response(questionnaire(items: [item])))
 
     test_result = run(described_class)
     expect(test_result.result).to eq('fail')
-    expect(test_result.result_message).to include('prepopulated-item', 'text/fhirpath')
+    expect(test_result.result_message).to include('prepopulated-item', 'text/javascript')
   end
 
   it 'omits when no Expression-valued item extensions are present' do

@@ -5,38 +5,18 @@ RSpec.describe DaVinciDTRTestKit::DTRFullEHRV220AnswerOriginVerificationTest do 
   let(:result) { repo_create(:result, test_session_id: test_session.id) }
 
   let(:information_origin_url) { 'http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/information-origin' }
-  let(:initial_expression_url) { 'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-initialExpression' }
 
-  let(:prepopulated_extension) do
-    [{ url: initial_expression_url, valueExpression: { language: 'text/cql', expression: '"DTRTest".Name' } }]
-  end
-
-  # Two pre-populated items (LastName, FirstName) and one item that is not pre-populated (Dinner)
+  # Inferno's answer origin Questionnaire, as the client returns it contained in the QuestionnaireResponse
   let(:questionnaire) do
-    {
-      resourceType: 'Questionnaire',
-      status: 'active',
-      url: 'http://example.org/Questionnaire/answer-origin',
-      extension: [
-        { url: 'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-questionnaireAdaptive',
-          valueBoolean: true }
-      ],
-      item: [
-        {
-          linkId: 'Patient',
-          type: 'group',
-          item: [
-            { linkId: 'LastName', type: 'string', extension: prepopulated_extension },
-            { linkId: 'FirstName', type: 'string', extension: prepopulated_extension }
-          ]
-        },
-        { linkId: 'Dinner', type: 'string' }
-      ]
-    }
+    template_path = File.join('lib', 'davinci_dtr_test_kit', 'full_ehr', 'fixtures', 'answer_origin',
+                              'answer_origin_adaptive_next_question_template.json')
+    JSON.parse(File.read(template_path))
   end
 
-  let(:expected_questionnaire_response) do
-    questionnaire_response(last_name_source: 'auto-client', first_name_source: 'override', dinner_source: 'manual')
+  let(:correct_questionnaire_response) do
+    questionnaire_response(last_name: answer('Smith', 'auto-client'),
+                           preferred_first_name: answer('Jojo', 'override'),
+                           new_information: answer('Allergic to peanuts', 'manual'))
   end
 
   # Results returned directly by `run` don't carry their messages, so reload them from the session.
@@ -47,8 +27,8 @@ RSpec.describe DaVinciDTRTestKit::DTRFullEHRV220AnswerOriginVerificationTest do 
       &.messages&.map(&:message) || []
   end
 
-  # By default, answers the user filled in or changed ('manual' / 'override') name the user as their author,
-  # as spec-137 requires. Pass `author: false` to leave the author out.
+  # By default, answers the user entered ('manual' / 'override') name the user as their author, as
+  # spec-137 requires. Pass `author: false` to leave the author out, or a nil source for no origin at all.
   def answer(value, source, author: true)
     answer = { valueString: value }
     return answer if source.nil?
@@ -62,22 +42,13 @@ RSpec.describe DaVinciDTRTestKit::DTRFullEHRV220AnswerOriginVerificationTest do 
     answer
   end
 
-  def questionnaire_response(last_name_source:, first_name_source:, dinner_source:)
-    {
-      resourceType: 'QuestionnaireResponse',
-      status: 'in-progress',
-      contained: [questionnaire],
-      item: [
-        {
-          linkId: 'Patient',
-          item: [
-            { linkId: 'LastName', answer: [answer('Smith', last_name_source)] },
-            { linkId: 'FirstName', answer: [answer('Jo', first_name_source)] }
-          ]
-        },
-        { linkId: 'Dinner', answer: [answer('Pizza', dinner_source)] }
-      ]
-    }
+  # Pass nil for a question to leave it unanswered.
+  def questionnaire_response(last_name:, preferred_first_name:, new_information:)
+    items = []
+    items << { linkId: 'last-name-do-not-change', answer: [last_name] } unless last_name.nil?
+    items << { linkId: 'preferred-first-name-update', answer: [preferred_first_name] } unless preferred_first_name.nil?
+    items << { linkId: 'new-information-add', answer: [new_information] } unless new_information.nil?
+    { resourceType: 'QuestionnaireResponse', status: 'in-progress', contained: [questionnaire], item: items }
   end
 
   def create_nq_request(request_questionnaire_response, response_status: 'completed',
@@ -96,8 +67,8 @@ RSpec.describe DaVinciDTRTestKit::DTRFullEHRV220AnswerOriginVerificationTest do 
     )
   end
 
-  it 'passes when there are override, auto-client, and manual answers on the expected items' do
-    create_nq_request(expected_questionnaire_response)
+  it 'passes when Last Name is auto-client, Preferred First Name is override, and New Information is manual' do
+    create_nq_request(correct_questionnaire_response)
 
     result = run(described_class)
 
@@ -107,7 +78,7 @@ RSpec.describe DaVinciDTRTestKit::DTRFullEHRV220AnswerOriginVerificationTest do 
   it 'accepts a request with the QuestionnaireResponse wrapped in Parameters' do
     parameters = {
       resourceType: 'Parameters',
-      parameter: [{ name: 'questionnaire-response', resource: expected_questionnaire_response }]
+      parameter: [{ name: 'questionnaire-response', resource: correct_questionnaire_response }]
     }
     repo_create(
       :request,
@@ -116,7 +87,7 @@ RSpec.describe DaVinciDTRTestKit::DTRFullEHRV220AnswerOriginVerificationTest do 
       test_session_id: test_session.id,
       result:,
       request_body: parameters.to_json,
-      response_body: expected_questionnaire_response.merge(status: 'completed').to_json,
+      response_body: correct_questionnaire_response.merge(status: 'completed').to_json,
       tags: [DaVinciDTRTestKit::CLIENT_NEXT_TAG],
       status: 200
     )
@@ -134,7 +105,7 @@ RSpec.describe DaVinciDTRTestKit::DTRFullEHRV220AnswerOriginVerificationTest do 
   end
 
   it 'skips when no $next-question request resulted in a completed QuestionnaireResponse' do
-    create_nq_request(expected_questionnaire_response, response_status: 'in-progress')
+    create_nq_request(correct_questionnaire_response, response_status: 'in-progress')
 
     result = run(described_class)
 
@@ -143,158 +114,148 @@ RSpec.describe DaVinciDTRTestKit::DTRFullEHRV220AnswerOriginVerificationTest do 
   end
 
   it 'checks the answers from the last completed request, ignoring earlier in-progress requests' do
-    earlier = questionnaire_response(last_name_source: 'auto-client', first_name_source: 'auto-client',
-                                     dinner_source: nil)
+    earlier = questionnaire_response(last_name: answer('Smith', 'auto-client'),
+                                     preferred_first_name: answer('Jo', 'auto-client'),
+                                     new_information: nil)
     create_nq_request(earlier, response_status: 'in-progress')
-    create_nq_request(expected_questionnaire_response)
+    create_nq_request(correct_questionnaire_response)
 
     result = run(described_class)
 
     expect(result.result).to eq('pass'), result.result_message
+  end
+
+  it 'fails when Last Name was changed' do
+    create_nq_request(
+      questionnaire_response(last_name: answer('Smyth', 'override'),
+                             preferred_first_name: answer('Jojo', 'override'),
+                             new_information: answer('Allergic to peanuts', 'manual'))
+    )
+
+    result = run(described_class)
+
+    expect(result.result).to eq('fail')
+    expect(messages_for(result)).to include(
+      a_string_including("The answer to `Last Name (don't change!)` has information-origin source `override`, " \
+                         'but it should be `auto-client`')
+    )
+  end
+
+  it 'fails, with a hint about the Patient, when Last Name had to be typed in' do
+    create_nq_request(
+      questionnaire_response(last_name: answer('Smith', 'manual'),
+                             preferred_first_name: answer('Jojo', 'override'),
+                             new_information: answer('Allergic to peanuts', 'manual'))
+    )
+
+    result = run(described_class)
+
+    expect(result.result).to eq('fail')
+    expect(messages_for(result)).to include(a_string_including('make sure the Patient has a recorded last name'))
+  end
+
+  it 'fails when Preferred First Name was left unchanged' do
+    create_nq_request(
+      questionnaire_response(last_name: answer('Smith', 'auto-client'),
+                             preferred_first_name: answer('Jo', 'auto-client'),
+                             new_information: answer('Allergic to peanuts', 'manual'))
+    )
+
+    result = run(described_class)
+
+    expect(result.result).to eq('fail')
+    expect(messages_for(result)).to include(
+      a_string_including('The answer to `Preferred First Name (update)` has information-origin source `auto-client`, ' \
+                         'but it should be `override`')
+    )
+  end
+
+  it 'fails when New Information is not manual' do
+    create_nq_request(
+      questionnaire_response(last_name: answer('Smith', 'auto-client'),
+                             preferred_first_name: answer('Jojo', 'override'),
+                             new_information: answer('Allergic to peanuts', 'auto-client'))
+    )
+
+    result = run(described_class)
+
+    expect(result.result).to eq('fail')
+    expect(messages_for(result)).to include(
+      a_string_including('The answer to `New Information (add details)` has information-origin source ' \
+                         '`auto-client`, but it should be `manual`')
+    )
   end
 
   it 'fails when an answer is missing the information-origin source' do
     create_nq_request(
-      questionnaire_response(last_name_source: 'auto-client', first_name_source: 'override', dinner_source: nil)
+      questionnaire_response(last_name: answer('Smith', 'auto-client'),
+                             preferred_first_name: answer('Jojo', 'override'),
+                             new_information: answer('Allergic to peanuts', nil))
     )
 
     result = run(described_class)
 
     expect(result.result).to eq('fail')
     expect(messages_for(result)).to include(
-      'Answer to item `Dinner` is missing an information-origin extension with a `source`.'
+      a_string_including('The answer to `New Information (add details)` is missing an information-origin ' \
+                         'extension with a `source`')
     )
   end
 
-  # e.g. the default Questionnaire's Location comes from the patient's first Encounter; with no Encounter the
-  # user has to type it, and spec-137 says that answer is 'manual'.
-  it 'accepts manual on a pre-populated item the user had to fill in, and counts it as a manual answer' do
-    questionnaire[:item] << { linkId: 'Location', type: 'string', extension: prepopulated_extension }
-    response = questionnaire_response(last_name_source: 'auto-client', first_name_source: 'override',
-                                      dinner_source: 'manual')
-    response[:item].pop # drop Dinner so the only manual answer is on the pre-populated Location item
-    response[:item] << { linkId: 'Location', answer: [answer('Room 1', 'manual')] }
-    create_nq_request(response)
-
-    result = run(described_class)
-
-    expect(result.result).to eq('pass'), result.result_message
-  end
-
-  it 'fails when a manual answer has no author' do
-    response = questionnaire_response(last_name_source: 'auto-client', first_name_source: 'override',
-                                      dinner_source: 'manual')
-    response[:item].last[:answer] = [answer('Pizza', 'manual', author: false)]
-    create_nq_request(response)
+  it 'fails when a question was not answered' do
+    create_nq_request(
+      questionnaire_response(last_name: answer('Smith', 'auto-client'),
+                             preferred_first_name: answer('Jojo', 'override'),
+                             new_information: nil)
+    )
 
     result = run(described_class)
 
     expect(result.result).to eq('fail')
     expect(messages_for(result)).to include(
-      'Answer to item `Dinner` has information-origin source `manual` but no `author` with a `practitioner` ' \
+      'No answer to `New Information (add details)` (linkId `new-information-add`).'
+    )
+  end
+
+  it 'fails when the changed Preferred First Name has no author' do
+    create_nq_request(
+      questionnaire_response(last_name: answer('Smith', 'auto-client'),
+                             preferred_first_name: answer('Jojo', 'override', author: false),
+                             new_information: answer('Allergic to peanuts', 'manual'))
+    )
+
+    result = run(described_class)
+
+    expect(result.result).to eq('fail')
+    expect(messages_for(result)).to include(
+      'The answer to `Preferred First Name (update)` has no information-origin `author` with a `practitioner` ' \
       'reference identifying the user who entered it.'
     )
   end
 
-  it 'fails when an override answer has no author' do
-    response = questionnaire_response(last_name_source: 'auto-client', first_name_source: 'override',
-                                      dinner_source: 'manual')
-    response[:item].first[:item].last[:answer] = [answer('Jo', 'override', author: false)]
-    create_nq_request(response)
+  it 'fails when the typed-in New Information has no author' do
+    create_nq_request(
+      questionnaire_response(last_name: answer('Smith', 'auto-client'),
+                             preferred_first_name: answer('Jojo', 'override'),
+                             new_information: answer('Allergic to peanuts', 'manual', author: false))
+    )
 
     result = run(described_class)
 
     expect(result.result).to eq('fail')
-    expect(messages_for(result)).to include(a_string_including('Answer to item `FirstName` has information-origin ' \
-                                                               'source `override` but no `author`'))
+    expect(messages_for(result)).to include(
+      a_string_including('The answer to `New Information (add details)` has no information-origin `author`')
+    )
   end
 
-  it 'does not require an author on answers the client populated itself' do
-    response = questionnaire_response(last_name_source: 'auto-client', first_name_source: 'override',
-                                      dinner_source: 'manual')
-    response[:item].first[:item].first[:answer] = [answer('Smith', 'auto-client', author: false)]
-    create_nq_request(response)
+  it 'finds the questions even when the client nests them inside another item' do
+    wrapper_item = { linkId: 'wrapper', item: correct_questionnaire_response[:item] }
+    nested = correct_questionnaire_response.merge(item: [wrapper_item])
+    create_nq_request(nested)
 
     result = run(described_class)
 
     expect(result.result).to eq('pass'), result.result_message
-  end
-
-  it 'fails when an item that is not pre-populated has an auto-client source' do
-    create_nq_request(
-      questionnaire_response(last_name_source: 'auto-client', first_name_source: 'override',
-                             dinner_source: 'auto-client')
-    )
-
-    result = run(described_class)
-
-    expect(result.result).to eq('fail')
-    expect(messages_for(result)).to include(
-      'Answer to item that is not pre-populated `Dinner` has information-origin source `auto-client`, ' \
-      'expected one of: manual.'
-    )
-  end
-
-  it 'fails when no pre-populated answer was overridden' do
-    create_nq_request(
-      questionnaire_response(last_name_source: 'auto-client', first_name_source: 'auto-client',
-                             dinner_source: 'manual')
-    )
-
-    result = run(described_class)
-
-    expect(result.result).to eq('fail')
-    expect(messages_for(result)).to include(a_string_including('No pre-populated answer was changed by the user'))
-  end
-
-  it 'fails when no pre-populated answer was left unchanged' do
-    create_nq_request(
-      questionnaire_response(last_name_source: 'override', first_name_source: 'override', dinner_source: 'manual')
-    )
-
-    result = run(described_class)
-
-    expect(result.result).to eq('fail')
-    expect(messages_for(result)).to include(a_string_including('No pre-populated answer was left unchanged'))
-  end
-
-  it 'does not count an auto-server answer as leaving a pre-populated answer unchanged' do
-    create_nq_request(
-      questionnaire_response(last_name_source: 'auto-server', first_name_source: 'override', dinner_source: 'manual')
-    )
-
-    result = run(described_class)
-
-    expect(result.result).to eq('fail')
-    expect(messages_for(result)).to include(a_string_including('No pre-populated answer was left unchanged'))
-  end
-
-  it 'fails when no answer was filled in manually' do
-    response = questionnaire_response(last_name_source: 'auto-client', first_name_source: 'override',
-                                      dinner_source: 'manual')
-    response[:item].pop
-    create_nq_request(response)
-
-    result = run(described_class)
-
-    expect(result.result).to eq('fail')
-    expect(messages_for(result)).to include(a_string_including('No answer was filled in manually'))
-  end
-
-  it 'checks items nested beneath answers' do
-    response = questionnaire_response(last_name_source: 'auto-client', first_name_source: 'override',
-                                      dinner_source: 'manual')
-    questionnaire[:item] << { linkId: 'Toppings', type: 'string' }
-    response[:item].last[:answer].first[:item] = [{ linkId: 'Toppings', answer: [answer('Cheese', 'auto-client')] }]
-    create_nq_request(response)
-
-    result = run(described_class)
-
-    expect(result.result).to eq('fail')
-    expect(messages_for(result)).to include(
-      'Answer to item that is not pre-populated `Toppings` has information-origin source `auto-client`, ' \
-      'expected one of: manual.'
-    )
   end
 
   it 'only considers requests tagged for the configured workflow' do
@@ -304,7 +265,7 @@ RSpec.describe DaVinciDTRTestKit::DTRFullEHRV220AnswerOriginVerificationTest do 
     end
     tests_repo = Inferno::Repositories::Tests.new
     tests_repo.insert(scoped_test_class) unless tests_repo.exists?(scoped_test_class.id.to_s)
-    create_nq_request(expected_questionnaire_response, tags: [DaVinciDTRTestKit::CLIENT_NEXT_TAG, 'other_workflow'])
+    create_nq_request(correct_questionnaire_response, tags: [DaVinciDTRTestKit::CLIENT_NEXT_TAG, 'other_workflow'])
 
     result = run(scoped_test_class)
 

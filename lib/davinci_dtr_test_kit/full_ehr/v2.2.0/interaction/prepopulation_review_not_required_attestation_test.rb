@@ -14,10 +14,10 @@ module DaVinciDTRTestKit
     title 'Users are not required to review pre-populated answers'
     description %(
       The DTR client must give providers the ability, but not a requirement, to review and revise
-      pre-populated answers. The previous test showed that a pre-populated answer could be changed
-      (`override`) and that one could be left alone (`auto-client`). Inferno cannot see whether the
-      client forced the user to explicitly review or acknowledge pre-populated answers before moving on,
-      so the tester attests to that here.
+      pre-populated answers. The previous test showed that the pre-populated Preferred First Name could
+      be changed (`override`) and the pre-populated Last Name could be left alone (`auto-client`).
+      Inferno cannot see whether the client forced the user to explicitly review or acknowledge
+      pre-populated answers before moving on, so the tester attests to that here.
     )
     verifies_requirements 'hl7.fhir.us.davinci-dtr_2.2.0@spec-132'
 

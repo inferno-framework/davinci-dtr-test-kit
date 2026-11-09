@@ -1,0 +1,25 @@
+{
+  "resourceType": "Parameters",
+  "parameter": [
+    {
+      "name": "packagebundle",
+      "resource": {
+        "resourceType": "Bundle",
+        "type": "collection",
+        "entry": [
+          {
+            "resource": {
+              "resourceType": "Questionnaire",
+              "extension": [
+                {
+                  "url": "https://inferno.healthit.gov/test-kits/davinci-dtr/StructureDefinition/extension-use-next-question-questionnaire-template",
+                  "valueCanonical": "https://inferno.healthit.gov/test-kits/davinci-dtr/Questionnaire/inferno-answer-origin-adaptive-questionnaire"
+                }
+              ]
+            }
+          }
+        ]
+      }
+    }
+  ]
+}
