@@ -24,6 +24,8 @@ module DaVinciDTRTestKit
         dtr_workflow_tag: 'answer_origin',
         qp_response_template_input: 'answer_origin_qp_template',
         nq_questionnaire_template_input: 'answer_origin_nq_template',
+        library_bundle_input: 'answer_origin_libraries',
+        value_set_bundle_input: 'answer_origin_value_sets',
         nq_template_requires_answer_origin_items: true,
         interaction_instructions: <<~INSTRUCTIONS
           While completing the Questionnaire:
@@ -59,6 +61,26 @@ module DaVinciDTRTestKit
           ),
           default: File.read(File.join(__dir__, '..', '..', 'fixtures', 'dinner_adaptive',
                                        'dinner_order_adaptive_next_question_template.json'))
+    # Inferno's default sample Questionnaire doesn't need these. They let a tester's own Questionnaire
+    # use CQL Libraries and ValueSets (including through ValueSet/$expand) that aren't already in the templates.
+    input :answer_origin_libraries,
+          title: 'Answer Origin CQL Libraries',
+          type: 'textarea',
+          optional: true,
+          description: %(
+            Bundle of CQL Library resources for Inferno to include in responses when they are
+            referenced by the returned Questionnaires and items. Not needed for Inferno's default
+            sample Questionnaire.
+          )
+    input :answer_origin_value_sets,
+          title: 'Answer Origin ValueSets',
+          type: 'textarea',
+          optional: true,
+          description: %(
+            Bundle of ValueSet resources for Inferno to include in responses when they are
+            referenced by the returned Questionnaires and items, and to return from ValueSet/$expand.
+            Not needed for Inferno's default sample Questionnaire.
+          )
 
     group do
       id :dtr_full_ehr_v220_answer_origin
