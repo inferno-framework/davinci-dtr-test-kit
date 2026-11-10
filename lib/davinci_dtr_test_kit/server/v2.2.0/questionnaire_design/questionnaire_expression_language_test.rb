@@ -11,17 +11,10 @@ module DaVinciDTRTestKit
       title 'Questionnaire flow and rendering expressions use CQL'
       description %(
         Inferno verifies that Expression-valued Questionnaire item extensions are
-        written in CQL. FHIRPath (`text/fhirpath`) is accepted as well, because DTR
-        describes FHIRPath as a proper subset of CQL and asks servers to label valid
-        FHIRPath expressions as FHIRPath. This requirement is conditional and is
-        omitted when no such expressions are present.
+        written in CQL. This requirement is conditional and is omitted when no
+        such expressions are present.
       )
       verifies_requirements 'hl7.fhir.us.davinci-dtr_2.2.0@spec-18'
-
-      # FHIRPath is a proper subset of CQL (spec-60), and servers SHOULD label valid FHIRPath
-      # expressions as FHIRPath rather than CQL (spec-61), so FHIRPath counts as CQL here.
-      # It isn't added to CQL_MEDIA_TYPES because the ELM test uses that list, and FHIRPath has no ELM.
-      FHIRPATH_MEDIA_TYPE = 'text/fhirpath'
 
       run do
         questionnaire_details = returned_questionnaires
@@ -31,8 +24,7 @@ module DaVinciDTRTestKit
         omit_if expressions.blank?, 'No flow or rendering expressions were found'
 
         non_cql_expressions = expressions.reject do |details|
-          language = details[:expression].language.to_s.split(';').first.to_s.strip
-          cql_expression?(details[:expression]) || language == FHIRPATH_MEDIA_TYPE
+          cql_expression?(details[:expression])
         end
         non_cql_details = non_cql_expressions.map do |details|
           language = details[:expression].language.presence || 'missing'
