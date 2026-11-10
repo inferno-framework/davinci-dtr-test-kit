@@ -54,6 +54,10 @@ module DaVinciDTRTestKit
       test from: :dtr_full_ehr_v220_interaction_wait,
            id: :dtr_full_ehr_v220_resume_initial_interaction_wait,
            title: 'Retrieve, partially complete, and save a Questionnaire',
+           description: %(
+             Inferno will act as a Payer DTR Server while the tester launches DTR, retrieves a Questionnaire,
+             answers some of its questions, and saves the in-progress QuestionnaireResponse.
+           ),
            config: {
              options: {
                interaction_instructions: <<~INSTRUCTIONS
@@ -70,6 +74,10 @@ module DaVinciDTRTestKit
       test from: :dtr_full_ehr_v220_interaction_wait,
            id: :dtr_full_ehr_v220_resume_relaunch_interaction_wait,
            title: 'Resume and complete the saved Questionnaire',
+           description: %(
+             Inferno will act as a Payer DTR Server while the tester relaunches DTR from the saved
+             QuestionnaireResponse and completes it.
+           ),
            config: {
              options: {
                interaction_instructions: <<~INSTRUCTIONS

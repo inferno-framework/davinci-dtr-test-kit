@@ -28,4 +28,15 @@ RSpec.describe DaVinciDTRTestKit::DTRFullEHRV220WorkflowResume do # rubocop:disa
     expect(result.result_message)
       .to include('Relaunch DTR from the in-progress QuestionnaireResponse saved during the previous test.')
   end
+
+  it 'describes each wait with its own step instead of completing the Questionnaire' do
+    initial = resume_wait('dtr_full_ehr_v220_resume_initial_interaction_wait')
+    relaunch = resume_wait('dtr_full_ehr_v220_resume_relaunch_interaction_wait')
+
+    expect(initial.description).to include('answers some of its questions, and saves the in-progress')
+    expect(relaunch.description).to include('relaunches DTR from the saved')
+    [initial, relaunch].each do |wait_test|
+      expect(wait_test.description).to_not include('completes the questionnaire')
+    end
+  end
 end
