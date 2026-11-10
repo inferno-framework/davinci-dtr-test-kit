@@ -1,3 +1,5 @@
+require 'davinci_dtr_test_kit/full_ehr/v2.2.0/request/dtr_questionnaire_package_changedsince_test'
+require 'davinci_dtr_test_kit/full_ehr/v2.2.0/interaction/resume_questionnaire_attestation_test'
 require 'davinci_dtr_test_kit/full_ehr/v2.2.0/request/dtr_next_question_request_validation_test'
 require 'davinci_dtr_test_kit/full_ehr/v2.2.0/request/dtr_questionnaire_package_request_validation_test'
 require 'davinci_dtr_test_kit/full_ehr/v2.2.0/response/dtr_next_question_response_validation_test'
@@ -55,6 +57,16 @@ RSpec.describe 'DTR Full EHR v2.2.0 short-circuit wiring' do # rubocop:disable R
   describe DaVinciDTRTestKit::DTRFullEHRV220QuestionnairePackageResponseValidationTest do
     it_behaves_like 'a short-circuit aware DTR full EHR v2.2.0 test',
                     'A Questionnaire Package request must be made prior to running this test'
+  end
+
+  describe DaVinciDTRTestKit::DTRFullEHRV220QuestionnairePackageChangedSinceTest do
+    it_behaves_like 'a short-circuit aware DTR full EHR v2.2.0 test',
+                    'A Questionnaire Package request must be made prior to running this test'
+  end
+
+  describe DaVinciDTRTestKit::DTRFullEHRV220ResumeQuestionnaireAttestationTest do
+    it_behaves_like 'a short-circuit aware DTR full EHR v2.2.0 test',
+                    'No Questionnaire Package requests returned a Questionnaire.'
   end
 
   describe DaVinciDTRTestKit::DTRFullEHRV220NextQuestionRequestValidationTest do
