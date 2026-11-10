@@ -69,8 +69,9 @@ DTR profiles and requirements.
 
 Group "2.3 Resume a Questionnaire" checks that the client can save an in-progress
 QuestionnaireResponse and resume it later. It must be executed after the group
-"1 Client Registration". By default, Inferno returns its Dinner Order (Static)
-Questionnaire. Testers can instead provide their own standard (non-adaptive)
+"1 Client Registration". By default, Inferno returns its Resume Questionnaire,
+which has two questions: one to answer before saving and one to answer after
+resuming. Testers can instead provide their own standard (non-adaptive)
 Questionnaire in the "Resume a Questionnaire $questionnaire-package Response
 Template" input.
 

@@ -4,8 +4,8 @@ RSpec.describe DaVinciDTRTestKit::DTRFullEHRV220WorkflowResume do # rubocop:disa
   let(:suite_id) { 'dtr_full_ehr_v220' }
   let(:client_id) { 'resume_group_spec_client_id' }
   let(:template) do
-    File.read(File.join(__dir__, '..', '..', 'lib', 'davinci_dtr_test_kit', 'full_ehr', 'fixtures', 'dinner_static',
-                        'parameters_questionnaire_dinner_order_static.json'))
+    File.read(File.join(__dir__, '..', '..', 'lib', 'davinci_dtr_test_kit', 'full_ehr', 'fixtures', 'resume',
+                        'parameters_questionnaire_resume.json'))
   end
   let(:inputs) { { client_id:, resume_qp_response_template: template } }
 

@@ -21,8 +21,9 @@ module DaVinciDTRTestKit
 
       Inferno returns the Questionnaire package in the
       "Resume a Questionnaire $questionnaire-package Response Template" input. By default, this is
-      Inferno's Dinner Order (Static) Questionnaire, but testers may provide their own standard
-      (non-adaptive) Questionnaire.
+      Inferno's Resume Questionnaire, which has two questions: one to answer before saving and one
+      to answer after resuming. Testers may provide their own standard (non-adaptive) Questionnaire
+      instead.
     DESCRIPTION
     run_as_group
 
@@ -42,10 +43,10 @@ module DaVinciDTRTestKit
           description: %(
             Template for the $questionnaire-package response that Inferno will send back when the
             Questionnaire is first retrieved. Must contain a standard (non-adaptive) Questionnaire.
-            Defaults to Inferno's Dinner Order (Static) Questionnaire.
+            Defaults to Inferno's Resume Questionnaire.
           ),
-          default: File.read(File.join(__dir__, '..', '..', 'fixtures', 'dinner_static',
-                                       'parameters_questionnaire_dinner_order_static.json'))
+          default: File.read(File.join(__dir__, '..', '..', 'fixtures', 'resume',
+                                       'parameters_questionnaire_resume.json'))
 
     group do
       title 'Interaction'
