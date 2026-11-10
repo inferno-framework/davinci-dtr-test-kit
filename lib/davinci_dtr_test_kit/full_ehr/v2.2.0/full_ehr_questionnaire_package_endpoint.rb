@@ -79,6 +79,8 @@ module DaVinciDTRTestKit
           operation_outcome('error', 'invalid', 'Request body must be a FHIR Parameters resource.')
         elsif response_template.is_a?(FHIR::OperationOutcome)
           response_template
+        elsif report_unchanged_since?
+          unchanged_since_response
         elsif single_use_limit_exceeded?
           operation_outcome('error', 'business-rule',
                             '$questionnaire-package is configured to respond successfully only once.')
@@ -92,6 +94,31 @@ module DaVinciDTRTestKit
       def single_use_limit_exceeded?
         test.config.options[:qp_single_use] &&
           count_previous_successful_requests('$questionnaire-package') >= 1
+      end
+
+      # Inferno's Questionnaire packages don't change during a session, so when configured, a request
+      # that asks for changes since a timestamp gets the IG's "nothing has changed" 200 response. The
+      # output Parameters profile requires at least one parameter, so the response carries an
+      # informational outcome rather than no parameters at all.
+      def report_unchanged_since?
+        test.config.options[:qp_unchanged_since] && changedsince_parameter.present?
+      end
+
+      def changedsince_parameter
+        request_parameters.parameter.find { |param| param.name == 'changedsince' }
+      end
+
+      def unchanged_since_response
+        since = changedsince_parameter.valueInstant.presence || 'the requested time'
+        FHIR::Parameters.new(
+          parameter: [
+            FHIR::Parameters::Parameter.new(
+              name: 'outcome',
+              resource: operation_outcome('information', 'informational',
+                                          "No Questionnaire packages have changed since #{since}.")
+            )
+          ]
+        )
       end
 
       # ***********************************************************************

@@ -112,6 +112,20 @@ RSpec.describe DaVinciDTRTestKit::MockPayer::FullEHRV220QuestionnairePackageEndp
     end
   end
 
+  # Input path with qp_unchanged_since and qp_single_use enabled, as in the Resume a Questionnaire scenario
+  let(:unchanged_since_test) do
+    Class.new(DaVinciDTRTestKit::DTRFullEHRV220InteractionWaitTest) do
+      id :dtr_full_ehr_v220_qp_endpoint_spec_unchanged_since_test
+      input :qp_response_template, optional: true
+      config options: {
+        qp_response_template_input: 'qp_response_template',
+        qp_single_use: true,
+        qp_unchanged_since: true,
+        dtr_workflow_tag: nil
+      }
+    end
+  end
+
   # Input path with an additional dtr_workflow tag applied to the request
   let(:workflow_tagged_test) do
     Class.new(DaVinciDTRTestKit::DTRFullEHRV220InteractionWaitTest) do
@@ -912,6 +926,90 @@ RSpec.describe DaVinciDTRTestKit::MockPayer::FullEHRV220QuestionnairePackageEndp
 
         post_with_token
         expect(last_response.status).to eq(200)
+      end
+    end
+
+    # -------------------------------------------------------------------
+    # changedsince (Resume a Questionnaire)
+    #
+    # When qp_unchanged_since is set, a request with a changedsince parameter gets a 200
+    # Parameters response with only an informational outcome: nothing has changed.
+    # -------------------------------------------------------------------
+
+    context 'when qp_unchanged_since is enabled' do
+      let(:changedsince) { '2026-11-04T20:30:04Z' }
+      let(:packagebundle_template_json) do
+        FHIR::Parameters.new(
+          parameter: [
+            FHIR::Parameters::Parameter.new(
+              name: 'packagebundle',
+              resource: FHIR::Bundle.new(type: 'collection')
+            )
+          ]
+        ).to_json
+      end
+
+      def request_body(with_changedsince:, value_type: 'valueInstant')
+        body = JSON.parse(valid_request_body)
+        body['parameter'] << { 'name' => 'changedsince', value_type => changedsince } if with_changedsince
+        body.to_json
+      end
+
+      def post_qp(with_changedsince:, value_type: 'valueInstant')
+        header('Authorization', "Bearer #{UDAPSecurityTestKit::MockUDAPServer.client_id_to_token(client_id, 5)}")
+        post(server_endpoint, request_body(with_changedsince:, value_type:),
+             'CONTENT_TYPE' => 'application/json',
+             'REQUEST_PATH' => server_endpoint)
+      end
+
+      def outcome_text
+        outcome = JSON.parse(last_response.body)['parameter'].find { |param| param['name'] == 'outcome' }
+        outcome.dig('resource', 'issue', 0, 'details', 'text')
+      end
+
+      it 'returns 200 with only an informational outcome when the request includes changedsince' do
+        run(unchanged_since_test, client_id:, qp_response_template: packagebundle_template_json)
+        post_qp(with_changedsince: true)
+
+        expect(last_response.status).to eq(200)
+        parsed = JSON.parse(last_response.body)
+        expect(parsed['resourceType']).to eq('Parameters')
+        expect(parsed['parameter'].map { |param| param['name'] }).to eq(['outcome'])
+        expect(parsed.dig('parameter', 0, 'resource', 'issue', 0, 'severity')).to eq('information')
+        expect(outcome_text).to eq("No Questionnaire packages have changed since #{changedsince}.")
+      end
+
+      it 'returns the package when the request does not include changedsince' do
+        run(unchanged_since_test, client_id:, qp_response_template: packagebundle_template_json)
+        post_qp(with_changedsince: false)
+
+        expect(last_response.status).to eq(200)
+        expect(JSON.parse(last_response.body)['parameter'].map { |param| param['name'] }).to eq(['packagebundle'])
+      end
+
+      it 'reports nothing changed after the single successful package response' do
+        run(unchanged_since_test, client_id:, qp_response_template: packagebundle_template_json)
+        post_qp(with_changedsince: false)
+        post_qp(with_changedsince: true)
+
+        expect(last_response.status).to eq(200)
+        expect(outcome_text).to include('No Questionnaire packages have changed')
+      end
+
+      it 'still reports nothing changed when changedsince is not sent as an instant' do
+        run(unchanged_since_test, client_id:, qp_response_template: packagebundle_template_json)
+        post_qp(with_changedsince: true, value_type: 'valueDateTime')
+
+        expect(last_response.status).to eq(200)
+        expect(outcome_text).to eq('No Questionnaire packages have changed since the requested time.')
+      end
+
+      it 'returns the package for a changedsince request when qp_unchanged_since is not set' do
+        run(input_template_test, client_id:, qp_response_template: packagebundle_template_json)
+        post_qp(with_changedsince: true)
+
+        expect(last_response.status).to eq(200)
+        expect(JSON.parse(last_response.body)['parameter'].map { |param| param['name'] }).to eq(['packagebundle'])
       end
     end
 
