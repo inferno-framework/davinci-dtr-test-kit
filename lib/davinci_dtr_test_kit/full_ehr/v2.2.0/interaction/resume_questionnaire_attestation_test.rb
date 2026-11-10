@@ -12,8 +12,8 @@ module DaVinciDTRTestKit
     id :dtr_full_ehr_v220_resume_questionnaire_attestation
     title 'Client saves an in-progress QuestionnaireResponse and resumes it later'
     description %(
-      During this test, the tester will confirm that the client saved an in-progress QuestionnaireResponse
-      and later resumed and completed it.
+      During this test, the tester will confirm that the Health IT module can save an in-progress
+      QuestionnaireResponse and resume it later.
 
       To see the specifics of the attested requirements, click the 'View Specification Requirements' link for this test.
     )
@@ -34,20 +34,6 @@ module DaVinciDTRTestKit
 
     def requests_to_analyze
       @requests_to_analyze ||= load_tagged_requests(*target_tags)
-    end
-
-    def returned_questionnaires_for_display
-      requests_to_analyze.each_with_object([]) do |request, questionnaires|
-        response_parameters = FHIR.from_contents(request.response_body)
-        next unless response_parameters.is_a?(FHIR::Parameters)
-
-        questionnaires.concat(
-          questionnaires_from_questionnaire_package_output_parameters(response_parameters)
-            .map { |questionnaire| questionnaire_display(questionnaire) }
-        )
-      rescue JSON::ParserError
-        next
-      end.uniq
     end
 
     run do
@@ -78,7 +64,7 @@ module DaVinciDTRTestKit
           -------------
 
           Questionnaires returned during the previous interactions:
-          - #{returned_questionnaires_for_display.join(LIST_ENTRY_PREFIX)}
+          - #{returned_questionnaires_for_display(requests_to_analyze).join(LIST_ENTRY_PREFIX)}
         )
       )
     end

@@ -38,6 +38,22 @@ module DaVinciDTRTestKit
       end
     end
 
+    # Unique display strings for the Questionnaires in the $questionnaire-package responses
+    # to the given requests.
+    def returned_questionnaires_for_display(requests)
+      requests.each_with_object([]) do |request, questionnaires|
+        response_parameters = FHIR.from_contents(request.response_body)
+        next unless response_parameters.is_a?(FHIR::Parameters)
+
+        questionnaires.concat(
+          questionnaires_from_questionnaire_package_output_parameters(response_parameters)
+            .map { |questionnaire| questionnaire_display(questionnaire) }
+        )
+      rescue JSON::ParserError
+        next
+      end.uniq
+    end
+
     ###########################################################################
     # Generic Questionnaire Extraction ($questionnaire-package or $next-question)
     ###########################################################################

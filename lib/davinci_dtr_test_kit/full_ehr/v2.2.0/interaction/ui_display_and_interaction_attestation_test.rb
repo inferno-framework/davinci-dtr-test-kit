@@ -82,20 +82,6 @@ module DaVinciDTRTestKit
       @requests_to_analyze ||= load_tagged_requests(*target_tags)
     end
 
-    def returned_questionnaires_for_display
-      requests_to_analyze.each_with_object([]) do |request, questionnaires|
-        request_parameters = FHIR.from_contents(request.response_body)
-        next unless request_parameters.is_a?(FHIR::Parameters)
-
-        questionnaires.concat(
-          questionnaires_from_questionnaire_package_output_parameters(request_parameters)
-            .map { |questionnaire| questionnaire_display(questionnaire) }
-        )
-      rescue JSON::ParserError
-        next
-      end.uniq
-    end
-
     LIST_ENTRY_PREFIX = "\n          - ".freeze
 
     run do
@@ -133,7 +119,7 @@ module DaVinciDTRTestKit
 
           Questionnaires returned during the previous interaction for which a
           response must have been completed and stored to attest **true**:
-          - #{returned_questionnaires_for_display.join(LIST_ENTRY_PREFIX)}
+          - #{returned_questionnaires_for_display(requests_to_analyze).join(LIST_ENTRY_PREFIX)}
 
           Must Support Questionnaire items and extensions that must have been followed
           to attest **true**: TODO
