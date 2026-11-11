@@ -113,6 +113,52 @@ RSpec.describe DaVinciDTRTestKit::DTRFullEHRV220AnswerOriginVerificationTest do 
     expect(result.result_message).to include('No $next-question request resulted in a completed QuestionnaireResponse')
   end
 
+  describe 'when the completing request body is not usable' do
+    # Inferno marked the response `completed`, but the client's request body is replaced with `request_body`.
+    def create_completed_request_with_body(request_body)
+      repo_create(
+        :request,
+        direction: 'incoming',
+        url: '/custom/dtr_full_ehr_v220/fhir/Questionnaire/$next-question',
+        test_session_id: test_session.id,
+        result:,
+        request_body:,
+        response_body: correct_questionnaire_response.merge(status: 'completed').to_json,
+        tags: [DaVinciDTRTestKit::CLIENT_NEXT_TAG],
+        status: 200
+      )
+    end
+
+    it 'fails when the body is empty' do
+      create_completed_request_with_body('')
+
+      result = run(described_class)
+
+      expect(result.result).to eq('fail')
+      expect(result.result_message).to eq('The completing $next-question request has an empty body.')
+    end
+
+    it 'fails when the body is not valid JSON' do
+      create_completed_request_with_body('not json')
+
+      result = run(described_class)
+
+      expect(result.result).to eq('fail')
+      expect(result.result_message)
+        .to eq('The completing $next-question request does not contain a valid QuestionnaireResponse.')
+    end
+
+    it 'fails when the body is not a QuestionnaireResponse' do
+      create_completed_request_with_body({ resourceType: 'OperationOutcome', issue: [] }.to_json)
+
+      result = run(described_class)
+
+      expect(result.result).to eq('fail')
+      expect(result.result_message)
+        .to eq('The completing $next-question request does not contain a valid QuestionnaireResponse.')
+    end
+  end
+
   it 'checks the answers from the last completed request, ignoring earlier in-progress requests' do
     earlier = questionnaire_response(last_name: answer('Smith', 'auto-client'),
                                      preferred_first_name: answer('Jo', 'auto-client'),

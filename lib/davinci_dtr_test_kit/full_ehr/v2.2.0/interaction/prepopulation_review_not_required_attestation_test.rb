@@ -1,13 +1,11 @@
 require 'securerandom'
 require_relative '../../../urls'
 require_relative '../../../tags'
-require_relative '../../short_circuit_interaction_verification'
 require_relative '../../../cross_suite/v2.2.0/questionnaire_helper'
 
 module DaVinciDTRTestKit
   class DTRFullEHRV220PrepopulationReviewNotRequiredAttestationTest < Inferno::Test
     include URLs
-    include ShortCircuitInteractionVerification
     include QuestionnaireHelper
 
     id :dtr_full_ehr_v220_prepopulation_review_not_required_attestation
@@ -25,8 +23,6 @@ module DaVinciDTRTestKit
     output :attest_false_url
 
     run do
-      check_for_short_circuit(ok_message: config.options[:short_circuit_pass_message])
-
       # Only ask for the attestation if a Questionnaire was actually returned for the tester to complete
       tags = [QUESTIONNAIRE_PACKAGE_TAG]
       tags << config.options[:dtr_workflow_tag] if config.options[:dtr_workflow_tag].present?

@@ -1,10 +1,8 @@
 require_relative '../../../tags'
-require_relative '../../short_circuit_interaction_verification'
 require_relative '../../../cross_suite/v2.2.0/questionnaire_helper'
 
 module DaVinciDTRTestKit
   class DTRFullEHRV220AnswerOriginVerificationTest < Inferno::Test
-    include ShortCircuitInteractionVerification
     include QuestionnaireHelper
 
     id :dtr_full_ehr_v220_answer_origin_verification
@@ -56,9 +54,6 @@ module DaVinciDTRTestKit
     ].freeze
 
     run do
-      check_for_short_circuit(ok_message: config.options[:short_circuit_pass_message])
-      check_for_adaptive_short_circuit
-
       tags = [CLIENT_NEXT_TAG]
       tags << config.options[:dtr_workflow_tag] if config.options[:dtr_workflow_tag].present?
       requests = load_tagged_requests(*tags)
@@ -66,6 +61,7 @@ module DaVinciDTRTestKit
 
       # Requests are in the order they were received, so search from the end to find the request whose
       # response Inferno marked `completed`. That request carries the final set of answers.
+      # Bodies are checked for blank before parsing
       completed_request = requests.reverse.find do |request|
         next false if request.response_body.blank?
 
@@ -79,13 +75,18 @@ module DaVinciDTRTestKit
               'No $next-question request resulted in a completed QuestionnaireResponse, ' \
               'so there are no final answers to check.'
 
+      # The client sent the completing request, so a missing or unreadable QuestionnaireResponse in it is a
+      # problem with the client.
+      request_body = completed_request.request_body
+      assert request_body.present?, 'The completing $next-question request has an empty body.'
+
       questionnaire_response = begin
-        questionnaire_response_from_next_question_request(FHIR.from_contents(completed_request.request_body))
+        questionnaire_response_from_next_question_request(FHIR.from_contents(request_body))
       rescue JSON::ParserError
         nil
       end
-      skip_if questionnaire_response.nil?,
-              'Could not find a QuestionnaireResponse in the completing $next-question request.'
+      assert questionnaire_response.present?,
+             'The completing $next-question request does not contain a valid QuestionnaireResponse.'
 
       # Collect the first answer to each item. Items can be nested directly under other items or
       # beneath an answer, so both are added to the list as they are found.
