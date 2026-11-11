@@ -21,7 +21,7 @@ operations:
 
 Inferno also accepts `Questionnaire/$log-questionnaire-errors` requests from the waiting session.
 The operation has no output, so there is no response template for it: Inferno records the
-request and responds with an empty `200`.
+request and responds with `204 No Content`.
 
 Certain tests provide inputs for response templates that drive Inferno's responses
 when it has identified an incoming request as associated with the waiting session.

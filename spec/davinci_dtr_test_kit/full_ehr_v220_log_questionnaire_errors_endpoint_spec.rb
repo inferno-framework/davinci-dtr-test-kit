@@ -68,22 +68,26 @@ RSpec.describe DaVinciDTRTestKit::MockPayer::FullEHRV220LogQuestionnaireErrorsEn
   context 'when a session is waiting for the request' do
     before { run(wait_test, client_id:) }
 
-    it 'returns 200 with no content for a $log-questionnaire-errors request' do
+    it 'returns 204 with no content for a $log-questionnaire-errors request' do
       authorize
       post_log_errors(log_errors_parameters)
 
-      expect(last_response.status).to eq(200)
+      expect(last_response.status).to eq(204)
       expect(last_response.body).to be_empty
     end
 
-    it 'returns 200 without checking the request body, leaving conformance to later tests' do
+    it 'returns 204 when the body is not a Parameters resource, leaving conformance to later tests' do
       authorize
       post_log_errors(FHIR::OperationOutcome.new.to_json)
-      expect(last_response.status).to eq(200)
 
+      expect(last_response.status).to eq(204)
+    end
+
+    it 'returns 204 when the request has no body' do
       authorize
       post_log_errors('')
-      expect(last_response.status).to eq(200)
+
+      expect(last_response.status).to eq(204)
     end
 
     it 'persists the request with the log questionnaire errors and workflow tags' do
@@ -94,7 +98,7 @@ RSpec.describe DaVinciDTRTestKit::MockPayer::FullEHRV220LogQuestionnaireErrorsEn
                                              [DaVinciDTRTestKit::CLIENT_LOG_QUESTIONNAIRE_ERRORS_TAG,
                                               'custom_workflow'])
       expect(tagged.length).to eq(1)
-      expect(tagged.first.status).to eq(200)
+      expect(tagged.first.status).to eq(204)
       expect(requests_repo.find_full_request(tagged.first.id).request_body).to eq(log_errors_parameters)
     end
 
@@ -116,7 +120,7 @@ RSpec.describe DaVinciDTRTestKit::MockPayer::FullEHRV220LogQuestionnaireErrorsEn
       post("#{server_endpoint}?session_path=#{client_id}", log_errors_parameters,
            'CONTENT_TYPE' => 'application/fhir+json')
 
-      expect(last_response.status).to eq(200)
+      expect(last_response.status).to eq(204)
     end
 
     it 'returns 401 when the token has expired' do
@@ -128,7 +132,7 @@ RSpec.describe DaVinciDTRTestKit::MockPayer::FullEHRV220LogQuestionnaireErrorsEn
   end
 
   context 'when no session is waiting for the request' do
-    it 'does not return 200' do
+    it 'returns 500 with a no waiting session error' do
       authorize
       post_log_errors(log_errors_parameters)
 

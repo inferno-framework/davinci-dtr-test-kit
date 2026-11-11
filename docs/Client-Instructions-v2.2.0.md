@@ -45,10 +45,16 @@ server using SMART Backend Services.
 
 ## Inferno-provided Questionnaire Tests Execution
 
-Inferno provides fixed Questionnaires to demonstrate two basic workflows that
+Inferno provides fixed Questionnaires to demonstrate three workflows that
 DTR clients must support:
 1. Standard Questionnaires in group 2.1
 2. Adaptive Questionnaires in group 2.2
+3. CQL error handling in group 2.3, where an adaptive Questionnaire delivers an item
+   with malformed CQL in a `calculatedExpression` partway through the
+   `$next-question` exchange. The client must stop requesting questions, report
+   the error using `$log-questionnaire-errors`, and prohibit the user from
+   completing the form; the tester attests to that behavior instead of to form
+   completion.
 
 These groups must be executed after the group "1 Client Registration". In each
 case, testers don't need to provide any additional inputs up front. Once

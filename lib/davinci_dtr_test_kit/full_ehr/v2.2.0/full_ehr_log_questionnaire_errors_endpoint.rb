@@ -7,7 +7,7 @@ module DaVinciDTRTestKit
     # Simulates the payer's Questionnaire/$log-questionnaire-errors operation
     # (https://hl7.org/fhir/us/davinci-dtr/2.2.0/en/OperationDefinition-log-questionnaire-errors.html).
     # The operation has no output parameters, so any request associated with a waiting session is
-    # recorded and answered with an empty 200 response. The request body is not checked here:
+    # recorded and answered with 204 No Content. The request body is not checked here:
     # conformance of the submitted Parameters is verified by tests run after the interaction.
     class FullEHRV220LogQuestionnaireErrorsEndpoint < Inferno::DSL::SuiteEndpoint
       def test_run_identifier
@@ -28,13 +28,22 @@ module DaVinciDTRTestKit
         response.headers['Access-Control-Allow-Origin'] = '*'
         return if response.status == 401 # response set in update_result (expired token handling there)
 
-        response.status = 200
+        response.status = 204
       end
 
       def update_result
         return unless UDAPSecurityTestKit::MockUDAPServer.request_has_expired_token?(request)
 
         UDAPSecurityTestKit::MockUDAPServer.update_response_for_expired_token(response, 'Bearer token')
+      end
+
+      private
+
+      # Hanami drops every non-entity header from a 204 response (RFC 2616 compliance), which would
+      # take the CORS header away from browser-based clients. This is the hook Hanami provides to
+      # keep specific headers on bodiless responses.
+      def keep_response_header?(header)
+        super || header == 'Access-Control-Allow-Origin'
       end
     end
   end
