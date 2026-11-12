@@ -4,7 +4,7 @@ RSpec.describe DaVinciDTRTestKit::DTRFullEHRV220ResumeQuestionnaireAttestationTe
   let(:suite_id) { 'dtr_full_ehr_v220' }
   let(:result) { repo_create(:result, test_session_id: test_session.id) }
 
-  def create_qp_request(response_body)
+  def create_qp_request(response_body, status: 200)
     repo_create(
       :request,
       direction: 'incoming',
@@ -13,7 +13,7 @@ RSpec.describe DaVinciDTRTestKit::DTRFullEHRV220ResumeQuestionnaireAttestationTe
       result:,
       response_body:,
       tags: [DaVinciDTRTestKit::QUESTIONNAIRE_PACKAGE_TAG],
-      status: 200
+      status:
     )
   end
 
@@ -51,6 +51,16 @@ RSpec.describe DaVinciDTRTestKit::DTRFullEHRV220ResumeQuestionnaireAttestationTe
     expect(result.result).to eq('wait')
     expect(result.result_message).to include('Saved the QuestionnaireResponse with status `in-progress`')
     expect(result.result_message).to include('Relaunched DTR from the saved QuestionnaireResponse')
+    expect(result.result_message.scan('Dinner Order (urn:inferno:dtr-test-kit:dinner-order-static)').size).to eq(1)
+  end
+
+  it 'ignores requests with an empty response body, such as an expired-token 401' do
+    create_qp_request('', status: 401)
+    create_qp_request(package_response_json)
+
+    result = run(described_class)
+
+    expect(result.result).to eq('wait')
     expect(result.result_message.scan('Dinner Order (urn:inferno:dtr-test-kit:dinner-order-static)').size).to eq(1)
   end
 end

@@ -69,6 +69,17 @@ RSpec.describe DaVinciDTRTestKit::DTRFullEHRV220UIDisplayAndInteractionAttestati
     expect(result.result_message).to eq('No Questionnaire Package requests returned a Questionnaire.')
   end
 
+  it 'ignores a Questionnaire Package request with an empty response body, such as an expired-token 401' do
+    standard = standard_questionnaire_hash(url: 'http://example.org/Questionnaire/std1', title: 'Standard One')
+    create_qp_request('')
+    create_qp_request(qp_response_json(standard))
+
+    result = run(described_class)
+
+    expect(result.result).to eq('wait')
+    expect(result.result_message).to include('Standard One (http://example.org/Questionnaire/std1)')
+  end
+
   it 'waits, listing a returned adaptive Questionnaire' do
     adaptive = adaptive_questionnaire_hash(url: 'http://example.org/Questionnaire/adaptive1', title: 'Adaptive One')
     create_qp_request(qp_response_json(adaptive))
