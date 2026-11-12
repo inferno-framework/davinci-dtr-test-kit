@@ -193,10 +193,10 @@ exactly match one of the template's. For example:
 ```
 
 An adaptive Questionnaire's `questionnaireAdaptive` extension holds the URL of the
-`$next-question` service. Templates can't know Inferno's URL, so when a Questionnaire in a
-`$questionnaire-package` response has a `questionnaireAdaptive` extension whose `valueUrl` is
-`urn:inferno:dtr:simulated-payer-fhir-base`, Inferno replaces it with the FHIR base URL of
-its simulated payer.
+`$next-question` service. Templates can't know Inferno's URL, so when a Questionnaire that
+Inferno returns from `$questionnaire-package` or `$next-question` has a `questionnaireAdaptive`
+extension with a `valueUrl`, Inferno replaces that value with the FHIR base URL of its simulated
+payer. A `valueBoolean` is left as it is.
 
 Placeholders are expanded before [tokens](#dynamic-tokens) are replaced and before
 [Libraries and ValueSets](#cql-libraries-and-valuesets) are added, so references in the

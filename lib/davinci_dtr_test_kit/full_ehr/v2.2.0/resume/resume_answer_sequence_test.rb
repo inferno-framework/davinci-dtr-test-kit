@@ -104,20 +104,11 @@ module DaVinciDTRTestKit
       questionnaire_response = request_questionnaire_response(request)
       return if questionnaire_response.nil?
 
-      item = find_item(questionnaire_response.item, link_id)
+      items = questionnaire_response.item + nested_questionnaire_response_items(questionnaire_response.item)
+      item = items.find { |candidate| candidate.linkId == link_id }
       return if item.nil?
 
       item.answer.filter_map(&:value).first&.to_s.presence
-    end
-
-    def find_item(items, link_id)
-      items.each do |item|
-        return item if item.linkId == link_id
-
-        nested = find_item(item.item || [], link_id)
-        return nested if nested.present?
-      end
-      nil
     end
 
     def request_questionnaire_response(request)

@@ -67,9 +67,11 @@ module DaVinciDTRTestKit
     private
 
     def request_parameters(request)
+      return if request.request_body.blank?
+
       parsed = FHIR.from_contents(request.request_body)
       parsed if parsed.is_a?(FHIR::Parameters)
-    rescue StandardError
+    rescue JSON::ParserError
       nil
     end
 
@@ -78,12 +80,12 @@ module DaVinciDTRTestKit
     end
 
     def package_returned?(request)
-      return false if request.status != 200
+      return false if request.status != 200 || request.response_body.blank?
 
       response = FHIR.from_contents(request.response_body)
       response.is_a?(FHIR::Parameters) &&
         response.parameter.any? { |param| param.name == 'packagebundle' && param.resource.present? }
-    rescue StandardError
+    rescue JSON::ParserError
       false
     end
 

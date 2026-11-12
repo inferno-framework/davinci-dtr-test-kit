@@ -87,9 +87,7 @@ From the $next-question requests, Inferno checks that question 1 was answered be
 saving and question 2 was not, and that after resuming, the requests still carried the
 answer to question 1 and the QuestionnaireResponse was completed. Inferno also checks
 that the resumed $questionnaire-package request included a valid `changedsince`
-timestamp. Inferno can't see the client's storage, so it asks testers to confirm that
-the client saved the in-progress QuestionnaireResponse and relaunched DTR from it in a
-new session.
+timestamp.
 
 ## Tester-provided Questionnaire Tests Execution
 

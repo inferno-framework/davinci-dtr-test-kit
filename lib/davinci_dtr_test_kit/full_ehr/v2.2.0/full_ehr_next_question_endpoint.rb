@@ -348,6 +348,7 @@ module DaVinciDTRTestKit
            questionnaire_response_complete?(request_questionnaire, request_questionnaire_response)
           complete_questionnaire_response
         end
+        use_inferno_next_question_url(request_questionnaire)
         request_questionnaire_response
       rescue FhirpathServiceError => e
         raise if template_from_fixture?

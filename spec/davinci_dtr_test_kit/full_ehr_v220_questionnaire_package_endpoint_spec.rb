@@ -1434,7 +1434,7 @@ RSpec.describe DaVinciDTRTestKit::MockPayer::FullEHRV220QuestionnairePackageEndp
 
       def adaptive_url(questionnaire)
         questionnaire['extension'].find do |extension|
-          extension['url'] == DaVinciDTRTestKit::PackageQuestionnaireTemplates::ADAPTIVE_EXTENSION_URL
+          extension['url'] == DaVinciDTRTestKit::PackageQuestionnaireTemplates::QUESTIONNAIRE_ADAPTIVE_URL
         end&.dig('valueUrl')
       end
 
@@ -1478,18 +1478,36 @@ RSpec.describe DaVinciDTRTestKit::MockPayer::FullEHRV220QuestionnairePackageEndp
         expect(tagged.length).to eq(1)
       end
 
-      it 'leaves a questionnaireAdaptive url that is not the placeholder unchanged' do
-        template = FHIR::Questionnaire.new(
+      def adaptive_template(extension_value)
+        FHIR::Questionnaire.new(
           url: 'https://example.org/Questionnaire/adaptive', status: 'draft',
-          extension: [FHIR::Extension.new(url: DaVinciDTRTestKit::PackageQuestionnaireTemplates::ADAPTIVE_EXTENSION_URL,
-                                          valueUrl: 'https://payer.example.org/fhir')]
+          extension: [FHIR::Extension.new(
+            { url: DaVinciDTRTestKit::PackageQuestionnaireTemplates::QUESTIONNAIRE_ADAPTIVE_URL }.merge(extension_value)
+          )]
         )
+      end
+
+      it 'points any questionnaireAdaptive valueUrl at the simulated payer' do
+        template = adaptive_template(valueUrl: 'https://payer.example.org/fhir')
         run(templates_input_test, client_id:, qp_response_template: placeholder_template_json,
                                   nq_questionnaire_template: template.to_json)
         post_with_token
 
         expect(last_response.status).to eq(200)
-        expect(adaptive_url(package_resources.first)).to eq('https://payer.example.org/fhir')
+        expect(adaptive_url(package_resources.first)).to eq("#{Inferno::Application['base_url']}/custom/#{suite_id}/fhir")
+      end
+
+      it 'leaves a questionnaireAdaptive valueBoolean as it is' do
+        run(templates_input_test, client_id:, qp_response_template: placeholder_template_json,
+                                  nq_questionnaire_template: adaptive_template(valueBoolean: true).to_json)
+        post_with_token
+
+        expect(last_response.status).to eq(200)
+        extension = package_resources.first['extension'].find do |ext|
+          ext['url'] == DaVinciDTRTestKit::PackageQuestionnaireTemplates::QUESTIONNAIRE_ADAPTIVE_URL
+        end
+        expect(extension).to eq('url' => DaVinciDTRTestKit::PackageQuestionnaireTemplates::QUESTIONNAIRE_ADAPTIVE_URL,
+                                'valueBoolean' => true)
       end
 
       it 'builds the CQL and ValueSets package from the fixtures' do
