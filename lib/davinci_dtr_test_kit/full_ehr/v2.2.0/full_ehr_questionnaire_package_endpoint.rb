@@ -4,6 +4,7 @@ require_relative '../../cross_suite/fhirpath_utils'
 require_relative '../../cross_suite/response_selection_utils'
 require_relative '../fixture_loader'
 require_relative '../../tags'
+require_relative '../../urls'
 require_relative 'full_ehr_supporting_resources'
 require_relative 'next_question_template_questionnaires'
 require_relative 'package_questionnaire_templates'
@@ -29,6 +30,7 @@ module DaVinciDTRTestKit
       def tags
         tags = [QUESTIONNAIRE_PACKAGE_TAG]
         tags << test.config.options[:dtr_workflow_tag] if test.config.options[:dtr_workflow_tag].present?
+        tags << test.config.options[:dtr_interaction_tag] if test.config.options[:dtr_interaction_tag].present?
         unless test.config.options[:dtr_exclude_from_questionnaire_must_support]
           tags << CLIENT_QUESTIONNAIRE_MUST_SUPPORT
         end
@@ -79,6 +81,8 @@ module DaVinciDTRTestKit
           operation_outcome('error', 'invalid', 'Request body must be a FHIR Parameters resource.')
         elsif response_template.is_a?(FHIR::OperationOutcome)
           response_template
+        elsif report_unchanged_since?
+          unchanged_since_response
         elsif single_use_limit_exceeded?
           operation_outcome('error', 'business-rule',
                             '$questionnaire-package is configured to respond successfully only once.')
@@ -92,6 +96,59 @@ module DaVinciDTRTestKit
       def single_use_limit_exceeded?
         test.config.options[:qp_single_use] &&
           count_previous_successful_requests('$questionnaire-package') >= 1
+      end
+
+      # Inferno's Questionnaire packages don't change during a session, so when configured, a request
+      # that asks for changes since a timestamp gets the IG's "nothing has changed" 200 response. The
+      # output Parameters profile requires at least one parameter, so the response carries an
+      # informational outcome rather than no parameters at all. Until Inferno has returned a package
+      # in this workflow there is nothing to be unchanged from, so the package is returned instead.
+      def report_unchanged_since?
+        test.config.options[:qp_unchanged_since] && changedsince_parameter.present? && package_previously_returned?
+      end
+
+      # Whether an earlier $questionnaire-package request in this workflow (or, without a workflow
+      # tag, in this test) got a response that included a package bundle.
+      def package_previously_returned?
+        requests_repo = Inferno::Repositories::Requests.new
+        previous_package_requests(requests_repo).any? do |req|
+          req.status == 200 && response_includes_package?(requests_repo.find_full_request(req.id).response_body)
+        end
+      end
+
+      def previous_package_requests(requests_repo)
+        workflow_tag = test.config.options[:dtr_workflow_tag]
+        if workflow_tag.present?
+          requests_repo.tagged_requests(result.test_session_id, [QUESTIONNAIRE_PACKAGE_TAG, workflow_tag])
+        else
+          requests_repo.requests_for_result(result.id).select { |req| req.url.include?('$questionnaire-package') }
+        end
+      end
+
+      def response_includes_package?(response_body)
+        return false if response_body.blank?
+
+        parameters = FHIR.from_contents(response_body)
+        parameters.is_a?(FHIR::Parameters) && package_bundles(parameters).present?
+      rescue JSON::ParserError
+        false
+      end
+
+      def changedsince_parameter
+        request_parameters.parameter.find { |param| param.name == 'changedsince' }
+      end
+
+      def unchanged_since_response
+        since = changedsince_parameter.valueInstant.presence || 'the requested time'
+        FHIR::Parameters.new(
+          parameter: [
+            FHIR::Parameters::Parameter.new(
+              name: 'outcome',
+              resource: operation_outcome('information', 'informational',
+                                          "No Questionnaire packages have changed since #{since}.")
+            )
+          ]
+        )
       end
 
       # ***********************************************************************
@@ -155,6 +212,7 @@ module DaVinciDTRTestKit
 
       def clean_up_questionnaire(questionnaire)
         strip_inferno_extensions(questionnaire)
+        use_inferno_next_question_url(questionnaire)
         all_questionnaire_items(questionnaire.item).each { |item| strip_inferno_extensions(item) }
       end
 

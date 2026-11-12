@@ -82,18 +82,13 @@ module DaVinciDTRTestKit
       @requests_to_analyze ||= load_tagged_requests(*target_tags)
     end
 
+    # Skips requests with an empty response body, such as an expired-token 401.
     def returned_questionnaires_for_display
-      requests_to_analyze.each_with_object([]) do |request, questionnaires|
-        request_parameters = FHIR.from_contents(request.response_body)
-        next unless request_parameters.is_a?(FHIR::Parameters)
-
-        questionnaires.concat(
-          questionnaires_from_questionnaire_package_output_parameters(request_parameters)
-            .map { |questionnaire| questionnaire_display(questionnaire) }
-        )
-      rescue JSON::ParserError
-        next
-      end.uniq
+      parsed_operation_bodies(requests_to_analyze)
+        .select { |_request, parameters| parameters.is_a?(FHIR::Parameters) }
+        .flat_map { |_request, parameters| questionnaires_from_questionnaire_package_output_parameters(parameters) }
+        .map { |questionnaire| questionnaire_display(questionnaire) }
+        .uniq
     end
 
     LIST_ENTRY_PREFIX = "\n          - ".freeze

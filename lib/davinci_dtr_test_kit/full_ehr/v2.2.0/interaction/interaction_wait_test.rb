@@ -60,6 +60,16 @@ module DaVinciDTRTestKit
     #       default: '[]'
     output :continuation_url
 
+    DEFAULT_INTERACTION_MESSAGE = <<~MESSAGE.freeze
+      Inferno will wait while the tester uses the system to complete
+      one or more DTR Questionnaires retrieved from Inferno's simulated
+      payer server.
+
+      When all Questionnaire returned by Inferno during this period
+      have been completed and saved to the EHR [Click here](%<continuation_url>s)
+      to continue.
+    MESSAGE
+
     run do
       clear_short_circuit_flag
       unless run_tests?
@@ -75,20 +85,14 @@ module DaVinciDTRTestKit
       wait(
         identifier: client_id,
         timeout: 1200,
-        message: %(
-          Inferno will wait while the tester uses the system to complete
-          one or more DTR Questionnaires retrieved from Inferno's simulated
-          payer server.
-
-          When all Questionnaire returned by Inferno during this period
-          have been completed and saved to the EHR [Click here](#{continuation_url})
-          to continue.
+        message: <<~MESSAGE
+          #{interaction_message(continuation_url)}
 
           ### Endpoints
 
           Available endpoints on Inferno's simulated payer server include
 
-          - FHIR Base: `#{fhir_base_url}
+          - FHIR Base: `#{fhir_base_url}`
           - Questionnaire Package Operation: `#{questionnaire_package_url}`
           - Next Question Operation: `#{next_url}`
           - ValueSet Expand Operation: `#{value_set_expand_url}`
@@ -100,16 +104,20 @@ module DaVinciDTRTestKit
           Only requests including an obtained access token as a bearer token
           in the `Authentication` header of the HTTP request will be recognized
           as associated with this session and return successful responses.
-        )
+        MESSAGE
       )
     end
 
     # other things that might go into the wait message
     # - Whether multiple successful $questionnaire-package requests are allowed (options)
-    # - specific instructions for completion (TODO)
     # - whether the Questionnaires are provided by Inferno or the tester (options)
 
     private
+
+    def interaction_message(continuation_url)
+      message = config.options[:interaction_message] || DEFAULT_INTERACTION_MESSAGE
+      format(message, continuation_url:)
+    end
 
     def run_tests?
       input_name = config.options[:short_circuit_pass_input]

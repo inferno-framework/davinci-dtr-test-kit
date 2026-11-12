@@ -65,6 +65,30 @@ to display and interact with the Questionnaire. However, it can and does check
 the client's requests and Inferno's simulated responses for conformance to
 DTR profiles and requirements.
 
+## Resume a Questionnaire Tests Execution
+
+Group "2.3 Resume a Questionnaire" checks that the client can save an in-progress
+QuestionnaireResponse and resume it later. It must be executed after the group
+"1 Client Registration". Inferno always returns its Resume Questionnaire, an adaptive
+Questionnaire with three required questions. Inferno returns each question through
+$next-question once the previous one is answered.
+
+Inferno displays two "User Action Required" dialogs:
+1. In the first, testers retrieve the Questionnaire and answer question 1, which gets
+   question 2. Without answering question 2, they save the in-progress
+   QuestionnaireResponse and close DTR.
+2. In the second, testers relaunch DTR from the saved QuestionnaireResponse. The
+   client should call $questionnaire-package with the `changedsince` parameter,
+   and Inferno responds that nothing has changed. Testers then answer question 2,
+   which gets question 3, answer question 3, and save the completed
+   QuestionnaireResponse.
+
+From the $next-question requests, Inferno checks that question 1 was answered before
+saving and question 2 was not, and that after resuming, the requests still carried the
+answer to question 1 and the QuestionnaireResponse was completed. Inferno also checks
+that the resumed $questionnaire-package request included a valid `changedsince`
+timestamp.
+
 ## Tester-provided Questionnaire Tests Execution
 
 DTR requires support for all Questionnaire features marked as must support within
