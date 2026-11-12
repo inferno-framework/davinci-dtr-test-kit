@@ -47,12 +47,6 @@ the identified template. Inferno will make $next-question requests until either
 3. No new questions were added by the payer, or
 4. The template had no answers to add based on the new questions added.
 
-To resume a saved form, include a `changedsince` parameter in the $questionnaire-package request.
-When the payer responds successfully without a package, because nothing has changed, Inferno
-resumes each template whose contained Questionnaire is adaptive. The contained Questionnaire
-holds the items the form had when it was saved, and Inferno's first $next-question request
-contains the template's answers to just those items. Inferno then continues as above.
-
 #### ValueSet/$expand Requests
 
 In Manual mode, Inferno sends a `ValueSet/$expand` request for each ValueSet in

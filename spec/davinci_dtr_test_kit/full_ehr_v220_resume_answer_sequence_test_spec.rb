@@ -6,6 +6,14 @@ RSpec.describe DaVinciDTRTestKit::DTRFullEHRV220ResumeAnswerSequenceTest do # ru
   let(:before_pause) { described_class::BEFORE_PAUSE_TAG }
   let(:after_pause) { described_class::AFTER_PAUSE_TAG }
 
+  # Results returned directly by `run` don't carry their messages, so reload them from the session.
+  def messages_for(run_result)
+    Inferno::Repositories::Results.new
+      .current_results_for_test_session(test_session.id)
+      .find { |candidate| candidate.id == run_result.id }
+      &.messages&.map(&:message) || []
+  end
+
   def questionnaire_response(answers, status: 'in-progress')
     {
       resourceType: 'QuestionnaireResponse',
@@ -121,6 +129,24 @@ RSpec.describe DaVinciDTRTestKit::DTRFullEHRV220ResumeAnswerSequenceTest do # ru
 
     expect(result.result).to eq('fail')
     expect(result.result_message).to include('Inferno never marked the QuestionnaireResponse `completed`')
+  end
+
+  it 'adds a message for each problem and counts them in the result message' do
+    create_nq_request(before_pause, { 'question-1' => 'first', 'question-2' => 'second' })
+    create_nq_request(after_pause, { 'question-1' => 'other', 'question-2' => 'second' })
+
+    result = run(described_class)
+
+    expect(result.result).to eq('fail')
+    expect(result.result_message).to eq(
+      'The $next-question requests show 3 problems with saving and resuming the QuestionnaireResponse. ' \
+      'See Messages for details.'
+    )
+    expect(messages_for(result)).to contain_exactly(
+      a_string_including('Question 2 was answered before the QuestionnaireResponse was saved.'),
+      a_string_including('answered question 1 with `other`, not the `first` saved before.'),
+      a_string_including('Inferno never marked the QuestionnaireResponse `completed`')
+    )
   end
 
   it 'ignores requests from other workflows and waits' do

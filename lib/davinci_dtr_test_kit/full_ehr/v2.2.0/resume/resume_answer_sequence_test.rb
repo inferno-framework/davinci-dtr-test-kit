@@ -43,10 +43,19 @@ module DaVinciDTRTestKit
               'No $next-question requests were made during this scenario.'
 
       errors = before_pause_errors(before_pause) + after_pause_errors(after_pause, saved_answer(before_pause))
-      assert errors.empty?, errors.join(' ')
+      errors.each { |error| add_message('error', error) }
+      assert_no_error_messages(failure_summary(errors))
     end
 
     private
+
+    # One problem is named in full; several are counted, with the details in Messages.
+    def failure_summary(errors)
+      return errors.first if errors.one?
+
+      "The $next-question requests show #{errors.length} problems with saving and resuming the " \
+        'QuestionnaireResponse. See Messages for details.'
+    end
 
     def before_pause_errors(requests)
       errors = []

@@ -135,6 +135,20 @@ RSpec.describe DaVinciDTRTestKit::MockPayer::FullEHRV220QuestionnairePackageEndp
     end
   end
 
+  # As above, with a workflow tag so that a package returned during an earlier wait counts
+  def unchanged_since_workflow_wait(wait_id)
+    Class.new(DaVinciDTRTestKit::DTRFullEHRV220InteractionWaitTest) do
+      id wait_id
+      input :qp_response_template, optional: true
+      config options: {
+        qp_response_template_input: 'qp_response_template',
+        qp_single_use: true,
+        qp_unchanged_since: true,
+        dtr_workflow_tag: 'resume_spec_workflow'
+      }
+    end
+  end
+
   # from inferno core (spec/runnable_context.rb) since described class is not a Runnable
   def run(runnable, inputs = {}, scratch = {})
     # Subclasses created with Class.new are not auto-registered in Inferno's in-memory test
@@ -967,8 +981,9 @@ RSpec.describe DaVinciDTRTestKit::MockPayer::FullEHRV220QuestionnairePackageEndp
         outcome.dig('resource', 'issue', 0, 'details', 'text')
       end
 
-      it 'returns 200 with only an informational outcome when the request includes changedsince' do
+      it 'returns 200 with only an informational outcome when changedsince follows a returned package' do
         run(unchanged_since_test, client_id:, qp_response_template: packagebundle_template_json)
+        post_qp(with_changedsince: false)
         post_qp(with_changedsince: true)
 
         expect(last_response.status).to eq(200)
@@ -987,9 +1002,22 @@ RSpec.describe DaVinciDTRTestKit::MockPayer::FullEHRV220QuestionnairePackageEndp
         expect(JSON.parse(last_response.body)['parameter'].map { |param| param['name'] }).to eq(['packagebundle'])
       end
 
-      it 'reports nothing changed after the single successful package response' do
+      it 'returns the package when changedsince is sent before any package was returned' do
         run(unchanged_since_test, client_id:, qp_response_template: packagebundle_template_json)
+        post_qp(with_changedsince: true)
+
+        expect(last_response.status).to eq(200)
+        expect(JSON.parse(last_response.body)['parameter'].map { |param| param['name'] }).to eq(['packagebundle'])
+      end
+
+      it 'reports nothing changed after a package returned during an earlier wait of the workflow' do
+        first_wait = unchanged_since_workflow_wait(:dtr_full_ehr_v220_qp_endpoint_spec_resume_first_wait)
+        second_wait = unchanged_since_workflow_wait(:dtr_full_ehr_v220_qp_endpoint_spec_resume_second_wait)
+        run(first_wait, client_id:, qp_response_template: packagebundle_template_json)
         post_qp(with_changedsince: false)
+        get("/custom/#{suite_id}#{DaVinciDTRTestKit::RESUME_PASS_PATH}?token=#{client_id}")
+
+        run(second_wait, client_id:, qp_response_template: packagebundle_template_json)
         post_qp(with_changedsince: true)
 
         expect(last_response.status).to eq(200)
@@ -998,6 +1026,7 @@ RSpec.describe DaVinciDTRTestKit::MockPayer::FullEHRV220QuestionnairePackageEndp
 
       it 'still reports nothing changed when changedsince is not sent as an instant' do
         run(unchanged_since_test, client_id:, qp_response_template: packagebundle_template_json)
+        post_qp(with_changedsince: false)
         post_qp(with_changedsince: true, value_type: 'valueDateTime')
 
         expect(last_response.status).to eq(200)
