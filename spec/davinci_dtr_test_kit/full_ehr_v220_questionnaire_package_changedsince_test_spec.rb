@@ -168,7 +168,21 @@ RSpec.describe DaVinciDTRTestKit::DTRFullEHRV220QuestionnairePackageChangedSince
 
     expect(result.result).to eq('fail')
     expect(result.result_message).to include('Request 1:')
-    expect(messages_for(result)).to include(a_string_matching(/made before Inferno first returned/))
+    expect(messages_for(result)).to include(a_string_matching(/had not returned a Questionnaire package before it/))
+  end
+
+  it 'fails when the request with changedsince is the one that got the first package' do
+    create_qp_request(created_at: retrieved_at, request_body: request_body(changedsince: '2026-11-04T19:00:00Z'),
+                      response_body: package_response)
+
+    result = run(described_class)
+
+    expect(result.result).to eq('fail')
+    expect(result.result_message).to include('Request 1:')
+    expect(messages_for(result)).to include(
+      a_string_including('had not returned a Questionnaire package before it. ' \
+                         'Inferno first returned a package at 2026-11-04T20:00:00Z.')
+    )
   end
 
   it 'reports every resumed request with an invalid changedsince' do

@@ -101,9 +101,37 @@ module DaVinciDTRTestKit
       # Inferno's Questionnaire packages don't change during a session, so when configured, a request
       # that asks for changes since a timestamp gets the IG's "nothing has changed" 200 response. The
       # output Parameters profile requires at least one parameter, so the response carries an
-      # informational outcome rather than no parameters at all.
+      # informational outcome rather than no parameters at all. Until Inferno has returned a package
+      # in this workflow there is nothing to be unchanged from, so the package is returned instead.
       def report_unchanged_since?
-        test.config.options[:qp_unchanged_since] && changedsince_parameter.present?
+        test.config.options[:qp_unchanged_since] && changedsince_parameter.present? && package_previously_returned?
+      end
+
+      # Whether an earlier $questionnaire-package request in this workflow (or, without a workflow
+      # tag, in this test) got a response that included a package bundle.
+      def package_previously_returned?
+        requests_repo = Inferno::Repositories::Requests.new
+        previous_package_requests(requests_repo).any? do |req|
+          req.status == 200 && response_includes_package?(requests_repo.find_full_request(req.id).response_body)
+        end
+      end
+
+      def previous_package_requests(requests_repo)
+        workflow_tag = test.config.options[:dtr_workflow_tag]
+        if workflow_tag.present?
+          requests_repo.tagged_requests(result.test_session_id, [QUESTIONNAIRE_PACKAGE_TAG, workflow_tag])
+        else
+          requests_repo.requests_for_result(result.id).select { |req| req.url.include?('$questionnaire-package') }
+        end
+      end
+
+      def response_includes_package?(response_body)
+        return false if response_body.blank?
+
+        parameters = FHIR.from_contents(response_body)
+        parameters.is_a?(FHIR::Parameters) && package_bundles(parameters).present?
+      rescue JSON::ParserError
+        false
       end
 
       def changedsince_parameter

@@ -50,7 +50,8 @@ RSpec.describe DaVinciDTRTestKit::DTRFullEHRV220ResumeQuestionnaireAttestationTe
 
     expect(result.result).to eq('wait')
     expect(result.result_message).to include('Saved the QuestionnaireResponse with status `in-progress`')
-    expect(result.result_message).to include('Relaunched DTR from the saved QuestionnaireResponse')
+    expect(result.result_message).to include('Allowed the user to close the DTR session and later relaunch it')
+    expect(result.result_message).to_not include('Allowed the user to complete')
     expect(result.result_message.scan('Dinner Order (urn:inferno:dtr-test-kit:dinner-order-static)').size).to eq(1)
   end
 

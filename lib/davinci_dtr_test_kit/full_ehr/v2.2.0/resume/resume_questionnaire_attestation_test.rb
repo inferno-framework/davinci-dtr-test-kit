@@ -10,8 +10,11 @@ module DaVinciDTRTestKit
     id :dtr_full_ehr_v220_resume_questionnaire_attestation
     title 'Client saves an in-progress QuestionnaireResponse and resumes it later'
     description %(
-      During this test, the tester will confirm that the Health IT module can save an in-progress
-      QuestionnaireResponse and resume it later.
+      During this test, the tester will confirm that the Health IT module saved the in-progress
+      QuestionnaireResponse and let the user close the DTR session and relaunch it later from the
+      saved QuestionnaireResponse. Inferno can't see the client's storage, so it relies on the tester
+      for these. The answers kept after resuming and the completed QuestionnaireResponse are checked
+      from the $next-question requests in an earlier test.
 
       To see the specifics of the attested requirements, click the 'View Specification Requirements' link for this test.
     )
@@ -48,11 +51,9 @@ module DaVinciDTRTestKit
         identifier:,
         message: %(
           I attest that during the previous interactions the DTR client application
-          - Saved the QuestionnaireResponse with status `in-progress` before it was complete,
-            and allowed the user to close the session without losing the answers entered so far.
-          - Relaunched DTR from the saved QuestionnaireResponse, restoring the answers entered
-            before the session was closed.
-          - Allowed the user to complete the resumed QuestionnaireResponse and saved it.
+          - Saved the QuestionnaireResponse with status `in-progress` before it was complete.
+          - Allowed the user to close the DTR session and later relaunch it from the saved
+            QuestionnaireResponse, rather than continuing the original session.
 
           [Click here](#{attest_true_url}) if the above statement is **true**.
 

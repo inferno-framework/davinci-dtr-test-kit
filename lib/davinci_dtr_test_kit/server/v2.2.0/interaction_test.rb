@@ -80,10 +80,7 @@ module DaVinciDTRTestKit
               Tester-provided list of one or more QuestionnaireResponse resources in json format
               that Inferno will use to populate answers for adaptive forms for the purpose
               of building `Questionnaire/$next-question` requests to complete these forms.
-              If not provided, no `$next-question` requests will be performed. When a
-              `$questionnaire-package` request with `changedsince` gets no package back, Inferno
-              resumes each template whose contained Questionnaire is adaptive, starting with the
-              answers to the items in that contained Questionnaire.
+              If not provided, no `$next-question` requests will be performed.
             ),
             type: 'textarea',
             optional: true,

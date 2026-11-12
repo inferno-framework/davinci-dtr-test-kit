@@ -78,7 +78,7 @@ module DaVinciDTRTestKit
     end
 
     def package_returned?(request)
-      return false if request.status != 200 || changedsince_parameter(request).present?
+      return false if request.status != 200
 
       response = FHIR.from_contents(request.response_body)
       response.is_a?(FHIR::Parameters) &&
@@ -106,10 +106,12 @@ module DaVinciDTRTestKit
     end
 
     def check_timestamp_window(timestamp, value, request, index, first_retrieval_time)
-      if request.created_at < first_retrieval_time
+      # A request at the first retrieval time is the one that got the first package.
+      if request.created_at <= first_retrieval_time
         add_request_message('error',
-                            'Request included `changedsince` but was made before Inferno first returned a ' \
-                            "Questionnaire package at #{format_time(first_retrieval_time)}.", index)
+                            'Request included `changedsince`, but Inferno had not returned a Questionnaire ' \
+                            'package before it. Inferno first returned a package at ' \
+                            "#{format_time(first_retrieval_time)}.", index)
       elsif timestamp < first_retrieval_time - CLOCK_SKEW_SECONDS
         add_request_message('error',
                             "`changedsince` value `#{value}` is earlier than the time Inferno first returned " \
