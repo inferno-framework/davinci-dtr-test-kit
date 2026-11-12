@@ -1,12 +1,10 @@
 require 'securerandom'
 require_relative '../../../urls'
-require_relative '../../short_circuit_interaction_verification'
 require_relative '../../../cross_suite/v2.2.0/questionnaire_helper'
 
 module DaVinciDTRTestKit
   class DTRFullEHRV220ResumeQuestionnaireAttestationTest < Inferno::Test
     include URLs
-    include ShortCircuitInteractionVerification
     include QuestionnaireHelper
 
     id :dtr_full_ehr_v220_resume_questionnaire_attestation
@@ -37,7 +35,6 @@ module DaVinciDTRTestKit
     end
 
     run do
-      check_for_short_circuit(ok_message: config.options[:short_circuit_pass_message])
       skip_if no_questionnaires_returned?(requests_to_analyze),
               'No Questionnaire Package requests returned a Questionnaire.'
 
