@@ -1,0 +1,256 @@
+{
+  "resourceType": "Questionnaire",
+  "id": "DinnerOrderCQLError",
+  "url": "urn:inferno:dtr-test-kit:dinner-order-cql-error",
+  "meta": {
+    "profile": [
+      "http://hl7.org/fhir/StructureDefinition/cqf-questionnaire",
+      "http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/dtr-questionnaire-adapt",
+      "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-adapt"
+    ]
+  },
+  "text": {
+    "status": "generated",
+    "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\">This is an adaptive questionnaire used to determine what a patient would like for dinner. The special requests item contains malformed CQL in a calculatedExpression.</div>"
+  },
+  "extension": [
+    {
+      "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-questionnaireAdaptive",
+      "valueBoolean": true
+    },
+    {
+      "url": "http://hl7.org/fhir/StructureDefinition/cqf-library",
+      "valueCanonical": "https://madie.cms.gov/Library/DTRTest"
+    }
+  ],
+  "derivedFrom": [
+    "urn:inferno:dtr-test-kit:dinner-order-cql-error"
+  ],
+  "name": "DinnerOrderCQLError",
+  "title": "Dinner Order (CQL Error)",
+  "status": "draft",
+  "subjectType": [
+    "Patient"
+  ],
+  "date": "2024-05-06",
+  "publisher": "Inferno",
+  "item": [
+    {
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+          "valueCodeableConcept": {
+            "coding": [
+              {
+                "system": "http://hl7.org/fhir/questionnaire-item-control",
+                "code": "gtable"
+              }
+            ]
+          }
+        }
+      ],
+      "linkId": "PBD",
+      "text": "Patient Information",
+      "type": "group",
+      "required": true,
+      "item": [
+        {
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-initialExpression",
+              "valueExpression": {
+                "language": "text/cql",
+                "expression": "\"DTRTest\".LastName"
+              }
+            }
+          ],
+          "linkId": "PBD.1",
+          "text": "Last Name:",
+          "type": "string",
+          "required": true
+        },
+        {
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-initialExpression",
+              "valueExpression": {
+                "language": "text/cql",
+                "expression": "\"DTRTest\".FirstName"
+              }
+            }
+          ],
+          "linkId": "PBD.2",
+          "text": "First Name:",
+          "type": "string",
+          "required": true
+        }
+      ]
+    },
+    {
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+          "valueCodeableConcept": {
+            "coding": [
+              {
+                "system": "http://hl7.org/fhir/questionnaire-item-control",
+                "code": "gtable"
+              }
+            ]
+          }
+        }
+      ],
+      "linkId": "LOC",
+      "text": "Patient's Location",
+      "type": "group",
+      "required": true,
+      "item": [
+        {
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-initialExpression",
+              "valueExpression": {
+                "language": "text/cql",
+                "expression": "\"DTRTest\".FirstLocationDescription"
+              }
+            }
+          ],
+          "linkId": "LOC.1",
+          "text": "Location",
+          "type": "string",
+          "required": true
+        }
+      ]
+    },
+    {
+      "linkId": "3",
+      "text": "Dinner Order",
+      "type": "group",
+      "required": true,
+      "extension": [
+        {
+          "url": "https://inferno.healthit.gov/test-kits/davinci-dtr/StructureDefinition/extension-inclusion-criteria",
+          "valueExpression": {
+            "language": "text/fhirpath",
+            "expression": "item.where(linkId = 'LOC').item.where(linkId = 'LOC.1').answer.value.ofType(string).exists()"
+          }
+        }
+      ],
+      "item": [
+        {
+          "linkId": "3.1",
+          "text": "What would you like for dinner?",
+          "type": "choice",
+          "required": true,
+          "answerOption": [
+            {
+              "valueCoding": {
+                "code": "Hamburger"
+              }
+            },
+            {
+              "valueCoding": {
+                "code": "Bean Burrito"
+              }
+            }
+          ]
+        },
+        {
+          "linkId": "3.2.a",
+          "text": "What would you like on your hamburger?",
+          "type": "choice",
+          "required": false,
+          "repeats": true,
+          "answerOption": [
+            {
+              "valueCoding": {
+                "code": "Ketchup"
+              }
+            },
+            {
+              "valueCoding": {
+                "code": "Mustard"
+              }
+            },
+            {
+              "valueCoding": {
+                "code": "Pickles"
+              }
+            },
+            {
+              "valueCoding": {
+                "code": "Tomato"
+              }
+            }
+          ],
+          "extension": [
+            {
+              "url": "https://inferno.healthit.gov/test-kits/davinci-dtr/StructureDefinition/extension-inclusion-criteria",
+              "valueExpression": {
+                "language": "text/fhirpath",
+                "expression": "item.where(linkId = '3').item.where(linkId = '3.1').answer.value.ofType(Coding).where(code = 'Hamburger').exists()"
+              }
+            }
+          ]
+        },
+        {
+          "linkId": "3.2.b",
+          "text": "What would you like on your bean burrito?",
+          "type": "choice",
+          "required": false,
+          "repeats": true,
+          "answerOption": [
+            {
+              "valueCoding": {
+                "code": "Cheese"
+              }
+            },
+            {
+              "valueCoding": {
+                "code": "Pico de Gallo"
+              }
+            },
+            {
+              "valueCoding": {
+                "code": "Guacamole"
+              }
+            }
+          ],
+          "extension": [
+            {
+              "url": "https://inferno.healthit.gov/test-kits/davinci-dtr/StructureDefinition/extension-inclusion-criteria",
+              "valueExpression": {
+                "language": "text/fhirpath",
+                "expression": "item.where(linkId = '3').item.where(linkId = '3.1').answer.value.ofType(Coding).where(code = 'Bean Burrito').exists()"
+              }
+            }
+          ]
+        },
+        {
+          "linkId": "3.3",
+          "text": "Any special requests?",
+          "type": "string",
+          "required": false,
+          "extension": [
+            {
+              "url": "https://inferno.healthit.gov/test-kits/davinci-dtr/StructureDefinition/extension-inclusion-criteria",
+              "valueExpression": {
+                "language": "text/fhirpath",
+                "expression": "item.where(linkId = '3').item.where(linkId = '3.1').answer.value.ofType(Coding).code.exists()"
+              }
+            },
+            {
+              "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-calculatedExpression",
+              "valueExpression": {
+                "description": "Deliberately malformed CQL: unbalanced braces and a dangling operator. Clients executing CQL must not run it and must report the error.",
+                "language": "text/cql",
+                "expression": "Combine({\"DTRTest\".FirstName, \"DTRTest\".LastName, ' ') + ' would like ' +"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "description": "Adaptive dinner order Questionnaire whose \"Any special requests?\" item, added by $next-question once the dinner choice is answered, carries a calculatedExpression written in malformed CQL. Used to check that DTR clients recognize problematic CQL in logic that is not used for pre-population, stop requesting further questions, report the error with $log-questionnaire-errors, and prohibit completion of the form."
+}

@@ -60,6 +60,16 @@ module DaVinciDTRTestKit
     #       default: '[]'
     output :continuation_url
 
+    MESSAGE_INDENT = "\n          ".freeze
+    DEFAULT_INTERACTION_INSTRUCTIONS = <<~TEXT.freeze
+      Inferno will wait while the tester uses the system to complete
+      one or more DTR Questionnaires retrieved from Inferno's simulated
+      payer server.
+
+      When all Questionnaire returned by Inferno during this period
+      have been completed and saved to the EHR, use the link below to continue.
+    TEXT
+
     run do
       clear_short_circuit_flag
       unless run_tests?
@@ -76,13 +86,9 @@ module DaVinciDTRTestKit
         identifier: client_id,
         timeout: 1200,
         message: %(
-          Inferno will wait while the tester uses the system to complete
-          one or more DTR Questionnaires retrieved from Inferno's simulated
-          payer server.
+          #{interaction_instructions}
 
-          When all Questionnaire returned by Inferno during this period
-          have been completed and saved to the EHR [Click here](#{continuation_url})
-          to continue.
+          [Click here](#{continuation_url}) to continue.
 
           ### Endpoints
 
@@ -92,6 +98,7 @@ module DaVinciDTRTestKit
           - Questionnaire Package Operation: `#{questionnaire_package_url}`
           - Next Question Operation: `#{next_url}`
           - ValueSet Expand Operation: `#{value_set_expand_url}`
+          - Log Questionnaire Errors Operation: `#{log_questionnaire_errors_url}`
 
           ### Authenticated and Identification
 
@@ -110,6 +117,14 @@ module DaVinciDTRTestKit
     # - whether the Questionnaires are provided by Inferno or the tester (options)
 
     private
+
+    # Scenario groups whose interaction is not "complete the Questionnaire" (e.g. the CQL error
+    # scenario, where the client must stop the user) replace the default instructions through the
+    # dtr_interaction_instructions config option. Lines are re-indented to match the wait message.
+    def interaction_instructions
+      text = config.options[:dtr_interaction_instructions].presence || DEFAULT_INTERACTION_INSTRUCTIONS
+      text.strip.gsub("\n", MESSAGE_INDENT)
+    end
 
     def run_tests?
       input_name = config.options[:short_circuit_pass_input]
