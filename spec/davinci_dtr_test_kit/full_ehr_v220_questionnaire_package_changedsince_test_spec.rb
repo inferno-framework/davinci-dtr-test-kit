@@ -1,4 +1,4 @@
-require 'davinci_dtr_test_kit/full_ehr/v2.2.0/request/dtr_questionnaire_package_changedsince_test'
+require 'davinci_dtr_test_kit/full_ehr/v2.2.0/resume/dtr_questionnaire_package_changedsince_test'
 
 RSpec.describe DaVinciDTRTestKit::DTRFullEHRV220QuestionnairePackageChangedSinceTest do # rubocop:disable RSpec/SpecFilePathFormat
   let(:suite_id) { 'dtr_full_ehr_v220' }

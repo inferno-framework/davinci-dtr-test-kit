@@ -8,46 +8,33 @@
         "type": "collection",
         "entry": [
           {
-            "fullUrl": "urn:uuid:43fb9010-cc69-413e-9d29-a1f35d425cbc",
+            "fullUrl": "urn:uuid:ee1553bd-64ab-4f6d-95e2-1c1bc835eb91",
             "resource": {
               "resourceType": "Questionnaire",
-              "id": "ResumeQuestionnaire",
-              "url": "urn:inferno:dtr-test-kit:resume-questionnaire",
-              "meta": {
-                "profile": [
-                  "http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/dtr-std-questionnaire"
-                ]
-              },
-              "name": "ResumeQuestionnaire",
-              "title": "Resume Questionnaire",
-              "status": "draft",
-              "subjectType": [
-                "Patient"
-              ],
-              "date": "2026-11-10",
-              "publisher": "Inferno",
-              "description": "Answer the first question, save the in-progress QuestionnaireResponse and close DTR. Then relaunch DTR from the saved QuestionnaireResponse and answer the second question.",
-              "item": [
+              "extension": [
                 {
-                  "linkId": "answer-before-saving",
-                  "text": "First answer (answer before saving)",
-                  "type": "string",
-                  "required": true
-                },
-                {
-                  "linkId": "answer-after-resuming",
-                  "text": "Second answer (answer after resuming)",
-                  "type": "string",
-                  "required": true
+                  "url": "https://inferno.healthit.gov/test-kits/davinci-dtr/StructureDefinition/extension-use-next-question-questionnaire-template",
+                  "valueCanonical": "https://inferno.healthit.gov/test-kits/davinci-dtr/Questionnaire/inferno-resume-adaptive-questionnaire"
                 }
               ]
             }
           },
           {
-            "fullUrl": "urn:uuid:206e0dab-041c-4f5b-a531-d65f1902dee3",
+            "fullUrl": "urn:uuid:b741eed9-2d4f-4010-9490-b90f17ad240a",
             "resource": {
               "resourceType": "QuestionnaireResponse",
-              "id": "ResumeQuestionnaireResponse",
+              "contained": [
+                {
+                  "resourceType": "Questionnaire",
+                  "id": "inferno-resume-adaptive-questionnaire",
+                  "extension": [
+                    {
+                      "url": "https://inferno.healthit.gov/test-kits/davinci-dtr/StructureDefinition/extension-use-next-question-questionnaire-template",
+                      "valueCanonical": "https://inferno.healthit.gov/test-kits/davinci-dtr/Questionnaire/inferno-resume-adaptive-questionnaire"
+                    }
+                  ]
+                }
+              ],
               "extension": [
                 {
                   "url": "http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/qr-coverage",
@@ -69,7 +56,7 @@
                   }
                 }
               ],
-              "questionnaire": "urn:inferno:dtr-test-kit:resume-questionnaire",
+              "questionnaire": "#inferno-resume-adaptive-questionnaire",
               "status": "in-progress",
               "subject": {
                 "reference": "{{parameter.where(name = 'coverage').resource.beneficiary.reference}}",

@@ -69,24 +69,26 @@ DTR profiles and requirements.
 
 Group "2.3 Resume a Questionnaire" checks that the client can save an in-progress
 QuestionnaireResponse and resume it later. It must be executed after the group
-"1 Client Registration". By default, Inferno returns its Resume Questionnaire,
-which has two questions: one to answer before saving and one to answer after
-resuming. Testers can instead provide their own standard (non-adaptive)
-Questionnaire in the "Resume a Questionnaire $questionnaire-package Response
-Template" input.
+"1 Client Registration". Inferno always returns its Resume Questionnaire, an adaptive
+Questionnaire with three required questions. Inferno returns each question through
+$next-question once the previous one is answered.
 
 Inferno displays two "User Action Required" dialogs:
-1. In the first, testers retrieve the Questionnaire, answer some but not all of
-   its questions, save the in-progress QuestionnaireResponse, and close DTR.
+1. In the first, testers retrieve the Questionnaire and answer question 1, which gets
+   question 2. Without answering question 2, they save the in-progress
+   QuestionnaireResponse and close DTR.
 2. In the second, testers relaunch DTR from the saved QuestionnaireResponse. The
    client should call $questionnaire-package with the `changedsince` parameter,
-   and Inferno responds that nothing has changed. Testers then complete and save
-   the QuestionnaireResponse.
+   and Inferno responds that nothing has changed. Testers then answer question 2,
+   which gets question 3, answer question 3, and save the completed
+   QuestionnaireResponse.
 
-Inferno then asks testers to confirm that the client saved the in-progress
-QuestionnaireResponse and later resumed and completed it. Inferno also checks
+From the $next-question requests, Inferno checks that question 1 was answered before
+saving and question 2 was not, and that after resuming, the requests still carried the
+answer to question 1 and the QuestionnaireResponse was completed. Inferno also checks
 that the resumed $questionnaire-package request included a valid `changedsince`
-timestamp.
+timestamp, and asks testers to confirm that the client saved and resumed the
+QuestionnaireResponse.
 
 ## Tester-provided Questionnaire Tests Execution
 

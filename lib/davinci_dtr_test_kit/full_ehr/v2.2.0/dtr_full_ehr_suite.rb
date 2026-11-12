@@ -13,7 +13,7 @@ require_relative 'must_support/dtr_questionnaire_adaptive_must_support_test'
 require_relative 'must_support/dtr_questionnaire_standard_must_support_test'
 require_relative 'must_support/dtr_questionnaire_response_base_must_support_test'
 require_relative 'must_support/dtr_questionnaire_response_adaptive_must_support_test'
-require_relative 'workflows/dtr_full_ehr_workflow_resume_group'
+require_relative 'resume/dtr_full_ehr_workflow_resume_group'
 require_relative 'workflows/dtr_full_ehr_workflow_adaptive_group'
 require_relative 'workflows/dtr_full_ehr_workflow_standard_group'
 

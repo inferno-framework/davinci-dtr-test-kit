@@ -192,6 +192,12 @@ exactly match one of the template's. For example:
 }
 ```
 
+An adaptive Questionnaire's `questionnaireAdaptive` extension holds the URL of the
+`$next-question` service. Templates can't know Inferno's URL, so when a Questionnaire in a
+`$questionnaire-package` response has a `questionnaireAdaptive` extension whose `valueUrl` is
+`urn:inferno:dtr:simulated-payer-fhir-base`, Inferno replaces it with the FHIR base URL of
+its simulated payer.
+
 Placeholders are expanded before [tokens](#dynamic-tokens) are replaced and before
 [Libraries and ValueSets](#cql-libraries-and-valuesets) are added, so references in the
 copied template are included. A placeholder that doesn't match any `$next-question` template

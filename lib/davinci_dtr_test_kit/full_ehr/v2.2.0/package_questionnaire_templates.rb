@@ -23,6 +23,11 @@ module DaVinciDTRTestKit
 
     class MissingTemplateError < StandardError; end
 
+    ADAPTIVE_EXTENSION_URL = 'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-questionnaireAdaptive'.freeze
+    # A template can't know the simulated payer's URL, so a questionnaireAdaptive valueUrl set to this
+    # value is replaced with Inferno's simulated payer FHIR base URL in $questionnaire-package responses.
+    SIMULATED_PAYER_URL_PLACEHOLDER = 'urn:inferno:dtr:simulated-payer-fhir-base'.freeze
+
     def package_bundles(parameters)
       parameters.parameter.select { |param| param.name == 'packagebundle' }.map(&:resource).grep(FHIR::Bundle)
     end

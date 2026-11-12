@@ -407,6 +407,69 @@ RSpec.describe DaVinciDTRTestKit::MockPayer::FullEHRV220NextQuestionEndpoint, :r
       expect(parsed['issue'].first['details']['text']).to include('not returned by $questionnaire-package')
     end
 
+    context 'when a later wait resumes a Questionnaire packaged during an earlier wait' do
+      # Two waits of the same workflow, as in the Resume a Questionnaire group.
+      def resume_wait_test(test_id, unchanged_since:)
+        Class.new(DaVinciDTRTestKit::DTRFullEHRV220InteractionWaitTest) do
+          id test_id
+          input :qp_response_template, optional: true
+          input :nq_questionnaire_template, optional: true
+          config options: {
+            qp_response_template_input: 'qp_response_template',
+            nq_questionnaire_template_input: 'nq_questionnaire_template',
+            dtr_workflow_tag: 'resume_flow',
+            dtr_interaction_tag: "#{test_id}_tag",
+            qp_unchanged_since: unchanged_since
+          }
+        end
+      end
+
+      def run_wait(test_class)
+        run(test_class, client_id:,
+                        qp_response_template: adaptive_questionnaire_package_json,
+                        nq_questionnaire_template: valid_nq_questionnaire_template_json)
+      end
+
+      # The package is returned during the first wait; the $next-question request comes during the second.
+      # Test ids differ by setting: the endpoint looks the waiting test up by id, and the test repository
+      # keeps the first class registered under an id.
+      def package_then_resume(unchanged_since:)
+        suffix = unchanged_since ? 'unchanged_since' : 'plain'
+        first_wait = run_wait(resume_wait_test(:"dtr_full_ehr_v220_nq_endpoint_spec_resume_first_#{suffix}",
+                                               unchanged_since:))
+        post_qp_with_token
+        Inferno::Repositories::TestRuns.new.mark_as_done(first_wait.test_run_id)
+        run_wait(resume_wait_test(:"dtr_full_ehr_v220_nq_endpoint_spec_resume_second_#{suffix}", unchanged_since:))
+        post_nq_with_token
+      end
+
+      it 'accepts the Questionnaire when qp_unchanged_since is set' do
+        package_then_resume(unchanged_since: true)
+
+        expect(last_response.status).to eq(200)
+        expect(JSON.parse(last_response.body)['resourceType']).to eq('QuestionnaireResponse')
+      end
+
+      it 'tags the request with the dtr_interaction_tag of the waiting test' do
+        package_then_resume(unchanged_since: true)
+
+        tagged = requests_repo.tagged_requests(
+          test_session.id,
+          [DaVinciDTRTestKit::CLIENT_NEXT_TAG, 'resume_flow',
+           'dtr_full_ehr_v220_nq_endpoint_spec_resume_second_unchanged_since_tag']
+        )
+        expect(tagged.length).to eq(1)
+      end
+
+      it 'rejects the Questionnaire when qp_unchanged_since is not set' do
+        package_then_resume(unchanged_since: false)
+
+        expect(last_response.status).to eq(400)
+        expect(JSON.parse(last_response.body)['issue'].first['details']['text'])
+          .to include('not returned by $questionnaire-package')
+      end
+    end
+
     it 'returns 400 with OperationOutcome when the questionnaire from $questionnaire-package is not adaptive' do
       run(nq_input_test, client_id:,
                          qp_response_template: non_adaptive_questionnaire_package_json,

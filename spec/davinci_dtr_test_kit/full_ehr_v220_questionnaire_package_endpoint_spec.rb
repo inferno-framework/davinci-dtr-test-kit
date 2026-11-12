@@ -1378,12 +1378,89 @@ RSpec.describe DaVinciDTRTestKit::MockPayer::FullEHRV220QuestionnairePackageEndp
         ).to_json
       end
 
+      let(:resume_template_url) do
+        'https://inferno.healthit.gov/test-kits/davinci-dtr/Questionnaire/inferno-resume-adaptive-questionnaire'
+      end
+
+      # The Resume a Questionnaire fixtures, with each wait's dtr_interaction_tag.
+      let(:resume_fixture_test) do
+        Class.new(DaVinciDTRTestKit::DTRFullEHRV220InteractionWaitTest) do
+          id :dtr_full_ehr_v220_qp_endpoint_spec_resume_fixture_test
+          config options: {
+            qp_response_template_fixture: 'resume/parameters_questionnaire_resume_adaptive.json',
+            nq_questionnaire_template_fixture: 'resume/resume_adaptive_next_question_template.json',
+            dtr_workflow_tag: 'resume',
+            dtr_interaction_tag: 'resume_before_pause'
+          }
+        end
+      end
+
       def nq_template_json(url)
         FHIR::Questionnaire.new(url:, status: 'draft').to_json
       end
 
       def package_resources
         JSON.parse(last_response.body)['parameter'].first['resource']['entry'].map { |entry| entry['resource'] }
+      end
+
+      def adaptive_url(questionnaire)
+        questionnaire['extension'].find do |extension|
+          extension['url'] == DaVinciDTRTestKit::PackageQuestionnaireTemplates::ADAPTIVE_EXTENSION_URL
+        end&.dig('valueUrl')
+      end
+
+      it 'builds the Resume a Questionnaire package, pointing questionnaireAdaptive at the simulated payer' do
+        stub_request(:post, /#{Regexp.quote(fhirpath_url)}/).to_return(
+          status: 200, body: [{ type: 'string', element: 'token-value' }].to_json,
+          headers: { 'Content-Type' => 'application/json' }
+        )
+        run(resume_fixture_test, client_id:)
+        post_with_token
+
+        expect(last_response.status).to eq(200)
+        questionnaire = package_resources.first
+        questionnaire_response =
+          package_resources.find { |resource| resource['resourceType'] == 'QuestionnaireResponse' }
+        contained = questionnaire_response['contained'].first
+        payer_url = "#{Inferno::Application['base_url']}/custom/#{suite_id}/fhir"
+
+        expect(questionnaire['resourceType']).to eq('Questionnaire')
+        expect(questionnaire['url']).to eq(resume_template_url)
+        expect(questionnaire['item']).to be_nil
+        expect(adaptive_url(questionnaire)).to eq(payer_url)
+        expect(contained['url']).to eq(resume_template_url)
+        expect(contained['id']).to eq('inferno-resume-adaptive-questionnaire')
+        expect(adaptive_url(contained)).to eq(payer_url)
+        expect(questionnaire_response['questionnaire']).to eq('#inferno-resume-adaptive-questionnaire')
+      end
+
+      it 'also applies the dtr_interaction_tag option as an additional request tag' do
+        stub_request(:post, /#{Regexp.quote(fhirpath_url)}/).to_return(
+          status: 200, body: [{ type: 'string', element: 'token-value' }].to_json,
+          headers: { 'Content-Type' => 'application/json' }
+        )
+        run(resume_fixture_test, client_id:)
+        post_with_token
+
+        tagged = requests_repo.tagged_requests(
+          test_session.id,
+          [DaVinciDTRTestKit::QUESTIONNAIRE_PACKAGE_TAG, 'resume', 'resume_before_pause']
+        )
+        expect(tagged.length).to eq(1)
+      end
+
+      it 'leaves a questionnaireAdaptive url that is not the placeholder unchanged' do
+        template = FHIR::Questionnaire.new(
+          url: 'https://example.org/Questionnaire/adaptive', status: 'draft',
+          extension: [FHIR::Extension.new(url: DaVinciDTRTestKit::PackageQuestionnaireTemplates::ADAPTIVE_EXTENSION_URL,
+                                          valueUrl: 'https://payer.example.org/fhir')]
+        )
+        run(templates_input_test, client_id:, qp_response_template: placeholder_template_json,
+                                  nq_questionnaire_template: template.to_json)
+        post_with_token
+
+        expect(last_response.status).to eq(200)
+        expect(adaptive_url(package_resources.first)).to eq('https://payer.example.org/fhir')
       end
 
       it 'builds the CQL and ValueSets package from the fixtures' do
