@@ -159,7 +159,7 @@ RSpec.describe DaVinciDTRTestKit::DTRFullEHRV220LogQuestionnaireErrorsRequestVal
       expect(messages_for(result, type: 'warning')).to be_empty
     end
 
-    it 'warns, but passes, when the canonical is not version-specific' do
+    it 'warns, but passes, when the returned Questionnaire has a version and the canonical does not' do
       create_qp_request(returned_questionnaire)
       create_log_errors_request(params_json(questionnaire_param(questionnaire_url), outcome_param))
 
@@ -167,6 +167,16 @@ RSpec.describe DaVinciDTRTestKit::DTRFullEHRV220LogQuestionnaireErrorsRequestVal
 
       expect(result.result).to eq('pass'), result.result_message
       expect(messages_for(result, type: 'warning')).to include(a_string_matching(/not version-specific/))
+    end
+
+    it 'does not warn when Inferno returned the Questionnaire without a version' do
+      create_qp_request(returned_questionnaire(version: nil))
+      create_log_errors_request(params_json(questionnaire_param(questionnaire_url), outcome_param))
+
+      result = run(described_class)
+
+      expect(result.result).to eq('pass'), result.result_message
+      expect(messages_for(result, type: 'warning')).to be_empty
     end
 
     it 'fails when the canonical identifies a Questionnaire Inferno did not return' do

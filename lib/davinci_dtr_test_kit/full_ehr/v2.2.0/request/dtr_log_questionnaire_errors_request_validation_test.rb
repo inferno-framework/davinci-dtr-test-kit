@@ -27,7 +27,8 @@ module DaVinciDTRTestKit
       identifies the Questionnaire Inferno returned during the interaction. The canonical SHOULD be
       version-specific
       ([oper-3](https://hl7.org/fhir/us/davinci-dtr/2.2.0/en/OperationDefinition-log-questionnaire-errors.html#ci-c-oper-3)),
-      so a canonical without a version produces a warning rather than a failure.
+      so when the returned Questionnaire has a version, a canonical without one produces a warning
+      rather than a failure.
     )
 
     LOG_ERRORS_INPUT_PROFILE =
@@ -95,35 +96,44 @@ module DaVinciDTRTestKit
 
     # The profile requires the `questionnaire` parameter, so a missing one is reported by the
     # validator. This checks that each canonical names a Questionnaire Inferno actually returned
-    # and, per oper-3, that it is version-specific.
+    # and, per oper-3, that it carries the version when the returned Questionnaire has one. A client
+    # cannot be version-specific about a Questionnaire that Inferno delivered without a version.
     def check_logged_questionnaire_canonicals(params, request_index)
-      params.parameter.select { |param| param.name == 'questionnaire' }.filter_map(&:valueCanonical)
-        .each do |canonical|
-          url, version = canonical.split('|', 2)
-          if version.blank?
-            add_request_message(
-              'warning',
-              "Questionnaire canonical #{canonical} is not version-specific. " \
-              'The reference SHOULD include the version of the Questionnaire.',
-              request_index
-            )
-          end
-          next if returned_questionnaire_canonicals.empty? || canonical_returned?(canonical, url, version)
+      return if returned_questionnaire_canonicals.empty?
 
-          add_request_message(
-            'error',
-            "Questionnaire canonical #{canonical} does not identify a Questionnaire returned by Inferno " \
-            "during this interaction (#{returned_questionnaire_canonicals.join(', ')}).",
-            request_index
-          )
-        end
+      params.parameter.select { |param| param.name == 'questionnaire' }.filter_map(&:valueCanonical)
+        .each { |canonical| check_logged_questionnaire_canonical(canonical, request_index) }
     end
 
-    # A canonical without a version matches any returned version of the same url.
-    def canonical_returned?(canonical, url, version)
-      returned_questionnaire_canonicals.any? do |returned|
-        returned == canonical || (version.blank? && returned.split('|', 2).first == url)
+    def check_logged_questionnaire_canonical(canonical, request_index)
+      url, version = canonical.split('|', 2)
+      returned = returned_questionnaire_canonicals.select { |candidate| candidate.split('|', 2).first == url }
+
+      if not_returned?(canonical, version, returned)
+        add_request_message(
+          'error',
+          "Questionnaire canonical #{canonical} does not identify a Questionnaire returned by Inferno " \
+          "during this interaction (#{returned_questionnaire_canonicals.join(', ')}).",
+          request_index
+        )
+      elsif version_missing?(version, returned)
+        add_request_message(
+          'warning',
+          "Questionnaire canonical #{canonical} is not version-specific. " \
+          "The reference SHOULD include the version of the Questionnaire (#{returned.join(', ')}).",
+          request_index
+        )
       end
+    end
+
+    # No returned Questionnaire has this url, or the logged version is not one Inferno returned.
+    def not_returned?(canonical, version, returned)
+      returned.empty? || (version.present? && returned.exclude?(canonical))
+    end
+
+    # Inferno returned a versioned Questionnaire for this url but the logged canonical has no version.
+    def version_missing?(version, returned)
+      version.blank? && returned.any? { |candidate| candidate.include?('|') }
     end
   end
 end

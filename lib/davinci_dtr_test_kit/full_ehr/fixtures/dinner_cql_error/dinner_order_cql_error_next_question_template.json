@@ -2,7 +2,6 @@
   "resourceType": "Questionnaire",
   "id": "DinnerOrderCQLError",
   "url": "urn:inferno:dtr-test-kit:dinner-order-cql-error",
-  "version": "1.0.0",
   "meta": {
     "profile": [
       "http://hl7.org/fhir/StructureDefinition/cqf-questionnaire",

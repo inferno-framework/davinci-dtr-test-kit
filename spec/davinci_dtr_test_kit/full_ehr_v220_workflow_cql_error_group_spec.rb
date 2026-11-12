@@ -26,10 +26,10 @@ RSpec.describe DaVinciDTRTestKit::DTRFullEHRV220WorkflowCQLError do # rubocop:di
   end
 
   describe 'the fixtures' do
-    it 'return a versioned adaptive Questionnaire from $questionnaire-package' do
+    it 'return an adaptive Questionnaire from $questionnaire-package' do
       expect(package_fixture).to be_a(FHIR::Parameters)
       expect(package_questionnaire.url).to eq(canonical)
-      expect(package_questionnaire.version).to eq('1.0.0')
+      expect(package_questionnaire.version).to be_nil
       expect(package_questionnaire.title).to eq('Dinner Order (CQL Error)')
       expect(package_questionnaire.extension.find do |extension|
         extension.url == adaptive_url
@@ -39,7 +39,7 @@ RSpec.describe DaVinciDTRTestKit::DTRFullEHRV220WorkflowCQLError do # rubocop:di
     it 'use a $next-question template with the same canonical' do
       expect(template_fixture).to be_a(FHIR::Questionnaire)
       expect(template_fixture.url).to eq(canonical)
-      expect(template_fixture.version).to eq('1.0.0')
+      expect(template_fixture.version).to be_nil
     end
 
     it 'put malformed CQL in a calculatedExpression on the item the stop test watches for' do
