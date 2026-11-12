@@ -60,6 +60,16 @@ module DaVinciDTRTestKit
     #       default: '[]'
     output :continuation_url
 
+    DEFAULT_INTERACTION_MESSAGE = <<~MESSAGE.freeze
+      Inferno will wait while the tester uses the system to complete
+      one or more DTR Questionnaires retrieved from Inferno's simulated
+      payer server.
+
+      When all Questionnaire returned by Inferno during this period
+      have been completed and saved to the EHR [Click here](%<continuation_url>s)
+      to continue.
+    MESSAGE
+
     run do
       clear_short_circuit_flag
       unless run_tests?
@@ -76,15 +86,7 @@ module DaVinciDTRTestKit
         identifier: client_id,
         timeout: 1200,
         message: <<~MESSAGE
-          Inferno will wait while the tester uses the system to complete
-          one or more DTR Questionnaires retrieved from Inferno's simulated
-          payer server.
-
-          #{config.options[:interaction_instructions]}
-
-          When all Questionnaire returned by Inferno during this period
-          have been completed and saved to the EHR [Click here](#{continuation_url})
-          to continue.
+          #{interaction_message(continuation_url)}
 
           ### Endpoints
 
@@ -111,6 +113,11 @@ module DaVinciDTRTestKit
     # - whether the Questionnaires are provided by Inferno or the tester (options)
 
     private
+
+    def interaction_message(continuation_url)
+      message = config.options[:interaction_message] || DEFAULT_INTERACTION_MESSAGE
+      format(message, continuation_url:)
+    end
 
     def run_tests?
       input_name = config.options[:short_circuit_pass_input]

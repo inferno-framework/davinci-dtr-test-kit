@@ -1,4 +1,4 @@
-require 'davinci_dtr_test_kit/full_ehr/v2.2.0/interaction/prepopulation_review_not_required_attestation_test'
+require 'davinci_dtr_test_kit/full_ehr/v2.2.0/answer_origin/prepopulation_review_not_required_attestation_test'
 
 RSpec.describe DaVinciDTRTestKit::DTRFullEHRV220PrepopulationReviewNotRequiredAttestationTest do # rubocop:disable RSpec/SpecFilePathFormat
   let(:suite_id) { 'dtr_full_ehr_v220' }

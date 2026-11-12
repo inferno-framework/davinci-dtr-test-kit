@@ -1,4 +1,4 @@
-require 'davinci_dtr_test_kit/full_ehr/v2.2.0/interaction/answer_origin_verification_test'
+require 'davinci_dtr_test_kit/full_ehr/v2.2.0/answer_origin/answer_origin_verification_test'
 
 RSpec.describe DaVinciDTRTestKit::DTRFullEHRV220AnswerOriginVerificationTest do # rubocop:disable RSpec/SpecFilePathFormat
   let(:suite_id) { 'dtr_full_ehr_v220' }

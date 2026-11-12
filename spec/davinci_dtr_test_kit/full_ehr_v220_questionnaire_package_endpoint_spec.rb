@@ -1344,6 +1344,42 @@ RSpec.describe DaVinciDTRTestKit::MockPayer::FullEHRV220QuestionnairePackageEndp
         expect(last_response.status).to eq(200)
         expect(package_resources.first['url']).to eq('https://example.org/Questionnaire/adaptive')
       end
+
+      describe 'the questionnaireAdaptive extension' do
+        let(:adaptive_url) { 'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-questionnaireAdaptive' }
+
+        def adaptive_nq_template_json(adaptive_extension)
+          FHIR::Questionnaire.new(url: 'https://example.org/Questionnaire/adaptive', status: 'draft',
+                                  extension: [FHIR::Extension.new(url: adaptive_url, **adaptive_extension)]).to_json
+        end
+
+        def returned_adaptive_extension
+          package_resources.first['extension'].find { |extension| extension['url'] == adaptive_url }
+        end
+
+        it "replaces a valueUrl with Inferno's FHIR base, since the template can't know Inferno's host" do
+          run(templates_input_test, client_id:,
+                                    qp_response_template: placeholder_template_json,
+                                    nq_questionnaire_template: adaptive_nq_template_json(
+                                      valueUrl: 'http://localhost:4567/custom/dtr_full_ehr_v220/fhir'
+                                    ))
+          post_with_token
+
+          expect(last_response.status).to eq(200)
+          expect(returned_adaptive_extension['valueUrl'])
+            .to eq("#{Inferno::Application['base_url']}/custom/dtr_full_ehr_v220/fhir")
+        end
+
+        it 'leaves a valueBoolean as it is' do
+          run(templates_input_test, client_id:,
+                                    qp_response_template: placeholder_template_json,
+                                    nq_questionnaire_template: adaptive_nq_template_json(valueBoolean: true))
+          post_with_token
+
+          expect(last_response.status).to eq(200)
+          expect(returned_adaptive_extension).to eq('url' => adaptive_url, 'valueBoolean' => true)
+        end
+      end
     end
 
     context 'when the template uses legacy urn:inferno extension urls' do

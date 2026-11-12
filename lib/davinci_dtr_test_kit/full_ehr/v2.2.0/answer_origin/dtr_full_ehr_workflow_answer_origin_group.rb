@@ -1,6 +1,6 @@
 require_relative '../dtr_full_ehr_abstract_adaptive_group'
-require_relative '../interaction/answer_origin_verification_test'
-require_relative '../interaction/prepopulation_review_not_required_attestation_test'
+require_relative 'answer_origin_verification_test'
+require_relative 'prepopulation_review_not_required_attestation_test'
 
 module DaVinciDTRTestKit
   class DTRFullEHRV220WorkflowAnswerOrigin < DTRFullEHRV220AbstractAdaptive
@@ -30,13 +30,22 @@ module DaVinciDTRTestKit
         qp_response_template_fixture: File.join('answer_origin', 'answer_origin_questionnaire_package_response.json'),
         nq_questionnaire_template_fixture: File.join('answer_origin',
                                                      'answer_origin_adaptive_next_question_template.json'),
-        interaction_instructions: <<~INSTRUCTIONS
+        interaction_message: <<~MESSAGE
+          Inferno will wait while the tester uses the system to complete Inferno's answer origin
+          Questionnaire, retrieved from Inferno's simulated payer server.
+
           Launch DTR for a Patient that has a recorded first and last name, and complete the
           Questionnaire as its questions describe:
           - **Last Name (don't change!)**: leave the pre-populated last name as it is.
           - **Preferred First Name (update)**: change the pre-populated first name to something else.
           - **New Information (add details)**: type in any details.
-        INSTRUCTIONS
+
+          **By clicking to continue, you attest** that the Questionnaire was completed and saved to the
+          EHR with its fields changed exactly as described above: Last Name left unchanged, Preferred
+          First Name changed, and New Information filled in.
+
+          [Click here](%<continuation_url>s) to continue and attest.
+        MESSAGE
       }
     )
 

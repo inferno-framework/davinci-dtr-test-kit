@@ -1,4 +1,4 @@
-require 'davinci_dtr_test_kit/full_ehr/v2.2.0/workflows/dtr_full_ehr_workflow_answer_origin_group'
+require 'davinci_dtr_test_kit/full_ehr/v2.2.0/answer_origin/dtr_full_ehr_workflow_answer_origin_group'
 
 RSpec.describe DaVinciDTRTestKit::DTRFullEHRV220WorkflowAnswerOrigin do # rubocop:disable RSpec/SpecFilePathFormat
   let(:suite_id) { 'dtr_full_ehr_v220' }
@@ -36,6 +36,9 @@ RSpec.describe DaVinciDTRTestKit::DTRFullEHRV220WorkflowAnswerOrigin do # ruboco
 
     expect(result.result).to eq('wait'), result.result_message
     expect(result.result_message).to include("**Last Name (don't change!)**: leave the pre-populated last name")
+    expect(result.result_message).to include('**By clicking to continue, you attest**')
+    continue_link = %r{\[Click here\]\(\S+/resume_pass\?token=answer_origin_group_spec_client_id\)}
+    expect(result.result_message).to match(/#{continue_link} to continue and attest\./)
   end
 
   it 'has a package placeholder that points to the $next-question template' do
