@@ -17,10 +17,13 @@ RSpec.describe DaVinciDTRTestKit::DTRFullEHRV220WorkflowResume do # rubocop:disa
     result = run(resume_wait('dtr_full_ehr_v220_resume_initial_interaction_wait'), inputs)
 
     expect(result.result).to eq('wait')
-    expect(result.result_message).to include("In this first step, do **not** complete the Questionnaire:\n" \
+    expect(result.result_message).to include("In this first step, do **not** complete\nthe Questionnaire:\n" \
                                              "- Launch DTR and retrieve Inferno's Resume Questionnaire.")
     expect(result.result_message)
-      .to include('- Without answering question 2, save the in-progress QuestionnaireResponse and close DTR.')
+      .to include("- Without answering question 2, save the QuestionnaireResponse with status `in-progress`\n  " \
+                  'and close the DTR session. The answer to question 1 must not be lost.')
+    expect(result.result_message).to match(%r{\[click here\]\(\S+/resume_pass\?token=#{client_id}\) to continue})
+    expect(result.result_message).to_not include('completed and saved to the EHR')
   end
 
   it 'tells the tester to relaunch and answer questions 2 and 3 during the second wait' do
@@ -28,8 +31,12 @@ RSpec.describe DaVinciDTRTestKit::DTRFullEHRV220WorkflowResume do # rubocop:disa
 
     expect(result.result).to eq('wait')
     expect(result.result_message)
-      .to include('Relaunch DTR from the in-progress QuestionnaireResponse saved during the previous test.')
-    expect(result.result_message).to include('Then answer question 2 to get question 3')
+      .to include('- Relaunch DTR from the in-progress QuestionnaireResponse saved during the previous')
+    expect(result.result_message).to include('The answer to question 1 should be restored.')
+    expect(result.result_message).to include("- Answer question 2 to get question 3, then answer question 3.\n" \
+                                             '- Save the completed QuestionnaireResponse.')
+    expect(result.result_message).to match(%r{\[click here\]\(\S+/resume_pass\?token=#{client_id}\)\nto continue})
+    expect(result.result_message).to_not include('completed and saved to the EHR')
   end
 
   it 'describes each wait with its own step instead of completing the Questionnaire' do

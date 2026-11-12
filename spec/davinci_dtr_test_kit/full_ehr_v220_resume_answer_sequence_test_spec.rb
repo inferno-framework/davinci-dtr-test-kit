@@ -14,22 +14,22 @@ RSpec.describe DaVinciDTRTestKit::DTRFullEHRV220ResumeAnswerSequenceTest do # ru
       &.messages&.map(&:message) || []
   end
 
-  def questionnaire_response(answers, status: 'in-progress')
-    {
-      resourceType: 'QuestionnaireResponse',
-      status:,
-      item: answers.map do |link_id, value|
-        { linkId: link_id, answer: value.nil? ? [] : [{ valueString: value }] }
-      end
-    }
+  # `nested` puts the answered items under the answer of a parent item.
+  def questionnaire_response(answers, status: 'in-progress', nested: false)
+    items = answers.map do |link_id, value|
+      { linkId: link_id, answer: value.nil? ? [] : [{ valueString: value }] }
+    end
+    items = [{ linkId: 'parent', answer: [{ valueBoolean: true, item: items }] }] if nested
+    { resourceType: 'QuestionnaireResponse', status:, item: items }
   end
 
   # A $next-question request whose QuestionnaireResponse has the given answers (nil for an
   # unanswered question). `completed` sets the status Inferno returned.
-  def create_nq_request(interaction_tag, answers, completed: false)
+  def create_nq_request(interaction_tag, answers, completed: false, nested: false)
     request_body = { resourceType: 'Parameters',
-                     parameter: [{ name: 'questionnaire-response', resource: questionnaire_response(answers) }] }
-    response_body = questionnaire_response(answers, status: completed ? 'completed' : 'in-progress')
+                     parameter: [{ name: 'questionnaire-response',
+                                   resource: questionnaire_response(answers, nested:) }] }
+    response_body = questionnaire_response(answers, status: completed ? 'completed' : 'in-progress', nested:)
     repo_create(
       :request,
       direction: 'incoming',
@@ -147,6 +147,14 @@ RSpec.describe DaVinciDTRTestKit::DTRFullEHRV220ResumeAnswerSequenceTest do # ru
       a_string_including('answered question 1 with `other`, not the `first` saved before.'),
       a_string_including('Inferno never marked the QuestionnaireResponse `completed`')
     )
+  end
+
+  it 'finds answers to items nested under an answer' do
+    create_nq_request(before_pause, { 'question-1' => 'first' }, nested: true)
+    create_nq_request(after_pause, { 'question-1' => 'first', 'question-2' => 'second', 'question-3' => 'third' },
+                      completed: true, nested: true)
+
+    expect(run(described_class).result).to eq('pass')
   end
 
   it 'ignores requests from other workflows and waits' do

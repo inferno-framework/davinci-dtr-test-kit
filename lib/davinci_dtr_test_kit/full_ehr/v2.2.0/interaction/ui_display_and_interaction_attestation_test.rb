@@ -82,6 +82,15 @@ module DaVinciDTRTestKit
       @requests_to_analyze ||= load_tagged_requests(*target_tags)
     end
 
+    # Skips requests with an empty response body, such as an expired-token 401.
+    def returned_questionnaires_for_display
+      parsed_operation_bodies(requests_to_analyze)
+        .select { |_request, parameters| parameters.is_a?(FHIR::Parameters) }
+        .flat_map { |_request, parameters| questionnaires_from_questionnaire_package_output_parameters(parameters) }
+        .map { |questionnaire| questionnaire_display(questionnaire) }
+        .uniq
+    end
+
     LIST_ENTRY_PREFIX = "\n          - ".freeze
 
     run do
@@ -119,7 +128,7 @@ module DaVinciDTRTestKit
 
           Questionnaires returned during the previous interaction for which a
           response must have been completed and stored to attest **true**:
-          - #{returned_questionnaires_for_display(requests_to_analyze).join(LIST_ENTRY_PREFIX)}
+          - #{returned_questionnaires_for_display.join(LIST_ENTRY_PREFIX)}
 
           Must Support Questionnaire items and extensions that must have been followed
           to attest **true**: TODO

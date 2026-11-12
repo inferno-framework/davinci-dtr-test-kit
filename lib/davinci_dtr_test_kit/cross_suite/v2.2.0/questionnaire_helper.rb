@@ -38,16 +38,6 @@ module DaVinciDTRTestKit
       end
     end
 
-    # Unique display strings for the Questionnaires in the $questionnaire-package responses
-    # to the given requests.
-    def returned_questionnaires_for_display(requests)
-      parsed_operation_bodies(requests)
-        .select { |_request, parameters| parameters.is_a?(FHIR::Parameters) }
-        .flat_map { |_request, parameters| questionnaires_from_questionnaire_package_output_parameters(parameters) }
-        .map { |questionnaire| questionnaire_display(questionnaire) }
-        .uniq
-    end
-
     ###########################################################################
     # Generic Questionnaire Extraction ($questionnaire-package or $next-question)
     ###########################################################################

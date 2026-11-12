@@ -1,6 +1,5 @@
 require_relative '../interaction/interaction_wait_test'
 require_relative 'resume_answer_sequence_test'
-require_relative 'resume_questionnaire_attestation_test'
 require_relative '../request/dtr_questionnaire_package_request_validation_test'
 require_relative 'dtr_questionnaire_package_changedsince_test'
 require_relative '../response/dtr_questionnaire_package_response_validation_test'
@@ -50,15 +49,19 @@ module DaVinciDTRTestKit
            config: {
              options: {
                dtr_interaction_tag: DTRFullEHRV220ResumeAnswerSequenceTest::BEFORE_PAUSE_TAG,
-               interaction_instructions: <<~INSTRUCTIONS
-                 In this first step, do **not** complete the Questionnaire:
+               interaction_message: <<~MESSAGE
+                 Inferno will wait while the tester uses the system to start Inferno's Resume Questionnaire,
+                 retrieved from Inferno's simulated payer server. In this first step, do **not** complete
+                 the Questionnaire:
                  - Launch DTR and retrieve Inferno's Resume Questionnaire.
                  - Answer question 1. Inferno then returns question 2.
-                 - Without answering question 2, save the in-progress QuestionnaireResponse and close DTR.
+                 - Without answering question 2, save the QuestionnaireResponse with status `in-progress`
+                   and close the DTR session. The answer to question 1 must not be lost.
 
-                 For this step, the saved in-progress QuestionnaireResponse counts as "completed and saved";
-                 it will be resumed and completed in the next test.
-               INSTRUCTIONS
+                 When the in-progress QuestionnaireResponse is saved and the DTR session is closed,
+                 [click here](%<continuation_url>s) to continue. The QuestionnaireResponse will be resumed
+                 and completed in the next test.
+               MESSAGE
              }
            }
 
@@ -72,17 +75,22 @@ module DaVinciDTRTestKit
            config: {
              options: {
                dtr_interaction_tag: DTRFullEHRV220ResumeAnswerSequenceTest::AFTER_PAUSE_TAG,
-               interaction_instructions: <<~INSTRUCTIONS
-                 Relaunch DTR from the in-progress QuestionnaireResponse saved during the previous test.
-                 The client should call $questionnaire-package with `changedsince`, and Inferno will
-                 respond that nothing has changed. Then answer question 2 to get question 3, answer
-                 question 3, and save the completed QuestionnaireResponse.
-               INSTRUCTIONS
+               interaction_message: <<~MESSAGE
+                 Inferno will wait while the tester uses the system to resume and complete the
+                 QuestionnaireResponse saved during the previous test:
+                 - Relaunch DTR from the in-progress QuestionnaireResponse saved during the previous
+                   test. The client should call $questionnaire-package with `changedsince`, and Inferno
+                   will respond that nothing has changed. The answer to question 1 should be restored.
+                 - Answer question 2 to get question 3, then answer question 3.
+                 - Save the completed QuestionnaireResponse.
+
+                 When the completed QuestionnaireResponse is saved, [click here](%<continuation_url>s)
+                 to continue.
+               MESSAGE
              }
            }
 
       test from: :dtr_full_ehr_v220_resume_answer_sequence
-      test from: :dtr_full_ehr_v220_resume_questionnaire_attestation
     end
 
     group do
