@@ -4,6 +4,7 @@ require_relative '../../cross_suite/fhirpath_utils'
 require_relative '../../cross_suite/response_selection_utils'
 require_relative '../fixture_loader'
 require_relative '../../tags'
+require_relative '../../urls'
 require_relative 'full_ehr_supporting_resources'
 require_relative 'next_question_template_questionnaires'
 require_relative 'package_questionnaire_templates'
@@ -29,6 +30,7 @@ module DaVinciDTRTestKit
       def tags
         tags = [QUESTIONNAIRE_PACKAGE_TAG]
         tags << test.config.options[:dtr_workflow_tag] if test.config.options[:dtr_workflow_tag].present?
+        tags << test.config.options[:dtr_interaction_tag] if test.config.options[:dtr_interaction_tag].present?
         unless test.config.options[:dtr_exclude_from_questionnaire_must_support]
           tags << CLIENT_QUESTIONNAIRE_MUST_SUPPORT
         end
@@ -129,6 +131,7 @@ module DaVinciDTRTestKit
         # Work on a copy so that expanding placeholders doesn't change the (cached) template.
         selected = FHIR.from_contents(select_package_parameters.to_json)
         expand_template_placeholders(selected)
+        fill_simulated_payer_url(selected)
         result = replace_tokens(selected)
         return result unless result.is_a?(FHIR::Parameters)
 
@@ -139,6 +142,23 @@ module DaVinciDTRTestKit
         raise_if_fixture_template_error('dtr $questionnaire-package response template', e)
 
         operation_outcome('error', 'invalid', e.message)
+      end
+
+      # Points questionnaireAdaptive extensions that use the placeholder URL at Inferno's simulated payer.
+      def fill_simulated_payer_url(parameters)
+        package_bundles(parameters).flat_map { |bundle| package_questionnaires(bundle) }.each do |questionnaire|
+          questionnaire.extension.each do |extension|
+            next unless extension.url == ADAPTIVE_EXTENSION_URL &&
+                        extension.valueUrl == SIMULATED_PAYER_URL_PLACEHOLDER
+
+            extension.valueUrl = simulated_payer_fhir_base_url
+          end
+        end
+      end
+
+      def simulated_payer_fhir_base_url
+        suite_id = Inferno::Repositories::TestSessions.new.find(result.test_session_id).test_suite_id
+        "#{Inferno::Application['base_url']}/custom/#{suite_id}#{FHIR_BASE_PATH}"
       end
 
       # Errors in developer-provided fixtures are bugs in the test kit rather than tester mistakes.

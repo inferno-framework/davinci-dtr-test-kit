@@ -124,6 +124,46 @@ RSpec.describe DaVinciDTRTestKit::DTRPayerServerV220::InteractionTest, :request 
     ).to_json
   end
 
+  # A $questionnaire-package response with no package: nothing changed since `changedsince`.
+  def unchanged_qp_response
+    FHIR::Parameters.new(
+      parameter: [FHIR::Parameters::Parameter.new(
+        name: 'outcome',
+        resource: FHIR::OperationOutcome.new(issue: [{ severity: 'information', code: 'informational' }])
+      )]
+    ).to_json
+  end
+
+  def changedsince_parameters_input
+    FHIR::Parameters.new(
+      parameter: [FHIR::Parameters::Parameter.new(name: 'coverage', valueString: 'cov-1'),
+                  FHIR::Parameters::Parameter.new(name: 'changedsince', valueInstant: '2026-11-12T14:00:00Z')]
+    ).to_json
+  end
+
+  # A saved form: its contained Questionnaire holds the items received before saving (Q1), and the
+  # template also answers the next item (Q2).
+  def saved_form_template(adaptive: true)
+    extension = if adaptive
+                  [FHIR::Extension.new(
+                    url: 'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-questionnaireAdaptive',
+                    valueBoolean: true
+                  )]
+                else
+                  []
+                end
+    FHIR::QuestionnaireResponse.new(
+      status: 'in-progress',
+      item: %w[Q1 Q2].map do |id|
+        FHIR::QuestionnaireResponse::Item.new(
+          linkId: id, answer: [FHIR::QuestionnaireResponse::Item::Answer.new(valueString: "answer-for-#{id}")]
+        )
+      end,
+      contained: [FHIR::Questionnaire.new(url: canonical, status: 'draft', extension:,
+                                          item: [FHIR::Questionnaire::Item.new(linkId: 'Q1', type: 'string')])]
+    ).to_json
+  end
+
   def single_parameters_input
     FHIR::Parameters.new(
       parameter: [FHIR::Parameters::Parameter.new(name: 'coverage', valueString: 'cov-1')]
@@ -290,6 +330,50 @@ RSpec.describe DaVinciDTRTestKit::DTRPayerServerV220::InteractionTest, :request 
                                questionnaire_response_templates: qr_template(answer_items: ['Q1']))
       expect(result.result).to eq('pass'), result.result_message
       expect(result_messages.map(&:message).join).to include('did not result in a completed form')
+    end
+
+    it 'resumes the saved form template when a changedsince request gets no package' do
+      stub_request(:post, qp_url).to_return(status: 200, body: unchanged_qp_response)
+      stub_request(:post, nq_url).to_return(
+        { status: 200, body: inprogress_nq_response(items: %w[Q1 Q2]) },
+        { status: 200, body: completed_nq_response }
+      )
+      result = run(test_class, url:,
+                               questionnaire_package_request_parameters: changedsince_parameters_input,
+                               questionnaire_response_templates: saved_form_template)
+      expect(result.result).to eq('pass'), result.result_message
+      expect(WebMock).to have_requested(:post, nq_url).twice
+      # The first request is the saved form: only the answer to the item received before saving.
+      expect(WebMock).to(have_requested(:post, nq_url).with do |request|
+        request.body.include?('answer-for-Q1') && !request.body.include?('answer-for-Q2')
+      end.once)
+      expect(result_messages.map(&:message).join).to_not include('did not result in a completed form')
+    end
+
+    it 'does not resume when the request without changedsince gets no package' do
+      stub_request(:post, qp_url).to_return(status: 200, body: unchanged_qp_response)
+      result = run(test_class, url:,
+                               questionnaire_package_request_parameters: single_parameters_input,
+                               questionnaire_response_templates: saved_form_template)
+      expect(result.result).to eq('pass'), result.result_message
+      expect(WebMock).to_not have_requested(:post, nq_url)
+    end
+
+    it 'does not resume a template whose contained Questionnaire is not adaptive' do
+      stub_request(:post, qp_url).to_return(status: 200, body: unchanged_qp_response)
+      result = run(test_class, url:,
+                               questionnaire_package_request_parameters: changedsince_parameters_input,
+                               questionnaire_response_templates: saved_form_template(adaptive: false))
+      expect(result.result).to eq('pass'), result.result_message
+      expect(WebMock).to_not have_requested(:post, nq_url)
+    end
+
+    it 'does not resume when the changedsince request fails' do
+      stub_request(:post, qp_url).to_return(status: 400, body: FHIR::OperationOutcome.new.to_json)
+      run(test_class, url:,
+                      questionnaire_package_request_parameters: changedsince_parameters_input,
+                      questionnaire_response_templates: saved_form_template)
+      expect(WebMock).to_not have_requested(:post, nq_url)
     end
 
     it 'skips the NQ loop for adaptive questionnaires when no template is provided' do

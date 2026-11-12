@@ -19,7 +19,10 @@ module DaVinciDTRTestKit
   #   If set, subsequent calls to the operation will return an OperationOutcome.
   # - qp_unchanged_since: (Optional) set to true if Inferno should respond to any $questionnaire-package
   #   request that includes a `changedsince` parameter that nothing has changed: a 200 Parameters
-  #   response with only an informational outcome. Checked before qp_single_use.
+  #   response with only an informational outcome. Checked before qp_single_use. When set,
+  #   $next-question also accepts Questionnaires returned during earlier waits of the same workflow.
+  # - dtr_interaction_tag: (Optional) set on an individual interaction wait test to add a tag to the
+  #   requests received during that wait, so that later tests can tell the waits of a group apart.
   # - interaction_instructions: (Optional) markdown that the interaction wait dialog shows between
   #   its default introduction and its closing sentence with the link to continue.
   # - qp_response_template_*: (Required) one of the following must be set to specified
