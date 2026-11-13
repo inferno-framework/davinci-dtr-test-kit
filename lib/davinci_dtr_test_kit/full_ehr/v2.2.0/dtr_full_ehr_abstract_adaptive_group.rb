@@ -20,6 +20,10 @@ module DaVinciDTRTestKit
   # - qp_single_use: (Optional) set to true if Inferno should return only one successful
   #   response to the $questionnaire-package operation during the interaction.
   #   If set, subsequent calls to the operation will return an OperationOutcome.
+  # - interaction_message: (Optional) markdown that replaces the start of the interaction
+  #   wait message (everything before the endpoint details), for scenarios that need specific
+  #   instructions. Use `%<continuation_url>s` where the link to continue belongs. If not set,
+  #   the standard message is used.
   # - qp_response_template_*: (Required) one of the following must be set to specified
   #   to indicate the source of the template that Inferno will use to build for responses
   #   to $questionnaire-package operation requests. Templates come in the form of a FHIR

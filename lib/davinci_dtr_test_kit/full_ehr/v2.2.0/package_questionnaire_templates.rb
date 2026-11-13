@@ -1,5 +1,6 @@
 require_relative '../../cross_suite/canonical_matching'
 require_relative '../../cross_suite/inferno_control_extensions'
+require_relative '../../urls'
 
 module DaVinciDTRTestKit
   # Builds Questionnaires in $questionnaire-package responses from $next-question templates so
@@ -22,6 +23,21 @@ module DaVinciDTRTestKit
     include CanonicalMatching
 
     class MissingTemplateError < StandardError; end
+
+    QUESTIONNAIRE_ADAPTIVE_URL =
+      'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-questionnaireAdaptive'.freeze
+
+    # A questionnaireAdaptive valueUrl tells the client where to send $next-question, so in a Questionnaire
+    # that Inferno returns it must point to this Inferno instance. Templates can't know which host Inferno
+    # runs on, so any valueUrl is replaced with Inferno's simulated payer FHIR base. A valueBoolean is left
+    # as it is.
+    def use_inferno_next_question_url(questionnaire)
+      questionnaire.extension.each do |extension|
+        next unless extension.url == QUESTIONNAIRE_ADAPTIVE_URL && extension.valueUrl.present?
+
+        extension.valueUrl = "#{Inferno::Application['base_url']}/custom/dtr_full_ehr_v220#{FHIR_BASE_PATH}"
+      end
+    end
 
     def package_bundles(parameters)
       parameters.parameter.select { |param| param.name == 'packagebundle' }.map(&:resource).grep(FHIR::Bundle)

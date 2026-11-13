@@ -15,6 +15,7 @@ require_relative 'must_support/dtr_questionnaire_response_base_must_support_test
 require_relative 'must_support/dtr_questionnaire_response_adaptive_must_support_test'
 require_relative 'workflows/dtr_full_ehr_workflow_adaptive_group'
 require_relative 'workflows/dtr_full_ehr_workflow_standard_group'
+require_relative 'answer_origin/dtr_full_ehr_workflow_answer_origin_group'
 
 module DaVinciDTRTestKit
   class DTRFullEHRSuiteV220 < Inferno::TestSuite
@@ -43,13 +44,13 @@ module DaVinciDTRTestKit
       }
     ]
 
-    # requirement_sets(
-    #   {
-    #     identifier: 'hl7.fhir.us.davinci-dtr_2.2.0',
-    #     title: 'Da Vinci Documentation Templates and Rules (DTR) v2.2.0',
-    #     actor: 'Full EHR'
-    #   }
-    # )
+    requirement_sets(
+      {
+        identifier: 'hl7.fhir.us.davinci-dtr_2.2.0',
+        title: 'Da Vinci Documentation Templates and Rules (DTR) v2.2.0',
+        actor: 'DTR Client'
+      }
+    )
 
     suite_option :client_type,
                  title: 'Client Security Type',
@@ -119,6 +120,7 @@ module DaVinciDTRTestKit
 
       group from: :dtr_full_ehr_v220_workflow_standard
       group from: :dtr_full_ehr_v220_workflow_adaptive
+      group from: :dtr_full_ehr_v220_workflow_answer_origin
     end
 
     group do

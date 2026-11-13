@@ -9,6 +9,11 @@ module DaVinciDTRTestKit
     end
 
     def parse_fhir_request_entity(body, entity, request_index)
+      if body.blank?
+        add_request_message('error', "#{entity} body is empty.", request_index)
+        return nil
+      end
+
       FHIR.from_contents(body)
     rescue JSON::ParserError
       add_request_message('error', "#{entity} contains invalid JSON.", request_index)
