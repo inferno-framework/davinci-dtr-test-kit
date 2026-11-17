@@ -5,7 +5,7 @@ RSpec.describe DaVinciDTRTestKit::DTRFullEHRV220LogQuestionnaireErrorsRequestVal
   let(:result) { repo_create(:result, test_session_id: test_session.id) }
   let(:log_errors_url) { described_class.new.log_questionnaire_errors_url }
   let(:qp_url) { described_class.new.questionnaire_package_url }
-  let(:questionnaire_url) { 'urn:inferno:dtr-test-kit:dinner-order-cql-error' }
+  let(:questionnaire_url) { 'urn:inferno:dtr-test-kit:cql-error-adaptive' }
   let(:questionnaire_canonical) { "#{questionnaire_url}|1.0.0" }
 
   before do

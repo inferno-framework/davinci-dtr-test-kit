@@ -20,16 +20,16 @@ RSpec.describe DaVinciDTRTestKit::DTRFullEHRV220NextQuestionStoppedAfterCQLError
   end
 
   # A $next-question response: a QuestionnaireResponse whose contained Questionnaire holds the
-  # items returned so far, nested the way the dinner questionnaire nests them.
+  # items returned so far. The scenario's questionnaire has item 1 (manual answer) and item 2
+  # (the malformed calculatedExpression), added one per response.
   def nq_response_json(*link_ids)
     {
       resourceType: 'QuestionnaireResponse',
       status: 'in-progress',
       questionnaire: '#q',
       contained: [
-        { resourceType: 'Questionnaire', id: 'q', status: 'draft',
-          url: 'urn:inferno:dtr-test-kit:dinner-order-cql-error',
-          item: [{ linkId: '3', type: 'group', item: link_ids.map { |link_id| { linkId: link_id, type: 'string' } } }] }
+        { resourceType: 'Questionnaire', id: 'q', status: 'draft', url: 'urn:inferno:dtr-test-kit:cql-error-adaptive',
+          item: link_ids.map { |link_id| { linkId: link_id, type: 'string' } } }
       ]
     }.to_json
   end
@@ -42,19 +42,18 @@ RSpec.describe DaVinciDTRTestKit::DTRFullEHRV220NextQuestionStoppedAfterCQLError
   end
 
   it 'skips when no response returned the item containing the malformed CQL' do
-    create_nq_request(nq_response_json('3.1'))
-    create_nq_request(nq_response_json('3.1', '3.2.a'))
+    create_nq_request(nq_response_json('1'))
 
     result = run(described_class)
 
     expect(result.result).to eq('skip')
-    expect(result.result_message).to include("linkId '3.3'")
+    expect(result.result_message).to include("linkId '2'")
     expect(result.result_message).to include('never exposed to the error')
   end
 
   it 'passes when the response containing the error item is the last $next-question exchange' do
-    create_nq_request(nq_response_json('3.1'))
-    create_nq_request(nq_response_json('3.1', '3.2.a', '3.3'))
+    create_nq_request(nq_response_json('1'))
+    create_nq_request(nq_response_json('1', '2'))
 
     result = run(described_class)
 
@@ -63,10 +62,10 @@ RSpec.describe DaVinciDTRTestKit::DTRFullEHRV220NextQuestionStoppedAfterCQLError
   end
 
   it 'fails, counting the extra requests, when the client keeps calling $next-question after the error' do
-    create_nq_request(nq_response_json('3.1'))
-    create_nq_request(nq_response_json('3.1', '3.3'))
-    create_nq_request(nq_response_json('3.1', '3.3'))
-    create_nq_request(nq_response_json('3.1', '3.3'))
+    create_nq_request(nq_response_json('1'))
+    create_nq_request(nq_response_json('1', '2'))
+    create_nq_request(nq_response_json('1', '2'))
+    create_nq_request(nq_response_json('1', '2'))
 
     result = run(described_class)
 
@@ -78,7 +77,7 @@ RSpec.describe DaVinciDTRTestKit::DTRFullEHRV220NextQuestionStoppedAfterCQLError
   it 'ignores unsuccessful responses and responses that are not a QuestionnaireResponse' do
     create_nq_request({ resourceType: 'OperationOutcome', issue: [] }.to_json, status: 400)
     create_nq_request('not json')
-    create_nq_request(nq_response_json('3.1', '3.3'))
+    create_nq_request(nq_response_json('1', '2'))
 
     result = run(described_class)
 
@@ -89,16 +88,16 @@ RSpec.describe DaVinciDTRTestKit::DTRFullEHRV220NextQuestionStoppedAfterCQLError
   it 'uses the configured cql_error_item_link_id' do
     configured_class = Class.new(described_class) do
       id :configured_link_id_nq_stopped_spec_test
-      config options: { cql_error_item_link_id: '3.2.a' }
+      config options: { cql_error_item_link_id: '1' }
     end
     Inferno::Repositories::Tests.new.insert(configured_class)
-    create_nq_request(nq_response_json('3.1', '3.2.a'))
-    create_nq_request(nq_response_json('3.1', '3.2.a', '3.3'))
+    create_nq_request(nq_response_json('1'))
+    create_nq_request(nq_response_json('1', '2'))
 
     result = run(configured_class)
 
     expect(result.result).to eq('fail')
-    expect(result.result_message).to include("linkId '3.2.a'")
+    expect(result.result_message).to include("linkId '1'")
   end
 
   describe 'scoping requests to a configured dtr_workflow_tag' do
@@ -115,7 +114,7 @@ RSpec.describe DaVinciDTRTestKit::DTRFullEHRV220NextQuestionStoppedAfterCQLError
     end
 
     it 'ignores requests tagged for a different workflow' do
-      create_nq_request(nq_response_json('3.1', '3.3'), tags: [DaVinciDTRTestKit::CLIENT_NEXT_TAG, 'adaptive'])
+      create_nq_request(nq_response_json('1', '2'), tags: [DaVinciDTRTestKit::CLIENT_NEXT_TAG, 'adaptive'])
 
       result = run(scoped_test_class)
 
@@ -123,8 +122,8 @@ RSpec.describe DaVinciDTRTestKit::DTRFullEHRV220NextQuestionStoppedAfterCQLError
     end
 
     it 'only considers requests tagged for the configured workflow' do
-      create_nq_request(nq_response_json('3.1', '3.3'), tags: [DaVinciDTRTestKit::CLIENT_NEXT_TAG, 'cql_error'])
-      create_nq_request(nq_response_json('3.1', '3.3'), tags: [DaVinciDTRTestKit::CLIENT_NEXT_TAG, 'adaptive'])
+      create_nq_request(nq_response_json('1', '2'), tags: [DaVinciDTRTestKit::CLIENT_NEXT_TAG, 'cql_error'])
+      create_nq_request(nq_response_json('1', '2'), tags: [DaVinciDTRTestKit::CLIENT_NEXT_TAG, 'adaptive'])
 
       result = run(scoped_test_class)
 

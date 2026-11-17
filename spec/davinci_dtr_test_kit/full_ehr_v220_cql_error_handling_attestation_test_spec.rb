@@ -33,7 +33,7 @@ RSpec.describe DaVinciDTRTestKit::DTRFullEHRV220CQLErrorHandlingAttestationTest 
 
   def questionnaire_hash(url:, version: '1.0.0', title: nil)
     { resourceType: 'Questionnaire', status: 'active', url:, version:, title:,
-      item: [{ linkId: '3.3', type: 'string' }] }.compact
+      item: [{ linkId: '2', type: 'string' }] }.compact
   end
 
   it 'skips when no Questionnaire Package request returned a Questionnaire' do
@@ -44,14 +44,14 @@ RSpec.describe DaVinciDTRTestKit::DTRFullEHRV220CQLErrorHandlingAttestationTest 
   end
 
   it 'waits for the attestation, listing the returned Questionnaire and both attestation links' do
-    create_qp_request(qp_response_json(questionnaire_hash(url: 'urn:inferno:dtr-test-kit:dinner-order-cql-error',
-                                                          title: 'Dinner Order (CQL Error)')))
+    create_qp_request(qp_response_json(questionnaire_hash(url: 'urn:inferno:dtr-test-kit:cql-error-adaptive',
+                                                          title: 'CQL Error (Adaptive)')))
 
     result = run(described_class)
 
     expect(result.result).to eq('wait')
     expect(result.result_message)
-      .to include('Dinner Order (CQL Error) (urn:inferno:dtr-test-kit:dinner-order-cql-error|1.0.0)')
+      .to include('CQL Error (Adaptive) (urn:inferno:dtr-test-kit:cql-error-adaptive|1.0.0)')
     expect(result.result_message).to include('prohibited')
     expect(result.result_message).to include('PHI')
     expect(result.result_message).to include('/resume_pass?token=')
@@ -59,7 +59,7 @@ RSpec.describe DaVinciDTRTestKit::DTRFullEHRV220CQLErrorHandlingAttestationTest 
   end
 
   it 'outputs the attestation urls' do
-    create_qp_request(qp_response_json(questionnaire_hash(url: 'urn:inferno:dtr-test-kit:dinner-order-cql-error')))
+    create_qp_request(qp_response_json(questionnaire_hash(url: 'urn:inferno:dtr-test-kit:cql-error-adaptive')))
 
     run(described_class)
 
@@ -84,7 +84,7 @@ RSpec.describe DaVinciDTRTestKit::DTRFullEHRV220CQLErrorHandlingAttestationTest 
     end
 
     it 'ignores requests tagged for a different workflow' do
-      create_qp_request(qp_response_json(questionnaire_hash(url: 'urn:inferno:dtr-test-kit:dinner-order-cql-error')),
+      create_qp_request(qp_response_json(questionnaire_hash(url: 'urn:inferno:dtr-test-kit:cql-error-adaptive')),
                         tags: [DaVinciDTRTestKit::QUESTIONNAIRE_PACKAGE_TAG, 'static'])
 
       result = run(scoped_test_class)
@@ -93,7 +93,7 @@ RSpec.describe DaVinciDTRTestKit::DTRFullEHRV220CQLErrorHandlingAttestationTest 
     end
 
     it 'only considers requests tagged for the configured workflow' do
-      create_qp_request(qp_response_json(questionnaire_hash(url: 'urn:inferno:dtr-test-kit:dinner-order-cql-error')),
+      create_qp_request(qp_response_json(questionnaire_hash(url: 'urn:inferno:dtr-test-kit:cql-error-adaptive')),
                         tags: [DaVinciDTRTestKit::QUESTIONNAIRE_PACKAGE_TAG, 'cql_error'])
 
       result = run(scoped_test_class)

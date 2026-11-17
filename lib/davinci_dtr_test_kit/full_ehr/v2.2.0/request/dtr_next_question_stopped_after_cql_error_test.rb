@@ -21,7 +21,7 @@ module DaVinciDTRTestKit
       the client never reached that item, because the client was then never exposed to the error.
     )
 
-    DEFAULT_CQL_ERROR_LINK_ID = '3.3'.freeze
+    DEFAULT_CQL_ERROR_LINK_ID = '2'.freeze
 
     def target_tags
       tags = [CLIENT_NEXT_TAG]

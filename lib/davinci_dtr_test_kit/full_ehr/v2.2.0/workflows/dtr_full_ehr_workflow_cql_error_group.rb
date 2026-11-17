@@ -8,10 +8,11 @@ require_relative '../request/dtr_next_question_stopped_after_cql_error_test'
 require_relative '../request/dtr_log_questionnaire_errors_request_validation_test'
 
 module DaVinciDTRTestKit
-  # Scenario for ID-194: Inferno returns an adaptive Questionnaire and, partway through the
-  # $next-question exchange, adds an item whose non-pre-population logic is malformed CQL. The
-  # client is expected to stop asking for questions, log the error, and stop the user, so this
-  # group does not extend the abstract adaptive group, whose tests expect completed forms.
+  # Scenario for ID-194: Inferno returns a two-stage adaptive Questionnaire. The first
+  # $next-question response asks for one manually entered answer; the second adds an item whose
+  # non-pre-population logic is malformed CQL. The client is expected to stop asking for
+  # questions, log the error, and stop the user, so this group does not extend the abstract
+  # adaptive group, whose tests expect completed forms.
   class DTRFullEHRV220WorkflowCQLError < Inferno::TestGroup
     title 'CQL Error Handling'
     id :dtr_full_ehr_v220_workflow_cql_error
@@ -21,11 +22,11 @@ module DaVinciDTRTestKit
       reports the error to the payer using the `$log-questionnaire-errors` operation, and prohibits
       the user from completing the form.
 
-      Inferno returns an adaptive Questionnaire. Its pre-population logic is valid, but once the
-      dinner choice is answered, Inferno's `$next-question` response adds the "Any special requests?"
-      item, whose `calculatedExpression` is malformed CQL. Because the error is in questionnaire
-      logic rather than pre-population logic, the client is expected to stop rather than continue
-      with manual entry (see
+      Inferno returns a two-stage adaptive Questionnaire. The first `$next-question` response asks
+      for a single manually entered answer. Once it is answered, the next `$next-question` response
+      adds a read-only summary item whose `calculatedExpression` is malformed CQL. Because the error
+      is in questionnaire logic rather than pre-population logic, the client is expected to stop
+      rather than continue with manual entry (see
       [spec-76](https://hl7.org/fhir/us/davinci-dtr/2.2.0/en/specification.html#ci-c-spec-76) through
       [spec-81](https://hl7.org/fhir/us/davinci-dtr/2.2.0/en/specification.html#ci-c-spec-81)).
       Inferno checks mechanically that no `$next-question` request follows the response containing
@@ -38,12 +39,12 @@ module DaVinciDTRTestKit
     INTERACTION_INSTRUCTIONS = <<~TEXT.freeze
       Inferno will wait while the tester uses the system to retrieve the adaptive Questionnaire
       from Inferno's simulated payer server and begin completing it with `$next-question` requests.
-      After the dinner choice is answered, Inferno's `$next-question` response adds the
-      "Any special requests?" item, whose `calculatedExpression` is malformed CQL (logic that is
-      not used for pre-population). The client is expected to recognize the problem, make no
-      further `$next-question` requests, report the error to Inferno using the
-      `$log-questionnaire-errors` operation, notify the user, and prohibit further completion of
-      the form.
+      The first `$next-question` response asks for a single manually entered answer. After it is
+      answered, the next `$next-question` response adds a read-only summary item whose
+      `calculatedExpression` is malformed CQL (logic that is not used for pre-population). The
+      client is expected to recognize the problem, make no further `$next-question` requests,
+      report the error to Inferno using the `$log-questionnaire-errors` operation, notify the
+      user, and prohibit further completion of the form.
 
       Once the client has reported the error and stopped the user, use the link below to continue.
     TEXT
@@ -54,11 +55,9 @@ module DaVinciDTRTestKit
         dtr_workflow_tag: 'cql_error',
         dtr_exclude_from_questionnaire_must_support: true,
         dtr_interaction_instructions: INTERACTION_INSTRUCTIONS,
-        cql_error_item_link_id: '3.3',
-        qp_response_template_fixture: File.join('dinner_cql_error',
-                                                'parameters_questionnaire_dinner_order_cql_error.json'),
-        nq_questionnaire_template_fixture: File.join('dinner_cql_error',
-                                                     'dinner_order_cql_error_next_question_template.json')
+        cql_error_item_link_id: '2',
+        qp_response_template_fixture: File.join('cql_error', 'parameters_questionnaire_cql_error.json'),
+        nq_questionnaire_template_fixture: File.join('cql_error', 'cql_error_next_question_template.json')
       }
     )
 

@@ -1,0 +1,61 @@
+{
+  "resourceType": "Questionnaire",
+  "id": "CQLErrorAdaptive",
+  "url": "urn:inferno:dtr-test-kit:cql-error-adaptive",
+  "meta": {
+    "profile": [
+      "http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/dtr-questionnaire-adapt",
+      "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-adapt"
+    ]
+  },
+  "extension": [
+    {
+      "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-questionnaireAdaptive",
+      "valueBoolean": true
+    }
+  ],
+  "derivedFrom": [
+    "urn:inferno:dtr-test-kit:cql-error-adaptive"
+  ],
+  "name": "CQLErrorAdaptive",
+  "title": "CQL Error (Adaptive)",
+  "description": "Two-stage adaptive Questionnaire for the CQL error scenario. The first $next-question response asks for one manually entered string; once it is answered, the next response adds a read-only summary item whose calculatedExpression is malformed CQL. Used to check that DTR clients recognize problematic CQL in logic that is not used for pre-population, stop requesting further questions, report the error with $log-questionnaire-errors, and prohibit completion of the form.",
+  "status": "draft",
+  "subjectType": [
+    "Patient"
+  ],
+  "date": "2026-11-17",
+  "publisher": "Inferno",
+  "item": [
+    {
+      "linkId": "1",
+      "text": "Describe the service or equipment being requested.",
+      "type": "string",
+      "required": true
+    },
+    {
+      "linkId": "2",
+      "text": "Request summary (calculated)",
+      "type": "string",
+      "required": false,
+      "readOnly": true,
+      "extension": [
+        {
+          "url": "https://inferno.healthit.gov/test-kits/davinci-dtr/StructureDefinition/extension-inclusion-criteria",
+          "valueExpression": {
+            "language": "text/fhirpath",
+            "expression": "item.where(linkId = '1').answer.value.ofType(string).exists()"
+          }
+        },
+        {
+          "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-calculatedExpression",
+          "valueExpression": {
+            "description": "Deliberately malformed CQL concatenation: an unclosed list brace and a dangling + operator. Clients executing CQL must not run it and must report the error.",
+            "language": "text/cql",
+            "expression": "Combine({'Requested: ', 'see the answer above', ' ') + ' will be reviewed' +"
+          }
+        }
+      ]
+    }
+  ]
+}
