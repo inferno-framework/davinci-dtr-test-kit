@@ -23,7 +23,7 @@ module DaVinciDTRTestKit
   # - interaction_message: (Optional) markdown that replaces the start of the interaction
   #   wait message (everything before the endpoint details), for scenarios that need specific
   #   instructions. Use `%<continuation_url>s` where the link to continue belongs. If not set,
-  #   the standard message is used.
+  #   the standard message is used. Write a literal `%` as `%%`.
   # - qp_response_template_*: (Required) one of the following must be set to specified
   #   to indicate the source of the template that Inferno will use to build for responses
   #   to $questionnaire-package operation requests. Templates come in the form of a FHIR
