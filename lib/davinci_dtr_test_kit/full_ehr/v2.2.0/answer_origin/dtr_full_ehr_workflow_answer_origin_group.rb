@@ -27,7 +27,8 @@ module DaVinciDTRTestKit
       options: {
         qp_single_use: true,
         dtr_workflow_tag: 'answer_origin',
-        qp_response_template_fixture: File.join('answer_origin', 'answer_origin_questionnaire_package_response.json'),
+        qp_response_template_fixture: File.join('answer_origin',
+                                                'parameters_questionnaire_answer_origin_adaptive.json'),
         nq_questionnaire_template_fixture: File.join('answer_origin',
                                                      'answer_origin_adaptive_next_question_template.json'),
         interaction_message: <<~MESSAGE

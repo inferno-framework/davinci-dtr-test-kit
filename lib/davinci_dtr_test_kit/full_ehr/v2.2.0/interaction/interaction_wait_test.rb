@@ -65,7 +65,7 @@ module DaVinciDTRTestKit
       one or more DTR Questionnaires retrieved from Inferno's simulated
       payer server.
 
-      When all Questionnaire returned by Inferno during this period
+      When all Questionnaires returned by Inferno during this period
       have been completed and saved to the EHR [Click here](%<continuation_url>s)
       to continue.
     MESSAGE

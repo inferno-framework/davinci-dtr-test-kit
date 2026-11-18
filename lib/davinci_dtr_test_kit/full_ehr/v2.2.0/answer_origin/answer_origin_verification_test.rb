@@ -8,9 +8,17 @@ module DaVinciDTRTestKit
     id :dtr_full_ehr_v220_answer_origin_verification
     title 'Answers have the expected information-origin details'
     description %(
-      This test checks the [information-origin](https://hl7.org/fhir/us/davinci-dtr/2.2.0/en/StructureDefinition-information-origin.html)
-      extension on the answers to the three questions in Inferno's answer origin Questionnaire, using the
-      QuestionnaireResponse the client sent on the $next-question request that Inferno marked `completed`:
+      The DTR IG [requires](https://hl7.org/fhir/us/davinci-dtr/2.2.0/en/specification.html#ci-c-spec-132)
+      that a DTR client give providers the ability, but not a requirement, to review and revise pre-populated
+      answers, and [requires](https://hl7.org/fhir/us/davinci-dtr/2.2.0/en/specification.html#ci-c-spec-137)
+      that when a user fills in or changes an answer, the client populate the
+      [information-origin](https://hl7.org/fhir/us/davinci-dtr/2.2.0/en/StructureDefinition-information-origin.html)
+      extension, setting `author` to the current user and `source` to `override` for a changed pre-populated
+      answer or `manual` otherwise.
+
+      During this test, Inferno verifies the information-origin extension on the answers to the three questions
+      in Inferno's answer origin Questionnaire, using the QuestionnaireResponse the client sent on the
+      $next-question request that Inferno marked `completed`:
       - **Last Name (don't change!)** was pre-populated and left alone, so its source must be `auto-client`.
         This shows users are not required to change pre-populated answers.
       - **Preferred First Name (update)** was pre-populated and then changed, so its source must be `override`.
@@ -61,15 +69,9 @@ module DaVinciDTRTestKit
 
       # Requests are in the order they were received, so search from the end to find the request whose
       # response Inferno marked `completed`. That request carries the final set of answers.
-      # Bodies are checked for blank before parsing
-      completed_request = requests.reverse.find do |request|
-        next false if request.response_body.blank?
-
-        response_questionnaire_response =
-          questionnaire_response_from_next_question_response(FHIR.from_contents(request.response_body))
-        response_questionnaire_response&.status == 'completed'
-      rescue JSON::ParserError
-        false
+      # parsed_operation_bodies leaves out requests whose body is empty or isn't valid JSON.
+      completed_request, _completed_response = parsed_operation_bodies(requests).reverse.find do |_request, response|
+        questionnaire_response_from_next_question_response(response)&.status == 'completed'
       end
       skip_if completed_request.nil?,
               'No $next-question request resulted in a completed QuestionnaireResponse, ' \
@@ -77,26 +79,22 @@ module DaVinciDTRTestKit
 
       # The client sent the completing request, so a missing or unreadable QuestionnaireResponse in it is a
       # problem with the client.
-      request_body = completed_request.request_body
-      assert request_body.present?, 'The completing $next-question request has an empty body.'
+      assert completed_request.request_body.present?, 'The completing $next-question request has an empty body.'
 
-      questionnaire_response = begin
-        questionnaire_response_from_next_question_request(FHIR.from_contents(request_body))
-      rescue JSON::ParserError
-        nil
-      end
+      _request, request_resource = parsed_operation_bodies([completed_request], body: :request_body).first
+      questionnaire_response = questionnaire_response_from_next_question_request(request_resource)
       assert questionnaire_response.present?,
              'The completing $next-question request does not contain a valid QuestionnaireResponse.'
 
-      # Collect the first answer to each item. Items can be nested directly under other items or
-      # beneath an answer, so both are added to the list as they are found.
+      # Collect the answer to each question. Questions can be nested under other items or beneath an answer,
+      # so nested items are included. If a question appears more than once, its first answer is used.
+      all_response_items =
+        questionnaire_response.item + nested_questionnaire_response_items(questionnaire_response.item)
       answers_by_link_id = {}
-      response_items_to_check = questionnaire_response.item.dup
-      until response_items_to_check.empty?
-        response_item = response_items_to_check.shift
-        response_items_to_check.concat(response_item.item)
-        response_item.answer.each { |answer| response_items_to_check.concat(answer.item) }
-        answers_by_link_id[response_item.linkId] = response_item.answer.first if response_item.answer.present?
+      all_response_items.each do |response_item|
+        next if response_item.answer.blank?
+
+        answers_by_link_id[response_item.linkId] ||= response_item.answer.first
       end
 
       EXPECTED_ANSWERS.each do |expected|

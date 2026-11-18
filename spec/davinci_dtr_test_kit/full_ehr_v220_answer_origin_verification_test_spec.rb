@@ -304,6 +304,16 @@ RSpec.describe DaVinciDTRTestKit::DTRFullEHRV220AnswerOriginVerificationTest do 
     expect(result.result).to eq('pass'), result.result_message
   end
 
+  it 'uses the first answer when a question appears more than once' do
+    response = correct_questionnaire_response
+    response[:item] << { linkId: 'preferred-first-name-update', answer: [answer('Jo', 'auto-client')] }
+    create_nq_request(response)
+
+    result = run(described_class)
+
+    expect(result.result).to eq('pass'), result.result_message
+  end
+
   it 'only considers requests tagged for the configured workflow' do
     scoped_test_class = Class.new(described_class) do
       id :scoped_answer_origin_verification_spec_test

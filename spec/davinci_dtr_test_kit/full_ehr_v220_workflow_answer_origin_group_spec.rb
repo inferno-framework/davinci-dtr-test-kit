@@ -24,7 +24,7 @@ RSpec.describe DaVinciDTRTestKit::DTRFullEHRV220WorkflowAnswerOrigin do # ruboco
 
   it "uses Inferno's answer origin Questionnaire rather than tester-provided templates" do
     expect(wait_test.config.options[:qp_response_template_fixture])
-      .to eq(File.join('answer_origin', 'answer_origin_questionnaire_package_response.json'))
+      .to eq(File.join('answer_origin', 'parameters_questionnaire_answer_origin_adaptive.json'))
     expect(wait_test.config.options[:nq_questionnaire_template_fixture])
       .to eq(File.join('answer_origin', 'answer_origin_adaptive_next_question_template.json'))
     # The group declares no template inputs of its own (client_id comes from the wait test).
