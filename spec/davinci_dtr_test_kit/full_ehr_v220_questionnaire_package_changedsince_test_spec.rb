@@ -6,6 +6,8 @@ RSpec.describe DaVinciDTRTestKit::DTRFullEHRV220QuestionnairePackageChangedSince
   let(:qp_url) { described_class.new.questionnaire_package_url }
   let(:retrieved_at) { utc_time(2026, 11, 4, 20, 0, 0) }
   let(:resumed_at) { utc_time(2026, 11, 4, 20, 30, 0) }
+  let(:before_pause) { DaVinciDTRTestKit::DTRFullEHRV220ResumeAnswerSequenceTest::BEFORE_PAUSE_TAG }
+  let(:after_pause) { DaVinciDTRTestKit::DTRFullEHRV220ResumeAnswerSequenceTest::AFTER_PAUSE_TAG }
 
   # The test database stores request timestamps without a zone and reads them back as local
   # time, as Inferno does with the Time.now it records. Build times in the local zone so they
@@ -41,7 +43,8 @@ RSpec.describe DaVinciDTRTestKit::DTRFullEHRV220QuestionnairePackageChangedSince
                                 issue: [{ severity: 'information', code: 'informational' }] } }] }.to_json
   end
 
-  def create_qp_request(created_at:, request_body:, response_body:, status: 200)
+  # wait_tag: the dtr_interaction_tag of the wait the request was made during.
+  def create_qp_request(created_at:, request_body:, response_body:, status: 200, wait_tag: before_pause)
     repo_create(
       :request,
       direction: 'incoming',
@@ -52,17 +55,18 @@ RSpec.describe DaVinciDTRTestKit::DTRFullEHRV220QuestionnairePackageChangedSince
       response_body:,
       status:,
       created_at:,
-      tags: [DaVinciDTRTestKit::QUESTIONNAIRE_PACKAGE_TAG]
+      tags: [DaVinciDTRTestKit::QUESTIONNAIRE_PACKAGE_TAG, wait_tag]
     )
   end
 
-  def create_retrieval(created_at: retrieved_at)
-    create_qp_request(created_at:, request_body: request_body, response_body: package_response)
+  def create_retrieval(created_at: retrieved_at, wait_tag: before_pause)
+    create_qp_request(created_at:, request_body: request_body, response_body: package_response, wait_tag:)
   end
 
-  def create_resumed_request(changedsince, created_at: resumed_at, value_type: 'valueInstant')
+  def create_resumed_request(changedsince, created_at: resumed_at, value_type: 'valueInstant',
+                             wait_tag: after_pause)
     create_qp_request(created_at:, request_body: request_body(changedsince:, value_type:),
-                      response_body: unchanged_response)
+                      response_body: unchanged_response, wait_tag:)
   end
 
   it 'skips when no Questionnaire Package requests have been made' do
@@ -84,12 +88,24 @@ RSpec.describe DaVinciDTRTestKit::DTRFullEHRV220QuestionnairePackageChangedSince
 
   it 'fails when no request includes changedsince' do
     create_retrieval
-    create_retrieval(created_at: resumed_at)
+    create_retrieval(created_at: resumed_at, wait_tag: after_pause)
 
     result = run(described_class)
 
     expect(result.result).to eq('fail')
-    expect(result.result_message).to include('No $questionnaire-package request included the `changedsince` parameter')
+    expect(result.result_message).to include('No $questionnaire-package request made while resuming')
+  end
+
+  it 'fails when changedsince is sent only during the first wait, not when resuming' do
+    create_retrieval
+    create_resumed_request('2026-11-04T20:00:00Z', created_at: utc_time(2026, 11, 4, 20, 5, 0),
+                                                   wait_tag: before_pause)
+    create_retrieval(created_at: resumed_at, wait_tag: after_pause)
+
+    result = run(described_class)
+
+    expect(result.result).to eq('fail')
+    expect(result.result_message).to include('No $questionnaire-package request made while resuming')
   end
 
   it 'passes when changedsince falls between the first retrieval and the resumed request' do
@@ -161,8 +177,10 @@ RSpec.describe DaVinciDTRTestKit::DTRFullEHRV220QuestionnairePackageChangedSince
   end
 
   it 'fails when the request with changedsince was made before a package was returned' do
-    create_resumed_request('2026-11-04T19:00:00Z', created_at: utc_time(2026, 11, 4, 19, 30, 0))
+    create_resumed_request('2026-11-04T19:00:00Z', created_at: utc_time(2026, 11, 4, 19, 30, 0),
+                                                   wait_tag: before_pause)
     create_retrieval
+    create_resumed_request('2026-11-04T20:10:00Z')
 
     result = run(described_class)
 
@@ -174,6 +192,7 @@ RSpec.describe DaVinciDTRTestKit::DTRFullEHRV220QuestionnairePackageChangedSince
   it 'fails when the request with changedsince is the one that got the first package' do
     create_qp_request(created_at: retrieved_at, request_body: request_body(changedsince: '2026-11-04T19:00:00Z'),
                       response_body: package_response)
+    create_resumed_request('2026-11-04T20:10:00Z')
 
     result = run(described_class)
 
