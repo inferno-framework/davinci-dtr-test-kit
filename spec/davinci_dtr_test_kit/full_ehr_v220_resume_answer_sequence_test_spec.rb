@@ -3,8 +3,8 @@ require 'davinci_dtr_test_kit/full_ehr/v2.2.0/resume/resume_answer_sequence_test
 RSpec.describe DaVinciDTRTestKit::DTRFullEHRV220ResumeAnswerSequenceTest do # rubocop:disable RSpec/SpecFilePathFormat
   let(:suite_id) { 'dtr_full_ehr_v220' }
   let(:result) { repo_create(:result, test_session_id: test_session.id) }
-  let(:before_pause) { described_class::BEFORE_PAUSE_TAG }
-  let(:after_pause) { described_class::AFTER_PAUSE_TAG }
+  let(:before_pause) { DaVinciDTRTestKit::RESUME_BEFORE_PAUSE_TAG }
+  let(:after_pause) { DaVinciDTRTestKit::RESUME_AFTER_PAUSE_TAG }
 
   # Results returned directly by `run` don't carry their messages, so reload them from the session.
   def messages_for(run_result)

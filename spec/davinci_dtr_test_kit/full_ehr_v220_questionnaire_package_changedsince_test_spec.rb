@@ -6,8 +6,8 @@ RSpec.describe DaVinciDTRTestKit::DTRFullEHRV220QuestionnairePackageChangedSince
   let(:qp_url) { described_class.new.questionnaire_package_url }
   let(:retrieved_at) { utc_time(2026, 11, 4, 20, 0, 0) }
   let(:resumed_at) { utc_time(2026, 11, 4, 20, 30, 0) }
-  let(:before_pause) { DaVinciDTRTestKit::DTRFullEHRV220ResumeAnswerSequenceTest::BEFORE_PAUSE_TAG }
-  let(:after_pause) { DaVinciDTRTestKit::DTRFullEHRV220ResumeAnswerSequenceTest::AFTER_PAUSE_TAG }
+  let(:before_pause) { DaVinciDTRTestKit::RESUME_BEFORE_PAUSE_TAG }
+  let(:after_pause) { DaVinciDTRTestKit::RESUME_AFTER_PAUSE_TAG }
 
   # The test database stores request timestamps without a zone and reads them back as local
   # time, as Inferno does with the Time.now it records. Build times in the local zone so they

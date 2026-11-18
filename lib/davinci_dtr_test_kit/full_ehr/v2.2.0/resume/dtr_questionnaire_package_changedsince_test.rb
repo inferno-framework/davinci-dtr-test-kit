@@ -1,8 +1,8 @@
 require 'time'
+require_relative '../../../tags'
 require_relative '../../../urls'
 require_relative '../../../cross_suite/v2.2.0/multi_request_message_helper'
 require_relative '../../../cross_suite/v2.2.0/questionnaire_helper'
-require_relative 'resume_answer_sequence_test'
 
 module DaVinciDTRTestKit
   class DTRFullEHRV220QuestionnairePackageChangedSinceTest < Inferno::Test
@@ -56,7 +56,7 @@ module DaVinciDTRTestKit
       end
 
       resumed_with_changedsince = changedsince_requests.any? do |request, _index, _changedsince|
-        request.tags.include?(DTRFullEHRV220ResumeAnswerSequenceTest::AFTER_PAUSE_TAG)
+        request.tags.include?(RESUME_AFTER_PAUSE_TAG)
       end
       assert resumed_with_changedsince,
              'No $questionnaire-package request made while resuming (during the **Resume and complete the ' \

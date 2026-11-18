@@ -1,3 +1,4 @@
+require_relative '../../../tags'
 require_relative '../interaction/interaction_wait_test'
 require_relative 'resume_answer_sequence_test'
 require_relative '../request/dtr_questionnaire_package_request_validation_test'
@@ -48,7 +49,7 @@ module DaVinciDTRTestKit
            ),
            config: {
              options: {
-               dtr_interaction_tag: DTRFullEHRV220ResumeAnswerSequenceTest::BEFORE_PAUSE_TAG,
+               dtr_interaction_tag: RESUME_BEFORE_PAUSE_TAG,
                interaction_message: <<~MESSAGE
                  Inferno will wait while the tester uses the system to start Inferno's Resume Questionnaire,
                  retrieved from Inferno's simulated payer server. In this first step, do **not** complete
@@ -74,7 +75,7 @@ module DaVinciDTRTestKit
            ),
            config: {
              options: {
-               dtr_interaction_tag: DTRFullEHRV220ResumeAnswerSequenceTest::AFTER_PAUSE_TAG,
+               dtr_interaction_tag: RESUME_AFTER_PAUSE_TAG,
                interaction_message: <<~MESSAGE
                  Inferno will wait while the tester uses the system to resume and complete the
                  QuestionnaireResponse saved during the previous test:

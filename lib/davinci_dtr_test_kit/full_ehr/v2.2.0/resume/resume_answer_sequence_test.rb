@@ -5,9 +5,6 @@ module DaVinciDTRTestKit
   class DTRFullEHRV220ResumeAnswerSequenceTest < Inferno::Test
     include QuestionnaireHelper
 
-    # Tags the resume group's two waits add to their requests (dtr_interaction_tag).
-    BEFORE_PAUSE_TAG = 'resume_before_pause'.freeze
-    AFTER_PAUSE_TAG = 'resume_after_pause'.freeze
     # Question linkIds in fixtures/resume/resume_adaptive_next_question_template.json.
     QUESTION_1 = 'question-1'.freeze
     QUESTION_2 = 'question-2'.freeze
@@ -37,8 +34,8 @@ module DaVinciDTRTestKit
     end
 
     run do
-      before_pause = nq_requests(BEFORE_PAUSE_TAG)
-      after_pause = nq_requests(AFTER_PAUSE_TAG)
+      before_pause = nq_requests(RESUME_BEFORE_PAUSE_TAG)
+      after_pause = nq_requests(RESUME_AFTER_PAUSE_TAG)
       skip_if before_pause.blank? && after_pause.blank?,
               'No $next-question requests were made during this scenario.'
 

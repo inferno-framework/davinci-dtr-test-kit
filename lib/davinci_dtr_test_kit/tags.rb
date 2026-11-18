@@ -9,4 +9,7 @@ module DaVinciDTRTestKit
   CLIENT_QUESTIONNAIRE_MUST_SUPPORT = 'dtr_questionnaire_must_support'.freeze
   EHR_AUTHORIZE_TAG = 'dtr_smart_app_ehr_authorize'.freeze
   SUPPORTED_PAYER_TAG = 'light_ehr_supported_payer_endpoint'.freeze
+  # Added by the Resume a Questionnaire group's two waits (dtr_interaction_tag).
+  RESUME_BEFORE_PAUSE_TAG = 'resume_before_pause'.freeze
+  RESUME_AFTER_PAUSE_TAG = 'resume_after_pause'.freeze
 end

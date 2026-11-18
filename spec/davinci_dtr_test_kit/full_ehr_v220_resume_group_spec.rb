@@ -55,9 +55,9 @@ RSpec.describe DaVinciDTRTestKit::DTRFullEHRV220WorkflowResume do # rubocop:disa
     relaunch = resume_wait('dtr_full_ehr_v220_resume_relaunch_interaction_wait')
 
     expect(initial.config.options[:dtr_interaction_tag])
-      .to eq(DaVinciDTRTestKit::DTRFullEHRV220ResumeAnswerSequenceTest::BEFORE_PAUSE_TAG)
+      .to eq(DaVinciDTRTestKit::RESUME_BEFORE_PAUSE_TAG)
     expect(relaunch.config.options[:dtr_interaction_tag])
-      .to eq(DaVinciDTRTestKit::DTRFullEHRV220ResumeAnswerSequenceTest::AFTER_PAUSE_TAG)
+      .to eq(DaVinciDTRTestKit::RESUME_AFTER_PAUSE_TAG)
     expect(initial.config.options[:dtr_workflow_tag]).to eq('resume')
   end
 end
