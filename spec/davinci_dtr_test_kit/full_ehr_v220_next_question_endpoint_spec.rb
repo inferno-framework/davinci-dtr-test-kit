@@ -1688,6 +1688,39 @@ RSpec.describe DaVinciDTRTestKit::MockPayer::FullEHRV220NextQuestionEndpoint, :r
       end
     end
 
+    context 'when the contained Questionnaire has a questionnaireAdaptive valueUrl' do
+      let(:adaptive_url) { 'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-questionnaireAdaptive' }
+
+      it "returns it pointing to Inferno's $next-question FHIR base" do
+        run(nq_input_test, client_id:,
+                           qp_response_template: adaptive_questionnaire_package_json,
+                           nq_questionnaire_template: valid_nq_questionnaire_template_json)
+        post_qp_with_token
+
+        request_qr = FHIR::QuestionnaireResponse.new(
+          status: 'in-progress',
+          contained: [
+            FHIR::Questionnaire.new(
+              id: 'DinnerOrderAdaptive',
+              url: 'urn:inferno:dtr-test-kit:dinner-order-adaptive',
+              status: 'draft',
+              extension: [FHIR::Extension.new(url: adaptive_url, valueUrl: 'http://elsewhere.example.org/fhir')]
+            )
+          ]
+        ).to_json
+
+        header('Authorization', "Bearer #{UDAPSecurityTestKit::MockUDAPServer.client_id_to_token(client_id, 5)}")
+        post(nq_server_endpoint, request_qr,
+             'CONTENT_TYPE' => 'application/json',
+             'REQUEST_PATH' => nq_server_endpoint)
+
+        expect(last_response.status).to eq(200)
+        contained_questionnaire = JSON.parse(last_response.body)['contained'].first
+        adaptive_extension = contained_questionnaire['extension'].find { |extension| extension['url'] == adaptive_url }
+        expect(adaptive_extension['valueUrl']).to eq("#{Inferno::Application['base_url']}/custom/dtr_full_ehr_v220/fhir")
+      end
+    end
+
     it 'identifies the test run via the session_path query parameter when no Bearer token is present' do
       run(nq_input_test, client_id:,
                          qp_response_template: adaptive_questionnaire_package_json,

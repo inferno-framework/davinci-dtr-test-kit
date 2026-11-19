@@ -1,30 +1,37 @@
 {
   "resourceType": "Questionnaire",
   "id": "CQLErrorAdaptive",
-  "url": "urn:inferno:dtr-test-kit:cql-error-adaptive",
   "meta": {
     "profile": [
-      "http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/dtr-questionnaire-adapt",
-      "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-adapt"
+      "http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/dtr-questionnaire-adapt"
     ]
+  },
+  "text": {
+    "status": "generated",
+    "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\">A two-stage adaptive questionnaire for demonstrating that a client recognizes malformed CQL in questionnaire logic that is not used for pre-population, stops requesting questions, reports the error with $log-questionnaire-errors, and prohibits completion of the form.</div>"
   },
   "extension": [
     {
       "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-questionnaireAdaptive",
-      "valueBoolean": true
+      "valueUrl": "urn:inferno:dtr:simulated-payer-fhir-base"
+    },
+    {
+      "url": "http://hl7.org/fhir/StructureDefinition/artifact-versionAlgorithm",
+      "valueCoding": {
+        "system": "http://hl7.org/fhir/version-algorithm",
+        "code": "semver"
+      }
     }
   ],
-  "derivedFrom": [
-    "urn:inferno:dtr-test-kit:cql-error-adaptive"
-  ],
-  "name": "CQLErrorAdaptive",
-  "title": "CQL Error (Adaptive)",
-  "description": "Two-stage adaptive Questionnaire for the CQL error scenario. The first $next-question response asks for one manually entered string; once it is answered, the next response adds a read-only summary item whose calculatedExpression is malformed CQL. Used to check that DTR clients recognize problematic CQL in logic that is not used for pre-population, stop requesting further questions, report the error with $log-questionnaire-errors, and prohibit completion of the form.",
+  "url": "urn:inferno:dtr-test-kit:cql-error-adaptive",
+  "version": "1.0.0",
+  "name": "InfernoCQLErrorAdaptiveQuestionnaire",
+  "title": "Inferno CQL Error Questionnaire (Adaptive)",
   "status": "draft",
   "subjectType": [
     "Patient"
   ],
-  "date": "2026-11-17",
+  "date": "2026-11-18",
   "publisher": "Inferno",
   "item": [
     {
@@ -34,11 +41,6 @@
       "required": true
     },
     {
-      "linkId": "2",
-      "text": "Request summary (calculated)",
-      "type": "string",
-      "required": false,
-      "readOnly": true,
       "extension": [
         {
           "url": "https://inferno.healthit.gov/test-kits/davinci-dtr/StructureDefinition/extension-inclusion-criteria",
@@ -55,7 +57,12 @@
             "expression": "Combine({'Requested: ', 'see the answer above', ' ') + ' will be reviewed' +"
           }
         }
-      ]
+      ],
+      "linkId": "2",
+      "text": "Request summary (calculated)",
+      "type": "string",
+      "required": false,
+      "readOnly": true
     }
   ]
 }

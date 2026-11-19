@@ -1,4 +1,4 @@
-require 'davinci_dtr_test_kit/full_ehr/v2.2.0/request/dtr_next_question_stopped_after_cql_error_test'
+require 'davinci_dtr_test_kit/full_ehr/v2.2.0/cql_error/dtr_next_question_stopped_after_cql_error_test'
 
 RSpec.describe DaVinciDTRTestKit::DTRFullEHRV220NextQuestionStoppedAfterCQLErrorTest do # rubocop:disable RSpec/SpecFilePathFormat
   let(:suite_id) { 'dtr_full_ehr_v220' }
@@ -32,6 +32,10 @@ RSpec.describe DaVinciDTRTestKit::DTRFullEHRV220NextQuestionStoppedAfterCQLError
           item: link_ids.map { |link_id| { linkId: link_id, type: 'string' } } }
       ]
     }.to_json
+  end
+
+  it 'watches for the item carrying the malformed CQL in the scenario fixture' do
+    expect(described_class::CQL_ERROR_ITEM_LINK_ID).to eq('2')
   end
 
   it 'skips when no $next-question requests have been made' do
@@ -85,19 +89,14 @@ RSpec.describe DaVinciDTRTestKit::DTRFullEHRV220NextQuestionStoppedAfterCQLError
     expect(result.result_message).to include('$next-question response 3')
   end
 
-  it 'uses the configured cql_error_item_link_id' do
-    configured_class = Class.new(described_class) do
-      id :configured_link_id_nq_stopped_spec_test
-      config options: { cql_error_item_link_id: '1' }
-    end
-    Inferno::Repositories::Tests.new.insert(configured_class)
-    create_nq_request(nq_response_json('1'))
+  it 'ignores responses with an empty body' do
+    create_nq_request('')
     create_nq_request(nq_response_json('1', '2'))
 
-    result = run(configured_class)
+    result = run(described_class)
 
-    expect(result.result).to eq('fail')
-    expect(result.result_message).to include("linkId '1'")
+    expect(result.result).to eq('pass'), result.result_message
+    expect(result.result_message).to include('$next-question response 2')
   end
 
   describe 'scoping requests to a configured dtr_workflow_tag' do

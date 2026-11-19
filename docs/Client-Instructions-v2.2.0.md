@@ -45,16 +45,15 @@ server using SMART Backend Services.
 
 ## Inferno-provided Questionnaire Tests Execution
 
-Inferno provides fixed Questionnaires to demonstrate three workflows that
+Inferno provides fixed Questionnaires to demonstrate the following workflows that
 DTR clients must support:
-1. Standard Questionnaires in group 2.1
-2. Adaptive Questionnaires in group 2.2
-3. CQL error handling in group 2.3, where a two-stage adaptive Questionnaire asks
-   for one manually entered answer and then, in the next `$next-question`
-   response, delivers an item with malformed CQL in a `calculatedExpression`. The
-   client must stop requesting questions, report the error using
-   `$log-questionnaire-errors`, and prohibit the user from completing the form;
-   the tester attests to that behavior instead of to form completion.
+- Standard Questionnaires
+- Adaptive Questionnaires
+- CQL error handling, where a two-stage adaptive Questionnaire asks for one
+  manually entered answer and then, in the next `$next-question` response,
+  delivers an item with malformed CQL in a `calculatedExpression`. The client
+  must stop requesting questions, report the error using
+  `$log-questionnaire-errors`, and prohibit the user from completing the form.
 
 These groups must be executed after the group "1 Client Registration". In each
 case, testers don't need to provide any additional inputs up front. Once
@@ -65,6 +64,12 @@ ask them to confirm that
 1. They were able to render faithfully all features of the returned Questionnaire
    as described in the DTR IG.
 2. Each completed Questionnaire has been stored for later use.
+
+In the CQL error handling workflow, the dialog instead asks testers to continue
+once the client has reported the error and stopped the user. By continuing, they
+attest that the user was notified and prohibited from completing the form and
+that the logged OperationOutcome contains no PHI; there is no separate
+confirmation dialog.
 
 Inferno requires this confirmation because it cannot see or evaluate the UI used
 to display and interact with the Questionnaire. However, it can and does check

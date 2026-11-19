@@ -103,7 +103,18 @@ RSpec.describe DaVinciDTRTestKit::DTRFullEHRV220LogQuestionnaireErrorsRequestVal
     result = run(described_class)
 
     expect(result.result).to eq('fail')
-    expect(messages_for(result)).to include(a_string_matching(/does not contain a recognized FHIR resource/))
+    expect(messages_for(result)).to include(a_string_matching(/Request contains invalid JSON/))
+  end
+
+  it 'fails when the request body is empty' do
+    create_log_errors_request('')
+
+    expect_any_instance_of(described_class).to_not receive(:resource_is_valid?)
+
+    result = run(described_class)
+
+    expect(result.result).to eq('fail')
+    expect(messages_for(result)).to include(a_string_matching(/Request body is empty/))
   end
 
   it 'fails when the request body is a FHIR resource other than Parameters' do

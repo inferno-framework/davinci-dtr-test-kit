@@ -1,27 +1,27 @@
 require_relative '../../../tags'
 require_relative '../../../cross_suite/v2.2.0/questionnaire_helper'
-require_relative '../../short_circuit_interaction_verification'
 
 module DaVinciDTRTestKit
   class DTRFullEHRV220NextQuestionStoppedAfterCQLErrorTest < Inferno::Test
     include QuestionnaireHelper
-    include ShortCircuitInteractionVerification
+
+    # linkId of the item carrying the malformed calculatedExpression in
+    # fixtures/cql_error/cql_error_next_question_template.json.
+    CQL_ERROR_ITEM_LINK_ID = '2'.freeze
 
     id :dtr_full_ehr_v220_nq_stopped_after_cql_error
     title 'Client stops $next-question requests after receiving the CQL error'
     description %(
-      During the interaction, one of Inferno's `$next-question` responses adds an item whose
-      `calculatedExpression` is malformed CQL. A client that recognizes the problem must stop
-      completing the form
-      ([spec-81](https://hl7.org/fhir/us/davinci-dtr/2.2.0/en/specification.html#ci-c-spec-81)),
-      so it must not ask Inferno for further questions.
+      The DTR IG [requires](https://hl7.org/fhir/us/davinci-dtr/2.2.0/en/specification.html#ci-c-spec-81)
+      that, when malformed CQL in questionnaire logic means the form can't be completed reliably, the
+      client notify the user and prohibit further completion of the form.
 
-      This test finds the first `$next-question` response that returned the item containing the
-      error and fails if the client made any `$next-question` request after it. It is skipped when
-      the client never reached that item, because the client was then never exposed to the error.
+      During this test, Inferno verifies that the client made no `$next-question` request after the
+      `$next-question` response that returned the item with the malformed CQL. The test is skipped if
+      no response returned that item.
     )
 
-    DEFAULT_CQL_ERROR_LINK_ID = '2'.freeze
+    verifies_requirements 'hl7.fhir.us.davinci-dtr_2.2.0@spec-81'
 
     def target_tags
       tags = [CLIENT_NEXT_TAG]
@@ -30,27 +30,20 @@ module DaVinciDTRTestKit
       tags
     end
 
-    # linkId of the item carrying the malformed CQL in the scenario's $next-question template.
-    def cql_error_link_id
-      config.options[:cql_error_item_link_id].presence || DEFAULT_CQL_ERROR_LINK_ID
-    end
-
     run do
-      check_for_short_circuit(ok_message: config.options[:short_circuit_pass_message])
-
       requests = load_tagged_requests(*target_tags).sort_by { |request| request.index.to_i }
       skip_if requests.blank?, 'A $next-question request must be made prior to running this test'
 
       error_response_index = requests.index { |request| response_returned_error_item?(request) }
       skip_if error_response_index.nil?,
               'No $next-question response returned the item containing the malformed CQL (linkId ' \
-              "'#{cql_error_link_id}'), so the client was never exposed to the error. Answer the earlier " \
-              'questions until Inferno returns that item.'
+              "'#{CQL_ERROR_ITEM_LINK_ID}'), so the client was never exposed to the error. Answer the first " \
+              'question so that Inferno returns that item.'
 
       later_request_count = requests.length - error_response_index - 1
       assert later_request_count.zero?,
              "The client made #{later_request_count} $next-question request(s) after Inferno returned the item " \
-             "containing the malformed CQL (linkId '#{cql_error_link_id}') in $next-question response " \
+             "containing the malformed CQL (linkId '#{CQL_ERROR_ITEM_LINK_ID}') in $next-question response " \
              "#{error_response_index + 1}. Clients must stop requesting further questions once they detect " \
              'an error in the Questionnaire.'
 
@@ -66,10 +59,12 @@ module DaVinciDTRTestKit
       )
       return false if questionnaire.nil?
 
-      nested_items(questionnaire.item).any? { |item| item.linkId == cql_error_link_id }
+      nested_items(questionnaire.item).any? { |item| item.linkId == CQL_ERROR_ITEM_LINK_ID }
     end
 
     def parsed_response(request)
+      return nil if request.response_body.blank?
+
       FHIR.from_contents(request.response_body)
     rescue JSON::ParserError
       nil

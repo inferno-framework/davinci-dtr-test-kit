@@ -8,6 +8,7 @@ require_relative 'full_ehr_next_question_endpoint'
 require_relative 'full_ehr_value_set_expand_endpoint'
 require_relative 'full_ehr_log_questionnaire_errors_endpoint'
 require_relative '../dtr_full_ehr_options'
+require_relative 'cql_error/dtr_full_ehr_workflow_cql_error_group'
 require_relative 'must_support/dtr_additional_questionnaires_interaction_group'
 require_relative 'must_support/dtr_questionnaire_base_must_support_test'
 require_relative 'must_support/dtr_questionnaire_adaptive_must_support_test'
@@ -16,7 +17,6 @@ require_relative 'must_support/dtr_questionnaire_response_base_must_support_test
 require_relative 'must_support/dtr_questionnaire_response_adaptive_must_support_test'
 require_relative 'workflows/dtr_full_ehr_workflow_adaptive_group'
 require_relative 'workflows/dtr_full_ehr_workflow_standard_group'
-require_relative 'workflows/dtr_full_ehr_workflow_cql_error_group'
 
 module DaVinciDTRTestKit
   class DTRFullEHRSuiteV220 < Inferno::TestSuite
