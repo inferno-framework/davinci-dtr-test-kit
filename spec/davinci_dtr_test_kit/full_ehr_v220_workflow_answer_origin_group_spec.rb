@@ -35,7 +35,7 @@ RSpec.describe DaVinciDTRTestKit::DTRFullEHRV220WorkflowAnswerOrigin do # ruboco
     result = run(wait_test, { client_id: 'answer_origin_group_spec_client_id' })
 
     expect(result.result).to eq('wait'), result.result_message
-    expect(result.result_message).to include("**Last Name (don't change!)**: leave the pre-populated last name")
+    expect(result.result_message).to include("**Last Name (don't change)**: leave the pre-populated last name")
     expect(result.result_message).to include('**By clicking to continue, you attest**')
     continue_link = %r{\[Click here\]\(\S+/resume_pass\?token=answer_origin_group_spec_client_id\)}
     expect(result.result_message).to match(/#{continue_link} to continue and attest\./)
@@ -56,7 +56,7 @@ RSpec.describe DaVinciDTRTestKit::DTRFullEHRV220WorkflowAnswerOrigin do # ruboco
   it 'asks the three questions, pre-populating the first two with FHIRPath and declaring the patient context' do
     items = next_question_template.item
     expect(items.map(&:linkId)).to eq(['last-name-do-not-change', 'preferred-first-name-update', 'new-information-add'])
-    expect(items.map(&:text)).to eq(["Last Name (don't change!)", 'Preferred First Name (update)',
+    expect(items.map(&:text)).to eq(["Last Name (don't change)", 'Preferred First Name (update)',
                                      'New Information (add details)'])
     expect(items.map(&:required)).to all(be(true))
 

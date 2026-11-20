@@ -67,13 +67,13 @@ DTR profiles and requirements.
 
 ## Pre-populated Answers and Answer Origin Tests Execution
 
-Group "2.3 Pre-populated Answers and Answer Origin" checks that users can change
-pre-populated answers without being required to review them, and that the client records
-where each answer came from using the `information-origin` extension. It must be executed
+Group "2.3 Pre-populated Answers and Answer Origin" checks that the client can
+pre-populate answers without user intervention and records the source of each answer
+using the `information-origin` extension in the QuestionnaireResponse. The group must be executed
 after the group "1 Client Registration". Inferno always returns its answer origin
 Questionnaire, an adaptive Questionnaire with three required questions, all returned
 through the first $next-question:
-1. **Last Name (don't change!)**: pre-populated with the patient's last name using FHIRPath.
+1. **Last Name (don't change)**: pre-populated with the patient's last name using FHIRPath.
 2. **Preferred First Name (update)**: pre-populated with the patient's first name using FHIRPath.
 3. **New Information (add details)**: not pre-populated.
 

@@ -1,11 +1,6 @@
 {
   "resourceType": "Questionnaire",
   "id": "inferno-answer-origin-adaptive-questionnaire",
-  "meta": {
-    "profile": [
-      "http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/dtr-questionnaire-adapt"
-    ]
-  },
   "text": {
     "status": "generated",
     "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\">A minimal adaptive questionnaire for demonstrating that users can change pre-populated answers without being required to, and that the client records the origin of each answer.</div>"
@@ -53,7 +48,7 @@
         }
       ],
       "linkId": "last-name-do-not-change",
-      "text": "Last Name (don't change!)",
+      "text": "Last Name (don't change)",
       "type": "string",
       "required": true
     },

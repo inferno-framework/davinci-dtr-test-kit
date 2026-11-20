@@ -7,19 +7,22 @@ module DaVinciDTRTestKit
     title 'Pre-populated Answers and Answer Origin'
     id :dtr_full_ehr_v220_workflow_answer_origin
     description <<~DESCRIPTION
-      During this group, the DTR client will complete a short adaptive Questionnaire and demonstrate that
+      During this group, the DTR client will complete a short adaptive Questionnaire and demonstrate that:
       - users can change pre-populated answers, but are not required to review or change them, and
       - the client records where each answer came from using the
         [information-origin](https://hl7.org/fhir/us/davinci-dtr/2.2.0/en/StructureDefinition-information-origin.html)
         extension.
 
       Inferno returns a Questionnaire with three questions, each labeled with what the tester should do:
-      - **Last Name (don't change!)**: pre-populated with the patient's last name. Leave it as it is.
+      - **Last Name (don't change)**: pre-populated with the patient's last name. Leave it as it is.
       - **Preferred First Name (update)**: pre-populated with the patient's first name. Change it.
       - **New Information (add details)**: not pre-populated. Fill it in.
 
-      The two pre-populated questions use FHIRPath, so no CQL Libraries are needed. Complete the
-      Questionnaire for a Patient that has a recorded first and last name.
+      Completing the Questionnaire in the way needed by this test requires that:
+      1. The DTR client supports pre-population, specifically:
+          1. Evaluation of FHIRPath expressions within the `initialExpression` extension.
+          2. Availability of the Patient resource in the `%patient` context variable as directed by the [`launchContext` extension](https://hl7.org/fhir/uv/sdc/STU4/en/StructureDefinition-sdc-questionnaire-launchContext.html) in Inferno's Questionnaire for this test.
+      2. The tester launches DTR in the context of a patient with a recorded first and last name.
     DESCRIPTION
     run_as_group
 
@@ -37,7 +40,7 @@ module DaVinciDTRTestKit
 
           Launch DTR for a Patient that has a recorded first and last name, and complete the
           Questionnaire as its questions describe:
-          - **Last Name (don't change!)**: leave the pre-populated last name as it is.
+          - **Last Name (don't change)**: leave the pre-populated last name as it is.
           - **Preferred First Name (update)**: change the pre-populated first name to something else.
           - **New Information (add details)**: type in any details.
 

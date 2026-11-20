@@ -129,33 +129,21 @@ RSpec.describe DaVinciDTRTestKit::DTRFullEHRV220AnswerOriginVerificationTest do 
       )
     end
 
-    it 'fails when the body is empty' do
-      create_completed_request_with_body('')
+    # Inferno can't mark a response `completed` without reading the request's QuestionnaireResponse, so this
+    # only happens if something went wrong inside Inferno, and the test reports an error rather than a failure.
+    {
+      'empty' => '',
+      'not valid JSON' => 'not json',
+      'not a QuestionnaireResponse' => { resourceType: 'OperationOutcome', issue: [] }.to_json
+    }.each do |description, request_body|
+      it "reports an internal error when the body is #{description}" do
+        create_completed_request_with_body(request_body)
 
-      result = run(described_class)
+        result = run(described_class)
 
-      expect(result.result).to eq('fail')
-      expect(result.result_message).to eq('The completing $next-question request has an empty body.')
-    end
-
-    it 'fails when the body is not valid JSON' do
-      create_completed_request_with_body('not json')
-
-      result = run(described_class)
-
-      expect(result.result).to eq('fail')
-      expect(result.result_message)
-        .to eq('The completing $next-question request does not contain a valid QuestionnaireResponse.')
-    end
-
-    it 'fails when the body is not a QuestionnaireResponse' do
-      create_completed_request_with_body({ resourceType: 'OperationOutcome', issue: [] }.to_json)
-
-      result = run(described_class)
-
-      expect(result.result).to eq('fail')
-      expect(result.result_message)
-        .to eq('The completing $next-question request does not contain a valid QuestionnaireResponse.')
+        expect(result.result).to eq('error')
+        expect(result.result_message).to include('the QuestionnaireResponse in the matching request could not be read')
+      end
     end
   end
 
@@ -182,7 +170,7 @@ RSpec.describe DaVinciDTRTestKit::DTRFullEHRV220AnswerOriginVerificationTest do 
 
     expect(result.result).to eq('fail')
     expect(messages_for(result)).to include(
-      a_string_including("The answer to `Last Name (don't change!)` has information-origin source `override`, " \
+      a_string_including("The answer to `Last Name (don't change)` has information-origin source `override`, " \
                          'but it should be `auto-client`')
     )
   end

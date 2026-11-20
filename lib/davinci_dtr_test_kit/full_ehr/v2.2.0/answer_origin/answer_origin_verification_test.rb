@@ -8,18 +8,15 @@ module DaVinciDTRTestKit
     id :dtr_full_ehr_v220_answer_origin_verification
     title 'Answers have the expected information-origin details'
     description %(
-      The DTR IG [requires](https://hl7.org/fhir/us/davinci-dtr/2.2.0/en/specification.html#ci-c-spec-132)
-      that a DTR client give providers the ability, but not a requirement, to review and revise pre-populated
-      answers, and [requires](https://hl7.org/fhir/us/davinci-dtr/2.2.0/en/specification.html#ci-c-spec-137)
-      that when a user fills in or changes an answer, the client populate the
+      When completing Questionnaires, DTR clients must record the source of each answer using the
       [information-origin](https://hl7.org/fhir/us/davinci-dtr/2.2.0/en/StructureDefinition-information-origin.html)
-      extension, setting `author` to the current user and `source` to `override` for a changed pre-populated
-      answer or `manual` otherwise.
+      extension, which includes the ability to distinguish between answers that were manually entered,
+      pre-populated, and pre-populated but manually changed.
 
       During this test, Inferno verifies the information-origin extension on the answers to the three questions
       in Inferno's answer origin Questionnaire, using the QuestionnaireResponse the client sent on the
       $next-question request that Inferno marked `completed`:
-      - **Last Name (don't change!)** was pre-populated and left alone, so its source must be `auto-client`.
+      - **Last Name (don't change)** was pre-populated and left alone, so its source must be `auto-client`.
         This shows users are not required to change pre-populated answers.
       - **Preferred First Name (update)** was pre-populated and then changed, so its source must be `override`.
         This shows users can revise pre-populated answers.
@@ -38,7 +35,7 @@ module DaVinciDTRTestKit
     EXPECTED_ANSWERS = [
       {
         link_id: 'last-name-do-not-change',
-        text: "Last Name (don't change!)",
+        text: "Last Name (don't change)",
         source: 'auto-client',
         author_required: false,
         reason: 'it is pre-populated with the patient\'s last name and should be left unchanged. If it was ' \
@@ -77,14 +74,15 @@ module DaVinciDTRTestKit
               'No $next-question request resulted in a completed QuestionnaireResponse, ' \
               'so there are no final answers to check.'
 
-      # The client sent the completing request, so a missing or unreadable QuestionnaireResponse in it is a
-      # problem with the client.
-      assert completed_request.request_body.present?, 'The completing $next-question request has an empty body.'
-
       _request, request_resource = parsed_operation_bodies([completed_request], body: :request_body).first
       questionnaire_response = questionnaire_response_from_next_question_request(request_resource)
-      assert questionnaire_response.present?,
-             'The completing $next-question request does not contain a valid QuestionnaireResponse.'
+      if questionnaire_response.nil?
+        raise Inferno::Exceptions::TestSuiteImplementationException.new(
+          'answer origin verification',
+          'Inferno marked a $next-question response completed, but the QuestionnaireResponse in the ' \
+          'matching request could not be read.'
+        )
+      end
 
       # Collect the answer to each question. Questions can be nested under other items or beneath an answer,
       # so nested items are included. If a question appears more than once, its first answer is used.

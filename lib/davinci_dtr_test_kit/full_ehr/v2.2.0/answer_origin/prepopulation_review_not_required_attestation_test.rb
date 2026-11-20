@@ -40,7 +40,7 @@ module DaVinciDTRTestKit
         message: %(
           I attest that while completing the Questionnaire during the previous interaction, the user
           was **not** required to explicitly review, acknowledge, or confirm the pre-populated answers to
-          **Last Name (don't change!)** or **Preferred First Name (update)**, either one at a time or
+          **Last Name (don't change)** or **Preferred First Name (update)**, either one at a time or
           all at once, before completing the Questionnaire.
 
           [Click here](#{attest_true_url}) if the above statement is **true**.
