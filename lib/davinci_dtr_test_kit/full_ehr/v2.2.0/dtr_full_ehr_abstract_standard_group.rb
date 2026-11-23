@@ -14,6 +14,9 @@ module DaVinciDTRTestKit
   # - dtr_workflow_tag: (Required) provide a tag for use in distinguishing requests made
   #   during this interaction test. Used to scope the verifications performed
   #   to just those received during this group's interaction.
+  # - dtr_sub_workflow_tag: (Optional) set on an individual interaction wait test to add a tag to
+  #   the requests received during that wait, so that later tests can tell apart the sets of
+  #   requests made within the scenario, such as when the group has more than one wait test.
   # - qp_single_use: (Optional) set to true if Inferno should return only one successful
   #   response to the $questionnaire-package operation during the interaction.
   #   If set, subsequent calls to the operation will return an OperationOutcome.
@@ -40,13 +43,6 @@ module DaVinciDTRTestKit
   #   be run.
   # - short_circuit_pass_message: (Optional) Message to use as the vacuous pass message
   #   when tester decides not to run the tests. If not provided a default is used.
-  # - qp_unchanged_since: (Optional) set to true if Inferno should respond to any $questionnaire-package
-  #   request that includes a `changedsince` parameter, once Inferno has returned a package in this
-  #   workflow, that nothing has changed: a 200 Parameters response with only an informational
-  #   outcome. Checked before qp_single_use. When set,
-  #   $next-question also accepts Questionnaires returned during earlier waits of the same workflow.
-  # - dtr_interaction_tag: (Optional) set on an individual interaction wait test to add a tag to the
-  #   requests received during that wait, so that later tests can tell the waits of a group apart.
   class DTRFullEHRV220AbstractStandard < Inferno::TestGroup
     title 'Standard Questionnaire (Abstract)'
     id :dtr_full_ehr_v220_abstract_standard

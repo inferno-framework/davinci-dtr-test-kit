@@ -83,6 +83,8 @@ Inferno displays two "User Action Required" dialogs:
    which gets question 3, answer question 3, and save the completed
    QuestionnaireResponse.
 
+Inferno then asks testers to confirm the same points as in groups 2.1 and 2.2.
+
 From the $next-question requests, Inferno checks that question 1 was answered before
 saving and question 2 was not, and that after resuming, the requests still carried the
 answer to question 1 and the QuestionnaireResponse was completed. Inferno also checks

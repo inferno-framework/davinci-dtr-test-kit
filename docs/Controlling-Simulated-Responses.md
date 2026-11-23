@@ -52,6 +52,10 @@ Alternatively, the template can be a FHIR OperationOutcome if an error response
 is appropriate. [Tokens](#dynamic-tokens) are not instantiated within
 the OperationOutcome.
 
+When a request includes the `changedsince` parameter, Inferno doesn't use a Parameters
+template. Inferno's Questionnaires don't change during a session, so it responds that
+nothing has changed: a Parameters resource with only an informational 'outcome'.
+
 ### `Questionnaire/$next-question`
 
 A template for `$next-question` responses takes the form of a json array

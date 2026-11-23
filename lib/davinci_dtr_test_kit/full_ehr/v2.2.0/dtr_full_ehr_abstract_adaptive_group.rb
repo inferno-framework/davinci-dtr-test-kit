@@ -17,6 +17,9 @@ module DaVinciDTRTestKit
   # - dtr_workflow_tag: (Required) provide a tag for use in distinguishing requests made
   #   during this interaction test. Used to scope the verifications performed
   #   to just those received during this group's interaction.
+  # - dtr_sub_workflow_tag: (Optional) set on an individual interaction wait test to add a tag to
+  #   the requests received during that wait, so that later tests can tell apart the sets of
+  #   requests made within the scenario, such as when the group has more than one wait test.
   # - qp_single_use: (Optional) set to true if Inferno should return only one successful
   #   response to the $questionnaire-package operation during the interaction.
   #   If set, subsequent calls to the operation will return an OperationOutcome.
@@ -80,13 +83,6 @@ module DaVinciDTRTestKit
   # - adaptive_questionnaires_optional: (Optional) Set to true if it is ok for there not
   #   to be any adaptive questionnaires and therefore no observed $next-question
   #   calls to be validated
-  # - qp_unchanged_since: (Optional) set to true if Inferno should respond to any $questionnaire-package
-  #   request that includes a `changedsince` parameter, once Inferno has returned a package in this
-  #   workflow, that nothing has changed: a 200 Parameters response with only an informational
-  #   outcome. Checked before qp_single_use. When set,
-  #   $next-question also accepts Questionnaires returned during earlier waits of the same workflow.
-  # - dtr_interaction_tag: (Optional) set on an individual interaction wait test to add a tag to the
-  #   requests received during that wait, so that later tests can tell the waits of a group apart.
   class DTRFullEHRV220AbstractAdaptive < Inferno::TestGroup
     title 'Adaptive or Standard Questionnaire (Abstract)'
     id :dtr_full_ehr_v220_abstract_adaptive
@@ -116,6 +112,26 @@ module DaVinciDTRTestKit
       title '$next-question'
       test from: :dtr_full_ehr_v220_nq_request_validation
       test from: :dtr_full_ehr_v220_nq_response_validation
+    end
+
+    # For scenarios that extend this group and need the tester to complete the interaction in
+    # more than one step.
+    def self.interaction_group
+      all_children.find { |child| child.title == 'Interaction' }
+    end
+
+    def self.interaction_wait_tests
+      interaction_group.all_children.select { |child| child < DTRFullEHRV220InteractionWaitTest }
+    end
+
+    # Adds another interaction wait test to the Interaction group, right after the existing wait
+    # test(s), so that the verification tests still follow all the waits. Takes the same arguments
+    # as `test from: :dtr_full_ehr_v220_interaction_wait`, including a new `id`.
+    def self.add_interaction_wait(**)
+      wait_test = interaction_group.test(from: :dtr_full_ehr_v220_interaction_wait, **)
+      interaction_group.all_children.delete(wait_test)
+      interaction_group.all_children.insert(interaction_group.all_children.index(interaction_wait_tests.last) + 1,
+                                            wait_test)
     end
   end
 end

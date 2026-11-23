@@ -43,7 +43,7 @@ RSpec.describe DaVinciDTRTestKit::DTRFullEHRV220QuestionnairePackageChangedSince
                                 issue: [{ severity: 'information', code: 'informational' }] } }] }.to_json
   end
 
-  # wait_tag: the dtr_interaction_tag of the wait the request was made during.
+  # wait_tag: the dtr_sub_workflow_tag of the wait the request was made during.
   def create_qp_request(created_at:, request_body:, response_body:, status: 200, wait_tag: before_pause)
     repo_create(
       :request,

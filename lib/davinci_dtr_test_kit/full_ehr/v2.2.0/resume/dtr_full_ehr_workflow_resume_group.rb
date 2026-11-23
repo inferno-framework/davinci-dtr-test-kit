@@ -1,14 +1,10 @@
 require_relative '../../../tags'
-require_relative '../interaction/interaction_wait_test'
+require_relative '../dtr_full_ehr_abstract_adaptive_group'
 require_relative 'resume_answer_sequence_test'
-require_relative '../request/dtr_questionnaire_package_request_validation_test'
 require_relative 'dtr_questionnaire_package_changedsince_test'
-require_relative '../response/dtr_questionnaire_package_response_validation_test'
-require_relative '../request/dtr_next_question_request_validation_test'
-require_relative '../response/dtr_next_question_response_validation_test'
 
 module DaVinciDTRTestKit
-  class DTRFullEHRV220WorkflowResume < Inferno::TestGroup
+  class DTRFullEHRV220WorkflowResume < DTRFullEHRV220AbstractAdaptive
     title 'Resume a Questionnaire'
     id :dtr_full_ehr_v220_workflow_resume
     description <<~DESCRIPTION
@@ -30,83 +26,70 @@ module DaVinciDTRTestKit
     config(
       options: {
         qp_single_use: true,
-        qp_unchanged_since: true,
         dtr_workflow_tag: 'resume',
         qp_response_template_fixture: File.join('resume', 'parameters_questionnaire_resume_adaptive.json'),
         nq_questionnaire_template_fixture: File.join('resume', 'resume_adaptive_next_question_template.json')
       }
     )
 
+    interaction_wait_tests.first.class_eval do
+      id :dtr_full_ehr_v220_resume_initial_interaction_wait
+      title 'Retrieve, partially complete, and save a Questionnaire'
+      description %(
+        Inferno will act as a Payer DTR Server while the tester launches DTR, retrieves the Resume
+        Questionnaire, answers question 1, and saves the in-progress QuestionnaireResponse.
+      )
+      config(
+        options: {
+          dtr_sub_workflow_tag: RESUME_BEFORE_PAUSE_TAG,
+          interaction_message: <<~MESSAGE
+            Inferno will wait while the tester uses the system to start Inferno's Resume Questionnaire,
+            retrieved from Inferno's simulated payer server. In this first step, do **not** complete
+            the Questionnaire:
+            - Launch DTR.
+            - Answer question 1 and continue the form to get the second question.
+            - Without answering question 2, save the draft response and close the DTR session.
+
+            When the in-progress response is saved and the DTR session is closed,
+            [click here](%<continuation_url>s) to continue. The Questionnaire will be resumed
+            and completed in the next test.
+          MESSAGE
+        }
+      )
+    end
+
+    add_interaction_wait(
+      id: :dtr_full_ehr_v220_resume_relaunch_interaction_wait,
+      title: 'Resume and complete the saved Questionnaire',
+      description: %(
+        Inferno will act as a Payer DTR Server while the tester relaunches DTR from the saved
+        QuestionnaireResponse and completes it.
+      ),
+      config: {
+        options: {
+          dtr_sub_workflow_tag: RESUME_AFTER_PAUSE_TAG,
+          interaction_message: <<~MESSAGE
+            Inferno will wait while the tester uses the system to resume and complete the
+            in-progress Questionnaire saved during the previous test:
+            - Relaunch DTR from the in-progress Questionnaire saved during the previous
+              test.
+            - Answer question 2 and continue the form to get question 3.
+            - Answer question 3 and continue the form to complete it.
+            - Save the completed form.
+
+            When the completed QuestionnaireResponse is saved, [click here](%<continuation_url>s)
+            to continue.
+          MESSAGE
+        }
+      }
+    )
+
     group do
-      title 'Interaction'
-
-      test from: :dtr_full_ehr_v220_interaction_wait,
-           id: :dtr_full_ehr_v220_resume_initial_interaction_wait,
-           title: 'Retrieve, partially complete, and save a Questionnaire',
-           description: %(
-             Inferno will act as a Payer DTR Server while the tester launches DTR, retrieves the Resume
-             Questionnaire, answers question 1, and saves the in-progress QuestionnaireResponse.
-           ),
-           config: {
-             options: {
-               dtr_interaction_tag: RESUME_BEFORE_PAUSE_TAG,
-               interaction_message: <<~MESSAGE
-                 Inferno will wait while the tester uses the system to start Inferno's Resume Questionnaire,
-                 retrieved from Inferno's simulated payer server. In this first step, do **not** complete
-                 the Questionnaire:
-                 - Launch DTR and retrieve Inferno's Resume Questionnaire.
-                 - Answer question 1. Inferno then returns question 2.
-                 - Without answering question 2, save the QuestionnaireResponse with status `in-progress`
-                   and close the DTR session. The answer to question 1 must not be lost.
-
-                 When the in-progress QuestionnaireResponse is saved and the DTR session is closed,
-                 [click here](%<continuation_url>s) to continue. The QuestionnaireResponse will be resumed
-                 and completed in the next test.
-               MESSAGE
-             }
-           }
-
-      test from: :dtr_full_ehr_v220_interaction_wait,
-           id: :dtr_full_ehr_v220_resume_relaunch_interaction_wait,
-           title: 'Resume and complete the saved Questionnaire',
-           description: %(
-             Inferno will act as a Payer DTR Server while the tester relaunches DTR from the saved
-             QuestionnaireResponse and completes it.
-           ),
-           config: {
-             options: {
-               dtr_interaction_tag: RESUME_AFTER_PAUSE_TAG,
-               interaction_message: <<~MESSAGE
-                 Inferno will wait while the tester uses the system to resume and complete the
-                 QuestionnaireResponse saved during the previous test:
-                 - Relaunch DTR from the in-progress QuestionnaireResponse saved during the previous
-                   test. The client should call $questionnaire-package with `changedsince`, and Inferno
-                   will respond that nothing has changed. The answer to question 1 should be restored.
-                 - Answer question 2 to get question 3, then answer question 3.
-                 - Save the completed QuestionnaireResponse.
-
-                 When the completed QuestionnaireResponse is saved, [click here](%<continuation_url>s)
-                 to continue.
-               MESSAGE
-             }
-           }
+      id :dtr_full_ehr_v220_resume
+      title 'Resume'
 
       test from: :dtr_full_ehr_v220_resume_answer_sequence
-    end
-
-    group do
-      title '$questionnaire-package'
-
-      test from: :dtr_full_ehr_v220_qp_request_validation
-      test from: :dtr_full_ehr_v220_qp_response_validation
       test from: :dtr_full_ehr_v220_qp_changedsince
-    end
-
-    group do
-      title '$next-question'
-
-      test from: :dtr_full_ehr_v220_nq_request_validation
-      test from: :dtr_full_ehr_v220_nq_response_validation
     end
   end
 end

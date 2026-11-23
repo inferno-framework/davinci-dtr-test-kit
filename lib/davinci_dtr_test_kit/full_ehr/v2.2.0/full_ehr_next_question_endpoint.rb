@@ -33,7 +33,7 @@ module DaVinciDTRTestKit
       def tags
         tags = [CLIENT_NEXT_TAG]
         tags << test.config.options[:dtr_workflow_tag] if test.config.options[:dtr_workflow_tag].present?
-        tags << test.config.options[:dtr_interaction_tag] if test.config.options[:dtr_interaction_tag].present?
+        tags << test.config.options[:dtr_sub_workflow_tag] if test.config.options[:dtr_sub_workflow_tag].present?
         unless test.config.options[:dtr_exclude_from_questionnaire_must_support]
           tags << CLIENT_QUESTIONNAIRE_MUST_SUPPORT
         end
@@ -198,12 +198,12 @@ module DaVinciDTRTestKit
           .map { |req| requests_repo.find_full_request(req.id) } + earlier_workflow_package_requests(requests_repo)
       end
 
-      # When a scenario resumes a Questionnaire in a later wait (qp_unchanged_since), the package was
-      # returned during an earlier wait of the same workflow, so those $questionnaire-package
-      # requests are searched too.
+      # Questionnaires returned by $questionnaire-package during earlier tests of the same workflow
+      # (dtr_workflow_tag) are accepted too, such as when a scenario resumes a Questionnaire in a
+      # later wait.
       def earlier_workflow_package_requests(requests_repo)
         workflow_tag = test.config.options[:dtr_workflow_tag]
-        return [] unless test.config.options[:qp_unchanged_since] && workflow_tag.present?
+        return [] unless workflow_tag.present?
 
         requests_repo.tagged_requests(result.test_session_id, [QUESTIONNAIRE_PACKAGE_TAG, workflow_tag])
           .select { |req| req.status == 200 && req.result_id != result.id }

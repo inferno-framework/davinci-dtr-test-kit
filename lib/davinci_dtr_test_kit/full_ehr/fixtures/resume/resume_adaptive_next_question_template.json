@@ -1,11 +1,6 @@
 {
   "resourceType": "Questionnaire",
   "id": "inferno-resume-adaptive-questionnaire",
-  "meta": {
-    "profile": [
-      "http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/dtr-questionnaire-adapt"
-    ]
-  },
   "text": {
     "status": "generated",
     "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\">A minimal adaptive questionnaire for demonstrating that a client can save an in-progress QuestionnaireResponse and resume it later. Each question is returned after the previous one is answered.</div>"

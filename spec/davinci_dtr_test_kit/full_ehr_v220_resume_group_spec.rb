@@ -13,16 +13,34 @@ RSpec.describe DaVinciDTRTestKit::DTRFullEHRV220WorkflowResume do # rubocop:disa
     expect(described_class.available_inputs.keys.map(&:to_s).grep(/template/)).to be_empty
   end
 
+  it 'extends the adaptive group with a second wait before the verification tests and a Resume group' do
+    expect(described_class.superclass).to eq(DaVinciDTRTestKit::DTRFullEHRV220AbstractAdaptive)
+    interaction_ids = described_class.interaction_group.all_children.map { |test| test.id.to_s.split('-').last }
+    expect(interaction_ids).to eq(%w[dtr_full_ehr_v220_resume_initial_interaction_wait
+                                     dtr_full_ehr_v220_resume_relaunch_interaction_wait
+                                     dtr_full_ehr_v220_ui_display_and_interaction
+                                     dtr_full_ehr_v220_adaptive_questionnaires_completed])
+    resume_group = described_class.all_children.find { |group| group.title == 'Resume' }
+    expect(resume_group.all_children.map { |test| test.id.to_s.split('-').last })
+      .to eq(%w[dtr_full_ehr_v220_resume_answer_sequence dtr_full_ehr_v220_qp_changedsince])
+  end
+
+  it 'leaves the abstract adaptive group with one wait test' do
+    expect(DaVinciDTRTestKit::DTRFullEHRV220AbstractAdaptive.interaction_wait_tests.length).to eq(1)
+  end
+
   it 'tells the tester to save the Questionnaire after question 1 during the first wait' do
     result = run(resume_wait('dtr_full_ehr_v220_resume_initial_interaction_wait'), inputs)
 
     expect(result.result).to eq('wait')
     expect(result.result_message).to include("In this first step, do **not** complete\nthe Questionnaire:\n" \
-                                             "- Launch DTR and retrieve Inferno's Resume Questionnaire.")
-    expect(result.result_message)
-      .to include("- Without answering question 2, save the QuestionnaireResponse with status `in-progress`\n  " \
-                  'and close the DTR session. The answer to question 1 must not be lost.')
+                                             "- Launch DTR.\n" \
+                                             "- Answer question 1 and continue the form to get the second question.\n" \
+                                             '- Without answering question 2, save the draft response and close ' \
+                                             'the DTR session.')
+    expect(result.result_message).to include('When the in-progress response is saved and the DTR session is closed,')
     expect(result.result_message).to match(%r{\[click here\]\(\S+/resume_pass\?token=#{client_id}\) to continue})
+    expect(result.result_message).to include('The Questionnaire will be resumed')
     expect(result.result_message).to_not include('completed and saved to the EHR')
   end
 
@@ -31,10 +49,10 @@ RSpec.describe DaVinciDTRTestKit::DTRFullEHRV220WorkflowResume do # rubocop:disa
 
     expect(result.result).to eq('wait')
     expect(result.result_message)
-      .to include('- Relaunch DTR from the in-progress QuestionnaireResponse saved during the previous')
-    expect(result.result_message).to include('The answer to question 1 should be restored.')
-    expect(result.result_message).to include("- Answer question 2 to get question 3, then answer question 3.\n" \
-                                             '- Save the completed QuestionnaireResponse.')
+      .to include('- Relaunch DTR from the in-progress Questionnaire saved during the previous')
+    expect(result.result_message).to include("- Answer question 2 and continue the form to get question 3.\n" \
+                                             "- Answer question 3 and continue the form to complete it.\n" \
+                                             '- Save the completed form.')
     expect(result.result_message).to match(%r{\[click here\]\(\S+/resume_pass\?token=#{client_id}\)\nto continue})
     expect(result.result_message).to_not include('completed and saved to the EHR')
   end
@@ -54,9 +72,9 @@ RSpec.describe DaVinciDTRTestKit::DTRFullEHRV220WorkflowResume do # rubocop:disa
     initial = resume_wait('dtr_full_ehr_v220_resume_initial_interaction_wait')
     relaunch = resume_wait('dtr_full_ehr_v220_resume_relaunch_interaction_wait')
 
-    expect(initial.config.options[:dtr_interaction_tag])
+    expect(initial.config.options[:dtr_sub_workflow_tag])
       .to eq(DaVinciDTRTestKit::RESUME_BEFORE_PAUSE_TAG)
-    expect(relaunch.config.options[:dtr_interaction_tag])
+    expect(relaunch.config.options[:dtr_sub_workflow_tag])
       .to eq(DaVinciDTRTestKit::RESUME_AFTER_PAUSE_TAG)
     expect(initial.config.options[:dtr_workflow_tag]).to eq('resume')
   end
