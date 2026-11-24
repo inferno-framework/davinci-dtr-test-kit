@@ -82,9 +82,13 @@ first and last name.
 
 In the "User Action Required" dialog, testers retrieve the Questionnaire, leave Last Name
 as it is, change Preferred First Name, fill in New Information, and save the completed
-QuestionnaireResponse. Clicking to continue attests that the fields were changed as
-described. Inferno then asks testers to confirm that the client did not require the user
-to explicitly review, acknowledge, or confirm the pre-populated answers.
+QuestionnaireResponse. Testers then attest whether the fields were changed as described:
+choosing **false** fails the interaction, but Inferno still evaluates the requests that were
+made. Inferno then asks testers to confirm that the client did not require the user to
+explicitly review, acknowledge, or confirm the pre-populated answers.
+
+If the Questionnaire was not completed, the answer origin check fails, but it still reports on
+the answers in the most recent QuestionnaireResponse the client sent.
 
 From the $next-question request that completed the Questionnaire, Inferno checks that
 the `information-origin` source is `auto-client` for Last Name, `override` for Preferred

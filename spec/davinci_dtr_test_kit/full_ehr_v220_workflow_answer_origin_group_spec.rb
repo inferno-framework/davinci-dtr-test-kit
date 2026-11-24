@@ -36,9 +36,11 @@ RSpec.describe DaVinciDTRTestKit::DTRFullEHRV220WorkflowAnswerOrigin do # ruboco
 
     expect(result.result).to eq('wait'), result.result_message
     expect(result.result_message).to include("**Last Name (don't change)**: leave the pre-populated last name")
-    expect(result.result_message).to include('**By clicking to continue, you attest**')
-    continue_link = %r{\[Click here\]\(\S+/resume_pass\?token=answer_origin_group_spec_client_id\)}
-    expect(result.result_message).to match(/#{continue_link} to continue and attest\./)
+    expect(result.result_message).to include('I attest that the Questionnaire was completed and saved to the EHR')
+    true_link = %r{\[Click here\]\(\S+/resume_pass\?token=answer_origin_group_spec_client_id\)}
+    false_link = %r{\[Click here\]\(\S+/resume_fail\?token=answer_origin_group_spec_client_id\)}
+    expect(result.result_message).to match(/#{true_link} if the above statement is \*\*true\*\*\./)
+    expect(result.result_message).to match(/#{false_link} if the above statement is \*\*false\*\*\./)
   end
 
   it 'has a package placeholder that points to the $next-question template' do

@@ -97,20 +97,76 @@ RSpec.describe DaVinciDTRTestKit::DTRFullEHRV220AnswerOriginVerificationTest do 
     expect(result.result).to eq('pass'), result.result_message
   end
 
-  it 'skips when no $next-question request was made' do
+  it 'fails when no $next-question request was made' do
     result = run(described_class)
 
-    expect(result.result).to eq('skip')
-    expect(result.result_message).to eq('A $next-question request must be made prior to running this test.')
+    expect(result.result).to eq('fail')
+    expect(result.result_message)
+      .to eq('No $next-question requests were made, so the Questionnaire was never completed.')
   end
 
-  it 'skips when no $next-question request resulted in a completed QuestionnaireResponse' do
-    create_nq_request(correct_questionnaire_response, response_status: 'in-progress')
+  describe 'when the Questionnaire was not completed' do
+    let(:not_completed_message) do
+      'The Questionnaire was not completed: no $next-question request resulted in a completed ' \
+        'QuestionnaireResponse. Any other messages describe the answers in the most recent ' \
+        'QuestionnaireResponse the client sent.'
+    end
 
-    result = run(described_class)
+    it 'fails, even when the answers it has are correct' do
+      create_nq_request(correct_questionnaire_response, response_status: 'in-progress')
 
-    expect(result.result).to eq('skip')
-    expect(result.result_message).to include('No $next-question request resulted in a completed QuestionnaireResponse')
+      result = run(described_class)
+
+      expect(result.result).to eq('fail')
+      expect(messages_for(result)).to eq([not_completed_message])
+    end
+
+    it 'still checks the answers in the most recent QuestionnaireResponse the client sent' do
+      create_nq_request(
+        questionnaire_response(last_name: answer('Smith', 'auto-client'), preferred_first_name: nil,
+                               new_information: nil),
+        response_status: 'in-progress'
+      )
+      create_nq_request(
+        questionnaire_response(last_name: answer('Smith', 'auto-client'),
+                               preferred_first_name: answer('Jo', 'auto-client'),
+                               new_information: nil),
+        response_status: 'in-progress'
+      )
+
+      result = run(described_class)
+
+      expect(result.result).to eq('fail')
+      messages = messages_for(result)
+      expect(messages).to include(not_completed_message)
+      expect(messages).to include(
+        a_string_including('The answer to `Preferred First Name (update)` has information-origin source ' \
+                           '`auto-client`, but it should be `override`')
+      )
+      expect(messages).to include('No answer to `New Information (add details)` (linkId `new-information-add`).')
+    end
+
+    it 'fails when no $next-question request contained a readable QuestionnaireResponse' do
+      repo_create(
+        :request,
+        direction: 'incoming',
+        url: '/custom/dtr_full_ehr_v220/fhir/Questionnaire/$next-question',
+        test_session_id: test_session.id,
+        result:,
+        request_body: 'not json',
+        response_body: { resourceType: 'OperationOutcome', issue: [] }.to_json,
+        tags: [DaVinciDTRTestKit::CLIENT_NEXT_TAG],
+        status: 400
+      )
+
+      result = run(described_class)
+
+      expect(result.result).to eq('fail')
+      expect(result.result_message).to eq(
+        'The Questionnaire was not completed, and no $next-question request contained a readable ' \
+        'QuestionnaireResponse.'
+      )
+    end
   end
 
   describe 'when the completing request body is not usable' do
@@ -313,7 +369,8 @@ RSpec.describe DaVinciDTRTestKit::DTRFullEHRV220AnswerOriginVerificationTest do 
 
     result = run(scoped_test_class)
 
-    expect(result.result).to eq('skip')
-    expect(result.result_message).to eq('A $next-question request must be made prior to running this test.')
+    expect(result.result).to eq('fail')
+    expect(result.result_message)
+      .to eq('No $next-question requests were made, so the Questionnaire was never completed.')
   end
 end

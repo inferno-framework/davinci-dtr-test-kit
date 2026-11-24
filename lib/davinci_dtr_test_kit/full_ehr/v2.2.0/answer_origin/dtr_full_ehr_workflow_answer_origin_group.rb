@@ -44,11 +44,16 @@ module DaVinciDTRTestKit
           - **Preferred First Name (update)**: change the pre-populated first name to something else.
           - **New Information (add details)**: type in any details.
 
-          **By clicking to continue, you attest** that the Questionnaire was completed and saved to the
-          EHR with its fields changed exactly as described above: Last Name left unchanged, Preferred
-          First Name changed, and New Information filled in.
+          When you're done, attest to the following:
 
-          [Click here](%<continuation_url>s) to continue and attest.
+          I attest that the Questionnaire was completed and saved to the EHR with its fields changed
+          exactly as described above: Last Name left unchanged, Preferred First Name changed, and New
+          Information filled in.
+
+          [Click here](%<continuation_url>s) if the above statement is **true**.
+
+          [Click here](%<attest_false_url>s) if the above statement is **false**. Inferno will still
+          evaluate the requests made during this interaction.
         MESSAGE
       }
     )

@@ -127,7 +127,8 @@ RSpec.describe DaVinciDTRTestKit::DTRFullEHRV220InteractionWaitTest do # rubocop
         id :interaction_wait_custom_message_spec_test
         config options: {
           interaction_message: "Do these things:\n- **Change** a pre-populated answer\n\n" \
-                               "[Continue](%<continuation_url>s) to attest.\n"
+                               "[Continue](%<continuation_url>s) to attest.\n\n" \
+                               "[Not done](%<attest_false_url>s) to fail.\n"
         }
       end
     end
@@ -150,6 +151,12 @@ RSpec.describe DaVinciDTRTestKit::DTRFullEHRV220InteractionWaitTest do # rubocop
       result = run(custom_message_test_class, { client_id: })
 
       expect(result.result_message).to match(%r{\[Continue\]\(\S+/resume_pass\?token=#{client_id}\) to attest\.})
+    end
+
+    it 'fills in the link that continues while failing the wait' do
+      result = run(custom_message_test_class, { client_id: })
+
+      expect(result.result_message).to match(%r{\[Not done\]\(\S+/resume_fail\?token=#{client_id}\) to fail\.})
     end
 
     it 'uses the standard message, with its link to continue, when no message is configured' do

@@ -24,6 +24,9 @@ module DaVinciDTRTestKit
 
       The two answers the user entered (`override` and `manual`) must also have an `author` with a
       `practitioner` reference identifying the user.
+
+      If the Questionnaire was not completed, this test fails, but Inferno still checks the answers in the
+      most recent QuestionnaireResponse the client sent so the tester gets feedback on them.
     )
     verifies_requirements 'hl7.fhir.us.davinci-dtr_2.2.0@spec-132',
                           'hl7.fhir.us.davinci-dtr_2.2.0@spec-137'
@@ -62,7 +65,7 @@ module DaVinciDTRTestKit
       tags = [CLIENT_NEXT_TAG]
       tags << config.options[:dtr_workflow_tag] if config.options[:dtr_workflow_tag].present?
       requests = load_tagged_requests(*tags)
-      skip_if requests.blank?, 'A $next-question request must be made prior to running this test.'
+      assert requests.present?, 'No $next-question requests were made, so the Questionnaire was never completed.'
 
       # Requests are in the order they were received, so search from the end to find the request whose
       # response Inferno marked `completed`. That request carries the final set of answers.
@@ -70,18 +73,32 @@ module DaVinciDTRTestKit
       completed_request, _completed_response = parsed_operation_bodies(requests).reverse.find do |_request, response|
         questionnaire_response_from_next_question_response(response)&.status == 'completed'
       end
-      skip_if completed_request.nil?,
-              'No $next-question request resulted in a completed QuestionnaireResponse, ' \
-              'so there are no final answers to check.'
 
-      _request, request_resource = parsed_operation_bodies([completed_request], body: :request_body).first
-      questionnaire_response = questionnaire_response_from_next_question_request(request_resource)
-      if questionnaire_response.nil?
-        raise Inferno::Exceptions::TestSuiteImplementationException.new(
-          'answer origin verification',
-          'Inferno marked a $next-question response completed, but the QuestionnaireResponse in the ' \
-          'matching request could not be read.'
-        )
+      if completed_request.present?
+        _request, request_resource = parsed_operation_bodies([completed_request], body: :request_body).first
+        questionnaire_response = questionnaire_response_from_next_question_request(request_resource)
+        if questionnaire_response.nil?
+          raise Inferno::Exceptions::TestSuiteImplementationException.new(
+            'answer origin verification',
+            'Inferno marked a $next-question response completed, but the QuestionnaireResponse in the ' \
+            'matching request could not be read.'
+          )
+        end
+      else
+        # The Questionnaire wasn't completed, so this test fails, but the answers in the most recent
+        # QuestionnaireResponse the client sent are still checked so the tester gets feedback on them.
+        add_message('error',
+                    'The Questionnaire was not completed: no $next-question request resulted in a completed ' \
+                    'QuestionnaireResponse. Any other messages describe the answers in the most recent ' \
+                    'QuestionnaireResponse the client sent.')
+        _request, request_resource =
+          parsed_operation_bodies(requests, body: :request_body).reverse.find do |_request, resource|
+            questionnaire_response_from_next_question_request(resource).present?
+          end
+        questionnaire_response = questionnaire_response_from_next_question_request(request_resource)
+        assert questionnaire_response.present?,
+               'The Questionnaire was not completed, and no $next-question request contained a readable ' \
+               'QuestionnaireResponse.'
       end
 
       # Collect the answer to each question. Questions can be nested under other items or beneath an answer,
