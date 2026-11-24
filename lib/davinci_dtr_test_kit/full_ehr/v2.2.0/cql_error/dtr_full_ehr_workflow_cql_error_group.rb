@@ -1,18 +1,16 @@
-require_relative '../interaction/interaction_wait_test'
-require_relative '../request/dtr_questionnaire_package_request_validation_test'
-require_relative '../response/dtr_questionnaire_package_response_validation_test'
-require_relative '../request/dtr_next_question_request_validation_test'
-require_relative '../response/dtr_next_question_response_validation_test'
+require_relative '../dtr_full_ehr_abstract_adaptive_group'
 require_relative 'dtr_next_question_stopped_after_cql_error_test'
+require_relative 'log_questionnaire_errors_no_phi_attestation_test'
 require_relative '../request/dtr_log_questionnaire_errors_request_validation_test'
 
 module DaVinciDTRTestKit
   # Scenario for ID-194: Inferno returns a two-stage adaptive Questionnaire. The first
-  # $next-question response asks for one manually entered answer; the second adds an item whose
-  # non-pre-population logic is malformed CQL. The client is expected to stop asking for
-  # questions, log the error, and stop the user, so this group does not extend the abstract
-  # adaptive group, whose tests expect completed forms.
-  class DTRFullEHRV220WorkflowCQLError < Inferno::TestGroup
+  # $next-question response asks for one manually entered answer; the second adds a required item
+  # whose non-pre-population logic is malformed CQL. The client is expected to stop asking for
+  # questions, log the error, and stop the user. The form is never completed, so the standard
+  # adaptive group is used without its rendering attestation and completion check, and the group
+  # is excluded from Must Support coverage.
+  class DTRFullEHRV220WorkflowCQLError < DTRFullEHRV220AbstractAdaptive
     title 'CQL Error Handling'
     id :dtr_full_ehr_v220_workflow_cql_error
     description <<~DESCRIPTION
@@ -23,15 +21,16 @@ module DaVinciDTRTestKit
 
       Inferno returns its CQL Error Questionnaire, a two-stage adaptive Questionnaire. The first
       `$next-question` response asks for a single manually entered answer. Once it is answered, the
-      next `$next-question` response adds a read-only summary item whose `calculatedExpression` is
-      malformed CQL. Because the error is in questionnaire logic rather than pre-population logic,
-      the client is expected to stop rather than continue with manual entry (see
+      next `$next-question` response adds a required, read-only item whose `calculatedExpression`
+      is malformed CQL. Because the error is in questionnaire logic rather than pre-population
+      logic, the client is expected to stop rather than continue with manual entry (see
       [spec-76](https://hl7.org/fhir/us/davinci-dtr/2.2.0/en/specification.html#ci-c-spec-76) through
       [spec-81](https://hl7.org/fhir/us/davinci-dtr/2.2.0/en/specification.html#ci-c-spec-81)).
-      Inferno checks that no `$next-question` request follows the response containing the error and
-      that the `$log-questionnaire-errors` request is conformant. By continuing past the wait, the
-      tester attests that the user was notified and stopped and that no PHI was logged. The
-      Questionnaire is not counted toward Must Support coverage because it is never completed.
+      Inferno checks that the `$questionnaire-package` and `$next-question` exchanges are
+      conformant, that no `$next-question` request follows the response containing the error, and
+      that the `$log-questionnaire-errors` request is conformant. The tester attests that the user
+      was notified and stopped, and separately that no PHI was logged. The Questionnaire is not
+      counted toward Must Support coverage because it is never completed.
     DESCRIPTION
     run_as_group
 
@@ -43,67 +42,49 @@ module DaVinciDTRTestKit
         qp_response_template_fixture: File.join('cql_error', 'parameters_questionnaire_cql_error.json'),
         nq_questionnaire_template_fixture: File.join('cql_error', 'cql_error_next_question_template.json'),
         interaction_message: <<~MESSAGE
-          Inferno will wait while the tester uses the system to retrieve Inferno's CQL Error
-          Questionnaire from Inferno's simulated payer server and begin completing it. The
-          Questionnaire is not expected to be completed:
-          - Launch DTR and retrieve the Questionnaire. The first `$next-question` response asks for
-            a single manually entered answer.
-          - Answer it. The next `$next-question` response adds a read-only item whose
-            `calculatedExpression` is malformed CQL. This logic is not used for pre-population, so
-            the client cannot fall back to manual entry of the affected answer.
-          - The client is expected to recognize the problem, make no further `$next-question`
-            requests, report the error to Inferno using `$log-questionnaire-errors`, notify the
-            user, and prohibit further completion of the form.
+          Inferno will wait while the tester uses the system to begin completion of Inferno's CQL Error
+          Questionnaire. The Questionnaire is not expected to be completed:
+          - Launch DTR, complete the first question, and continue the form.
+          - The second question is populated by CQL calculation logic that is malformed. The DTR
+            client must notify the user that the Questionnaire cannot be completed.
 
-          **By clicking to continue, you attest** that the client notified the user that there is an
-          issue with the Questionnaire and prohibited further completion of the form
-          ([spec-81](https://hl7.org/fhir/us/davinci-dtr/2.2.0/en/specification.html#ci-c-spec-81)),
-          and that the OperationOutcome sent in the `$log-questionnaire-errors` request did not
-          contain information about the response or information retrieved from FHIR APIs that could
-          potentially include PHI
-          ([oper-2](https://hl7.org/fhir/us/davinci-dtr/2.2.0/en/OperationDefinition-log-questionnaire-errors.html#ci-c-oper-2)).
+          Once the client has reported the error and stopped the user, attest to the following
+          statement to continue: the client notified the user that there is an issue with the
+          Questionnaire and prohibited further completion of the form.
 
-          Once the client has reported the error and stopped the user, [click here](%<continuation_url>s)
-          to continue and attest.
+          [Click here](%<continuation_url>s) if the above statement is **true**.
+
+          [Click here](%<attest_false_url>s) if the above statement is **false**.
         MESSAGE
       }
     )
 
-    group do
-      title 'Interaction'
+    interaction_group, _package_group, next_question_group = groups
 
-      test from: :dtr_full_ehr_v220_interaction_wait,
-           title: 'Retrieve the Questionnaire and stop at the CQL error',
-           description: %(
-             Inferno will act as a Payer DTR Server while the tester launches DTR, retrieves the CQL
-             Error Questionnaire, and answers its first question, after which the client stops the
-             user because the next `$next-question` response contains malformed CQL. By continuing
-             past the wait, the tester attests that the user was notified and prohibited from
-             completing the form, and that the logged OperationOutcome contains no PHI.
-           ) do
-        verifies_requirements 'hl7.fhir.us.davinci-dtr_2.2.0@spec-81', 'hl7.fhir.us.davinci-dtr_2.2.0@oper-2-B'
-      end
+    # The form is never completed, so the rendering attestation and the completion check of the
+    # standard adaptive group don't apply.
+    interaction_group.remove :dtr_full_ehr_v220_ui_display_and_interaction
+    interaction_group.remove :dtr_full_ehr_v220_adaptive_questionnaires_completed
+    interaction_group.replace :dtr_full_ehr_v220_interaction_wait, :dtr_full_ehr_v220_interaction_wait do
+      id :dtr_full_ehr_v220_cql_error_interaction_wait
+      title 'Retrieve the Questionnaire and stop at the CQL error'
+      description %(
+        Inferno will act as a Payer DTR Server while the tester launches DTR, retrieves the CQL
+        Error Questionnaire, and answers its first question, after which the client is expected
+        to stop the user because the next `$next-question` response contains malformed CQL. To
+        continue, the tester attests whether the user was notified and prohibited from completing
+        the form. Attesting false fails this test, and the remaining tests are still evaluated.
+      )
+      verifies_requirements 'hl7.fhir.us.davinci-dtr_2.2.0@spec-81'
     end
 
-    group do
-      title '$questionnaire-package'
-
-      test from: :dtr_full_ehr_v220_qp_request_validation
-      test from: :dtr_full_ehr_v220_qp_response_validation
-    end
-
-    group do
-      title '$next-question'
-
-      test from: :dtr_full_ehr_v220_nq_request_validation
-      test from: :dtr_full_ehr_v220_nq_response_validation
-      test from: :dtr_full_ehr_v220_nq_stopped_after_cql_error
-    end
+    next_question_group.test from: :dtr_full_ehr_v220_nq_stopped_after_cql_error
 
     group do
       title '$log-questionnaire-errors'
 
       test from: :dtr_full_ehr_v220_log_errors_request_validation
+      test from: :dtr_full_ehr_v220_log_errors_no_phi_attestation
     end
   end
 end

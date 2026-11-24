@@ -1,6 +1,7 @@
 require 'davinci_dtr_test_kit/full_ehr/v2.2.0/cql_error/dtr_full_ehr_workflow_cql_error_group'
 require 'davinci_dtr_test_kit/full_ehr/v2.2.0/cql_error/dtr_next_question_stopped_after_cql_error_test'
 require 'davinci_dtr_test_kit/full_ehr/v2.2.0/package_questionnaire_templates'
+require 'davinci_dtr_test_kit/full_ehr/v2.2.0/dtr_full_ehr_suite'
 require 'davinci_dtr_test_kit/full_ehr/fixture_loader'
 
 RSpec.describe DaVinciDTRTestKit::DTRFullEHRV220WorkflowCQLError do # rubocop:disable RSpec/SpecFilePathFormat
@@ -42,8 +43,6 @@ RSpec.describe DaVinciDTRTestKit::DTRFullEHRV220WorkflowCQLError do # rubocop:di
       expect(package_bundle.type).to eq('collection')
       expect(package_bundle.entry.map(&:fullUrl)).to all(start_with('urn:uuid:'))
       expect(placeholder_canonical(package_questionnaire)).to eq(canonical)
-      expect(package_questionnaire.meta.profile)
-        .to eq(['http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/dtr-questionnaire-adapt-search'])
     end
 
     it 'include an in-progress QuestionnaireResponse that contains the same placeholder Questionnaire' do
@@ -64,8 +63,6 @@ RSpec.describe DaVinciDTRTestKit::DTRFullEHRV220WorkflowCQLError do # rubocop:di
       expect(template_fixture).to be_a(FHIR::Questionnaire)
       expect(template_fixture.url).to eq(canonical)
       expect(template_fixture.version).to eq('1.0.0')
-      expect(template_fixture.meta.profile)
-        .to eq(['http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/dtr-questionnaire-adapt'])
       expect(adaptive.valueUrl).to be_present
       expect(adaptive.valueBoolean).to be_nil
       expect(template_fixture.item.map(&:linkId)).to eq(['1', '2'])
@@ -86,6 +83,12 @@ RSpec.describe DaVinciDTRTestKit::DTRFullEHRV220WorkflowCQLError do # rubocop:di
       expect(criteria.valueExpression.expression).to include("linkId = '1'")
     end
 
+    it 'declare no meta.profile, so clients cannot depend on it' do
+      contained = package_questionnaire_response.contained.find { |resource| resource.is_a?(FHIR::Questionnaire) }
+
+      expect([template_fixture, package_questionnaire, contained].map(&:meta)).to all(be_nil)
+    end
+
     it 'put malformed CQL in a calculatedExpression on the item the stop test watches for' do
       calculated = error_item.extension.select { |extension| extension.url == calculated_expression_url }
 
@@ -93,6 +96,7 @@ RSpec.describe DaVinciDTRTestKit::DTRFullEHRV220WorkflowCQLError do # rubocop:di
       expect(calculated.first.valueExpression.language).to eq('text/cql')
       expect(calculated.first.valueExpression.expression).to end_with('+')
       expect(error_item.readOnly).to be(true)
+      expect(error_item.required).to be(true)
     end
 
     it 'contain no pre-population logic, so the only CQL is the malformed calculatedExpression' do
@@ -104,33 +108,54 @@ RSpec.describe DaVinciDTRTestKit::DTRFullEHRV220WorkflowCQLError do # rubocop:di
   end
 
   describe 'group wiring' do
-    it 'runs the interaction, package, next-question, and log errors tests, but no attestation or completion test' do
+    it 'extends the standard adaptive group' do
+      expect(described_class.superclass).to eq(DaVinciDTRTestKit::DTRFullEHRV220AbstractAdaptive)
+      expect(described_class.groups.map(&:title))
+        .to eq(['Interaction', '$questionnaire-package', '$next-question', '$log-questionnaire-errors'])
+    end
+
+    it 'keeps the package and next-question validation and adds the scenario tests' do
       test_ids = all_tests(described_class).map { |test| test.id.to_s }
 
-      expect(test_ids).to include(a_string_ending_with('dtr_full_ehr_v220_interaction_wait'))
+      expect(test_ids).to include(a_string_ending_with('dtr_full_ehr_v220_cql_error_interaction_wait'))
       expect(test_ids).to include(a_string_ending_with('dtr_full_ehr_v220_qp_request_validation'))
       expect(test_ids).to include(a_string_ending_with('dtr_full_ehr_v220_qp_response_validation'))
       expect(test_ids).to include(a_string_ending_with('dtr_full_ehr_v220_nq_request_validation'))
       expect(test_ids).to include(a_string_ending_with('dtr_full_ehr_v220_nq_response_validation'))
       expect(test_ids).to include(a_string_ending_with('dtr_full_ehr_v220_nq_stopped_after_cql_error'))
       expect(test_ids).to include(a_string_ending_with('dtr_full_ehr_v220_log_errors_request_validation'))
-      expect(test_ids).to_not include(a_string_ending_with('dtr_full_ehr_v220_cql_error_handling_attestation'))
+      expect(test_ids).to include(a_string_ending_with('dtr_full_ehr_v220_log_errors_no_phi_attestation'))
+    end
+
+    it 'removes the rendering attestation and the completion check, which need a completed form' do
+      test_ids = all_tests(described_class).map { |test| test.id.to_s }
+
       expect(test_ids).to_not include(a_string_ending_with('dtr_full_ehr_v220_ui_display_and_interaction'))
       expect(test_ids).to_not include(a_string_ending_with('dtr_full_ehr_v220_adaptive_questionnaires_completed'))
+      expect(test_ids.count { |id| id.end_with?('interaction_wait') }).to eq(1)
+    end
+
+    it 'leaves the standard adaptive group as it was' do
+      adaptive_ids = all_tests(DaVinciDTRTestKit::DTRFullEHRV220AbstractAdaptive).map { |test| test.id.to_s }
+
+      expect(adaptive_ids).to include(a_string_ending_with('dtr_full_ehr_v220_ui_display_and_interaction'))
+      expect(adaptive_ids).to include(a_string_ending_with('dtr_full_ehr_v220_adaptive_questionnaires_completed'))
+      expect(adaptive_ids).to_not include(a_string_ending_with('dtr_full_ehr_v220_nq_stopped_after_cql_error'))
     end
 
     it 'tags the workflow, excludes it from must support coverage, and replaces the wait instructions' do
       expect(options[:dtr_workflow_tag]).to eq('cql_error')
       expect(options[:dtr_exclude_from_questionnaire_must_support]).to be(true)
       expect(options[:qp_single_use]).to be(true)
-      expect(options[:interaction_message])
-        .to include('$log-questionnaire-errors', '**By clicking to continue, you attest**', '%<continuation_url>s')
-      expect(options).to_not include(:dtr_interaction_instructions, :cql_error_item_link_id)
+      expect(options[:interaction_message]).to include('%<continuation_url>s', '%<attest_false_url>s')
+      expect(options[:interaction_message]).to_not include('PHI')
     end
 
-    it 'links the attestation points on the wait and the mechanical checks to their requirements' do
-      expect(find_test('dtr_full_ehr_v220_interaction_wait').verifies_requirements)
-        .to contain_exactly('hl7.fhir.us.davinci-dtr_2.2.0@spec-81', 'hl7.fhir.us.davinci-dtr_2.2.0@oper-2-B')
+    it 'links the two attestations and the mechanical checks to their requirements' do
+      expect(find_test('dtr_full_ehr_v220_cql_error_interaction_wait').verifies_requirements)
+        .to eq(['hl7.fhir.us.davinci-dtr_2.2.0@spec-81'])
+      expect(find_test('dtr_full_ehr_v220_log_errors_no_phi_attestation').verifies_requirements)
+        .to eq(['hl7.fhir.us.davinci-dtr_2.2.0@oper-2-B'])
       expect(find_test('dtr_full_ehr_v220_nq_stopped_after_cql_error').verifies_requirements)
         .to eq(['hl7.fhir.us.davinci-dtr_2.2.0@spec-81'])
       expect(find_test('dtr_full_ehr_v220_log_errors_request_validation').verifies_requirements)
@@ -138,33 +163,44 @@ RSpec.describe DaVinciDTRTestKit::DTRFullEHRV220WorkflowCQLError do # rubocop:di
                             'hl7.fhir.us.davinci-dtr_2.2.0@spec-78')
     end
 
-    it 'is included in the Questionnaire Scenarios of the v2.2.0 client suite' do
-      scenarios = DaVinciDTRTestKit::DTRFullEHRSuiteV220.groups
-        .find { |group| group.id.to_s.end_with?('dtr_full_ehr_v220_questionnaire_workflows') }
+    it 'is in the Error Handling group of the v2.2.0 client suite, not in Questionnaire Scenarios' do
+      suite_groups = DaVinciDTRTestKit::DTRFullEHRSuiteV220.groups
+      error_handling = suite_groups.find { |group| group.id.to_s.end_with?('dtr_full_ehr_v220_error_handling') }
+      scenarios = suite_groups.find { |group| group.id.to_s.end_with?('dtr_full_ehr_v220_questionnaire_workflows') }
 
-      expect(scenarios.groups.map { |group| group.id.to_s })
+      expect(error_handling.groups.map { |group| group.id.to_s })
         .to include(a_string_ending_with('dtr_full_ehr_v220_workflow_cql_error'))
+      expect(scenarios.groups.map { |group| group.id.to_s })
+        .to_not include(a_string_ending_with('dtr_full_ehr_v220_workflow_cql_error'))
     end
   end
 
   describe 'the interaction wait' do
     let(:client_id) { 'cql-error-spec-client' }
-    let(:wait_test) { find_test('dtr_full_ehr_v220_interaction_wait') }
+    # The copy mounted in the suite, whose parent groups are registered.
+    let(:wait_test) do
+      error_handling = DaVinciDTRTestKit::DTRFullEHRSuiteV220.groups
+        .find { |group| group.id.to_s.end_with?('dtr_full_ehr_v220_error_handling') }
+      all_tests(error_handling).find { |test| test.id.to_s.end_with?('dtr_full_ehr_v220_cql_error_interaction_wait') }
+    end
 
     before do
       allow_any_instance_of(DaVinciDTRTestKit::URLs).to receive(:suite_id).and_return(suite_id)
     end
 
-    it 'asks the tester to stop at the CQL error and attest, then lists the endpoints' do
+    it 'gives the scenario steps and asks for a true or false attestation that the user was stopped' do
       result = run(wait_test, client_id:)
 
       expect(result.result).to eq('wait')
       expect(result.result_message)
-        .to start_with("Inferno will wait while the tester uses the system to retrieve Inferno's CQL Error")
-      expect(result.result_message).to include('**By clicking to continue, you attest**')
-      expect(result.result_message).to match(%r{\[click here\]\(\S+/resume_pass\?token=#{client_id}\)})
+        .to start_with("Inferno will wait while the tester uses the system to begin completion of Inferno's CQL")
+      expect(result.result_message)
+        .to match(%r{\[Click here\]\(\S+/resume_pass\?token=#{client_id}\) if the above statement is \*\*true\*\*})
+      expect(result.result_message)
+        .to match(%r{\[Click here\]\(\S+/resume_fail\?token=#{client_id}\) if the above statement is \*\*false\*\*})
       expect(result.result_message).to include("\n### Endpoints\n")
       expect(result.result_message).to include('Log Questionnaire Errors Operation')
+      expect(result.result_message).to_not include('PHI')
       expect(result.result_message).to_not include('completed and saved to the EHR')
     end
 

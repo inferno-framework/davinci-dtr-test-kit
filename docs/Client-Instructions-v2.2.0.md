@@ -49,11 +49,6 @@ Inferno provides fixed Questionnaires to demonstrate the following workflows tha
 DTR clients must support:
 - Standard Questionnaires
 - Adaptive Questionnaires
-- CQL error handling, where a two-stage adaptive Questionnaire asks for one
-  manually entered answer and then, in the next `$next-question` response,
-  delivers an item with malformed CQL in a `calculatedExpression`. The client
-  must stop requesting questions, report the error using
-  `$log-questionnaire-errors`, and prohibit the user from completing the form.
 
 These groups must be executed after the group "1 Client Registration". In each
 case, testers don't need to provide any additional inputs up front. Once
@@ -65,16 +60,32 @@ ask them to confirm that
    as described in the DTR IG.
 2. Each completed Questionnaire has been stored for later use.
 
-In the CQL error handling workflow, the dialog instead asks testers to continue
-once the client has reported the error and stopped the user. By continuing, they
-attest that the user was notified and prohibited from completing the form and
-that the logged OperationOutcome contains no PHI; there is no separate
-confirmation dialog.
-
 Inferno requires this confirmation because it cannot see or evaluate the UI used
 to display and interact with the Questionnaire. However, it can and does check
 the client's requests and Inferno's simulated responses for conformance to
 DTR profiles and requirements.
+
+## Error Handling Tests Execution
+
+The "Error Handling" group checks how the client handles a problem with a
+Questionnaire. It must be executed after the group "1 Client Registration". In
+its "CQL Error Handling" group, Inferno returns a two-stage adaptive
+Questionnaire: it asks for one manually entered answer and then, in the next
+`$next-question` response, delivers a required item with malformed CQL in a
+`calculatedExpression`. The client must stop requesting questions, report the
+error using `$log-questionnaire-errors`, and prohibit the user from completing
+the form.
+
+The Questionnaire is never completed, so this group has no rendering
+confirmation and is not counted toward Must Support coverage. Instead
+1. The "User Action Required" dialog asks testers to attest, true or false,
+   that the client notified the user and prohibited further completion of the
+   form. Attesting false fails that test and Inferno still evaluates the rest.
+2. Inferno checks the `$questionnaire-package`, `$next-question` and
+   `$log-questionnaire-errors` requests, and that no `$next-question` request
+   followed the response containing the malformed CQL.
+3. A second dialog asks testers to attest that the logged OperationOutcome
+   contains no PHI.
 
 ## Tester-provided Questionnaire Tests Execution
 

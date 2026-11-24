@@ -122,7 +122,6 @@ module DaVinciDTRTestKit
 
       group from: :dtr_full_ehr_v220_workflow_standard
       group from: :dtr_full_ehr_v220_workflow_adaptive
-      group from: :dtr_full_ehr_v220_workflow_cql_error
     end
 
     group do
@@ -149,6 +148,18 @@ module DaVinciDTRTestKit
         test from: :dtr_full_ehr_v220_questionnaire_response_base_must_support
         test from: :dtr_full_ehr_v220_questionnaire_response_adaptive_must_support
       end
+    end
+
+    group do
+      id :dtr_full_ehr_v220_error_handling
+      title 'Error Handling'
+      description %(
+        These groups check how the DTR client handles problems with the Questionnaires it
+        retrieves. The Questionnaires here are not expected to be completed, so they are not
+        counted toward Must Support coverage.
+      )
+
+      group from: :dtr_full_ehr_v220_workflow_cql_error
     end
 
     group from: :dtr_client_payer_auth_smart,

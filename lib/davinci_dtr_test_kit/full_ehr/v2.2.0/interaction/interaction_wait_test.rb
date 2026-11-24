@@ -115,9 +115,11 @@ module DaVinciDTRTestKit
 
     private
 
+    # Scenario messages may also use `%<attest_false_url>s` to let the tester continue while
+    # failing this test, for waits that double as a true / false attestation.
     def interaction_message(continuation_url)
       message = config.options[:interaction_message] || DEFAULT_INTERACTION_MESSAGE
-      format(message, continuation_url:)
+      format(message, continuation_url:, attest_false_url: "#{resume_fail_url}?token=#{client_id}")
     end
 
     def run_tests?

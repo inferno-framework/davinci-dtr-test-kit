@@ -1,11 +1,6 @@
 {
   "resourceType": "Questionnaire",
   "id": "CQLErrorAdaptive",
-  "meta": {
-    "profile": [
-      "http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/dtr-questionnaire-adapt"
-    ]
-  },
   "text": {
     "status": "generated",
     "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\">A two-stage adaptive questionnaire for demonstrating that a client recognizes malformed CQL in questionnaire logic that is not used for pre-population, stops requesting questions, reports the error with $log-questionnaire-errors, and prohibits completion of the form.</div>"
@@ -61,7 +56,7 @@
       "linkId": "2",
       "text": "Request summary (calculated)",
       "type": "string",
-      "required": false,
+      "required": true,
       "readOnly": true
     }
   ]

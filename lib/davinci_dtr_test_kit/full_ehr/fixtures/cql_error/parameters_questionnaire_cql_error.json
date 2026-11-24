@@ -11,11 +11,6 @@
             "fullUrl": "urn:uuid:3f7c9a1e-6b2d-4e8f-9c51-2a4d7e8b0c63",
             "resource": {
               "resourceType": "Questionnaire",
-              "meta": {
-                "profile": [
-                  "http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/dtr-questionnaire-adapt-search"
-                ]
-              },
               "extension": [
                 {
                   "url": "https://inferno.healthit.gov/test-kits/davinci-dtr/StructureDefinition/extension-use-next-question-questionnaire-template",
