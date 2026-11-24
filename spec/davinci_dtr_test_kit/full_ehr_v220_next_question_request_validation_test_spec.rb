@@ -69,6 +69,17 @@ RSpec.describe DaVinciDTRTestKit::DTRFullEHRV220NextQuestionRequestValidationTes
     expect(messages_for(result)).to include(a_string_matching(/does not contain a recognized FHIR resource/))
   end
 
+  [nil, ''].each do |empty_body|
+    it "fails, rather than erroring, when the request body is #{empty_body.inspect}" do
+      create_nq_request(empty_body)
+
+      result = run(described_class)
+
+      expect(result.result).to eq('fail')
+      expect(messages_for(result)).to include('(Request 1) Request body is empty.')
+    end
+  end
+
   it 'validates a bare QuestionnaireResponse request body against the adaptive response profile' do
     create_nq_request(bare_qr_json)
     validated_with = nil

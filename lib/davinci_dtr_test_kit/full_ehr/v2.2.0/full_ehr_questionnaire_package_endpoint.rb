@@ -155,6 +155,7 @@ module DaVinciDTRTestKit
 
       def clean_up_questionnaire(questionnaire)
         strip_inferno_extensions(questionnaire)
+        use_inferno_next_question_url(questionnaire)
         all_questionnaire_items(questionnaire.item).each { |item| strip_inferno_extensions(item) }
       end
 

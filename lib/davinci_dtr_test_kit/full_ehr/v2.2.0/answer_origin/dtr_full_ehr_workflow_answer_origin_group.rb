@@ -1,0 +1,69 @@
+require_relative '../dtr_full_ehr_abstract_adaptive_group'
+require_relative 'answer_origin_verification_test'
+require_relative 'prepopulation_review_not_required_attestation_test'
+
+module DaVinciDTRTestKit
+  class DTRFullEHRV220WorkflowAnswerOrigin < DTRFullEHRV220AbstractAdaptive
+    title 'Pre-populated Answers and Answer Origin'
+    id :dtr_full_ehr_v220_workflow_answer_origin
+    description <<~DESCRIPTION
+      During this group, the DTR client will complete a short adaptive Questionnaire and demonstrate that:
+      - users can change pre-populated answers, but are not required to review or change them, and
+      - the client records where each answer came from using the
+        [information-origin](https://hl7.org/fhir/us/davinci-dtr/2.2.0/en/StructureDefinition-information-origin.html)
+        extension.
+
+      Inferno returns a Questionnaire with three questions, each labeled with what the tester should do:
+      - **Last Name (don't change)**: pre-populated with the patient's last name. Leave it as it is.
+      - **Preferred First Name (update)**: pre-populated with the patient's first name. Change it.
+      - **New Information (add details)**: not pre-populated. Fill it in.
+
+      Completing the Questionnaire in the way needed by this test requires that:
+      1. The DTR client supports pre-population, specifically:
+          1. Evaluation of FHIRPath expressions within the `initialExpression` extension.
+          2. Availability of the Patient resource in the `%patient` context variable as directed by the [`launchContext` extension](https://hl7.org/fhir/uv/sdc/STU4/en/StructureDefinition-sdc-questionnaire-launchContext.html) in Inferno's Questionnaire for this test.
+      2. The tester launches DTR in the context of a patient with a recorded first and last name.
+    DESCRIPTION
+    run_as_group
+
+    config(
+      options: {
+        qp_single_use: true,
+        dtr_workflow_tag: 'answer_origin',
+        qp_response_template_fixture: File.join('answer_origin',
+                                                'parameters_questionnaire_answer_origin_adaptive.json'),
+        nq_questionnaire_template_fixture: File.join('answer_origin',
+                                                     'answer_origin_adaptive_next_question_template.json'),
+        interaction_message: <<~MESSAGE
+          Inferno will wait while the tester uses the system to complete Inferno's answer origin
+          Questionnaire, retrieved from Inferno's simulated payer server.
+
+          Launch DTR for a Patient that has a recorded first and last name, and complete the
+          Questionnaire as its questions describe:
+          - **Last Name (don't change)**: leave the pre-populated last name as it is.
+          - **Preferred First Name (update)**: change the pre-populated first name to something else.
+          - **New Information (add details)**: type in any details.
+
+          When you're done, attest to the following:
+
+          I attest that the Questionnaire was completed and saved to the EHR with its fields changed
+          exactly as described above: Last Name left unchanged, Preferred First Name changed, and New
+          Information filled in.
+
+          [Click here](%<continuation_url>s) if the above statement is **true**.
+
+          [Click here](%<attest_false_url>s) if the above statement is **false**. Inferno will still
+          evaluate the requests made during this interaction.
+        MESSAGE
+      }
+    )
+
+    group do
+      id :dtr_full_ehr_v220_answer_origin
+      title 'Answer Origin'
+
+      test from: :dtr_full_ehr_v220_answer_origin_verification
+      test from: :dtr_full_ehr_v220_prepopulation_review_not_required_attestation
+    end
+  end
+end

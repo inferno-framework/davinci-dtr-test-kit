@@ -65,6 +65,36 @@ to display and interact with the Questionnaire. However, it can and does check
 the client's requests and Inferno's simulated responses for conformance to
 DTR profiles and requirements.
 
+## Pre-populated Answers and Answer Origin Tests Execution
+
+Group "2.3 Pre-populated Answers and Answer Origin" checks that the client can
+pre-populate answers without user intervention and records the source of each answer
+using the `information-origin` extension in the QuestionnaireResponse. The group must be executed
+after the group "1 Client Registration". Inferno always returns its answer origin
+Questionnaire, an adaptive Questionnaire with three required questions, all returned
+through the first $next-question:
+1. **Last Name (don't change)**: pre-populated with the patient's last name using FHIRPath.
+2. **Preferred First Name (update)**: pre-populated with the patient's first name using FHIRPath.
+3. **New Information (add details)**: not pre-populated.
+
+No CQL Libraries are needed. Testers must launch DTR for a Patient that has a recorded
+first and last name.
+
+In the "User Action Required" dialog, testers retrieve the Questionnaire, leave Last Name
+as it is, change Preferred First Name, fill in New Information, and save the completed
+QuestionnaireResponse. Testers then attest whether the fields were changed as described:
+choosing **false** fails the interaction, but Inferno still evaluates the requests that were
+made. Inferno then asks testers to confirm that the client did not require the user to
+explicitly review, acknowledge, or confirm the pre-populated answers.
+
+If the Questionnaire was not completed, the answer origin check fails, but it still reports on
+the answers in the most recent QuestionnaireResponse the client sent.
+
+From the $next-question request that completed the Questionnaire, Inferno checks that
+the `information-origin` source is `auto-client` for Last Name, `override` for Preferred
+First Name, and `manual` for New Information, and that the two answers the user entered
+have an `author` with a `practitioner` reference identifying the user.
+
 ## Tester-provided Questionnaire Tests Execution
 
 DTR requires support for all Questionnaire features marked as must support within
