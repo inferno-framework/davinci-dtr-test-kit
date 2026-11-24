@@ -22,8 +22,9 @@ module DaVinciDTRTestKit
       Inferno returns its CQL Error Questionnaire, a two-stage adaptive Questionnaire. The first
       `$next-question` response asks for a single manually entered answer. Once it is answered, the
       next `$next-question` response adds a required, read-only item whose `calculatedExpression`
-      is malformed CQL. Because the error is in questionnaire logic rather than pre-population
-      logic, the client is expected to stop rather than continue with manual entry (see
+      extension contains malformed CQL. Because the error is in questionnaire logic that will prevent
+      the user from completing the Questionnaire, the client is expected to stop rather than continue
+      with manual entry (see
       [spec-76](https://hl7.org/fhir/us/davinci-dtr/2.2.0/en/specification.html#ci-c-spec-76) through
       [spec-81](https://hl7.org/fhir/us/davinci-dtr/2.2.0/en/specification.html#ci-c-spec-81)).
       Inferno checks that the `$questionnaire-package` and `$next-question` exchanges are
