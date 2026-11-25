@@ -160,4 +160,62 @@ RSpec.describe DaVinciDTRTestKit::DTRFullEHRV220InteractionWaitTest do # rubocop
       expect(result.result_message).to include("\n### Endpoints\n")
     end
   end
+
+  describe 'config.options[:interaction_attestation]' do
+    let(:attestation_test_class) do
+      Class.new(described_class) do
+        id :interaction_wait_attestation_message_spec_test
+        config options: { interaction_attestation: { instructions: "Do these things:\n- Stop the user\n",
+                                                     statement: 'the client stopped the user.' } }
+      end
+    end
+
+    let(:both_messages_test_class) do
+      Class.new(described_class) do
+        id :interaction_wait_both_messages_spec_test
+        config options: { interaction_message: 'Continue [here](%<continuation_url>s).',
+                          interaction_attestation: { instructions: 'Do it.', statement: 'it was done.' } }
+      end
+    end
+
+    before do
+      tests_repo = Inferno::Repositories::Tests.new
+      [attestation_test_class, both_messages_test_class].each do |runnable|
+        tests_repo.insert(runnable) unless tests_repo.exists?(runnable.id.to_s)
+      end
+    end
+
+    it 'lays out the instructions, statement and true / false links in the standard attestation format' do
+      result = run(attestation_test_class, { client_id: })
+
+      expect(result.result).to eq('wait')
+      expect(result.result_message).to start_with(
+        "Do these things:\n- Stop the user\n\nWhen you're done, attest to the following:\n\n" \
+        "I attest that the client stopped the user.\n\n"
+      )
+      expect(result.result_message)
+        .to match(%r{\[Click here\]\(\S+/resume_pass\?token=#{client_id}\) if the above statement is \*\*true\*\*\.})
+      expect(result.result_message)
+        .to match(%r{\[Click here\]\(\S+/resume_fail\?token=#{client_id}\) if the above statement is \*\*false\*\*\.})
+      expect(result.result_message).to include('Inferno will still evaluate the requests made during this interaction.')
+      expect(result.result_message).to include("\n### Endpoints\n")
+      expect(result.result_message.lines.grep(/\A {4,}\S/)).to be_empty
+    end
+
+    it 'outputs the links for both patterns' do
+      run(attestation_test_class, { client_id: })
+
+      outputs = session_data_repo.get_all_from_session(test_session.id).to_h { |data| [data.name, data.value] }
+      expect(outputs['continuation_url']).to end_with("/resume_pass?token=#{client_id}")
+      expect(outputs['attest_true_url']).to end_with("/resume_pass?token=#{client_id}")
+      expect(outputs['attest_false_url']).to end_with("/resume_fail?token=#{client_id}")
+    end
+
+    it 'errors when a group sets both message options' do
+      result = run(both_messages_test_class, { client_id: })
+
+      expect(result.result).to eq('error')
+      expect(result.result_message).to include('not both')
+    end
+  end
 end

@@ -147,8 +147,10 @@ RSpec.describe DaVinciDTRTestKit::DTRFullEHRV220WorkflowCQLError do # rubocop:di
       expect(options[:dtr_workflow_tag]).to eq('cql_error')
       expect(options[:dtr_exclude_from_questionnaire_must_support]).to be(true)
       expect(options[:qp_single_use]).to be(true)
-      expect(options[:interaction_message]).to include('%<continuation_url>s', '%<attest_false_url>s')
-      expect(options[:interaction_message]).to_not include('PHI')
+      expect(options).to_not include(:interaction_message)
+      expect(options[:interaction_attestation][:instructions]).to include("Inferno's CQL Error")
+      expect(options[:interaction_attestation][:statement]).to include('prohibited further completion of the form')
+      expect(options[:interaction_attestation].values.join).to_not include('PHI', '%<')
     end
 
     it 'links the two attestations and the mechanical checks to their requirements' do
@@ -188,12 +190,16 @@ RSpec.describe DaVinciDTRTestKit::DTRFullEHRV220WorkflowCQLError do # rubocop:di
       allow_any_instance_of(DaVinciDTRTestKit::URLs).to receive(:suite_id).and_return(suite_id)
     end
 
-    it 'gives the scenario steps and asks for a true or false attestation that the user was stopped' do
+    it 'gives the scenario steps and asks for a true or false attestation in the standard format' do
       result = run(wait_test, client_id:)
 
       expect(result.result).to eq('wait')
       expect(result.result_message)
         .to start_with("Inferno will wait while the tester uses the system to begin completion of Inferno's CQL")
+      expect(result.result_message).to include(
+        "When you're done, attest to the following:\n\nI attest that the client notified the user that " \
+        'there is an issue with the Questionnaire and prohibited further completion of the form.'
+      )
       expect(result.result_message)
         .to match(%r{\[Click here\]\(\S+/resume_pass\?token=#{client_id}\) if the above statement is \*\*true\*\*})
       expect(result.result_message)
