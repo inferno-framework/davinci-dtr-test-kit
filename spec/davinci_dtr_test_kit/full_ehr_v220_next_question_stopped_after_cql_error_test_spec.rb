@@ -1,0 +1,132 @@
+require 'davinci_dtr_test_kit/full_ehr/v2.2.0/cql_error/dtr_next_question_stopped_after_cql_error_test'
+
+RSpec.describe DaVinciDTRTestKit::DTRFullEHRV220NextQuestionStoppedAfterCQLErrorTest do # rubocop:disable RSpec/SpecFilePathFormat
+  let(:suite_id) { 'dtr_full_ehr_v220' }
+  let(:result) { repo_create(:result, test_session_id: test_session.id) }
+  let(:nq_url) { '/custom/dtr_full_ehr_v220/fhir/Questionnaire/$next-question' }
+
+  def create_nq_request(response_body, status: 200, tags: [DaVinciDTRTestKit::CLIENT_NEXT_TAG])
+    repo_create(
+      :request,
+      direction: 'incoming',
+      url: nq_url,
+      test_session_id: test_session.id,
+      result:,
+      request_body: '{}',
+      response_body:,
+      tags:,
+      status:
+    )
+  end
+
+  # A $next-question response: a QuestionnaireResponse whose contained Questionnaire holds the
+  # items returned so far. The scenario's questionnaire has item 1 (manual answer) and item 2
+  # (the malformed calculatedExpression), added one per response.
+  def nq_response_json(*link_ids)
+    {
+      resourceType: 'QuestionnaireResponse',
+      status: 'in-progress',
+      questionnaire: '#q',
+      contained: [
+        { resourceType: 'Questionnaire', id: 'q', status: 'draft', url: 'urn:inferno:dtr-test-kit:cql-error-adaptive',
+          item: link_ids.map { |link_id| { linkId: link_id, type: 'string' } } }
+      ]
+    }.to_json
+  end
+
+  it 'watches for the item carrying the malformed CQL in the scenario fixture' do
+    expect(described_class::CQL_ERROR_ITEM_LINK_ID).to eq('2')
+  end
+
+  it 'skips when no $next-question requests have been made' do
+    result = run(described_class)
+
+    expect(result.result).to eq('skip')
+    expect(result.result_message).to include('A $next-question request must be made')
+  end
+
+  it 'skips when no response returned the item containing the malformed CQL' do
+    create_nq_request(nq_response_json('1'))
+
+    result = run(described_class)
+
+    expect(result.result).to eq('skip')
+    expect(result.result_message).to include("linkId '2'")
+    expect(result.result_message).to include('never exposed to the error')
+  end
+
+  it 'passes when the response containing the error item is the last $next-question exchange' do
+    create_nq_request(nq_response_json('1'))
+    create_nq_request(nq_response_json('1', '2'))
+
+    result = run(described_class)
+
+    expect(result.result).to eq('pass'), result.result_message
+    expect(result.result_message).to include('$next-question response 2')
+  end
+
+  it 'fails, counting the extra requests, when the client keeps calling $next-question after the error' do
+    create_nq_request(nq_response_json('1'))
+    create_nq_request(nq_response_json('1', '2'))
+    create_nq_request(nq_response_json('1', '2'))
+    create_nq_request(nq_response_json('1', '2'))
+
+    result = run(described_class)
+
+    expect(result.result).to eq('fail')
+    expect(result.result_message).to include('made 2 $next-question request(s) after')
+    expect(result.result_message).to include('$next-question response 2')
+  end
+
+  it 'ignores unsuccessful responses and responses that are not a QuestionnaireResponse' do
+    create_nq_request({ resourceType: 'OperationOutcome', issue: [] }.to_json, status: 400)
+    create_nq_request('not json')
+    create_nq_request(nq_response_json('1', '2'))
+
+    result = run(described_class)
+
+    expect(result.result).to eq('pass'), result.result_message
+    expect(result.result_message).to include('$next-question response 3')
+  end
+
+  it 'ignores responses with an empty body' do
+    create_nq_request('')
+    create_nq_request(nq_response_json('1', '2'))
+
+    result = run(described_class)
+
+    expect(result.result).to eq('pass'), result.result_message
+    expect(result.result_message).to include('$next-question response 2')
+  end
+
+  describe 'scoping requests to a configured dtr_workflow_tag' do
+    let(:scoped_test_class) do
+      Class.new(described_class) do
+        id :scoped_nq_stopped_after_cql_error_spec_test
+        config options: { dtr_workflow_tag: 'cql_error' }
+      end
+    end
+
+    before do
+      tests_repo = Inferno::Repositories::Tests.new
+      tests_repo.insert(scoped_test_class) unless tests_repo.exists?(scoped_test_class.id.to_s)
+    end
+
+    it 'ignores requests tagged for a different workflow' do
+      create_nq_request(nq_response_json('1', '2'), tags: [DaVinciDTRTestKit::CLIENT_NEXT_TAG, 'adaptive'])
+
+      result = run(scoped_test_class)
+
+      expect(result.result).to eq('skip')
+    end
+
+    it 'only considers requests tagged for the configured workflow' do
+      create_nq_request(nq_response_json('1', '2'), tags: [DaVinciDTRTestKit::CLIENT_NEXT_TAG, 'cql_error'])
+      create_nq_request(nq_response_json('1', '2'), tags: [DaVinciDTRTestKit::CLIENT_NEXT_TAG, 'adaptive'])
+
+      result = run(scoped_test_class)
+
+      expect(result.result).to eq('pass'), result.result_message
+    end
+  end
+end

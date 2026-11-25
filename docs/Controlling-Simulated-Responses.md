@@ -19,6 +19,10 @@ operations:
 - `Questionnaire/$next-question`
 - `ValueSet/$expand`
 
+Inferno also accepts `Questionnaire/$log-questionnaire-errors` requests from the waiting session.
+The operation has no output, so there is no response template for it: Inferno records the
+request and responds with `204 No Content`.
+
 Certain tests provide inputs for response templates that drive Inferno's responses
 when it has identified an incoming request as associated with the waiting session.
 In all cases, these templates can include instructions that dynamically change
@@ -191,6 +195,12 @@ exactly match one of the template's. For example:
   ]
 }
 ```
+
+An adaptive Questionnaire's `questionnaireAdaptive` extension holds the URL of the
+`$next-question` service. Templates can't know Inferno's URL, so when a Questionnaire that
+Inferno returns from `$questionnaire-package` or `$next-question` has a `questionnaireAdaptive`
+extension with a `valueUrl`, Inferno replaces that value with the FHIR base URL of its simulated
+payer. A `valueBoolean` is left as it is.
 
 Placeholders are expanded before [tokens](#dynamic-tokens) are replaced and before
 [Libraries and ValueSets](#cql-libraries-and-valuesets) are added, so references in the

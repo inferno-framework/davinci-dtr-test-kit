@@ -1,0 +1,63 @@
+{
+  "resourceType": "Questionnaire",
+  "id": "CQLErrorAdaptive",
+  "text": {
+    "status": "generated",
+    "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\">A two-stage adaptive questionnaire for demonstrating that a client recognizes malformed CQL in questionnaire logic that is not used for pre-population, stops requesting questions, reports the error with $log-questionnaire-errors, and prohibits completion of the form.</div>"
+  },
+  "extension": [
+    {
+      "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-questionnaireAdaptive",
+      "valueUrl": "urn:inferno:dtr:simulated-payer-fhir-base"
+    },
+    {
+      "url": "http://hl7.org/fhir/StructureDefinition/artifact-versionAlgorithm",
+      "valueCoding": {
+        "system": "http://hl7.org/fhir/version-algorithm",
+        "code": "semver"
+      }
+    }
+  ],
+  "url": "urn:inferno:dtr-test-kit:cql-error-adaptive",
+  "version": "1.0.0",
+  "name": "InfernoCQLErrorAdaptiveQuestionnaire",
+  "title": "Inferno CQL Error Questionnaire (Adaptive)",
+  "status": "draft",
+  "subjectType": [
+    "Patient"
+  ],
+  "date": "2026-11-18",
+  "publisher": "Inferno",
+  "item": [
+    {
+      "linkId": "1",
+      "text": "Describe the service or equipment being requested.",
+      "type": "string",
+      "required": true
+    },
+    {
+      "extension": [
+        {
+          "url": "https://inferno.healthit.gov/test-kits/davinci-dtr/StructureDefinition/extension-inclusion-criteria",
+          "valueExpression": {
+            "language": "text/fhirpath",
+            "expression": "item.where(linkId = '1').answer.value.ofType(string).exists()"
+          }
+        },
+        {
+          "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-calculatedExpression",
+          "valueExpression": {
+            "description": "Deliberately malformed CQL concatenation: an unclosed list brace and a dangling + operator. Clients executing CQL must not run it and must report the error.",
+            "language": "text/cql",
+            "expression": "Combine({'Requested: ', 'see the answer above', ' ') + ' will be reviewed' +"
+          }
+        }
+      ],
+      "linkId": "2",
+      "text": "Request summary (calculated)",
+      "type": "string",
+      "required": true,
+      "readOnly": true
+    }
+  ]
+}

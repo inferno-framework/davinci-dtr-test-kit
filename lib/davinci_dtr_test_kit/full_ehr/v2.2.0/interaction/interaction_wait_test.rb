@@ -58,7 +58,17 @@ module DaVinciDTRTestKit
     #         ValueSet `url` element.
     #       ),
     #       default: '[]'
-    output :continuation_url
+    output :continuation_url, :attest_true_url, :attest_false_url
+
+    DEFAULT_INTERACTION_MESSAGE = <<~MESSAGE.freeze
+      Inferno will wait while the tester uses the DTR client to complete
+      one or more DTR Questionnaires retrieved from Inferno's simulated
+      payer server.
+
+      When all Questionnaires returned by Inferno during this period
+      have been completed and saved to the EHR [Click here](%<continuation_url>s)
+      to continue.
+    MESSAGE
 
     run do
       clear_short_circuit_flag
@@ -69,29 +79,23 @@ module DaVinciDTRTestKit
 
       validate_response_template_inputs
 
-      continuation_url = "#{resume_pass_url}?token=#{client_id}"
-      output(continuation_url:)
+      output(**dialog_urls)
 
       wait(
         identifier: client_id,
         timeout: 1200,
-        message: %(
-          Inferno will wait while the tester uses the system to complete
-          one or more DTR Questionnaires retrieved from Inferno's simulated
-          payer server.
-
-          When all Questionnaire returned by Inferno during this period
-          have been completed and saved to the EHR [Click here](#{continuation_url})
-          to continue.
+        message: <<~MESSAGE
+          #{interaction_message}
 
           ### Endpoints
 
           Available endpoints on Inferno's simulated payer server include
 
-          - FHIR Base: `#{fhir_base_url}
+          - FHIR Base: `#{fhir_base_url}`
           - Questionnaire Package Operation: `#{questionnaire_package_url}`
           - Next Question Operation: `#{next_url}`
           - ValueSet Expand Operation: `#{value_set_expand_url}`
+          - Log Questionnaire Errors Operation: `#{log_questionnaire_errors_url}`
 
           ### Authenticated and Identification
 
@@ -100,16 +104,73 @@ module DaVinciDTRTestKit
           Only requests including an obtained access token as a bearer token
           in the `Authentication` header of the HTTP request will be recognized
           as associated with this session and return successful responses.
-        )
+        MESSAGE
       )
     end
 
     # other things that might go into the wait message
     # - Whether multiple successful $questionnaire-package requests are allowed (options)
-    # - specific instructions for completion (TODO)
     # - whether the Questionnaires are provided by Inferno or the tester (options)
 
     private
+
+    # The wait message supports two patterns, chosen by config option:
+    # - Continuation (`interaction_message`, or the default): whatever the tester did, they continue
+    #   with a single link, written into the message as `%<continuation_url>s`. The test passes.
+    # - Attestation (`interaction_attestation`): the tester followed specific instructions and should
+    #   have seen specific reactions. The option is a Hash with `instructions` (markdown telling the
+    #   tester what to do) and `statement` (what they attest to, completing "I attest that ...").
+    #   Inferno lays these out in the standard attestation format agreed for all DTR client
+    #   scenarios, followed by true / false links. Attesting false fails the test, and the group
+    #   still evaluates the requests made during the interaction.
+    # Both patterns use the links from interaction_urls. Only the links shown in the dialog are output.
+    def interaction_message
+      if attestation?
+        if config.options[:interaction_message].present?
+          raise Inferno::Exceptions::TestSuiteImplementationException.new(
+            'interaction wait message', 'set interaction_message or interaction_attestation, not both'
+          )
+        end
+
+        return attestation_message(**config.options[:interaction_attestation])
+      end
+
+      format(config.options[:interaction_message] || DEFAULT_INTERACTION_MESSAGE, **interaction_urls)
+    end
+
+    def attestation_message(instructions:, statement:)
+      <<~MESSAGE
+        #{instructions.strip}
+
+        Once the above steps have been completed, respond to the following statement
+        to continue to Inferno's evaluation of the interaction:
+
+        I attest that #{statement.strip}
+
+        [Click here](#{interaction_urls[:attest_true_url]}) if the above statement is **true**.
+
+        [Click here](#{interaction_urls[:attest_false_url]}) if the above statement is **false**.
+      MESSAGE
+    end
+
+    def attestation?
+      config.options[:interaction_attestation].present?
+    end
+
+    def dialog_urls
+      keys = attestation? ? %i[attest_true_url attest_false_url] : %i[continuation_url]
+      interaction_urls.slice(*keys)
+    end
+
+    # The wait is identified by the client id, so every link resumes it with that token: true and
+    # continue pass the test, false fails it.
+    def interaction_urls
+      @interaction_urls ||= {
+        continuation_url: "#{resume_pass_url}?token=#{client_id}",
+        attest_true_url: "#{resume_pass_url}?token=#{client_id}",
+        attest_false_url: "#{resume_fail_url}?token=#{client_id}"
+      }
+    end
 
     def run_tests?
       input_name = config.options[:short_circuit_pass_input]

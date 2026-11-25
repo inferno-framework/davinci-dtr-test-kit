@@ -6,7 +6,9 @@ require_relative '../endpoints/mock_udap_smart_server/token_endpoint'
 require_relative 'full_ehr_questionnaire_package_endpoint'
 require_relative 'full_ehr_next_question_endpoint'
 require_relative 'full_ehr_value_set_expand_endpoint'
+require_relative 'full_ehr_log_questionnaire_errors_endpoint'
 require_relative '../dtr_full_ehr_options'
+require_relative 'cql_error/dtr_full_ehr_workflow_cql_error_group'
 require_relative 'must_support/dtr_additional_questionnaires_interaction_group'
 require_relative 'must_support/dtr_questionnaire_base_must_support_test'
 require_relative 'must_support/dtr_questionnaire_adaptive_must_support_test'
@@ -86,7 +88,7 @@ module DaVinciDTRTestKit
       end
     end
 
-    allow_cors QUESTIONNAIRE_PACKAGE_PATH, NEXT_PATH, VALUE_SET_EXPAND_PATH
+    allow_cors QUESTIONNAIRE_PACKAGE_PATH, NEXT_PATH, VALUE_SET_EXPAND_PATH, LOG_QUESTIONNAIRE_ERRORS_PATH
 
     route(:get, UDAPSecurityTestKit::UDAP_DISCOVERY_PATH, lambda { |_env|
       UDAPSecurityTestKit::MockUDAPServer.udap_server_metadata(id)
@@ -103,6 +105,7 @@ module DaVinciDTRTestKit
     suite_endpoint :post, NEXT_PATH, MockPayer::FullEHRV220NextQuestionEndpoint
     suite_endpoint :get, VALUE_SET_EXPAND_PATH, MockPayer::FullEHRV220ValueSetExpandEndpoint
     suite_endpoint :post, VALUE_SET_EXPAND_PATH, MockPayer::FullEHRV220ValueSetExpandEndpoint
+    suite_endpoint :post, LOG_QUESTIONNAIRE_ERRORS_PATH, MockPayer::FullEHRV220LogQuestionnaireErrorsEndpoint
 
     resume_test_route :get, RESUME_PASS_PATH do |request|
       request.query_parameters['token']
@@ -145,6 +148,18 @@ module DaVinciDTRTestKit
         test from: :dtr_full_ehr_v220_questionnaire_response_base_must_support
         test from: :dtr_full_ehr_v220_questionnaire_response_adaptive_must_support
       end
+    end
+
+    group do
+      id :dtr_full_ehr_v220_error_handling
+      title 'Error Handling'
+      description %(
+        These groups check how the DTR client handles problems with the Questionnaires it
+        retrieves. The Questionnaires here are not expected to be completed, so they are not
+        counted toward Must Support coverage.
+      )
+
+      group from: :dtr_full_ehr_v220_workflow_cql_error
     end
 
     group from: :dtr_client_payer_auth_smart,
