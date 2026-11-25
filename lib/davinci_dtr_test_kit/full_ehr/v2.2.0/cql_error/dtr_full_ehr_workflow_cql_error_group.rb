@@ -48,7 +48,7 @@ module DaVinciDTRTestKit
             Questionnaire. The Questionnaire is not expected to be completed but testers must:
             - Launch DTR, complete the first question, and continue the form.
             - Be prevented from completing the form by the DTR client which will warn them of an error
-              in the CQL-based calculation logic.
+              in the CQL-based calculation logic on the second question.
           INSTRUCTIONS
           statement: 'the DTR client notified the user of an issue with the Questionnaire and ' \
                      'prevented further completion of the form.'
