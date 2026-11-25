@@ -44,14 +44,14 @@ module DaVinciDTRTestKit
         nq_questionnaire_template_fixture: File.join('cql_error', 'cql_error_next_question_template.json'),
         interaction_attestation: {
           instructions: <<~INSTRUCTIONS,
-            Inferno will wait while the tester uses the system to begin completion of Inferno's CQL Error
-            Questionnaire. The Questionnaire is not expected to be completed:
+            Inferno will wait while the tester uses the DTR client to begin completion of Inferno's CQL Error
+            Questionnaire. The Questionnaire is not expected to be completed but testers must:
             - Launch DTR, complete the first question, and continue the form.
-            - The second question is populated by CQL calculation logic that is malformed. The DTR
-              client must notify the user that the Questionnaire cannot be completed.
+            - Be prevented from completing the form by the DTR client which will warn them of an error
+              in the CQL-based calculation logic.
           INSTRUCTIONS
-          statement: 'the client notified the user that there is an issue with the Questionnaire and ' \
-                     'prohibited further completion of the form.'
+          statement: 'the DTR client notified the user of an issue with the Questionnaire and ' \
+                     'prevented further completion of the form.'
         }
       }
     )

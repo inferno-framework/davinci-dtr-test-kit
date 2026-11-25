@@ -142,7 +142,7 @@ RSpec.describe DaVinciDTRTestKit::DTRFullEHRV220InteractionWaitTest do # rubocop
 
       expect(result.result).to eq('wait')
       expect(result.result_message).to start_with("Do these things:\n- **Change** a pre-populated answer\n")
-      expect(result.result_message).to_not include('Inferno will wait while the tester uses the system')
+      expect(result.result_message).to_not include('Inferno will wait while the tester uses the DTR client')
       expect(result.result_message).to include("\n### Endpoints\n")
     end
 
@@ -155,7 +155,7 @@ RSpec.describe DaVinciDTRTestKit::DTRFullEHRV220InteractionWaitTest do # rubocop
     it 'uses the standard message, with its link to continue, when no message is configured' do
       result = run(always_run_test_class, { client_id: })
 
-      expect(result.result_message).to start_with('Inferno will wait while the tester uses the system')
+      expect(result.result_message).to start_with('Inferno will wait while the tester uses the DTR client')
       expect(result.result_message).to match(%r{\[Click here\]\(\S+/resume_pass\?token=#{client_id}\)})
       expect(result.result_message).to include("\n### Endpoints\n")
     end
@@ -190,25 +190,35 @@ RSpec.describe DaVinciDTRTestKit::DTRFullEHRV220InteractionWaitTest do # rubocop
 
       expect(result.result).to eq('wait')
       expect(result.result_message).to start_with(
-        "Do these things:\n- Stop the user\n\nWhen you're done, attest to the following:\n\n" \
+        "Do these things:\n- Stop the user\n\nOnce the above steps have been completed, respond to the following " \
+        "statement\nto continue to Inferno's evaluation of the interaction:\n\n" \
         "I attest that the client stopped the user.\n\n"
       )
       expect(result.result_message)
         .to match(%r{\[Click here\]\(\S+/resume_pass\?token=#{client_id}\) if the above statement is \*\*true\*\*\.})
       expect(result.result_message)
         .to match(%r{\[Click here\]\(\S+/resume_fail\?token=#{client_id}\) if the above statement is \*\*false\*\*\.})
-      expect(result.result_message).to include('Inferno will still evaluate the requests made during this interaction.')
       expect(result.result_message).to include("\n### Endpoints\n")
       expect(result.result_message.lines.grep(/\A {4,}\S/)).to be_empty
     end
 
-    it 'outputs the links for both patterns' do
+    def session_outputs
+      session_data_repo.get_all_from_session(test_session.id).to_h { |data| [data.name, data.value] }
+    end
+
+    it 'outputs only the true and false links shown in the dialog' do
       run(attestation_test_class, { client_id: })
 
-      outputs = session_data_repo.get_all_from_session(test_session.id).to_h { |data| [data.name, data.value] }
-      expect(outputs['continuation_url']).to end_with("/resume_pass?token=#{client_id}")
-      expect(outputs['attest_true_url']).to end_with("/resume_pass?token=#{client_id}")
-      expect(outputs['attest_false_url']).to end_with("/resume_fail?token=#{client_id}")
+      expect(session_outputs['attest_true_url']).to end_with("/resume_pass?token=#{client_id}")
+      expect(session_outputs['attest_false_url']).to end_with("/resume_fail?token=#{client_id}")
+      expect(session_outputs).to_not have_key('continuation_url')
+    end
+
+    it 'outputs only the continuation link for the continuation pattern' do
+      run(always_run_test_class, { client_id: })
+
+      expect(session_outputs['continuation_url']).to end_with("/resume_pass?token=#{client_id}")
+      expect(session_outputs).to_not include('attest_true_url', 'attest_false_url')
     end
 
     it 'errors when a group sets both message options' do

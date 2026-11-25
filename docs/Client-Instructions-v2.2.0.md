@@ -79,8 +79,9 @@ the form.
 The Questionnaire is never completed, so this group has no rendering
 confirmation and is not counted toward Must Support coverage. Instead
 1. The "User Action Required" dialog asks testers to attest, true or false,
-   that the client notified the user and prohibited further completion of the
-   form. Attesting false fails that test and Inferno still evaluates the rest.
+   that the DTR client notified the user of an issue with the Questionnaire and
+   prevented further completion of the form. Attesting false fails that test and
+   Inferno still evaluates the rest.
 2. Inferno checks the `$questionnaire-package`, `$next-question` and
    `$log-questionnaire-errors` requests, and that no `$next-question` request
    followed the response containing the malformed CQL.
