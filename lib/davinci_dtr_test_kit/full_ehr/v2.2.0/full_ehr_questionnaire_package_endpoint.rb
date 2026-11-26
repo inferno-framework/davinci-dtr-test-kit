@@ -4,6 +4,7 @@ require_relative '../../cross_suite/fhirpath_utils'
 require_relative '../../cross_suite/response_selection_utils'
 require_relative '../fixture_loader'
 require_relative '../../tags'
+require_relative '../../urls'
 require_relative 'full_ehr_supporting_resources'
 require_relative 'next_question_template_questionnaires'
 require_relative 'package_questionnaire_templates'
@@ -29,6 +30,7 @@ module DaVinciDTRTestKit
       def tags
         tags = [QUESTIONNAIRE_PACKAGE_TAG]
         tags << test.config.options[:dtr_workflow_tag] if test.config.options[:dtr_workflow_tag].present?
+        tags << test.config.options[:dtr_sub_workflow_tag] if test.config.options[:dtr_sub_workflow_tag].present?
         unless test.config.options[:dtr_exclude_from_questionnaire_must_support]
           tags << CLIENT_QUESTIONNAIRE_MUST_SUPPORT
         end
@@ -82,6 +84,8 @@ module DaVinciDTRTestKit
         elsif single_use_limit_exceeded?
           operation_outcome('error', 'business-rule',
                             '$questionnaire-package is configured to respond successfully only once.')
+        elsif report_unchanged_since?
+          unchanged_since_response
         else
           instantiate_template
         end
@@ -92,6 +96,31 @@ module DaVinciDTRTestKit
       def single_use_limit_exceeded?
         test.config.options[:qp_single_use] &&
           count_previous_successful_requests('$questionnaire-package') >= 1
+      end
+
+      # Inferno's Questionnaire packages don't change during a session, so a request that asks for
+      # changes since a timestamp gets the IG's "nothing has changed" 200 response. The output
+      # Parameters profile requires at least one parameter, so the response carries an informational
+      # outcome rather than no parameters at all.
+      def report_unchanged_since?
+        changedsince_parameter.present?
+      end
+
+      def changedsince_parameter
+        request_parameters.parameter.find { |param| param.name == 'changedsince' }
+      end
+
+      def unchanged_since_response
+        since = changedsince_parameter.valueInstant.presence || 'the requested time'
+        FHIR::Parameters.new(
+          parameter: [
+            FHIR::Parameters::Parameter.new(
+              name: 'outcome',
+              resource: operation_outcome('information', 'informational',
+                                          "No Questionnaire packages have changed since #{since}.")
+            )
+          ]
+        )
       end
 
       # ***********************************************************************

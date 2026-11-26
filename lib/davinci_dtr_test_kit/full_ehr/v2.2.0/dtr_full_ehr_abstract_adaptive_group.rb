@@ -17,9 +17,23 @@ module DaVinciDTRTestKit
   # - dtr_workflow_tag: (Required) provide a tag for use in distinguishing requests made
   #   during this interaction test. Used to scope the verifications performed
   #   to just those received during this group's interaction.
+  # - dtr_sub_workflow_tag: (Optional) set on an individual interaction wait test to add a tag to
+  #   the requests received during that wait, so that later tests can tell apart the sets of
+  #   requests made within the scenario, such as when the group has more than one wait test.
   # - qp_single_use: (Optional) set to true if Inferno should return only one successful
   #   response to the $questionnaire-package operation during the interaction.
   #   If set, subsequent calls to the operation will return an OperationOutcome.
+  # - interaction_message: (Optional) markdown that replaces the start of the interaction
+  #   wait message (everything before the endpoint details), for scenarios that need specific
+  #   instructions. Use `%<continuation_url>s` where the link to continue belongs. If not set,
+  #   the standard message is used. Write a literal `%` as `%%`.
+  # - interaction_attestation: (Optional) used instead of interaction_message when the tester
+  #   follows specific instructions and attests to what they saw. A Hash with `instructions`
+  #   (markdown) and `statement` (completing "I attest that ..."). Inferno lays them out in the
+  #   standard attestation format with true / false links; false fails the wait test.
+  # - skip_if_attested_false: (Optional) set on an interaction wait test that continues an earlier
+  #   wait in the same group, to the id of that earlier wait. The test skips instead of waiting
+  #   when the tester attested false to the earlier wait.
   # - qp_response_template_*: (Required) one of the following must be set to specified
   #   to indicate the source of the template that Inferno will use to build for responses
   #   to $questionnaire-package operation requests. Templates come in the form of a FHIR

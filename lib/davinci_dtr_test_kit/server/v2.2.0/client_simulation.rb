@@ -15,13 +15,55 @@ module DaVinciDTRTestKit
         find_and_expand_value_sets(package_bundles, fhir_base_url)
 
         adaptive_questionnaire_details =
-          extract_adaptive_questionnaires(package_bundles, questionnaire_response_templates)
+          if resumed_without_package?(questionnaire_package_request_parameters, qp_response, package_bundles)
+            resumed_adaptive_questionnaires(questionnaire_response_templates)
+          else
+            extract_adaptive_questionnaires(package_bundles, questionnaire_response_templates)
+          end
         adaptive_questionnaire_details.each do |detail|
           request_adaptive_questionnaire_using_next_question(detail, fhir_base_url)
         end
       end
 
       private
+
+      #########################################################################
+      # Resuming a saved form
+      #########################################################################
+
+      # A request with `changedsince` resumes a saved form. When the server responds without a
+      # package (nothing has changed), there's no package QuestionnaireResponse to continue from.
+      def resumed_without_package?(parameters, qp_response, package_bundles)
+        package_bundles.empty? &&
+          qp_response.status.to_s.start_with?('2') &&
+          parameters.parameter.any? { |param| param.name == 'changedsince' }
+      end
+
+      # The saved form to resume is each template whose contained Questionnaire is adaptive: the
+      # contained Questionnaire holds the items already received, and the template's answers to
+      # those items are sent. Answers to later items are added as the server returns them.
+      def resumed_adaptive_questionnaires(questionnaire_response_templates)
+        return [] unless questionnaire_response_templates.present?
+
+        questionnaire_response_templates.filter_map do |template|
+          questionnaire = extract_contained_questionnaire(template)
+          next unless adaptive_questionnaire?(questionnaire)
+
+          { questionnaire:, questionnaire_response: saved_form(template, questionnaire), template: }
+        end
+      end
+
+      def saved_form(template, questionnaire)
+        form = FHIR::QuestionnaireResponse.new(template.to_hash)
+        form.item = received_items(form.item, item_list(questionnaire))
+        form
+      end
+
+      def received_items(items, received_link_ids)
+        items.select { |item| received_link_ids.include?(item.linkId) }.each do |item|
+          item.item = received_items(item.item, received_link_ids)
+        end
+      end
 
       #########################################################################
       # $questionnaire-package request and response processing

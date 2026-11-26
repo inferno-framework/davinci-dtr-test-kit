@@ -159,6 +159,20 @@ RSpec.describe DaVinciDTRTestKit::DTRFullEHRV220InteractionWaitTest do # rubocop
       expect(result.result_message).to match(%r{\[Click here\]\(\S+/resume_pass\?token=#{client_id}\)})
       expect(result.result_message).to include("\n### Endpoints\n")
     end
+
+    it 'closes the code span around the FHIR Base URL in the standard message' do
+      result = run(always_run_test_class, { client_id: })
+
+      expect(result.result_message).to match(%r{^- FHIR Base: `\S+/fhir`$})
+    end
+
+    it 'indents no line by four or more spaces, so no part renders as a code block' do
+      [custom_message_test_class, always_run_test_class].each do |test_class|
+        result = run(test_class, { client_id: })
+
+        expect(result.result_message.lines.grep(/\A {4,}\S/)).to be_empty
+      end
+    end
   end
 
   describe 'config.options[:interaction_attestation]' do
