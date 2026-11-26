@@ -973,8 +973,17 @@ RSpec.describe DaVinciDTRTestKit::MockPayer::FullEHRV220QuestionnairePackageEndp
         expect(JSON.parse(last_response.body)['parameter'].map { |param| param['name'] }).to eq(['packagebundle'])
       end
 
-      it 'reports nothing changed instead of the single-use error after a package was returned' do
+      it 'returns the single-use error, not nothing changed, once the single package was returned' do
         run(single_use_test, client_id:, qp_response_template: packagebundle_template_json)
+        post_qp(with_changedsince: false)
+        post_qp(with_changedsince: true)
+
+        expect(last_response.status).to eq(400)
+        expect(JSON.parse(last_response.body).dig('issue', 0, 'details', 'text')).to include('only once')
+      end
+
+      it 'reports nothing changed after a package was returned when single use is not set' do
+        run(input_template_test, client_id:, qp_response_template: packagebundle_template_json)
         post_qp(with_changedsince: false)
         post_qp(with_changedsince: true)
 

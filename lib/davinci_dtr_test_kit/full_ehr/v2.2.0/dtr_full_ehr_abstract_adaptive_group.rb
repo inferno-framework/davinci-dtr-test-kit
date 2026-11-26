@@ -27,6 +27,13 @@ module DaVinciDTRTestKit
   #   wait message (everything before the endpoint details), for scenarios that need specific
   #   instructions. Use `%<continuation_url>s` where the link to continue belongs. If not set,
   #   the standard message is used. Write a literal `%` as `%%`.
+  # - interaction_attestation: (Optional) used instead of interaction_message when the tester
+  #   follows specific instructions and attests to what they saw. A Hash with `instructions`
+  #   (markdown) and `statement` (completing "I attest that ..."). Inferno lays them out in the
+  #   standard attestation format with true / false links; false fails the wait test.
+  # - skip_if_attested_false: (Optional) set on an interaction wait test that continues an earlier
+  #   wait in the same group, to the id of that earlier wait. The test skips instead of waiting
+  #   when the tester attested false to the earlier wait.
   # - qp_response_template_*: (Required) one of the following must be set to specified
   #   to indicate the source of the template that Inferno will use to build for responses
   #   to $questionnaire-package operation requests. Templates come in the form of a FHIR
@@ -112,26 +119,6 @@ module DaVinciDTRTestKit
       title '$next-question'
       test from: :dtr_full_ehr_v220_nq_request_validation
       test from: :dtr_full_ehr_v220_nq_response_validation
-    end
-
-    # For scenarios that extend this group and need the tester to complete the interaction in
-    # more than one step.
-    def self.interaction_group
-      all_children.find { |child| child.title == 'Interaction' }
-    end
-
-    def self.interaction_wait_tests
-      interaction_group.all_children.select { |child| child < DTRFullEHRV220InteractionWaitTest }
-    end
-
-    # Adds another interaction wait test to the Interaction group, right after the existing wait
-    # test(s), so that the verification tests still follow all the waits. Takes the same arguments
-    # as `test from: :dtr_full_ehr_v220_interaction_wait`, including a new `id`.
-    def self.add_interaction_wait(**)
-      wait_test = interaction_group.test(from: :dtr_full_ehr_v220_interaction_wait, **)
-      interaction_group.all_children.delete(wait_test)
-      interaction_group.all_children.insert(interaction_group.all_children.index(interaction_wait_tests.last) + 1,
-                                            wait_test)
     end
   end
 end

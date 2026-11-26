@@ -71,6 +71,7 @@ module DaVinciDTRTestKit
     MESSAGE
 
     run do
+      skip_if_earlier_wait_attested_false
       clear_short_circuit_flag
       unless run_tests?
         short_circuit_validation_tests(:pass)
@@ -170,6 +171,21 @@ module DaVinciDTRTestKit
         attest_true_url: "#{resume_pass_url}?token=#{client_id}",
         attest_false_url: "#{resume_fail_url}?token=#{client_id}"
       }
+    end
+
+    # A wait that continues an interaction started by an earlier wait in the same group (option
+    # `skip_if_attested_false`, the id of that earlier wait) has nothing to continue when the
+    # tester attested false to the earlier one, so it skips instead of waiting.
+    def skip_if_earlier_wait_attested_false
+      earlier_wait_id = config.options[:skip_if_attested_false]
+      return if earlier_wait_id.blank?
+
+      earlier_wait = self.class.parent.children.find { |child| child.id.to_s.end_with?(earlier_wait_id.to_s) }
+      earlier_result = Inferno::Repositories::Results.new.current_result_for_test_session(test_session_id,
+                                                                                          test_id: earlier_wait.id)
+      skip_if earlier_result&.result == 'fail',
+              "Skipped because the tester attested that the previous step, '#{earlier_wait.title}', " \
+              'was not completed as described.'
     end
 
     def run_tests?

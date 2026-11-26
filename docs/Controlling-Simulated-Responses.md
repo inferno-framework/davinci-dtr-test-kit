@@ -54,7 +54,9 @@ the OperationOutcome.
 
 When a request includes the `changedsince` parameter, Inferno doesn't use a Parameters
 template. Inferno's Questionnaires don't change during a session, so it responds that
-nothing has changed: a Parameters resource with only an informational 'outcome'.
+nothing has changed: a Parameters resource with only an informational 'outcome'. Groups
+that return only one package, such as 2.1 and 2.2, return an error for any later
+request, including one with `changedsince`.
 
 ### `Questionnaire/$next-question`
 

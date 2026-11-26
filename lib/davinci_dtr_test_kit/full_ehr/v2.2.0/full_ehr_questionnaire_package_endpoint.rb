@@ -81,11 +81,11 @@ module DaVinciDTRTestKit
           operation_outcome('error', 'invalid', 'Request body must be a FHIR Parameters resource.')
         elsif response_template.is_a?(FHIR::OperationOutcome)
           response_template
-        elsif report_unchanged_since?
-          unchanged_since_response
         elsif single_use_limit_exceeded?
           operation_outcome('error', 'business-rule',
                             '$questionnaire-package is configured to respond successfully only once.')
+        elsif report_unchanged_since?
+          unchanged_since_response
         else
           instantiate_template
         end

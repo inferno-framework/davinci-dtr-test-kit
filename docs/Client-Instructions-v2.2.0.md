@@ -83,6 +83,10 @@ Inferno displays two "User Action Required" dialogs:
    which gets question 3, answer question 3, and save the completed
    QuestionnaireResponse.
 
+In each dialog, testers attest whether they completed the step as described. Attesting
+false fails that test, and Inferno still checks the requests made. If testers attest
+false in the first dialog, there is nothing to resume, so Inferno skips the second.
+
 Inferno then asks testers to confirm the same points as in groups 2.1 and 2.2.
 
 From the $next-question requests, Inferno checks that question 1 was answered before
